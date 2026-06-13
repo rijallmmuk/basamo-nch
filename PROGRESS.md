@@ -9,21 +9,18 @@
 ## Status proyek saat ini
 
 **Fase**: MVP — LMS, panel /admin
-**Milestone aktif**: Milestone 2 — LMS (ModuleResource selesai, lanjut ModulePage)
-**Progres keseluruhan**: ~50%
+**Milestone aktif**: Milestone 2 — LMS (ModuleResource + Pages selesai, lanjut Quiz)
+**Progres keseluruhan**: ~55%
 
 ---
 
 ## Sesi terakhir (2026-06-13)
 
-**Dikerjakan**: ModuleResource Filament v5
+**Dikerjakan**: Fix Shield + PagesRelationManager
 **Selesai**:
-- [x] `ModuleResource` dengan navigation group 'LMS'
-- [x] `ModuleForm`: title (auto-slug), nagari select, status, prerequisite, order, thumbnail upload, RichEditor
-- [x] `ModulesTable`: badge status berwarna, nagari badge (fallback Global), filter status/nagari/trashed
-- [x] Eager load `nagari` + `creator` di `getEloquentQuery()`
-- [x] Filament v5 pattern: `Schema $schema`, method `getNavigationGroup()` (bukan property karena type conflict)
-- [x] Commit + push
+- [x] Fix menu LMS tidak muncul: `define_via_gate=true`, hapus ModulePolicy yang salah, regenerate Shield (24 permissions), assign ke super_admin
+- [x] `PagesRelationManager` — form conditional by type (text/video/pdf), drag & drop reorder, badge tipe berwarna
+- [x] Commit + push semua perubahan
 
 **Blocker**: Tidak ada
 
@@ -31,27 +28,26 @@
 
 ## Mulai dari sini di sesi berikutnya
 
-**Milestone 2.1 lanjutan — ModulePages (RelationManager)**
-1. Buat `ModulePagesRelationManager` di dalam ModuleResource
-   - `php artisan make:filament-relation-manager ModuleResource pages title`
-   - Form: title, type (select: text/pdf/video), content (RichEditor jika text), video_url (jika video), file_path upload (jika pdf), order
-   - Table: title, type badge, order — sortable
-
 **Milestone 2.2 — QuizResource**
-2. Buat `QuizResource` + `QuizQuestionsRelationManager`
-   - Soal multiple choice + essay
-   - Options sebagai nested RelationManager
+1. `php artisan make:filament-resource Quiz --generate`
+2. Form Quiz: title, passing_score, max_attempts (terkait module via RelationManager di ModuleResource)
+3. `QuizQuestionsRelationManager` di QuizResource:
+   - Form: question (text), type (multiple_choice/essay), points, order
+   - Sub-RelationManager: QuizOptions di dalam QuizQuestion (nested, atau gunakan Repeater)
+4. Pertimbangkan: opsi jawaban (quiz_options) lebih baik pakai **Repeater** di dalam form soal (bukan nested relation manager) — tanyakan ke user
 
-**Setelah itu:**
-- Milestone 2.3 (Portal warga custom Blade) dimulai saat data LMS sudah bisa diinput
+**Setelah Quiz:**
+- Milestone 2.3: Portal warga (auth login + daftar modul)
 
 ---
 
-## Strategi & keputusan aktif
+## Keputusan aktif & pola Filament v5
 
-- Filament v5: `Schema $schema` (bukan Form/Infolist); `getNavigationGroup()` method (bukan property ?string)
-- Thumbnail modul: saat ini FileUpload biasa ke `public/modules/thumbnails` — upgrade ke SpatieMedia nanti
-- Auto-slug: `HasSlug` di model + `afterStateUpdated` di form untuk live preview
-- `getEloquentQuery()` di Resource — tempat untuk eager load & scope nagari (nanti)
+- `Schema $schema` (bukan Form/Infolist v3)
+- `getNavigationGroup()` method (bukan property `?string` — type conflict di PHP 8.4)
+- `define_via_gate = true` di filament-shield.php — super_admin bypass Gate::before()
+- ModulePolicy: dikelola Shield (`$authUser->can('ViewAny:Module')`)
+- Setiap Resource baru: jalankan `shield:generate --all --panel=admin` + assign ke super_admin
+- Thumbnail modul: FileUpload biasa ke `public/modules/thumbnails` (SpatieMedia nanti)
 - Super admin: `admin@basamo.nch` / `password`
 - Admin nagari: `admin.nagari@basamo.nch` / `password`

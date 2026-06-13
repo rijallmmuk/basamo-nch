@@ -58,9 +58,9 @@
 
 ### 2.1 Manajemen Modul (Admin — Filament)
 - [x] FilamentResource: `ModuleResource` (CRUD modul global & lokal)
-- [ ] RelationManager: `ModulePagesRelationManager` (halaman per modul: teks, PDF, video embed)
-- [ ] Integrasi RichEditor bawaan Filament untuk konten halaman (teks)
-- [ ] Field URL terpisah untuk embed video YouTube/Google Drive
+- [x] RelationManager: `PagesRelationManager` (halaman per modul: teks, PDF, video embed)
+- [x] Integrasi RichEditor bawaan Filament untuk konten halaman (teks)
+- [x] Field URL terpisah untuk embed video YouTube/Google Drive
 - [x] Field prerequisite_module pada form modul
 - [ ] Upload thumbnail modul via Spatie Media Library (saat ini FileUpload biasa)
 - [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
