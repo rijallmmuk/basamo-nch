@@ -17,7 +17,7 @@
 - [x] Install dependency: Shield, Permission, Media Library, Sluggable, ActivityLog, ApexCharts (BLOK 2-5)
 - [x] Install dev tools: Pint, Pest (BLOK 6)
 - [x] Konfigurasi .env database + buat database basamo_nch (BLOK 7)
-- [ ] Init Git repository + push ke GitHub
+- [x] Init Git repository + push ke GitHub (git@github.com:rijallmmuk/basamo-nch.git)
 - [ ] Setup Laravel Pint untuk code formatting
 
 ### 1.2 Auth & RBAC (panel admin dulu)
