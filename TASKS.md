@@ -57,13 +57,13 @@
 > Lalu 2.3 (portal warga CUSTOM Blade, bukan panel Filament) untuk sisi belajar.
 
 ### 2.1 Manajemen Modul (Admin — Filament)
-- [ ] FilamentResource: `ModuleResource` (CRUD modul global & lokal)
-- [ ] FilamentResource: `ModulePageResource` (halaman per modul: teks, PDF, video embed)
+- [x] FilamentResource: `ModuleResource` (CRUD modul global & lokal)
+- [ ] RelationManager: `ModulePagesRelationManager` (halaman per modul: teks, PDF, video embed)
 - [ ] Integrasi RichEditor bawaan Filament untuk konten halaman (teks)
 - [ ] Field URL terpisah untuk embed video YouTube/Google Drive
-- [ ] Field prerequisite_module pada form modul
-- [ ] Upload thumbnail modul via Spatie Media Library
-- [ ] Distribusi modul: toggle global vs lokal per nagari
+- [x] Field prerequisite_module pada form modul
+- [ ] Upload thumbnail modul via Spatie Media Library (saat ini FileUpload biasa)
+- [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
 
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
 - [ ] FilamentResource: `QuizResource` (buat kuis per modul)

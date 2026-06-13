@@ -8,23 +8,22 @@
 
 ## Status proyek saat ini
 
-**Fase**: MVP — fokus LMS dulu, panel /admin dulu
-**Milestone aktif**: Milestone 1 selesai → Milestone 2 (LMS — ModuleResource Filament)
-**Progres keseluruhan**: ~40% (fondasi + DB + models selesai semua)
+**Fase**: MVP — LMS, panel /admin
+**Milestone aktif**: Milestone 2 — LMS (ModuleResource selesai, lanjut ModulePage)
+**Progres keseluruhan**: ~50%
 
 ---
 
 ## Sesi terakhir (2026-06-13)
 
-**Dikerjakan**: Milestone 1.3 — semua migration + model + policy + seeder LMS
+**Dikerjakan**: ModuleResource Filament v5
 **Selesai**:
-- [x] Migration: nagaris, users FK, modules, module_pages, quizzes, quiz_questions, quiz_options, quiz_attempts, quiz_answers, user_module_progress, discussions
-- [x] Eloquent Models dengan relasi lengkap untuk semua tabel LMS
-- [x] User model ditambah relasi: nagari, moduleProgress, quizAttempts, discussions
-- [x] ModulePolicy + QuizPolicy (scaffolded)
-- [x] Seeder: NagariSeeder (NCH-001) + UserSeeder (super_admin + nagari_admin)
-- [x] 4 role terdefinisi: super_admin, nagari_admin, warga, umkm_owner
-- [x] Semua commit + push ke GitHub
+- [x] `ModuleResource` dengan navigation group 'LMS'
+- [x] `ModuleForm`: title (auto-slug), nagari select, status, prerequisite, order, thumbnail upload, RichEditor
+- [x] `ModulesTable`: badge status berwarna, nagari badge (fallback Global), filter status/nagari/trashed
+- [x] Eager load `nagari` + `creator` di `getEloquentQuery()`
+- [x] Filament v5 pattern: `Schema $schema`, method `getNavigationGroup()` (bukan property karena type conflict)
+- [x] Commit + push
 
 **Blocker**: Tidak ada
 
@@ -32,33 +31,27 @@
 
 ## Mulai dari sini di sesi berikutnya
 
-**Milestone 2.1 — ModuleResource (Admin Filament)**
-1. Buat `ModuleResource` dengan `php artisan make:filament-resource Module --generate`
-2. Sesuaikan form: title, slug (auto), description (RichEditor), thumbnail (SpatieMediaLibrary), status, nagari_id, prerequisite_module_id, order
-3. Buat `ModulePageResource` atau gunakan RelationManager di dalam ModuleResource
-4. Test CRUD modul di /admin
+**Milestone 2.1 lanjutan — ModulePages (RelationManager)**
+1. Buat `ModulePagesRelationManager` di dalam ModuleResource
+   - `php artisan make:filament-relation-manager ModuleResource pages title`
+   - Form: title, type (select: text/pdf/video), content (RichEditor jika text), video_url (jika video), file_path upload (jika pdf), order
+   - Table: title, type badge, order — sortable
 
-**Urutan setelah itu:**
-- ModulePageResource (RelationManager di ModuleResource)
-- QuizResource + QuizQuestion sebagai RelationManager
-- Baru portal warga (Milestone 2.3)
+**Milestone 2.2 — QuizResource**
+2. Buat `QuizResource` + `QuizQuestionsRelationManager`
+   - Soal multiple choice + essay
+   - Options sebagai nested RelationManager
+
+**Setelah itu:**
+- Milestone 2.3 (Portal warga custom Blade) dimulai saat data LMS sudah bisa diinput
 
 ---
 
-## Strategi yang disepakati
+## Strategi & keputusan aktif
 
-- 3 lapisan: Frontend Publik / Portal Warga (Blade+Livewire) / Panel Admin (Filament)
-- Fokus LMS & /admin dulu — portal warga menyusul setelah data LMS ada
-- Schema: `Schema $schema` (bukan `Form`/`Infolist` ala Filament v3)
-- Editor modul: RichEditor bawaan Filament (BUKAN Tiptap)
+- Filament v5: `Schema $schema` (bukan Form/Infolist); `getNavigationGroup()` method (bukan property ?string)
+- Thumbnail modul: saat ini FileUpload biasa ke `public/modules/thumbnails` — upgrade ke SpatieMedia nanti
+- Auto-slug: `HasSlug` di model + `afterStateUpdated` di form untuk live preview
+- `getEloquentQuery()` di Resource — tempat untuk eager load & scope nagari (nanti)
 - Super admin: `admin@basamo.nch` / `password`
 - Admin nagari: `admin.nagari@basamo.nch` / `password`
-
----
-
-## Keputusan aktif
-
-- activitylog v4.12 (v5 butuh PHP ^8.4)
-- Module slug: auto via spatie/laravel-sluggable (HasSlug trait sudah di Module model)
-- nagari_id FK di users: nullOnDelete (super_admin boleh tanpa nagari)
-- Seeder idempoten: pakai firstOrCreate (aman di-run ulang)
