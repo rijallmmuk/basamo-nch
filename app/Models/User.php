@@ -8,6 +8,8 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -32,5 +34,25 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'total_points' => 'integer',
         ];
+    }
+
+    public function nagari(): BelongsTo
+    {
+        return $this->belongsTo(Nagari::class);
+    }
+
+    public function moduleProgress(): HasMany
+    {
+        return $this->hasMany(UserModuleProgress::class);
+    }
+
+    public function quizAttempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(Discussion::class);
     }
 }
