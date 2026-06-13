@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Modules;
 use App\Filament\Resources\Modules\Pages\CreateModule;
 use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Filament\Resources\Modules\Pages\ListModules;
+use App\Filament\Resources\Modules\RelationManagers\PagesRelationManager;
 use App\Filament\Resources\Modules\Schemas\ModuleForm;
 use App\Filament\Resources\Modules\Tables\ModulesTable;
 use App\Models\Module;
@@ -60,7 +61,9 @@ class ModuleResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            PagesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
