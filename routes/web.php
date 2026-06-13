@@ -1,7 +1,33 @@
 <?php
 
+use App\Http\Controllers\Portal\AuthController;
+use App\Http\Controllers\Portal\ModuleController;
+use App\Http\Controllers\Portal\PageController;
+use App\Http\Controllers\Portal\QuizController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', fn () => redirect()->route('portal.login'));
+
+Route::prefix('portal')->name('portal.')->group(function () {
+    // Guest only
+    Route::middleware('guest')->group(function () {
+        Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+        Route::post('login', [AuthController::class, 'login']);
+        Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+        Route::post('register', [AuthController::class, 'register']);
+    });
+
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Protected (warga & umkm_owner only)
+    Route::middleware('portal')->group(function () {
+        Route::get('/', fn () => redirect()->route('portal.modules.index'))->name('home');
+
+        Route::prefix('modules')->name('modules.')->group(function () {
+            Route::get('/', [ModuleController::class, 'index'])->name('index');
+            Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');
+            Route::get('{module:slug}/pages/{page}', [PageController::class, 'show'])->name('pages.show');
+            Route::get('{module:slug}/quiz', [QuizController::class, 'show'])->name('quiz');
+        });
+    });
 });
