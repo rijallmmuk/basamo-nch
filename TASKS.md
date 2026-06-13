@@ -68,8 +68,8 @@
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
 - [x] FilamentResource: `QuizResource` (buat kuis per modul)
 - [x] Form builder untuk soal pilihan ganda + essay (Repeater opsi, conditional by type)
-- [ ] Antrian penilaian essay untuk Admin Nagari
-- [ ] Fitur beri nilai + feedback untuk jawaban essay
+- [x] Antrian penilaian essay untuk Admin Nagari (QuizAttemptResource, filter pending_review)
+- [x] Fitur beri nilai + feedback untuk jawaban essay (AnswersRelationManager + LmsEssayGradingService)
 
 ### 2.3 Portal Belajar Warga (CUSTOM Blade + Livewire — LAPISAN 2)
 > Bukan panel Filament. Controller + Blade + Livewire. Auth Laravel standar.

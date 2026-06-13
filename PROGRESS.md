@@ -9,19 +9,22 @@
 ## Status proyek saat ini
 
 **Fase**: MVP — LMS, panel /admin
-**Milestone aktif**: Milestone 2 — LMS (ModuleResource + QuizResource selesai)
-**Progres keseluruhan**: ~65%
+**Milestone aktif**: Milestone 2.3 — Portal Warga (Blade + Livewire)
+**Progres keseluruhan**: ~70%
 
 ---
 
 ## Sesi terakhir (2026-06-13)
 
-**Dikerjakan**: QuizResource lengkap (Milestone 2.2 sebagian)
+**Dikerjakan**: Milestone 2.2 selesai penuh
 **Selesai**:
-- [x] `QuizResource` — form (module_id, title, passing_score, max_attempts), table dengan questions_count badge
-- [x] `QuestionsRelationManager` — form soal dengan Repeater opsi pilihan ganda (conditional visible type=multiple_choice), reorderable table
-- [x] Shield generate ulang → 36 permissions, semua di-assign ke super_admin
-- [x] Commit + push ke GitHub (f30d3a0)
+- [x] `QuizAttemptResource` — list ujian, filter default pending_review, buka halaman review
+- [x] `ReviewQuizAttempt` — halaman review (EditRecord read-only, tanpa tombol Save)
+- [x] `AnswersRelationManager` — tabel jawaban peserta, EditAction hanya untuk essay
+- [x] `LmsEssayGradingService` — hitung skor akhir (MC + essay), update attempt status
+- [x] Tombol "Selesai Review" di header — validasi essay belum dinilai + finalize
+- [x] Shield: 48 permissions, semua di-assign ke super_admin
+- [x] Commit + push ke GitHub (003edb0)
 
 **Blocker**: Tidak ada
 
@@ -29,17 +32,15 @@
 
 ## Mulai dari sini di sesi berikutnya
 
-**Milestone 2.2 sisa — Essay grading:**
-- [ ] Antrian penilaian essay untuk Admin Nagari (tampilan daftar attempt status `pending_review`)
-- [ ] Form beri nilai + feedback untuk jawaban essay
-
-**Milestone 2.3 — Portal warga (LAPISAN 2, CUSTOM Blade):**
-1. Setup auth Laravel untuk warga: route login/register, middleware `role` cek warga/umkm_owner
+**Milestone 2.3 — Portal Warga (LAPISAN 2, CUSTOM Blade + Livewire):**
+> Bukan panel Filament. Controller + Blade + Livewire. Auth Laravel standar.
+1. Setup auth warga: route login/register, session, middleware `role` cek warga/umkm_owner
 2. Layout portal Blade (header, nav, mobile-first Tailwind)
-3. Controller + halaman daftar modul dengan status (terkunci/tersedia/selesai)
-4. Halaman detail modul + navigasi halaman per halaman
-5. Tampil materi: teks (HTML), PDF embed, video embed
-6. Livewire QuizPlayer: pilihan ganda auto-grade + essay submit
+3. Controller + halaman daftar modul dengan status (terkunci/tersedia/selesai per user)
+4. Halaman detail modul + navigasi halaman per halaman + update UserModuleProgress
+5. Tampil materi: teks (HTML render), PDF embed, video YouTube/GDrive embed
+6. Livewire QuizPlayer: pilihan ganda auto-grade
+7. Livewire QuizPlayer: essay submit → create QuizAttempt + QuizAnswer pending_review
 
 ---
 
@@ -49,6 +50,6 @@
 - `getNavigationGroup()` method (bukan property `?string` — type conflict di PHP 8.4)
 - `define_via_gate = true` di filament-shield.php — super_admin bypass Gate::before()
 - Setiap Resource baru: jalankan `shield:generate --all --panel=admin` + assign ke super_admin
-- Thumbnail modul: FileUpload biasa ke `public/modules/thumbnails` (SpatieMedia nanti)
 - Super admin: `admin@basamo.nch` / `password`
 - Admin nagari: `admin.nagari@basamo.nch` / `password`
+- `LmsEssayGradingService::finalize()` — logic kalkulasi nilai akhir ujian
