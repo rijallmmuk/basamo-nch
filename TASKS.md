@@ -24,24 +24,24 @@
 - [x] Tambah trait HasRoles (Spatie) + implements FilamentUser ke model User
 - [x] Tambah kolom `role` & `nagari_id` di migration users
 - [x] Implementasi `canAccessPanel()` — tahap ini izinkan super_admin & nagari_admin
-- [ ] Definisikan 4 role: `super_admin`, `nagari_admin`, `warga`, `umkm_owner`
+- [x] Definisikan 4 role: `super_admin`, `nagari_admin`, `warga`, `umkm_owner`
 - [x] Setup Filament Shield + generate permission (BLOK 8, 11)
 - [x] Buat super admin pertama: admin@basamo.nch / password
 - [x] Test login super admin ke /admin (/admin/login → HTTP 200 ✓)
 
 ### 1.3 Model & Migration — JALUR LMS DULU
 > Hanya tabel yang dibutuhkan LMS. Tabel SDGs/UMKM/IoT dibuat saat fitur itu dikerjakan.
-- [ ] Migration: `nagaris`
-- [ ] Migration: `users` (kolom `nagari_id`, `role`, `total_points`)
-- [ ] Migration: `modules`
-- [ ] Migration: `module_pages`
-- [ ] Migration: `quizzes` + `quiz_questions` + `quiz_options`
-- [ ] Migration: `quiz_attempts` + `quiz_answers`
-- [ ] Migration: `user_module_progress`
-- [ ] Migration: `discussions`
-- [ ] Buat Eloquent Model + relasi untuk semua tabel LMS di atas
-- [ ] Buat Policy: ModulePolicy, QuizPolicy
-- [ ] Seeder: 1 nagari dummy + 1 super admin + 1 nagari admin
+- [x] Migration: `nagaris`
+- [x] Migration: `users` (kolom `nagari_id`, `role`, `total_points`) + FK ke nagaris
+- [x] Migration: `modules`
+- [x] Migration: `module_pages`
+- [x] Migration: `quizzes` + `quiz_questions` + `quiz_options`
+- [x] Migration: `quiz_attempts` + `quiz_answers`
+- [x] Migration: `user_module_progress`
+- [x] Migration: `discussions`
+- [x] Buat Eloquent Model + relasi untuk semua tabel LMS di atas
+- [x] Buat Policy: ModulePolicy, QuizPolicy (scaffolded)
+- [x] Seeder: 1 nagari dummy (NCH-001) + super admin + nagari admin
 
 ### 1.4 Tabel fitur lain (DITUNDA — kerjakan saat fiturnya dimulai)
 - [ ] (nanti) Migration SDGs: `sdgs_activities`, `sdgs_documents`

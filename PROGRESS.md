@@ -9,29 +9,22 @@
 ## Status proyek saat ini
 
 **Fase**: MVP — fokus LMS dulu, panel /admin dulu
-**Milestone aktif**: Milestone 1 — Setup & Fondasi
-**Progres keseluruhan**: ~25% (fondasi install selesai, panel /admin bisa diakses)
+**Milestone aktif**: Milestone 1 selesai → Milestone 2 (LMS — ModuleResource Filament)
+**Progres keseluruhan**: ~40% (fondasi + DB + models selesai semua)
 
 ---
 
 ## Sesi terakhir (2026-06-13)
 
-**Dikerjakan**: Eksekusi INSTALL_COMMANDS.md BLOK 1–12 penuh dari nol
+**Dikerjakan**: Milestone 1.3 — semua migration + model + policy + seeder LMS
 **Selesai**:
-- [x] Filament v5.6.7 + panel `/admin` terpasang
-- [x] Shield v4.2, Spatie Permission v7.4, Media Library v11.23, Sluggable v4.0, ActivityLog v4.12, ApexCharts v5.1, Pint, Pest
-- [x] Database `basamo_nch` dibuat, `.env` sudah benar
-- [x] Migration dijalankan (users + cache + jobs + media + permission + activitylog)
-- [x] Model `User` diupdate: `HasRoles`, `FilamentUser`, `canAccessPanel()`, `SoftDeletes`, fillable lengkap
-- [x] Kolom `role`, `nagari_id`, `avatar`, `total_points`, `status`, `deleted_at` di tabel users
-- [x] Shield di-install ke panel admin, permissions di-generate (12 permission)
-- [x] Super admin dibuat: `admin@basamo.nch` / `password`
-- [x] `/admin/login` → HTTP 200 ✓ (panel bisa diakses)
-
-**Belum selesai**:
-- Init Git + push GitHub
-- Definisikan 4 role formal (sekarang baru super_admin via Shield)
-- Migration LMS: nagaris, modules, module_pages, quizzes, dll (Milestone 1.3)
+- [x] Migration: nagaris, users FK, modules, module_pages, quizzes, quiz_questions, quiz_options, quiz_attempts, quiz_answers, user_module_progress, discussions
+- [x] Eloquent Models dengan relasi lengkap untuk semua tabel LMS
+- [x] User model ditambah relasi: nagari, moduleProgress, quizAttempts, discussions
+- [x] ModulePolicy + QuizPolicy (scaffolded)
+- [x] Seeder: NagariSeeder (NCH-001) + UserSeeder (super_admin + nagari_admin)
+- [x] 4 role terdefinisi: super_admin, nagari_admin, warga, umkm_owner
+- [x] Semua commit + push ke GitHub
 
 **Blocker**: Tidak ada
 
@@ -39,32 +32,33 @@
 
 ## Mulai dari sini di sesi berikutnya
 
-1. Init Git repository (`git init`, buat `.gitignore` yang benar, push ke GitHub)
-2. Kerjakan Milestone 1.3 — buat migration & model untuk semua tabel LMS:
-   - `nagaris` → `users` (tambah FK nagari_id) → `modules` → `module_pages`
-   - `quizzes` → `quiz_questions` → `quiz_options`
-   - `quiz_attempts` → `quiz_answers` → `user_module_progress` → `discussions`
-3. Buat Seeder: 1 nagari dummy + super admin + 1 nagari admin
-4. Buat Filament Resource pertama: `ModuleResource` (Milestone 2.1)
+**Milestone 2.1 — ModuleResource (Admin Filament)**
+1. Buat `ModuleResource` dengan `php artisan make:filament-resource Module --generate`
+2. Sesuaikan form: title, slug (auto), description (RichEditor), thumbnail (SpatieMediaLibrary), status, nagari_id, prerequisite_module_id, order
+3. Buat `ModulePageResource` atau gunakan RelationManager di dalam ModuleResource
+4. Test CRUD modul di /admin
+
+**Urutan setelah itu:**
+- ModulePageResource (RelationManager di ModuleResource)
+- QuizResource + QuizQuestion sebagai RelationManager
+- Baru portal warga (Milestone 2.3)
 
 ---
 
-## Strategi yang disepakati — ARSITEKTUR 3 LAPISAN
+## Strategi yang disepakati
 
-- **3 lapisan, satu Laravel, satu MySQL:**
-  1. Frontend Publik (Blade) — home + katalog UMKM, tanpa login
-  2. Portal Warga LMS (Blade + Livewire) — belajar/kuis, BUKAN Filament
-  3. Panel Admin (Filament /admin) — super_admin & nagari_admin
-- **Fokus LMS dulu**, **panel /admin dulu** — bangun CRUD modul/materi/kuis.
-- Portal warga & frontend publik dibangun SETELAH fondasi data LMS jadi.
-
----
-
-## Keputusan aktif yang perlu diingat
-
-- Super admin: `admin@basamo.nch` / `password` (ubah sebelum deploy)
-- TANPA Jetstream — auth Filament bawaan, 1 model User, pisah via canAccessPanel()
+- 3 lapisan: Frontend Publik / Portal Warga (Blade+Livewire) / Panel Admin (Filament)
+- Fokus LMS & /admin dulu — portal warga menyusul setelah data LMS ada
+- Schema: `Schema $schema` (bukan `Form`/`Infolist` ala Filament v3)
 - Editor modul: RichEditor bawaan Filament (BUKAN Tiptap)
-- activitylog terpasang v4.12 (v5 butuh PHP ^8.4, platform belum match)
-- Tailwind: bawaan Filament untuk admin; custom Blade+Tailwind untuk portal & publik
-- Icon: Heroicons saja — Storage MVP: local disk
+- Super admin: `admin@basamo.nch` / `password`
+- Admin nagari: `admin.nagari@basamo.nch` / `password`
+
+---
+
+## Keputusan aktif
+
+- activitylog v4.12 (v5 butuh PHP ^8.4)
+- Module slug: auto via spatie/laravel-sluggable (HasSlug trait sudah di Module model)
+- nagari_id FK di users: nullOnDelete (super_admin boleh tanpa nagari)
+- Seeder idempoten: pakai firstOrCreate (aman di-run ulang)
