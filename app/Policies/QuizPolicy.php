@@ -1,66 +1,74 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Quiz;
-use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class QuizPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(AuthUser $authUser): bool
     {
-        return false;
+        return $authUser->can('ViewAny:Quiz');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Quiz $quiz): bool
+    public function view(AuthUser $authUser, Quiz $quiz): bool
     {
-        return false;
+        return $authUser->can('View:Quiz');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return false;
+        return $authUser->can('Create:Quiz');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Quiz $quiz): bool
+    public function update(AuthUser $authUser, Quiz $quiz): bool
     {
-        return false;
+        return $authUser->can('Update:Quiz');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Quiz $quiz): bool
+    public function delete(AuthUser $authUser, Quiz $quiz): bool
     {
-        return false;
+        return $authUser->can('Delete:Quiz');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Quiz $quiz): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return false;
+        return $authUser->can('DeleteAny:Quiz');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Quiz $quiz): bool
+    public function restore(AuthUser $authUser, Quiz $quiz): bool
     {
-        return false;
+        return $authUser->can('Restore:Quiz');
+    }
+
+    public function forceDelete(AuthUser $authUser, Quiz $quiz): bool
+    {
+        return $authUser->can('ForceDelete:Quiz');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Quiz');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Quiz');
+    }
+
+    public function replicate(AuthUser $authUser, Quiz $quiz): bool
+    {
+        return $authUser->can('Replicate:Quiz');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Quiz');
     }
 }
