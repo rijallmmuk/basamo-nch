@@ -66,8 +66,8 @@
 - [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
 
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
-- [ ] FilamentResource: `QuizResource` (buat kuis per modul)
-- [ ] Form builder untuk soal pilihan ganda + essay
+- [x] FilamentResource: `QuizResource` (buat kuis per modul)
+- [x] Form builder untuk soal pilihan ganda + essay (Repeater opsi, conditional by type)
 - [ ] Antrian penilaian essay untuk Admin Nagari
 - [ ] Fitur beri nilai + feedback untuk jawaban essay
 
