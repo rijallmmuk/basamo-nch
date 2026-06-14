@@ -3,12 +3,10 @@
 @section('title', 'Diskusi — ' . $module->title)
 
 @section('content')
-    {{-- Back --}}
-    <a href="{{ route('portal.modules.show', $module) }}"
-        class="mb-5 inline-flex items-center gap-2 text-base font-medium text-gray-500 hover:text-indigo-600 transition-colors">
-        <x-heroicon-o-arrow-left class="h-5 w-5" />
-        Kembali ke Modul
-    </a>
+    <x-portal.breadcrumb :items="[
+        ['label' => $module->title, 'url' => route('portal.modules.show', $module)],
+        ['label' => 'Diskusi'],
+    ]" />
 
     {{-- Header --}}
     <div class="mb-5">

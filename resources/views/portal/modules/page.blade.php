@@ -12,7 +12,7 @@
 
 {{-- Reader nav menggantikan bottom nav mobile --}}
 @section('bottom-navigation')
-<div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+<div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] lg:left-64">
     <div class="h-1 bg-gray-100">
         <div class="h-full bg-indigo-500 transition-all" style="width: {{ $pct }}%"></div>
     </div>
@@ -60,11 +60,19 @@
 
 @section('content')
     {{-- Breadcrumb --}}
-    <nav class="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-gray-400">
-        <a href="{{ route('portal.modules.show', $module) }}" class="max-w-[180px] truncate transition-colors hover:text-indigo-600">{{ $module->title }}</a>
-        <x-heroicon-o-chevron-right class="h-3.5 w-3.5" />
-        <span class="max-w-[180px] truncate font-medium text-gray-700">{{ $page->title }}</span>
-    </nav>
+    <x-portal.breadcrumb :items="[
+        ['label' => $module->title, 'url' => route('portal.modules.show', $module)],
+        ['label' => $page->title],
+    ]" />
+
+    @if($c = session('celebrate'))
+        <script>
+            window.addEventListener('load', () => {
+                window.fireConfetti?.();
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'xp', title: @json($c['title']), message: @json($c['message']) } }));
+            });
+        </script>
+    @endif
 
     <div class="grid gap-5 lg:grid-cols-3">
 

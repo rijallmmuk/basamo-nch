@@ -11,12 +11,10 @@
 @endphp
 
 @section('content')
-    {{-- Back --}}
-    <a href="{{ route('portal.modules.index') }}"
-        class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-indigo-600">
-        <x-heroicon-o-arrow-left class="h-4 w-4" />
-        Semua Modul
-    </a>
+    <x-portal.breadcrumb :items="[
+        ['label' => 'Modul', 'url' => route('portal.modules.index')],
+        ['label' => $module->title],
+    ]" />
 
     <div class="grid gap-5 lg:grid-cols-3">
 
