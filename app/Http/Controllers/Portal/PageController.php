@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\ModulePage;
+use App\Services\LmsPointService;
 use App\Services\LmsProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -38,8 +39,16 @@ class PageController extends Controller
         $prevPage = $currentIndex > 0 ? $pages[$currentIndex - 1] : null;
         $nextPage = $currentIndex < $pages->count() - 1 ? $pages[$currentIndex + 1] : null;
 
-        // Mark page as completed on load
+        // Tandai halaman selesai saat dibuka; rayakan bila modul baru saja tuntas.
+        $wasCompleted = $this->progressService->isModuleCompleted($user, $module);
         $this->progressService->markPageCompleted($user, $module, $page);
+
+        if (! $wasCompleted && $this->progressService->isModuleCompleted($user, $module)) {
+            session()->flash('celebrate', [
+                'title' => 'Modul Selesai! 🎉',
+                'message' => '+'.LmsPointService::MODULE_XP.' XP ditambahkan.',
+            ]);
+        }
 
         $progress = $this->progressService->getProgress($user, $module);
         $pagesCompleted = $progress?->pages_completed ?? [];

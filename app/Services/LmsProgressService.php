@@ -9,6 +9,8 @@ use App\Models\UserModuleProgress;
 
 class LmsProgressService
 {
+    public function __construct(private readonly LmsPointService $pointService) {}
+
     public function isModuleAccessible(User $user, Module $module): bool
     {
         if (! $module->prerequisite_module_id) {
@@ -72,7 +74,11 @@ class LmsProgressService
             'pages_completed' => $pagesCompleted,
             'status' => $isAllDone ? 'completed' : 'in_progress',
             'completed_at' => $isAllDone ? now() : null,
-            'points_earned' => $isAllDone ? 10 : $progress->points_earned,
         ]);
+
+        // XP modul selesai (idempotent — hanya sekali per modul).
+        if ($isAllDone) {
+            $this->pointService->awardModuleCompletion($user, $module);
+        }
     }
 }

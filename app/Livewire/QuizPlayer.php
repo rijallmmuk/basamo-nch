@@ -7,6 +7,7 @@ use App\Models\Quiz;
 use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
 use App\Notifications\QuizCompleted;
+use App\Services\LmsPointService;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -95,6 +96,13 @@ class QuizPlayer extends Component
         $this->resultStatus = $passed ? 'passed' : 'failed';
         $this->resultScore = $percentage;
         $this->submitted = true;
+
+        if ($passed) {
+            app(LmsPointService::class)->awardQuizPass(auth()->user(), $this->quiz);
+
+            $this->dispatch('confetti');
+            $this->dispatch('toast', type: 'xp', title: '+'.LmsPointService::QUIZ_XP.' XP', message: 'Selamat, kamu lulus kuis!');
+        }
 
         auth()->user()->notify(new QuizCompleted($this->quiz, $percentage, $passed));
     }

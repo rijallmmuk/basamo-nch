@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Module;
+use App\Models\User;
 use App\Services\LmsProgressService;
 use Illuminate\View\View;
 
@@ -23,6 +24,7 @@ class HomeController extends Controller
             ->with(['progress' => fn ($q) => $q->where('user_id', $user->id)])
             ->withCount('pages')
             ->orderBy('order')
+            ->orderBy('id')
             ->get();
 
         $statusMap = $modules->mapWithKeys(
@@ -35,8 +37,29 @@ class HomeController extends Controller
             $priority = $priorityOrder[$statusMap[$m->id] ?? 'available'] ?? 4;
 
             return [$priority, $m->order];
-        })->take(3)->values();
+        })->take(4)->values();
 
-        return view('portal.home', compact('featured', 'statusMap', 'modules'));
+        // Progres keseluruhan (berbasis halaman materi yang selesai)
+        $totalPages = $modules->sum('pages_count');
+        $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->pages_completed ?? []));
+        $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
+
+        // Peringkat XP se-nagari (Top 5 + posisi user)
+        $wargaQuery = fn () => User::whereIn('role', ['warga', 'umkm_owner'])
+            ->where('nagari_id', $user->nagari_id);
+
+        $topUsers = $wargaQuery()
+            ->orderByDesc('total_points')
+            ->orderBy('name')
+            ->take(5)
+            ->get(['id', 'name', 'total_points']);
+
+        $myRank = $wargaQuery()->where('total_points', '>', $user->total_points)->count() + 1;
+        $totalWarga = $wargaQuery()->count();
+
+        return view('portal.home', compact(
+            'featured', 'statusMap', 'modules', 'overallPct',
+            'topUsers', 'myRank', 'totalWarga'
+        ));
     }
 }

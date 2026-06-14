@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Module;
 use App\Models\User;
+use App\Services\LmsPointService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DiscussionController extends Controller
 {
+    public function __construct(private readonly LmsPointService $pointService) {}
+
     /**
      * Daftar thread diskusi sebuah modul (hanya sesama nagari).
      */
@@ -66,6 +69,9 @@ class DiscussionController extends Controller
             'body' => $data['body'],
         ]);
 
+        // XP partisipasi diskusi (idempotent — sekali per modul, posting pertama).
+        $this->pointService->awardDiscussionParticipation($user, $module);
+
         return redirect()
             ->route('portal.modules.discuss.show', [$module, $thread])
             ->with('success', 'Pertanyaan kamu sudah dikirim.');
@@ -91,6 +97,9 @@ class DiscussionController extends Controller
             'parent_id' => $discussion->id,
             'body' => $data['body'],
         ]);
+
+        // XP partisipasi diskusi (idempotent — sekali per modul, posting pertama).
+        $this->pointService->awardDiscussionParticipation($user, $module);
 
         return redirect()
             ->route('portal.modules.discuss.show', [$module, $discussion])

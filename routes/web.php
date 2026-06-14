@@ -3,6 +3,7 @@
 use App\Http\Controllers\Portal\AuthController;
 use App\Http\Controllers\Portal\DiscussionController;
 use App\Http\Controllers\Portal\HomeController;
+use App\Http\Controllers\Portal\LeaderboardController;
 use App\Http\Controllers\Portal\ModuleController;
 use App\Http\Controllers\Portal\NotificationController;
 use App\Http\Controllers\Portal\PageController;
@@ -27,6 +28,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::get('leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('index');
