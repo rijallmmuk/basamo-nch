@@ -20,11 +20,21 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     public function canAccessPanel(Panel $panel): bool
     {
         return in_array($this->role, ['super_admin', 'nagari_admin']);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isNagariAdmin(): bool
+    {
+        return $this->role === 'nagari_admin';
     }
 
     protected function casts(): array

@@ -13,7 +13,9 @@
     @php
         $onHome = request()->routeIs('portal.home');
         $onModule = request()->routeIs('portal.modules.*');
+        $onLeaderboard = request()->routeIs('portal.leaderboard');
         $user = auth()->user();
+        $unreadCount = $user->unreadNotifications()->count();
     @endphp
 
     {{-- ── TOP NAVIGATION ──────────────────────────────────────────── --}}
@@ -41,7 +43,25 @@
                     class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors {{ $onModule ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                     Modul
                 </a>
+                <a href="{{ route('portal.leaderboard') }}"
+                    class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors {{ $onLeaderboard ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                    Peringkat
+                </a>
             </nav>
+
+            <div class="flex items-center gap-1.5">
+
+            {{-- Notifications bell --}}
+            <a href="{{ route('portal.notifications') }}"
+                class="relative flex h-10 w-10 items-center justify-center rounded-xl transition-colors {{ request()->routeIs('portal.notifications') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-100' }}"
+                aria-label="Notifikasi">
+                <x-dynamic-component :component="request()->routeIs('portal.notifications') ? 'heroicon-s-bell' : 'heroicon-o-bell'" class="h-6 w-6" />
+                @if($unreadCount > 0)
+                    <span class="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                    </span>
+                @endif
+            </a>
 
             {{-- User dropdown --}}
             <div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false" @click.outside="open = false">
@@ -83,6 +103,7 @@
                         </form>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </header>
@@ -134,6 +155,11 @@
                 class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onModule ? 'text-indigo-600' : 'text-gray-400' }}">
                 <x-dynamic-component :component="$onModule ? 'heroicon-s-book-open' : 'heroicon-o-book-open'" class="h-6 w-6" />
                 <span class="text-[10px] font-semibold">Modul</span>
+            </a>
+            <a href="{{ route('portal.leaderboard') }}"
+                class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onLeaderboard ? 'text-indigo-600' : 'text-gray-400' }}">
+                <x-dynamic-component :component="$onLeaderboard ? 'heroicon-s-trophy' : 'heroicon-o-trophy'" class="h-6 w-6" />
+                <span class="text-[10px] font-semibold">Peringkat</span>
             </a>
         </div>
     </nav>
