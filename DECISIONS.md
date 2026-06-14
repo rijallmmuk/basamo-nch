@@ -139,6 +139,11 @@
 **Keputusan**: `Module::getSlugOptions()->doNotGenerateSlugsOnUpdate()`. Slug dibuat sekali saat create; edit judul tidak mengubah slug.
 **Alasan**: URL stabil + menghapus inkonsistensi field slug readOnly (tampil lama tapi tersimpan baru). User OK dengan kedua perilaku; dipilih yang lebih bersih & tanpa downside.
 
+### [2026-06] Leaderboard DITIADAKAN (membatalkan rencana leaderboard & sistem poin)
+**Keputusan**: Fitur leaderboard dihapus seluruhnya (controller, halaman, slot bottom nav). Sistem poin (`LmsPointService`, `total_points`) ditunda tanpa target — tidak dikerjakan. Bottom nav kembali 2 item (Beranda, Modul). Membatalkan keputusan "Leaderboard dummy dulu" di atas.
+**Alasan**: Peringkat kompetitif **bias & kontraproduktif** untuk konteks warga nagari: (1) bias akses/kesempatan (HP, kuota, waktu, literasi) — mengukur privilese bukan belajar; (2) mudah digoreng (klik halaman / ulang kuis) → ukur volume bukan pemahaman; (3) demotivasi peserta peringkat bawah; (4) populasi kecil per nagari → rangking berisik; (5) misalignment dgn tujuan komunitas/SDGs (bukan kompetisi). Motivasi cukup dari **progres pribadi** yang sudah tampil di Beranda.
+**Ditolak**: Leaderboard dummy/nyata; gamifikasi kompetitif — risiko > manfaat di konteks ini. (Opsi non-kompetitif spt badge pribadi / progres kolektif nagari bisa dipertimbangkan nanti bila perlu.)
+
 ---
 
 ## Template untuk keputusan baru

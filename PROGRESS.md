@@ -14,7 +14,16 @@
 
 ---
 
-## Sesi terakhir (2026-06-14g) — Audit CRUD Quiz (super admin)
+## Sesi terakhir (2026-06-14h) — Leaderboard ditiadakan
+
+- Leaderboard dihapus total (controller, view, route, slot bottom nav) — bias & kontraproduktif utk warga nagari (lihat DECISIONS.md). Sistem poin tidak dikerjakan.
+- Bottom nav kembali 2 item (Beranda, Modul); lonceng notifikasi tetap.
+- Motivasi cukup via progres pribadi di Beranda.
+- Verifikasi: tak ada sisa referensi leaderboard, pint OK, view:cache OK, route gone.
+
+---
+
+## Sesi 2026-06-14g — Audit CRUD Quiz (super admin)
 
 - Cek menyeluruh: QuizForm, QuizzesTable, Create/EditQuiz, QuestionsRelationManager, cascade, model.
 - Fix: Repeater pilihan jawaban pakai `orderColumn('order')` (sebelumnya `reorderable()` tanpa orderColumn → drag tak tersimpan & order opsi tak ter-assign).

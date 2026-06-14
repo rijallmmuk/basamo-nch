@@ -13,7 +13,6 @@
     @php
         $onHome = request()->routeIs('portal.home');
         $onModule = request()->routeIs('portal.modules.*');
-        $onLeaderboard = request()->routeIs('portal.leaderboard');
         $user = auth()->user();
         $unreadCount = $user->unreadNotifications()->count();
     @endphp
@@ -42,10 +41,6 @@
                 <a href="{{ route('portal.modules.index') }}"
                     class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors {{ $onModule ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                     Modul
-                </a>
-                <a href="{{ route('portal.leaderboard') }}"
-                    class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors {{ $onLeaderboard ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
-                    Peringkat
                 </a>
             </nav>
 
@@ -155,11 +150,6 @@
                 class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onModule ? 'text-indigo-600' : 'text-gray-400' }}">
                 <x-dynamic-component :component="$onModule ? 'heroicon-s-book-open' : 'heroicon-o-book-open'" class="h-6 w-6" />
                 <span class="text-[10px] font-semibold">Modul</span>
-            </a>
-            <a href="{{ route('portal.leaderboard') }}"
-                class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onLeaderboard ? 'text-indigo-600' : 'text-gray-400' }}">
-                <x-dynamic-component :component="$onLeaderboard ? 'heroicon-s-trophy' : 'heroicon-o-trophy'" class="h-6 w-6" />
-                <span class="text-[10px] font-semibold">Peringkat</span>
             </a>
         </div>
     </nav>
