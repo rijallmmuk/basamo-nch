@@ -85,11 +85,11 @@
 - [x] UX quiz: progress "Soal X dari Y terjawab" + highlight live + scroll ke error
 - [x] Notifikasi in-app: modul baru + kuis baru (observer) + hasil kuis (QuizPlayer); lonceng + halaman notifikasi
 
-### 2.4 Sistem Poin & Leaderboard — DIBATALKAN
-> Leaderboard ditiadakan (bias & kontraproduktif untuk warga nagari). Sistem poin tidak dikerjakan. Lihat DECISIONS.md 2026-06. Motivasi via progres pribadi di Beranda.
-- [x] ~~LmsPointService~~ — DIBATALKAN
-- [x] ~~Update poin otomatis~~ — DIBATALKAN
-- [x] ~~Halaman leaderboard~~ — DIBATALKAN (controller/view/nav dihapus)
+### 2.4 Sistem XP & Leaderboard — SELESAI
+> Diadakan kembali sebagai XP berbasis pencapaian (lihat DECISIONS.md 2026-06). XP: modul +50, kuis +100, diskusi +20 (sekali per modul, idempotent via xp_logs).
+- [x] `LmsPointService` (award modul/kuis/diskusi, idempotent) + tabel `xp_logs`
+- [x] Update `total_points` otomatis: hook di LmsProgressService, QuizPlayer, DiscussionController
+- [x] Halaman leaderboard portal (per nagari, urut total_points) + panel Top 5 di dashboard
 
 ### 2.5 Forum Diskusi ✓ SELESAI
 > Model + migration discussions sudah ada. Layer portal dibangun.
@@ -103,9 +103,9 @@
 > Dikerjakan setelah LMS (2.3–2.5) selesai
 - [x] Beranda (dashboard): hero sapaan + statistik + spotlight "Lanjutkan" + Aktivitas Belajar
 - [x] Redesign UI LMS menyeluruh + komponen `components/portal/` (avatar, status-badge, content-badge, empty)
-- [x] ~~Halaman Leaderboard~~ — DIBATALKAN (lihat 2.4)
+- [x] Halaman Leaderboard XP (per nagari) + panel Top 5 di dashboard
 - [ ] Halaman Lapak UMKM (info akses untuk warga / placeholder untuk umkm_owner)
-- [x] Bottom nav: 2 item (Beranda, Modul) + lonceng notifikasi di header
+- [x] Shell: sidebar (desktop) + bottom nav (mobile); notifikasi+dropdown di top header
 
 ---
 

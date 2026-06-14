@@ -144,9 +144,17 @@
 **Alasan**: Peringkat kompetitif **bias & kontraproduktif** untuk konteks warga nagari: (1) bias akses/kesempatan (HP, kuota, waktu, literasi) — mengukur privilese bukan belajar; (2) mudah digoreng (klik halaman / ulang kuis) → ukur volume bukan pemahaman; (3) demotivasi peserta peringkat bawah; (4) populasi kecil per nagari → rangking berisik; (5) misalignment dgn tujuan komunitas/SDGs (bukan kompetisi). Motivasi cukup dari **progres pribadi** yang sudah tampil di Beranda.
 **Ditolak**: Leaderboard dummy/nyata; gamifikasi kompetitif — risiko > manfaat di konteks ini. (Opsi non-kompetitif spt badge pribadi / progres kolektif nagari bisa dipertimbangkan nanti bila perlu.)
 
----
+### [2026-06] Sistem XP + Leaderboard XP (MEMBATALKAN penghapusan leaderboard di atas)
+**Keputusan**: Adakan XP berbasis pencapaian + peringkat XP per nagari. Besaran (masing-masing **sekali per modul**, idempotent): selesai semua materi modul **+50**, lulus kuis modul **+100**, partisipasi diskusi modul (posting pertama) **+20** → maks 170/modul. XP akumulatif di `users.total_points`; ledger `xp_logs` dengan UNIQUE(user, source, source_id) menjamin sekali-saja. Leaderboard per nagari urut total_points; dashboard tampil Top 5 + posisi user + "Lihat Semua".
+**Alasan**: XP diikat ke penyelesaian + kelulusan + partisipasi yang berbatas per modul → jauh lebih sulit "digoreng" daripada poin per-klik, dan memotivasi. User memutuskan trade-off bias (akses/waktu) dapat diterima dengan desain ini.
+**Mitigasi bias**: per nagari saja; XP dari pencapaian nyata (bukan volume klik); kuis flat (tak ada insentif ngulang); diskusi sekali per modul (anti-spam).
+**Implementasi**: `LmsPointService` (award*), hook di LmsProgressService (modul), QuizPlayer (kuis), DiscussionController (diskusi). Idempotent diverifikasi.
 
-## Template untuk keputusan baru
+### [2026-06] Polish UI: komponen Blade sendiri + canvas-confetti (1 dependency)
+**Keputusan**: Konsistensi UI portal dicapai lewat **komponen Blade sendiri** (`components/portal/`: breadcrumb, button, card, badge, progress, stat, toast + avatar/status-badge/content-badge/empty), bukan UI-kit eksternal. Satu-satunya dependency baru: **`canvas-confetti`** (npm) untuk perayaan (lulus kuis / modul selesai). Toast = Alpine+Livewire (`dispatch('toast')`); animasi via Alpine `x-transition` + Tailwind.
+**Alasan**: Sudah ada desain Tailwind custom; komponen sendiri menjaga konsistensi penuh tanpa biaya/churn. canvas-confetti: ~6 KB, zero-dep, MIT, standar.
+**Ditolak**: Flux (Breadcrumbs & Toast tier berbayar + perlu restyle); WireUI/Mary/daisyUI (bawa design-system sendiri, bentrok); SweetAlert2/Toastr (Toastr dilarang; gaya beda); GSAP/AOS (berlebihan).
+**Mekanisme perayaan**: lulus kuis → QuizPlayer dispatch `confetti`+`toast`; modul selesai → flash `celebrate` → script page.blade memicu confetti+toast.
 
 ```
 ### [YYYY-MM] Judul keputusan
