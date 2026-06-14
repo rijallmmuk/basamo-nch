@@ -62,14 +62,14 @@
 - [x] Integrasi RichEditor bawaan Filament untuk konten halaman (teks)
 - [x] Field URL terpisah untuk embed video YouTube/Google Drive
 - [x] Field prerequisite_module pada form modul
-- [ ] Upload thumbnail modul via Spatie Media Library (saat ini FileUpload biasa)
+- [x] ~~Upload thumbnail modul~~ — DIBATALKAN: modul tanpa thumbnail (kolom di-drop, field admin & tampilan portal dihapus)
 - [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
 
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
 - [x] FilamentResource: `QuizResource` (buat kuis per modul)
-- [x] Form builder untuk soal pilihan ganda + essay (Repeater opsi, conditional by type)
-- [x] Antrian penilaian essay untuk Admin Nagari (QuizAttemptResource, filter pending_review)
-- [x] Fitur beri nilai + feedback untuk jawaban essay (AnswersRelationManager + LmsEssayGradingService)
+- [x] Form builder soal **pilihan ganda saja** (Repeater opsi, tandai jawaban benar)
+- [x] ~~Antrian penilaian essay~~ — DIBATALKAN: kuis MC-only auto-grade; QuizAttemptResource + LmsEssayGradingService dihapus
+- [x] ~~Beri nilai + feedback essay~~ — DIBATALKAN (lihat keputusan di DECISIONS.md 2026-06)
 
 ### 2.3 Portal Belajar Warga (CUSTOM Blade + Livewire — LAPISAN 2)
 - [x] Setup auth Laravel untuk warga (login/register portal) + middleware role
@@ -78,17 +78,17 @@
 - [x] Halaman detail modul + course outline + navigasi halaman per halaman
 - [x] Tampil materi: teks (HTML prose), PDF embed, video YouTube embed
 - [x] Livewire QuizPlayer: kuis pilihan ganda + auto-grade
-- [x] Livewire QuizPlayer: kuis essay + submit ke antrian admin (pending_review)
+- [x] ~~QuizPlayer essay + antrian admin~~ — DIBATALKAN: MC-only (pending_review dihapus)
 - [x] Progress tracker visual (progress bar per modul + page dots)
 - [x] Bug fix: url()->previous() di quiz result, page ownership check, module scope check
 - [ ] UX belajar: layar "Selesai!" saat semua materi tuntas + CTA kuis
-- [ ] UX quiz: progress bar soal (Soal X dari Y) + indikator jawaban + scroll ke soal kosong
-- [ ] Notifikasi in-app sederhana: modul baru, hasil kuis
+- [x] UX quiz: progress "Soal X dari Y terjawab" + highlight live + scroll ke error
+- [x] Notifikasi in-app: modul baru + kuis baru (observer) + hasil kuis (QuizPlayer); lonceng + halaman notifikasi
 
 ### 2.4 Sistem Poin & Leaderboard
-- [ ] Service: `LmsPointService` (kalkulasi poin per aktivitas)
-- [ ] Update poin otomatis saat halaman selesai, kuis lulus
-- [ ] Halaman leaderboard portal (ranking per nagari, pakai pages_completed dulu → upgrade ke total_points)
+- [ ] Service: `LmsPointService` (kalkulasi poin per aktivitas) — TERTUNDA: skema penilaian belum disepakati
+- [ ] Update poin otomatis saat halaman selesai, kuis lulus — TERTUNDA (lihat di atas)
+- [~] Halaman leaderboard portal — DUMMY front-end dulu (LeaderboardController + view, data contoh); logika poin nyata menyusul
 
 ### 2.5 Forum Diskusi ✓ SELESAI
 > Model + migration discussions sudah ada. Layer portal dibangun.
@@ -102,9 +102,9 @@
 > Dikerjakan setelah LMS (2.3–2.5) selesai
 - [x] Beranda (dashboard): hero sapaan + statistik + spotlight "Lanjutkan" + Aktivitas Belajar
 - [x] Redesign UI LMS menyeluruh + komponen `components/portal/` (avatar, status-badge, content-badge, empty)
-- [ ] Halaman Leaderboard lengkap
+- [~] Halaman Leaderboard — versi dummy sudah ada; "lengkap" menunggu sistem poin
 - [ ] Halaman Lapak UMKM (info akses untuk warga / placeholder untuk umkm_owner)
-- [ ] Bottom nav: update 4 item aktif (saat ini 2: Beranda, Modul)
+- [x] Bottom nav: 3 item aktif (Beranda, Modul, Peringkat) + lonceng notifikasi di header
 
 ---
 

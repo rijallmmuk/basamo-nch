@@ -90,7 +90,6 @@ nagari_id           BIGINT UNSIGNED FK → nagaris NULLABLE  -- NULL = modul glo
 title               VARCHAR(255) NOT NULL
 slug                VARCHAR(255) UNIQUE NOT NULL
 description         TEXT NULLABLE
-thumbnail           VARCHAR(255) NULLABLE
 order               SMALLINT UNSIGNED DEFAULT 0
 prerequisite_module_id  BIGINT UNSIGNED FK → modules NULLABLE
 status              ENUM('draft','published') DEFAULT 'draft'
@@ -135,7 +134,7 @@ INDEX(user_id), INDEX(module_id), INDEX(status)
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
 title               VARCHAR(255) NOT NULL
-passing_score       TINYINT UNSIGNED DEFAULT 70   -- persentase minimum lulus
+passing_score       TINYINT UNSIGNED DEFAULT 70   -- nilai minimum lulus (skala 0–100)
 max_attempts        TINYINT UNSIGNED DEFAULT 3
 created_at, updated_at
 
@@ -147,13 +146,13 @@ UNIQUE(module_id)
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 quiz_id             BIGINT UNSIGNED FK → quizzes CASCADE DELETE
 question            TEXT NOT NULL
-type                ENUM('multiple_choice','essay') NOT NULL
-points              TINYINT UNSIGNED DEFAULT 10
 order               SMALLINT UNSIGNED DEFAULT 0
 created_at, updated_at
 
 INDEX(quiz_id), INDEX(order)
 ```
+> Kuis **hanya pilihan ganda** (MVP). Tidak ada kolom `type`; setiap soal selalu punya `quiz_options`.
+> **Semua soal setara** (tanpa bobot poin). Nilai = (jumlah benar ÷ jumlah soal) × 100, skala 0–100.
 
 ### `quiz_options` — Pilihan jawaban (multiple choice)
 ```sql
@@ -173,10 +172,8 @@ id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 user_id             BIGINT UNSIGNED FK → users
 quiz_id             BIGINT UNSIGNED FK → quizzes
 score               TINYINT UNSIGNED NULLABLE    -- 0-100
-status              ENUM('in_progress','pending_review','passed','failed')
+status              ENUM('in_progress','passed','failed')   -- auto-grade, tanpa review
 submitted_at        TIMESTAMP NULLABLE
-reviewed_at         TIMESTAMP NULLABLE
-reviewed_by         BIGINT UNSIGNED FK → users NULLABLE
 created_at, updated_at
 
 INDEX(user_id), INDEX(quiz_id), INDEX(status)
@@ -187,11 +184,8 @@ INDEX(user_id), INDEX(quiz_id), INDEX(status)
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 attempt_id          BIGINT UNSIGNED FK → quiz_attempts CASCADE DELETE
 question_id         BIGINT UNSIGNED FK → quiz_questions
-answer_text         TEXT NULLABLE             -- untuk essay
 selected_option_id  BIGINT UNSIGNED FK → quiz_options NULLABLE
-is_correct          BOOLEAN NULLABLE          -- NULL untuk essay sebelum dinilai
-score_given         TINYINT UNSIGNED NULLABLE
-feedback            TEXT NULLABLE             -- feedback admin untuk essay
+is_correct          BOOLEAN NULLABLE
 created_at, updated_at
 
 INDEX(attempt_id), INDEX(question_id)
@@ -346,4 +340,4 @@ INDEX(nagari_id), INDEX(type)
 - **Soft delete** diaktifkan pada: `users`, `modules`, `discussions`, `sdgs_activities`, `umkm_profiles`, `umkm_products`, `news_feeds`
 - **IoT readings** di-prune otomatis setelah 30 hari via scheduled command
 - **Slug** di-generate otomatis via `spatie/laravel-sluggable` pada: `modules`, `umkm_profiles`, `umkm_products`
-- **Media file** (foto produk, thumbnail modul, dokumen SDGs) dikelola via `spatie/laravel-medialibrary` — tidak disimpan manual di tabel
+- **Media file** (foto produk, dokumen SDGs) dikelola via `spatie/laravel-medialibrary` — tidak disimpan manual di tabel

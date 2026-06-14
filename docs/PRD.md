@@ -116,7 +116,7 @@ Sistem memiliki **4 role utama** dengan hierarki akses yang jelas.
 
 #### Warga / Pelajar
 - Mengakses modul belajar sesuai urutan prerequisite
-- Mengerjakan kuis pilihan ganda dan essay
+- Mengerjakan kuis pilihan ganda (dinilai otomatis)
 - Berpartisipasi di forum diskusi
 - Melihat progress belajar pribadi
 - Melihat leaderboard peringkat antar warga se-nagari
@@ -197,7 +197,7 @@ Setiap nagari memiliki namespace data sendiri dalam satu database. Semua tabel u
 
 **Manajemen Modul (Admin)**
 - Buat modul global (tersedia untuk semua nagari) atau modul lokal (khusus nagari tertentu)
-- Setiap modul terdiri dari: judul, deskripsi, thumbnail, urutan prerequisite, dan status (draft/published)
+- Setiap modul terdiri dari: judul, deskripsi, urutan prerequisite, dan status (draft/published)
 - Konten per modul: halaman teks & PDF, embed video YouTube atau Google Drive
 - Setting prerequisite: modul X harus diselesaikan sebelum modul Y bisa diakses
 
@@ -205,8 +205,8 @@ Setiap nagari memiliki namespace data sendiri dalam satu database. Semua tabel u
 - Tampilan kartu modul dengan status (terkunci / tersedia / selesai)
 - Progress bar per modul
 - Baca materi teks, lihat PDF inline, tonton video embed
-- Kuis setelah setiap modul: pilihan ganda (otomatis dinilai) dan essay (dinilai Admin Nagari)
-- Notifikasi in-app saat modul baru tersedia atau hasil kuis sudah dinilai
+- Kuis setelah setiap modul: pilihan ganda, dinilai otomatis (auto-grade)
+- Notifikasi in-app saat modul baru tersedia atau hasil kuis tersedia
 
 **Sistem Poin & Leaderboard**
 
@@ -214,7 +214,6 @@ Setiap nagari memiliki namespace data sendiri dalam satu database. Semua tabel u
 |---|---|
 | Selesaikan satu halaman materi | 10 poin |
 | Lulus kuis pilihan ganda | 20 poin |
-| Lulus kuis essay (dinilai admin) | 30 poin |
 | Selesaikan satu modul penuh | Bonus 50 poin |
 
 - Leaderboard ditampilkan per nagari (bukan lintas nagari)
@@ -233,8 +232,7 @@ Login Portal  →  Lihat daftar modul  →  Pilih modul tersedia
      ↓
 Baca materi (teks/PDF/video)  →  Selesaikan semua halaman
      ↓
-Kerjakan kuis  →  Pilihan ganda: nilai otomatis
-                →  Essay: tunggu penilaian admin
+Kerjakan kuis  →  Pilihan ganda: nilai otomatis (langsung tahu lulus/belum)
      ↓
 Poin bertambah  →  Modul berikutnya terbuka  →  Leaderboard update
 ```
@@ -402,7 +400,6 @@ Dashboard adalah jantung platform — tempat seluruh data dari 4 pilar divisuali
 ### Dashboard Admin Nagari (Per Nagari)
 
 Tampilan serupa namun dibatasi hanya untuk data nagarinya sendiri, ditambah:
-- Daftar warga yang perlu penilaian essay
 - Produk UMKM yang menunggu verifikasi
 - Ringkasan aktivitas nagari hari ini
 
@@ -440,7 +437,7 @@ Tampilan serupa namun dibatasi hanya untuk data nagarinya sendiri, ditambah:
 | Editor Modul | RichEditor bawaan Filament | built-in | Tiptap tidak support v5; video via field URL terpisah |
 | Icon | Heroicons | built-in | Satu-satunya icon set, via Blade Icons |
 | Notifikasi | Filament Notifications | built-in | Toast + database notification, tidak pakai library luar |
-| File & Media | Spatie Media Library | terbaru | Upload foto, dokumen, thumbnail |
+| File & Media | Spatie Media Library | terbaru | Upload foto, dokumen |
 | Kompresi Gambar | Intervention Image | terbaru | Resize & optimasi foto produk UMKM |
 | Ekspor PDF | Laravel DomPDF | latest | Laporan SDGs & LMS |
 | Ekspor Excel | Maatwebsite Excel | latest | Data UMKM & warga |
@@ -630,7 +627,6 @@ super_admin
 | Verifikasi produk UMKM | ✓ | ✓ | — | — |
 | Akses modul belajar | — | — | ✓ | — |
 | Kerjakan kuis | — | — | ✓ | — |
-| Nilai kuis essay | ✓ | ✓ | — | — |
 | Lihat leaderboard | — | — | ✓ | — |
 | Dashboard lintas nagari | ✓ | — | — | — |
 | Dashboard nagari sendiri | ✓ | ✓ | — | — |
@@ -671,8 +667,7 @@ Buka modul → baca teks / lihat PDF / tonton video
      ↓
 Selesaikan semua halaman → kerjakan kuis
      ↓
-Pilihan ganda: nilai otomatis langsung
-Essay: masuk antrian penilaian admin
+Pilihan ganda: nilai otomatis langsung (lulus/belum)
      ↓
 Poin bertambah → leaderboard update → modul berikutnya terbuka
 ```
@@ -728,7 +723,7 @@ users
 
 -- LMS: Modul
 modules
-  id, nagari_id (null = global), title, description, thumbnail,
+  id, nagari_id (null = global), title, description,
   order, prerequisite_module_id, status (draft|published), created_at
 
 -- LMS: Halaman Materi
@@ -746,18 +741,17 @@ quizzes
   id, module_id, title, passing_score, created_at
 
 quiz_questions
-  id, quiz_id, question, type (multiple_choice|essay), order
+  id, quiz_id, question, order   -- hanya pilihan ganda, semua soal setara
 
 quiz_options
   id, question_id, option_text, is_correct
 
 quiz_attempts
-  id, user_id, quiz_id, score, status (pending|passed|failed),
-  submitted_at, reviewed_at, reviewed_by
+  id, user_id, quiz_id, score, status (in_progress|passed|failed),
+  submitted_at
 
 quiz_answers
-  id, attempt_id, question_id, answer_text, is_correct,
-  score_given, feedback
+  id, attempt_id, question_id, selected_option_id, is_correct
 
 -- LMS: Forum Diskusi
 discussions
@@ -819,7 +813,7 @@ Semua query di Admin Nagari secara otomatis di-scope dengan `nagari_id` milik ad
 - Setup proyek Laravel + Filament multi-panel
 - Implementasi RBAC 4 role (Filament Shield)
 - Manajemen nagari oleh Super Admin
-- LMS: modul, materi (teks, PDF, video embed), kuis pilihan ganda & essay
+- LMS: modul, materi (teks, PDF, video embed), kuis pilihan ganda (auto-grade)
 - LMS: progress tracker, sistem poin, leaderboard per nagari
 - SDGs: input 18 poin, upload dokumen bukti, visualisasi lingkaran
 - UMKM: profil usaha, produk, alur verifikasi, katalog publik
@@ -836,8 +830,6 @@ Semua query di Admin Nagari secara otomatis di-scope dengan `nagari_id` milik ad
 
 - Integrasi sensor IoT fisik via REST API / MQTT
 - Migrasi storage ke Cloudflare R2
-- Forum diskusi LMS
-- Penilaian essay oleh Admin Nagari
 - Dashboard perbandingan lintas nagari (grafik radar)
 - Feed berita & aktivitas nagari
 - Optimasi performa & keamanan
@@ -943,7 +935,7 @@ Dua hal ini tidak memblokir development Fase 1, namun harus diputuskan sebelum m
 | 13 | Akses Portal | Hanya warga nagari terdaftar |
 | 14 | Modul LMS | Global + lokal per nagari |
 | 15 | Alur Belajar | Berurutan (prerequisite) |
-| 16 | Tipe Kuis | Pilihan ganda + essay |
+| 16 | Tipe Kuis | Pilihan ganda (auto-grade) |
 | 17 | Format Konten | Teks, PDF, embed YouTube/GDrive |
 | 18 | Leaderboard | Per nagari (bukan lintas nagari) |
 | 19 | Input SDGs | Hanya Admin Nagari |

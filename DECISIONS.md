@@ -102,6 +102,43 @@
 **Alasan**: Pilot awal hanya 3 nagari. Kontrol kualitas lebih terjaga. Self-service onboarding akan dibuat di Fase 3 saat skala nasional.
 **Ditolak**: Self-service langsung — risiko data tidak valid, perlu validasi lokasi nagari.
 
+### [2026-06] Kuis hanya pilihan ganda + modul tanpa thumbnail
+**Keputusan**: Soal kuis ditetapkan **hanya pilihan ganda** (auto-grade). Tipe essay dihapus total beserta antrian penilaiannya (QuizAttemptResource "Review Essay", AnswersRelationManager, LmsEssayGradingService, halaman ReviewQuizAttempt). Modul tidak lagi punya thumbnail. Kolom DB tak terpakai di-drop via migration `drop_essay_and_thumbnail_columns`: `modules.thumbnail`, `quiz_questions.type`, `quiz_answers.answer_text/feedback`, `quiz_attempts.reviewed_at/reviewed_by`, dan status `pending_review` dihapus dari enum `quiz_attempts.status`.
+**Alasan**: Menyederhanakan alur LMS — kuis langsung dinilai otomatis tanpa beban kerja Admin Nagari. Thumbnail tidak esensial untuk MVP dan menambah kerumitan upload/storage. Menghapus kode mati menjaga konsistensi & mengurangi bug.
+**Ditolak**: Mempertahankan essay & antrian review — menambah beban admin & kompleksitas; biarkan kolom DB sebagai cruft — memilih skema bersih karena masih pra-rilis (data hanya uji).
+**Catatan**: Penyesuaian ikut dilakukan di portal warga (QuizPlayer MC-only, hapus tampilan thumbnail di detail modul) dan dokumentasi (DATABASE.md, PRD.md).
+
+### [2026-06] Scoping nagari admin via manual query (belum Filament Tenancy)
+**Keputusan**: Isolasi data nagari_admin diterapkan manual lewat `getEloquentQuery`/`getRecordRouteBindingEloquentQuery` + default form (helper `User::isNagariAdmin()`), bukan Filament Tenancy penuh. super_admin lihat & kelola semua (termasuk modul global); nagari_admin hanya modul/kuis nagarinya.
+**Alasan**: Cukup untuk kebutuhan saat ini tanpa kompleksitas tenant-switcher Filament. Mudah dipahami & langsung mengunci kebocoran data antar-nagari.
+**Ditolak**: Filament Tenancy penuh sekarang — overkill untuk skala pilot; bisa diadopsi nanti bila perlu multi-tenant UX.
+
+### [2026-06] Leaderboard dummy dulu, sistem poin menunggu kesepakatan
+**Keputusan**: Halaman leaderboard portal dibuat dengan DATA CONTOH (front-end) lebih dulu. `LmsPointService` & update `total_points` nyata ditunda sampai skema penilaian poin disepakati bersama.
+**Alasan**: Tampilan/navigasi bisa dimantapkan lebih dulu; aturan poin (bobot per aktivitas, reset, anti-curang) perlu diskusi agar tidak salah desain.
+**Ditolak**: Implementasi poin sekarang dengan asumsi sepihak — berisiko harus dirombak setelah kesepakatan.
+
+### [2026-06] Menu Role disembunyikan + urutan modul/materi/soal otomatis
+**Keputusan**: (1) Menu "Role" (Filament Shield) disembunyikan dari navigasi via `registerNavigation(false)` — 4 role tetap & dikelola di kode/seeder. (2) Urutan modul, materi, dan soal di-assign otomatis (`order` = max+1 saat dibuat); modul & relasi materi/soal dapat di-drag untuk reorder; field angka urutan modul dihapus dari form.
+**Alasan**: Mengurangi kesalahan (salah klik permission), dan menyederhanakan input admin — urutan mengikuti urutan pembuatan, tetap bisa diatur ulang via drag.
+**Ditolak**: Field urutan manual — kurang intuitif; menu Role tampil — berisiko & jarang dipakai.
+
+### [2026-06] Nilai kuis: angka 0–100, semua soal setara (tanpa bobot poin & tanpa tanda %)
+**Keputusan**: Nilai kuis adalah **angka skala 0–100** (bukan persentase) — tanda `%` dihapus dari admin & portal. Bobot poin per soal dihapus (kolom `quiz_questions.points` & `quiz_answers.score_given` di-drop via migration `drop_points_from_quiz`). Semua soal setara: `nilai = (jumlah benar ÷ jumlah soal) × 100`. `passing_score` tetap 0–100.
+**Alasan**: "Nilai itu angka, bukan persentase" (feedback user). Bobot poin per soal membingungkan (kesan max = Σpoin) padahal nilai dinormalisasi; tanpa poin, nilai selalu 0–100 dan ambang lulus 1–100 selalu mungkin dicapai → human-error "passing > maks" mustahil terjadi. Input admin lebih sederhana.
+**Ditolak**: Model aditif (nilai = Σpoin, maks = Σpoin) — rapuh terhadap perubahan jumlah soal & rawan salah set ambang lulus.
+
+### [2026-06] Batas upload PDF materi = 10 MB (samakan semua lapisan)
+**Keputusan**: Maks PDF materi modul **10 MB**. Disamakan di: Filament `maxSize(10240)`, dan **PHP** `upload_max_filesize=10M` + `post_max_size=12M` (Livewire default 12 MB sudah cukup). Produksi (nginx) wajib `client_max_body_size 12M`.
+**Alasan**: Sebelumnya Filament 10 MB tapi PHP hanya 2M/8M → limit efektif ~2 MB & upload >2 MB gagal membingungkan. 10 MB cukup untuk materi sekaligus ramah kuota warga (akses HP).
+**Cara terapkan**:
+- Dev (`artisan serve` pakai CLI ini): `sudo sed -i 's/^upload_max_filesize = .*/upload_max_filesize = 10M/; s/^post_max_size = .*/post_max_size = 12M/' /etc/php/8.3/cli/php.ini`
+- Produksi: ubah hal sama di `/etc/php/8.3/fpm/php.ini` lalu `sudo systemctl restart php8.3-fpm`; nginx `client_max_body_size 12M;`.
+
+### [2026-06] Slug modul stabil (tidak berubah saat judul diedit)
+**Keputusan**: `Module::getSlugOptions()->doNotGenerateSlugsOnUpdate()`. Slug dibuat sekali saat create; edit judul tidak mengubah slug.
+**Alasan**: URL stabil + menghapus inkonsistensi field slug readOnly (tampil lama tapi tersimpan baru). User OK dengan kedua perilaku; dipilih yang lebih bersih & tanpa downside.
+
 ---
 
 ## Template untuk keputusan baru
