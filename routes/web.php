@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Portal\AuthController;
+use App\Http\Controllers\Portal\DiscussionController;
+use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\Portal\ModuleController;
 use App\Http\Controllers\Portal\PageController;
 use App\Http\Controllers\Portal\QuizController;
@@ -21,13 +23,19 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
     // Protected (warga & umkm_owner only)
     Route::middleware('portal')->group(function () {
-        Route::get('/', fn () => redirect()->route('portal.modules.index'))->name('home');
+        Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('index');
             Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');
             Route::get('{module:slug}/pages/{page}', [PageController::class, 'show'])->name('pages.show');
             Route::get('{module:slug}/quiz', [QuizController::class, 'show'])->name('quiz');
+
+            // Forum diskusi per modul
+            Route::get('{module:slug}/discuss', [DiscussionController::class, 'index'])->name('discuss');
+            Route::post('{module:slug}/discuss', [DiscussionController::class, 'store'])->name('discuss.store');
+            Route::get('{module:slug}/discuss/{discussion}', [DiscussionController::class, 'show'])->name('discuss.show');
+            Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
         });
     });
 });
