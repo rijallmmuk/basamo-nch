@@ -6,9 +6,8 @@
             $resultMap = [
                 'passed' => ['ring' => 'border-emerald-200', 'bg' => 'bg-emerald-100', 'fg' => 'text-emerald-600', 'icon' => 'heroicon-s-check-circle', 'title' => 'Selamat, Kamu Lulus!', 'titleColor' => 'text-emerald-700'],
                 'failed' => ['ring' => 'border-red-200', 'bg' => 'bg-red-100', 'fg' => 'text-red-500', 'icon' => 'heroicon-s-x-circle', 'title' => 'Belum Lulus', 'titleColor' => 'text-red-600'],
-                'pending_review' => ['ring' => 'border-amber-200', 'bg' => 'bg-amber-100', 'fg' => 'text-amber-500', 'icon' => 'heroicon-s-clock', 'title' => 'Jawaban Terkirim!', 'titleColor' => 'text-amber-700'],
             ];
-            $r = $resultMap[$resultStatus] ?? $resultMap['pending_review'];
+            $r = $resultMap[$resultStatus] ?? $resultMap['failed'];
         @endphp
 
         <div class="flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-14 text-center shadow-sm {{ $r['ring'] }}">
@@ -17,16 +16,11 @@
             </div>
             <h2 class="text-2xl font-bold {{ $r['titleColor'] }}">{{ $r['title'] }}</h2>
 
-            @if($resultStatus === 'pending_review')
-                <p class="mt-3 max-w-sm text-sm leading-relaxed text-gray-500">
-                    Jawaban essay kamu sedang menunggu penilaian dari Admin Nagari. Hasilnya tersedia setelah penilaian selesai.
-                </p>
-            @else
-                <p class="mt-3 text-3xl font-bold {{ $r['fg'] }}">{{ $resultScore }}%</p>
-                <p class="mt-1 text-sm text-gray-400">Nilai minimum lulus: {{ $quiz->passing_score }}%</p>
-                @if($resultStatus === 'failed')
-                    <p class="mt-2 text-sm text-gray-500">Pelajari kembali materi lalu coba lagi.</p>
-                @endif
+            <p class="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">Nilai kamu</p>
+            <p class="text-4xl font-bold {{ $r['fg'] }}">{{ $resultScore }}</p>
+            <p class="mt-1 text-sm text-gray-400">Nilai minimum lulus: {{ $quiz->passing_score }}</p>
+            @if($resultStatus === 'failed')
+                <p class="mt-2 text-sm text-gray-500">Pelajari kembali materi lalu coba lagi.</p>
             @endif
 
             <a href="{{ route('portal.modules.show', $module) }}"
@@ -40,10 +34,7 @@
     @else
         @php
             $totalQ = $this->questions->count();
-            $answeredQ = $this->questions->filter(function ($q) {
-                $a = $answers[$q->id] ?? null;
-                return $q->type === 'essay' ? filled($a) : ! empty($a);
-            })->count();
+            $answeredQ = $this->questions->filter(fn ($q) => ! empty($answers[$q->id]))->count();
             $answeredPct = $totalQ > 0 ? (int) ($answeredQ / $totalQ * 100) : 0;
         @endphp
 
@@ -55,7 +46,7 @@
                     <x-heroicon-o-clipboard-document-list class="h-4 w-4" /> {{ $totalQ }} soal
                 </span>
                 <span class="inline-flex items-center gap-1.5">
-                    <x-heroicon-o-check-badge class="h-4 w-4" /> Lulus {{ $quiz->passing_score }}%
+                    <x-heroicon-o-check-badge class="h-4 w-4" /> Nilai lulus {{ $quiz->passing_score }}
                 </span>
                 @if($quiz->max_attempts > 0)
                     <span class="inline-flex items-center gap-1.5">
@@ -95,7 +86,7 @@
         <div class="mt-5 space-y-4">
             @foreach($this->questions as $question)
                 @php
-                    $isUnanswered = ! empty($quizErrors) && $question->type === 'multiple_choice' && empty($answers[$question->id]);
+                    $isUnanswered = ! empty($quizErrors) && empty($answers[$question->id]);
                 @endphp
                 <div class="overflow-hidden rounded-2xl border bg-white shadow-sm {{ $isUnanswered ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200' }}">
 
@@ -106,37 +97,22 @@
                         </span>
                         <div class="flex-1">
                             <p class="text-[15px] font-semibold leading-relaxed text-gray-900">{{ $question->question }}</p>
-                            <div class="mt-2 flex items-center gap-2">
-                                @if($question->type === 'multiple_choice')
-                                    <span class="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">Pilihan Ganda</span>
-                                @else
-                                    <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600">Essay</span>
-                                @endif
-                                <span class="text-xs text-gray-400">{{ $question->points }} poin</span>
-                            </div>
                         </div>
                     </div>
 
                     {{-- Answer area --}}
                     <div class="px-5 py-4 sm:px-6 sm:py-5">
-                        @if($question->type === 'multiple_choice')
-                            <div class="space-y-2.5">
-                                @foreach($question->options as $option)
-                                    @php $isSelected = isset($answers[$question->id]) && $answers[$question->id] == $option->id; @endphp
-                                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all
-                                        {{ $isSelected ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
-                                        <input type="radio" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
-                                            class="h-5 w-5 shrink-0 accent-indigo-600">
-                                        <span class="text-sm leading-relaxed text-gray-800">{{ $option->option_text }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        @else
-                            <textarea wire:model.live.debounce.500ms="answers.{{ $question->id }}" rows="5"
-                                placeholder="Tuliskan jawaban kamu dengan jelas dan lengkap..."
-                                class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm leading-relaxed text-gray-700 outline-none transition-all placeholder:text-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"></textarea>
-                            <p class="mt-1.5 text-xs text-gray-400">{{ mb_strlen($answers[$question->id] ?? '') }} karakter</p>
-                        @endif
+                        <div class="space-y-2.5">
+                            @foreach($question->options as $option)
+                                @php $isSelected = isset($answers[$question->id]) && $answers[$question->id] == $option->id; @endphp
+                                <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all
+                                    {{ $isSelected ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
+                                    <input type="radio" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
+                                        class="h-5 w-5 shrink-0 accent-indigo-600">
+                                    <span class="text-sm leading-relaxed text-gray-800">{{ $option->option_text }}</span>
+                                </label>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             @endforeach

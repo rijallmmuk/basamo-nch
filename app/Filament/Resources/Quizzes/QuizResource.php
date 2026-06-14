@@ -51,9 +51,17 @@ class QuizResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        $query = parent::getEloquentQuery()
             ->with('module')
             ->withCount('questions');
+
+        // nagari_admin hanya melihat kuis dari modul nagarinya sendiri.
+        $user = auth()->user();
+        if ($user?->isNagariAdmin()) {
+            $query->whereHas('module', fn (Builder $q) => $q->where('nagari_id', $user->nagari_id));
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

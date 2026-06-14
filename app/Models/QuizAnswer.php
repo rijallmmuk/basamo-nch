@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class QuizAnswer extends Model
 {
     protected $fillable = [
-        'attempt_id', 'question_id', 'answer_text',
-        'selected_option_id', 'is_correct', 'score_given', 'feedback',
+        'attempt_id', 'question_id',
+        'selected_option_id', 'is_correct',
     ];
 
     protected function casts(): array

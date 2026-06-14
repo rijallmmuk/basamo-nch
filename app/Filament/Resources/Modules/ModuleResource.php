@@ -52,11 +52,28 @@ class ModuleResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        $query = parent::getEloquentQuery()
             ->with(['nagari', 'creator'])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+
+        return static::scopeToNagari($query);
+    }
+
+    /**
+     * nagari_admin hanya boleh mengakses modul nagarinya sendiri.
+     * super_admin melihat semua (termasuk modul global).
+     */
+    protected static function scopeToNagari(Builder $query): Builder
+    {
+        $user = auth()->user();
+
+        if ($user?->isNagariAdmin()) {
+            $query->where('nagari_id', $user->nagari_id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array
@@ -69,17 +86,19 @@ class ModuleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListModules::route('/'),
+            'index' => ListModules::route('/'),
             'create' => CreateModule::route('/create'),
-            'edit'   => EditModule::route('/{record}/edit'),
+            'edit' => EditModule::route('/{record}/edit'),
         ];
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        return static::scopeToNagari(
+            parent::getRecordRouteBindingEloquentQuery()
+                ->withoutGlobalScopes([
+                    SoftDeletingScope::class,
+                ])
+        );
     }
 }

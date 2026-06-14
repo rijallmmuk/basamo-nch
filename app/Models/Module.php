@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\ModuleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,12 +12,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+#[ObservedBy([ModuleObserver::class])]
 class Module extends Model
 {
-    use SoftDeletes, HasSlug;
+    use HasSlug, SoftDeletes;
 
     protected $fillable = [
-        'nagari_id', 'title', 'slug', 'description', 'thumbnail',
+        'nagari_id', 'title', 'slug', 'description',
         'order', 'prerequisite_module_id', 'status', 'created_by',
     ];
 
@@ -23,7 +26,9 @@ class Module extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('title')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            // Slug stabil: tidak berubah saat judul diedit (URL/bookmark tetap valid).
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function nagari(): BelongsTo
@@ -43,7 +48,7 @@ class Module extends Model
 
     public function pages(): HasMany
     {
-        return $this->hasMany(ModulePage::class)->orderBy('order');
+        return $this->hasMany(ModulePage::class)->orderBy('order')->orderBy('id');
     }
 
     public function quiz(): HasOne

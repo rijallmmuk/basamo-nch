@@ -33,7 +33,6 @@ class QuizzesTable
 
                 TextColumn::make('passing_score')
                     ->label('Nilai Lulus')
-                    ->suffix('%')
                     ->sortable(),
 
                 TextColumn::make('max_attempts')

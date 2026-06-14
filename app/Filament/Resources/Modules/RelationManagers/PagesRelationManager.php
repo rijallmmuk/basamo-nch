@@ -35,9 +35,9 @@ class PagesRelationManager extends RelationManager
                 Select::make('type')
                     ->label('Tipe Konten')
                     ->options([
-                        'text'  => '📝 Teks',
+                        'text' => '📝 Teks',
                         'video' => '🎬 Video',
-                        'pdf'   => '📄 PDF',
+                        'pdf' => '📄 PDF',
                     ])
                     ->required()
                     ->default('text')
@@ -61,9 +61,12 @@ class PagesRelationManager extends RelationManager
                 FileUpload::make('file_path')
                     ->label('File PDF')
                     ->acceptedFileTypes(['application/pdf'])
+                    ->disk('public')
                     ->directory('modules/pages/pdf')
+                    ->visibility('public')
                     ->visible(fn ($get) => $get('type') === 'pdf')
-                    ->maxSize(10240)
+                    ->maxSize(10240) // 10 MB
+                    ->helperText('Maksimal 10 MB, format PDF.')
                     ->columnSpanFull(),
             ]);
     }
@@ -88,15 +91,15 @@ class PagesRelationManager extends RelationManager
                     ->label('Tipe')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'text'  => '📝 Teks',
+                        'text' => '📝 Teks',
                         'video' => '🎬 Video',
-                        'pdf'   => '📄 PDF',
+                        'pdf' => '📄 PDF',
                         default => $state,
                     })
                     ->color(fn (string $state): string => match ($state) {
-                        'text'  => 'info',
+                        'text' => 'info',
                         'video' => 'success',
-                        'pdf'   => 'warning',
+                        'pdf' => 'warning',
                         default => 'gray',
                     }),
             ])

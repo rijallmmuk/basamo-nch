@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Modules\Schemas;
 
 use App\Models\Module;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -45,12 +44,15 @@ class ModuleForm
                     ->nullable()
                     ->searchable()
                     ->preload()
+                    // Hanya super_admin yang menentukan nagari/global.
+                    // nagari_admin: nagari_id diisi otomatis (lihat CreateModule).
+                    ->visible(fn () => auth()->user()?->isSuperAdmin())
                     ->columnSpan(1),
 
                 Select::make('status')
                     ->label('Status')
                     ->options([
-                        'draft'     => 'Draft',
+                        'draft' => 'Draft',
                         'published' => 'Published',
                     ])
                     ->default('draft')
@@ -59,26 +61,25 @@ class ModuleForm
 
                 Select::make('prerequisite_module_id')
                     ->label('Prasyarat Modul')
-                    ->relationship('prerequisite', 'title')
+                    ->relationship(
+                        name: 'prerequisite',
+                        titleAttribute: 'title',
+                        modifyQueryUsing: function ($query, ?Module $record) {
+                            // Tidak boleh menjadikan modul sebagai prasyarat dirinya sendiri.
+                            if ($record) {
+                                $query->whereKeyNot($record->getKey());
+                            }
+                            // nagari_admin hanya boleh memilih prasyarat dari nagarinya sendiri.
+                            if (auth()->user()?->isNagariAdmin()) {
+                                $query->where('nagari_id', auth()->user()->nagari_id);
+                            }
+                        },
+                    )
                     ->placeholder('— Tidak ada prasyarat —')
                     ->nullable()
                     ->searchable()
                     ->preload()
                     ->columnSpan(1),
-
-                TextInput::make('order')
-                    ->label('Urutan')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0)
-                    ->columnSpan(1),
-
-                FileUpload::make('thumbnail')
-                    ->label('Thumbnail')
-                    ->image()
-                    ->directory('modules/thumbnails')
-                    ->nullable()
-                    ->columnSpanFull(),
 
                 RichEditor::make('description')
                     ->label('Deskripsi')

@@ -8,7 +8,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -27,25 +26,6 @@ class QuestionsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Select::make('type')
-                    ->label('Tipe Soal')
-                    ->options([
-                        'multiple_choice' => '🔘 Pilihan Ganda',
-                        'essay' => '✍️ Essay',
-                    ])
-                    ->default('multiple_choice')
-                    ->required()
-                    ->live()
-                    ->columnSpan(1),
-
-                TextInput::make('points')
-                    ->label('Poin')
-                    ->numeric()
-                    ->default(10)
-                    ->minValue(1)
-                    ->required()
-                    ->columnSpan(1),
-
                 Textarea::make('question')
                     ->label('Soal')
                     ->required()
@@ -55,6 +35,7 @@ class QuestionsRelationManager extends RelationManager
                 Repeater::make('options')
                     ->label('Pilihan Jawaban')
                     ->relationship('options', fn ($query) => $query->orderBy('order'))
+                    ->orderColumn('order')
                     ->schema([
                         TextInput::make('option_text')
                             ->label('Teks Pilihan')
@@ -70,10 +51,13 @@ class QuestionsRelationManager extends RelationManager
                     ->minItems(2)
                     ->maxItems(5)
                     ->addActionLabel('+ Tambah Pilihan')
-                    ->reorderable()
                     ->cloneable(false)
-                    ->visible(fn ($get) => $get('type') === 'multiple_choice')
-                    ->helperText('Tandai tepat satu pilihan sebagai jawaban benar.')
+                    ->rule(fn () => function (string $attribute, $value, \Closure $fail) {
+                        $correct = collect($value)->filter(fn ($opt) => ! empty($opt['is_correct']))->count();
+                        if ($correct !== 1) {
+                            $fail('Tandai tepat satu pilihan sebagai jawaban benar.');
+                        }
+                    })
                     ->columnSpanFull(),
             ])
             ->columns(2);
@@ -96,24 +80,11 @@ class QuestionsRelationManager extends RelationManager
                     ->wrap()
                     ->searchable(),
 
-                TextColumn::make('type')
-                    ->label('Tipe')
+                TextColumn::make('options_count')
+                    ->counts('options')
+                    ->label('Pilihan')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'multiple_choice' => '🔘 Pilihan Ganda',
-                        'essay' => '✍️ Essay',
-                        default => $state,
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'multiple_choice' => 'info',
-                        'essay' => 'warning',
-                        default => 'gray',
-                    }),
-
-                TextColumn::make('points')
-                    ->label('Poin')
-                    ->badge()
-                    ->color('success'),
+                    ->color('info'),
             ])
             ->filters([])
             ->headerActions([

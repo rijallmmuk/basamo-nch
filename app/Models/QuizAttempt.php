@@ -9,15 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class QuizAttempt extends Model
 {
     protected $fillable = [
-        'user_id', 'quiz_id', 'score', 'status',
-        'submitted_at', 'reviewed_at', 'reviewed_by',
+        'user_id', 'quiz_id', 'score', 'status', 'submitted_at',
     ];
 
     protected function casts(): array
     {
         return [
             'submitted_at' => 'datetime',
-            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -29,11 +27,6 @@ class QuizAttempt extends Model
     public function quiz(): BelongsTo
     {
         return $this->belongsTo(Quiz::class);
-    }
-
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function answers(): HasMany

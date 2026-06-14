@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
+use App\Notifications\QuizCompleted;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -40,11 +41,11 @@ class QuizPlayer extends Component
 
     public function submit(): void
     {
-        // Validasi semua soal pilihan ganda sudah dijawab
+        // Validasi semua soal sudah dijawab
         $this->quizErrors = [];
 
         foreach ($this->questions as $question) {
-            if ($question->type === 'multiple_choice' && empty($this->answers[$question->id])) {
+            if (empty($this->answers[$question->id])) {
                 $this->quizErrors[] = "Soal #{$question->order} belum dijawab.";
             }
         }
@@ -60,60 +61,42 @@ class QuizPlayer extends Component
             'submitted_at' => now(),
         ]);
 
-        $hasEssay = false;
-        $totalScore = 0;
-        $maxScore = 0;
+        $correctCount = 0;
+        $totalQuestions = 0;
 
         foreach ($this->questions as $question) {
-            $maxScore += $question->points;
+            $totalQuestions++;
             $value = $this->answers[$question->id] ?? null;
 
-            if ($question->type === 'multiple_choice') {
-                $selectedOption = $question->options->firstWhere('id', (int) $value);
-                $isCorrect = $selectedOption?->is_correct ?? false;
+            $selectedOption = $question->options->firstWhere('id', (int) $value);
+            $isCorrect = $selectedOption?->is_correct ?? false;
 
-                QuizAnswer::create([
-                    'attempt_id' => $attempt->id,
-                    'question_id' => $question->id,
-                    'selected_option_id' => $selectedOption?->id,
-                    'is_correct' => $isCorrect,
-                    'score_given' => $isCorrect ? $question->points : 0,
-                ]);
+            QuizAnswer::create([
+                'attempt_id' => $attempt->id,
+                'question_id' => $question->id,
+                'selected_option_id' => $selectedOption?->id,
+                'is_correct' => $isCorrect,
+            ]);
 
-                if ($isCorrect) {
-                    $totalScore += $question->points;
-                }
-            } else {
-                $hasEssay = true;
-
-                QuizAnswer::create([
-                    'attempt_id' => $attempt->id,
-                    'question_id' => $question->id,
-                    'answer_text' => $value,
-                    'is_correct' => null,
-                    'score_given' => null,
-                ]);
+            if ($isCorrect) {
+                $correctCount++;
             }
         }
 
-        if ($hasEssay) {
-            $attempt->update(['status' => 'pending_review']);
-            $this->resultStatus = 'pending_review';
-        } else {
-            $percentage = $maxScore > 0 ? (int) round(($totalScore / $maxScore) * 100) : 0;
-            $passed = $percentage >= $this->quiz->passing_score;
+        // Nilai dinormalisasi 0–100 berdasarkan jumlah jawaban benar.
+        $percentage = $totalQuestions > 0 ? (int) round(($correctCount / $totalQuestions) * 100) : 0;
+        $passed = $percentage >= $this->quiz->passing_score;
 
-            $attempt->update([
-                'score' => $percentage,
-                'status' => $passed ? 'passed' : 'failed',
-                'submitted_at' => now(),
-            ]);
+        $attempt->update([
+            'score' => $percentage,
+            'status' => $passed ? 'passed' : 'failed',
+        ]);
 
-            $this->resultStatus = $passed ? 'passed' : 'failed';
-            $this->resultScore = $percentage;
-        }
-
+        $this->resultStatus = $passed ? 'passed' : 'failed';
+        $this->resultScore = $percentage;
         $this->submitted = true;
+
+        auth()->user()->notify(new QuizCompleted($this->quiz, $percentage, $passed));
     }
 
     public function render()

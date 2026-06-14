@@ -87,8 +87,13 @@
                     @elseif($page->type === 'video')
                         @php
                             $videoId = null;
-                            if ($page->video_url && preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $page->video_url, $vm)) {
-                                $videoId = $vm[1];
+                            $driveId = null;
+                            if ($page->video_url) {
+                                if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $page->video_url, $vm)) {
+                                    $videoId = $vm[1];
+                                } elseif (preg_match('#drive\.google\.com/file/d/([A-Za-z0-9_-]+)#', $page->video_url, $dm)) {
+                                    $driveId = $dm[1];
+                                }
                             }
                         @endphp
                         @if($videoId)
@@ -96,6 +101,11 @@
                                 <iframe src="https://www.youtube.com/embed/{{ $videoId }}?rel=0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen class="h-full w-full"></iframe>
+                            </div>
+                        @elseif($driveId)
+                            <div class="aspect-video overflow-hidden rounded-xl bg-black">
+                                <iframe src="https://drive.google.com/file/d/{{ $driveId }}/preview"
+                                    allow="autoplay" allowfullscreen class="h-full w-full"></iframe>
                             </div>
                         @elseif($page->video_url)
                             <div class="flex items-center justify-center rounded-xl bg-gray-50 py-14">
@@ -108,9 +118,9 @@
                         @endif
                     @elseif($page->type === 'pdf' && $page->file_path)
                         <div class="overflow-hidden rounded-xl border border-gray-200">
-                            <embed src="{{ Storage::url($page->file_path) }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
+                            <embed src="{{ Storage::disk('public')->url($page->file_path) }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
                         </div>
-                        <a href="{{ Storage::url($page->file_path) }}" target="_blank"
+                        <a href="{{ Storage::disk('public')->url($page->file_path) }}" target="_blank"
                             class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline">
                             <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
                             Unduh PDF

@@ -25,11 +25,7 @@
 
             {{-- Header card --}}
             <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                @if($module->thumbnail)
-                    <img src="{{ Storage::url($module->thumbnail) }}" alt="" class="h-44 w-full object-cover sm:h-52">
-                @else
-                    <div class="h-1.5 w-full {{ $isCompleted ? 'bg-emerald-500' : ($progress ? 'bg-indigo-500' : 'bg-indigo-200') }}"></div>
-                @endif
+                <div class="h-1.5 w-full {{ $isCompleted ? 'bg-emerald-500' : ($progress ? 'bg-indigo-500' : 'bg-indigo-200') }}"></div>
 
                 <div class="p-5 sm:p-6">
                     <div class="mb-3 flex flex-wrap items-center gap-2">

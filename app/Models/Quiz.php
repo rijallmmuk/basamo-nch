@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Observers\QuizObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([QuizObserver::class])]
 class Quiz extends Model
 {
     protected $fillable = [
@@ -27,7 +30,7 @@ class Quiz extends Model
 
     public function questions(): HasMany
     {
-        return $this->hasMany(QuizQuestion::class)->orderBy('order');
+        return $this->hasMany(QuizQuestion::class)->orderBy('order')->orderBy('id');
     }
 
     public function attempts(): HasMany

@@ -45,11 +45,11 @@ class QuizController extends Controller
                 ->with('info', 'Anda sudah lulus kuis ini.');
         }
 
-        // Cek batas percobaan — termasuk pending_review agar tidak bisa submit ulang saat menunggu
+        // Cek batas percobaan
         if ($quiz->max_attempts > 0) {
             $attemptCount = QuizAttempt::where('user_id', $user->id)
                 ->where('quiz_id', $quiz->id)
-                ->whereIn('status', ['passed', 'failed', 'pending_review'])
+                ->whereIn('status', ['passed', 'failed'])
                 ->count();
 
             if ($attemptCount >= $quiz->max_attempts) {

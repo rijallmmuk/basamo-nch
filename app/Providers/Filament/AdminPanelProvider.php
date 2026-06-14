@@ -2,8 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -54,7 +54,10 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                // Sembunyikan menu "Role" dari navigasi — 4 role tetap & dikelola di kode.
+                // Resource masih bisa diakses via URL bila perlu.
+                FilamentShieldPlugin::make()
+                    ->registerNavigation(false),
             ])
             ->authMiddleware([
                 Authenticate::class,
