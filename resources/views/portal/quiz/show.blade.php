@@ -3,13 +3,12 @@
 @section('title', 'Kuis: ' . $quiz->title)
 
 @section('content')
-    <div class="flex items-center gap-2 text-sm text-gray-400 mb-4">
-        <a href="{{ route('portal.modules.index') }}" class="hover:text-indigo-600">Modul</a>
-        <span>/</span>
-        <a href="{{ route('portal.modules.show', $module) }}" class="hover:text-indigo-600">{{ $module->title }}</a>
-        <span>/</span>
-        <span class="text-gray-700 font-medium">Kuis</span>
-    </div>
+    {{-- Breadcrumb --}}
+    <nav class="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-gray-400">
+        <a href="{{ route('portal.modules.show', $module) }}" class="max-w-[200px] truncate transition-colors hover:text-indigo-600">{{ $module->title }}</a>
+        <x-heroicon-o-chevron-right class="h-3.5 w-3.5" />
+        <span class="font-medium text-gray-700">Kuis</span>
+    </nav>
 
     <livewire:quiz-player :quiz="$quiz" />
 @endsection

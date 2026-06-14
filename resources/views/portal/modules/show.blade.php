@@ -2,96 +2,157 @@
 
 @section('title', $module->title)
 
+@php
+    $status = $isCompleted ? 'completed' : ($progress ? 'in_progress' : 'available');
+    $done = count($pagesCompleted);
+    $total = $pages->count();
+    $pct = $total > 0 ? (int) ($done / $total * 100) : 0;
+    $nextPage = $pages->first(fn ($p) => ! in_array($p->id, $pagesCompleted)) ?? $pages->first();
+@endphp
+
 @section('content')
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 text-sm text-gray-400 mb-4">
-        <a href="{{ route('portal.modules.index') }}" class="hover:text-indigo-600">Modul</a>
-        <span>/</span>
-        <span class="text-gray-700 font-medium truncate">{{ $module->title }}</span>
-    </div>
+    {{-- Back --}}
+    <a href="{{ route('portal.modules.index') }}"
+        class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-indigo-600">
+        <x-heroicon-o-arrow-left class="h-4 w-4" />
+        Semua Modul
+    </a>
 
-    {{-- Module header --}}
-    <div class="bg-white rounded-xl border border-gray-200 p-5 mb-4">
-        @if($module->thumbnail)
-            <img src="{{ Storage::url($module->thumbnail) }}" alt=""
-                class="w-full h-40 object-cover rounded-lg mb-4">
-        @endif
-        <h1 class="text-xl font-bold text-gray-900">{{ $module->title }}</h1>
-        @if($module->description)
-            <div class="text-sm text-gray-600 mt-2 prose prose-sm max-w-none">
-                {!! $module->description !!}
-            </div>
-        @endif
+    <div class="grid gap-5 lg:grid-cols-3">
 
-        @if($isCompleted && $module->quiz)
-            <div class="mt-4 pt-4 border-t border-gray-100">
-                <a href="{{ route('portal.modules.quiz', $module) }}"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
-                    📝 Kerjakan Kuis
-                </a>
-            </div>
-        @endif
-    </div>
+        {{-- LEFT --}}
+        <div class="space-y-4 lg:col-span-2">
 
-    {{-- Pages list --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-            <h2 class="font-semibold text-gray-800 text-sm">
-                Materi Pembelajaran
-                <span class="text-gray-400 font-normal">({{ $pages->count() }} halaman)</span>
-            </h2>
-        </div>
+            {{-- Header card --}}
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                @if($module->thumbnail)
+                    <img src="{{ Storage::url($module->thumbnail) }}" alt="" class="h-44 w-full object-cover sm:h-52">
+                @else
+                    <div class="h-1.5 w-full {{ $isCompleted ? 'bg-emerald-500' : ($progress ? 'bg-indigo-500' : 'bg-indigo-200') }}"></div>
+                @endif
 
-        @if($pages->isEmpty())
-            <div class="px-5 py-8 text-center text-gray-400 text-sm">
-                Belum ada materi di modul ini
-            </div>
-        @else
-            <div class="divide-y divide-gray-100">
-                @foreach($pages as $page)
-                    @php $done = in_array($page->id, $pagesCompleted); @endphp
-                    <a href="{{ route('portal.modules.pages.show', [$module, $page]) }}"
-                        class="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors">
+                <div class="p-5 sm:p-6">
+                    <div class="mb-3 flex flex-wrap items-center gap-2">
+                        <x-portal.status-badge :status="$status" />
+                        @unless($module->nagari_id)
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Modul Global</span>
+                        @endunless
+                    </div>
 
-                        {{-- Status icon --}}
-                        <div class="shrink-0 w-7 h-7 rounded-full flex items-center justify-center
-                            {{ $done ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }}">
-                            @if($done)
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                            @else
-                                <span class="text-xs font-bold">{{ $loop->iteration }}</span>
-                            @endif
+                    <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ $module->title }}</h1>
+
+                    @if($module->description)
+                        <div class="prose prose-sm mt-2 max-w-none leading-relaxed text-gray-600">
+                            {!! $module->description !!}
                         </div>
+                    @endif
 
-                        {{-- Title & type --}}
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ $page->title }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                @if($page->type === 'video') 🎬 Video
-                                @elseif($page->type === 'pdf') 📄 PDF
-                                @else 📝 Teks
-                                @endif
-                            </p>
+                    @if($progress && ! $isCompleted)
+                        <div class="mt-5">
+                            <div class="mb-1.5 flex items-center justify-between text-sm">
+                                <span class="text-gray-500">{{ $done }} dari {{ $total }} materi selesai</span>
+                                <span class="font-bold text-indigo-600">{{ $pct }}%</span>
+                            </div>
+                            <div class="h-2.5 overflow-hidden rounded-full bg-gray-100">
+                                <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: {{ $pct }}%"></div>
+                            </div>
                         </div>
+                    @endif
+                </div>
+            </div>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-300 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        </svg>
+            {{-- Quiz CTA --}}
+            @if($module->quiz)
+                @if($isCompleted)
+                    <a href="{{ route('portal.modules.quiz', $module) }}"
+                        class="flex items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-5 transition-colors hover:bg-indigo-100">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                                <x-heroicon-s-clipboard-document-check class="h-6 w-6" />
+                            </span>
+                            <div>
+                                <p class="font-bold text-indigo-900">Kerjakan Kuis</p>
+                                <p class="mt-0.5 text-sm text-indigo-600">{{ $module->quiz->title }}</p>
+                            </div>
+                        </div>
+                        <x-heroicon-o-arrow-right class="h-5 w-5 shrink-0 text-indigo-500" />
                     </a>
-                @endforeach
-            </div>
-        @endif
-    </div>
+                @else
+                    <div class="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-200 text-gray-400">
+                            <x-heroicon-s-lock-closed class="h-5 w-5" />
+                        </span>
+                        <div>
+                            <p class="font-bold text-gray-500">Kuis Terkunci</p>
+                            <p class="mt-0.5 text-sm text-gray-400">Selesaikan semua materi untuk membuka kuis.</p>
+                        </div>
+                    </div>
+                @endif
+            @endif
 
-    @if(!$isCompleted && $pages->isNotEmpty())
-        @php $firstPage = $pages->first(); @endphp
-        <div class="mt-4">
-            <a href="{{ route('portal.modules.pages.show', [$module, $firstPage]) }}"
-                class="block w-full text-center py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors">
-                @if($progress) Lanjutkan Belajar @else Mulai Belajar @endif
+            {{-- Diskusi CTA --}}
+            <a href="{{ route('portal.modules.discuss', $module) }}"
+                class="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+                        <x-heroicon-s-chat-bubble-left-right class="h-6 w-6" />
+                    </span>
+                    <div>
+                        <p class="font-bold text-gray-900">Ruang Diskusi</p>
+                        <p class="mt-0.5 text-sm text-gray-500">Tanya jawab seputar modul ini.</p>
+                    </div>
+                </div>
+                <x-heroicon-o-arrow-right class="h-5 w-5 shrink-0 text-gray-400" />
             </a>
         </div>
-    @endif
+
+        {{-- RIGHT: course outline --}}
+        <div>
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:sticky lg:top-20">
+                <div class="border-b border-gray-100 px-5 py-4">
+                    <h2 class="font-bold text-gray-900">Daftar Materi</h2>
+                    <p class="mt-0.5 text-xs text-gray-400">{{ $total }} materi · {{ $done }} selesai</p>
+                </div>
+
+                @if($pages->isEmpty())
+                    <p class="px-5 py-12 text-center text-sm text-gray-400">Belum ada materi tersedia.</p>
+                @else
+                    <ol class="divide-y divide-gray-100">
+                        @foreach($pages as $p)
+                            @php $pDone = in_array($p->id, $pagesCompleted); @endphp
+                            <li>
+                                <a href="{{ route('portal.modules.pages.show', [$module, $p]) }}"
+                                    class="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50">
+                                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold
+                                        {{ $pDone ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400' }}">
+                                        @if($pDone)
+                                            <x-heroicon-s-check class="h-4 w-4" />
+                                        @else
+                                            {{ $loop->iteration }}
+                                        @endif
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-medium {{ $pDone ? 'text-gray-400' : 'text-gray-800' }}">
+                                            {{ $p->title }}
+                                        </span>
+                                    </span>
+                                    <x-portal.content-badge :type="$p->type" class="hidden shrink-0 sm:inline-flex" />
+                                </a>
+                            </li>
+                        @endforeach
+                    </ol>
+
+                    @unless($isCompleted)
+                        <div class="border-t border-gray-100 p-4">
+                            <a href="{{ route('portal.modules.pages.show', [$module, $nextPage]) }}"
+                                class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
+                                <x-heroicon-o-play class="h-5 w-5" />
+                                {{ $progress ? 'Lanjutkan Belajar' : 'Mulai Belajar' }}
+                            </a>
+                        </div>
+                    @endunless
+                @endif
+            </div>
+        </div>
+    </div>
 @endsection

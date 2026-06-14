@@ -72,27 +72,39 @@
 - [x] Fitur beri nilai + feedback untuk jawaban essay (AnswersRelationManager + LmsEssayGradingService)
 
 ### 2.3 Portal Belajar Warga (CUSTOM Blade + Livewire — LAPISAN 2)
-> Bukan panel Filament. Controller + Blade + Livewire. Auth Laravel standar.
-- [ ] Setup auth Laravel untuk warga (login/register portal) + middleware role
-- [ ] Layout portal Blade (header, nav, mobile-first)
-- [ ] Controller + halaman daftar modul dengan status (terkunci/tersedia/selesai)
-- [ ] Halaman detail modul + navigasi halaman per halaman
-- [ ] Tampil materi: teks (HTML), PDF embed, video YouTube/GDrive embed
-- [ ] Livewire QuizPlayer: kuis pilihan ganda + auto-grade
-- [ ] Livewire QuizPlayer: kuis essay + submit ke antrian admin
-- [ ] Progress tracker visual (progress bar per modul)
+- [x] Setup auth Laravel untuk warga (login/register portal) + middleware role
+- [x] Layout portal: header + bottom navigation bar (menggantikan sidebar)
+- [x] Controller + halaman daftar modul dengan status (terkunci/tersedia/selesai)
+- [x] Halaman detail modul + course outline + navigasi halaman per halaman
+- [x] Tampil materi: teks (HTML prose), PDF embed, video YouTube embed
+- [x] Livewire QuizPlayer: kuis pilihan ganda + auto-grade
+- [x] Livewire QuizPlayer: kuis essay + submit ke antrian admin (pending_review)
+- [x] Progress tracker visual (progress bar per modul + page dots)
+- [x] Bug fix: url()->previous() di quiz result, page ownership check, module scope check
+- [ ] UX belajar: layar "Selesai!" saat semua materi tuntas + CTA kuis
+- [ ] UX quiz: progress bar soal (Soal X dari Y) + indikator jawaban + scroll ke soal kosong
 - [ ] Notifikasi in-app sederhana: modul baru, hasil kuis
 
 ### 2.4 Sistem Poin & Leaderboard
 - [ ] Service: `LmsPointService` (kalkulasi poin per aktivitas)
 - [ ] Update poin otomatis saat halaman selesai, kuis lulus
-- [ ] Widget leaderboard per nagari di portal warga
-- [ ] Tampilan peringkat + total poin warga
+- [ ] Halaman leaderboard portal (ranking per nagari, pakai pages_completed dulu → upgrade ke total_points)
 
-### 2.5 Forum Diskusi
-- [ ] Thread diskusi per modul
-- [ ] Warga bisa post pertanyaan & jawaban
-- [ ] Admin nagari bisa pin dan moderasi
+### 2.5 Forum Diskusi ✓ SELESAI
+> Model + migration discussions sudah ada. Layer portal dibangun.
+- [x] Route: `portal.modules.discuss`, `.store`, `.show`, `.reply`
+- [x] `DiscussionController`: index, show, store, reply — scope per nagari
+- [x] View: CTA "Ruang Diskusi" di `modules/show.blade.php` + `discuss/index.blade.php` (thread list + form tanya)
+- [x] View: `modules/discuss/thread.blade.php` — thread detail + balasan + form balas
+- [x] Warga hanya bisa lihat & reply diskusi sesama nagari (scope via nagari penulis)
+
+### 2.6 Kerangka Halaman Front-End (sample, konten placeholder)
+> Dikerjakan setelah LMS (2.3–2.5) selesai
+- [x] Beranda (dashboard): hero sapaan + statistik + spotlight "Lanjutkan" + Aktivitas Belajar
+- [x] Redesign UI LMS menyeluruh + komponen `components/portal/` (avatar, status-badge, content-badge, empty)
+- [ ] Halaman Leaderboard lengkap
+- [ ] Halaman Lapak UMKM (info akses untuk warga / placeholder untuk umkm_owner)
+- [ ] Bottom nav: update 4 item aktif (saat ini 2: Beranda, Modul)
 
 ---
 

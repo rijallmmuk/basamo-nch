@@ -25,6 +25,7 @@ class ModuleController extends Controller
                 'progress' => fn ($q) => $q->where('user_id', $user->id),
                 'prerequisite',
             ])
+            ->withCount('pages')
             ->orderBy('order')
             ->get();
 
@@ -38,6 +39,12 @@ class ModuleController extends Controller
     public function show(Module $module): View|RedirectResponse
     {
         $user = auth()->user();
+
+        // Pastikan modul published dan milik nagari user (atau global)
+        if ($module->status !== 'published' ||
+            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+            abort(404);
+        }
 
         if (! $this->progressService->isModuleAccessible($user, $module)) {
             return redirect()->route('portal.modules.index')

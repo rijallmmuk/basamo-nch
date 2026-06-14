@@ -1,120 +1,154 @@
 @extends('portal.layouts.app')
 
 @section('title', $page->title)
+@section('main-class', 'py-6 pb-28')
 
-@section('content')
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 text-sm text-gray-400 mb-4">
-        <a href="{{ route('portal.modules.index') }}" class="hover:text-indigo-600">Modul</a>
-        <span>/</span>
-        <a href="{{ route('portal.modules.show', $module) }}" class="hover:text-indigo-600 truncate max-w-28">
-            {{ $module->title }}
-        </a>
-        <span>/</span>
-        <span class="text-gray-700 font-medium truncate">{{ $page->title }}</span>
+@php
+    $totalPages = $pages->count();
+    $done = count($pagesCompleted);
+    $pct = $totalPages > 0 ? (int) ($done / $totalPages * 100) : 0;
+    $currentIdx = $pages->search(fn ($p) => $p->id === $page->id) + 1;
+@endphp
+
+{{-- Reader nav menggantikan bottom nav mobile --}}
+@section('bottom-navigation')
+<div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+    <div class="h-1 bg-gray-100">
+        <div class="h-full bg-indigo-500 transition-all" style="width: {{ $pct }}%"></div>
     </div>
-
-    {{-- Progress strip --}}
-    <div class="h-1 bg-gray-200 rounded-full mb-5 overflow-hidden">
-        @php
-            $totalPages = $pages->count();
-            $done = count($pagesCompleted);
-            $pct = $totalPages > 0 ? (int)($done / $totalPages * 100) : 0;
-        @endphp
-        <div class="h-full bg-indigo-500 rounded-full transition-all" style="width: {{ $pct }}%"></div>
-    </div>
-
-    {{-- Content card --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4">
-        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h1 class="font-semibold text-gray-900">{{ $page->title }}</h1>
-            <span class="text-xs text-gray-400">
-                @if($page->type === 'video') 🎬 Video
-                @elseif($page->type === 'pdf') 📄 PDF
-                @else 📝 Teks
-                @endif
-            </span>
-        </div>
-
-        <div class="p-5">
-            {{-- TEXT content --}}
-            @if($page->type === 'text')
-                <div class="prose prose-sm max-w-none text-gray-700">
-                    {!! $page->content !!}
-                </div>
-            @endif
-
-            {{-- VIDEO embed --}}
-            @if($page->type === 'video')
-                @php
-                    $videoId = null;
-                    if ($page->video_url && preg_match(
-                        '/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/',
-                        $page->video_url,
-                        $m
-                    )) {
-                        $videoId = $m[1];
-                    }
-                @endphp
-
-                @if($videoId)
-                    <div class="aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe
-                            src="https://www.youtube.com/embed/{{ $videoId }}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                            class="w-full h-full">
-                        </iframe>
-                    </div>
-                @elseif($page->video_url)
-                    <div class="flex items-center justify-center h-40 bg-gray-50 rounded-lg">
-                        <a href="{{ $page->video_url }}" target="_blank" rel="noopener"
-                            class="text-indigo-600 font-medium text-sm hover:underline">
-                            🎬 Buka Video di Tab Baru
-                        </a>
-                    </div>
-                @endif
-            @endif
-
-            {{-- PDF embed --}}
-            @if($page->type === 'pdf' && $page->file_path)
-                <embed
-                    src="{{ Storage::url($page->file_path) }}"
-                    type="application/pdf"
-                    class="w-full rounded-lg"
-                    style="height: 600px;">
-                <a href="{{ Storage::url($page->file_path) }}" target="_blank"
-                    class="mt-2 inline-block text-sm text-indigo-600 hover:underline">
-                    Unduh / Buka di tab baru ↗
-                </a>
-            @endif
-        </div>
-    </div>
-
-    {{-- Navigation --}}
-    <div class="flex items-center justify-between gap-3">
+    <div class="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         @if($prevPage)
             <a href="{{ route('portal.modules.pages.show', [$module, $prevPage]) }}"
-                class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                ← Sebelumnya
+                class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50">
+                <x-heroicon-o-arrow-left class="h-4 w-4" />
+                <span class="hidden sm:inline">Sebelumnya</span>
             </a>
         @else
             <a href="{{ route('portal.modules.show', $module) }}"
-                class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                ← Kembali ke Modul
+                class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50">
+                <x-heroicon-o-arrow-left class="h-4 w-4" />
+                <span class="hidden sm:inline">Ke Modul</span>
             </a>
         @endif
+
+        <div class="flex items-center gap-1.5">
+            @foreach($pages as $p)
+                @php $isDone = in_array($p->id, $pagesCompleted); $isCurrent = $p->id === $page->id; @endphp
+                <span class="rounded-full transition-all
+                    @if($isCurrent) h-2 w-6 bg-indigo-500
+                    @elseif($isDone) h-2 w-2 bg-emerald-400
+                    @else h-2 w-2 bg-gray-200 @endif"></span>
+            @endforeach
+        </div>
 
         @if($nextPage)
             <a href="{{ route('portal.modules.pages.show', [$module, $nextPage]) }}"
-                class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
-                Lanjut →
+                class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
+                <span class="hidden sm:inline">Selanjutnya</span>
+                <x-heroicon-o-arrow-right class="h-4 w-4" />
             </a>
         @else
             <a href="{{ route('portal.modules.show', $module) }}"
-                class="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
-                ✅ Selesai — Kembali ke Modul
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                <span class="hidden sm:inline">Selesai</span>
+                <x-heroicon-s-check-circle class="h-4 w-4" />
             </a>
         @endif
+    </div>
+</div>
+@endsection
+
+@section('content')
+    {{-- Breadcrumb --}}
+    <nav class="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-gray-400">
+        <a href="{{ route('portal.modules.show', $module) }}" class="max-w-[180px] truncate transition-colors hover:text-indigo-600">{{ $module->title }}</a>
+        <x-heroicon-o-chevron-right class="h-3.5 w-3.5" />
+        <span class="max-w-[180px] truncate font-medium text-gray-700">{{ $page->title }}</span>
+    </nav>
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        {{-- Content --}}
+        <div class="lg:col-span-2">
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6">
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium text-gray-400">Materi {{ $currentIdx }} dari {{ $totalPages }}</p>
+                        <h1 class="mt-0.5 text-lg font-bold leading-snug text-gray-900">{{ $page->title }}</h1>
+                    </div>
+                    <x-portal.content-badge :type="$page->type" class="shrink-0" />
+                </div>
+
+                <div class="p-5 sm:p-6 lg:p-8">
+                    @if($page->type === 'text')
+                        <div class="prose prose-sm max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
+                            {!! $page->content !!}
+                        </div>
+                    @elseif($page->type === 'video')
+                        @php
+                            $videoId = null;
+                            if ($page->video_url && preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $page->video_url, $vm)) {
+                                $videoId = $vm[1];
+                            }
+                        @endphp
+                        @if($videoId)
+                            <div class="aspect-video overflow-hidden rounded-xl bg-black">
+                                <iframe src="https://www.youtube.com/embed/{{ $videoId }}?rel=0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen class="h-full w-full"></iframe>
+                            </div>
+                        @elseif($page->video_url)
+                            <div class="flex items-center justify-center rounded-xl bg-gray-50 py-14">
+                                <a href="{{ $page->video_url }}" target="_blank" rel="noopener"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
+                                    <x-heroicon-s-play-circle class="h-5 w-5" />
+                                    Buka Video
+                                </a>
+                            </div>
+                        @endif
+                    @elseif($page->type === 'pdf' && $page->file_path)
+                        <div class="overflow-hidden rounded-xl border border-gray-200">
+                            <embed src="{{ Storage::url($page->file_path) }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
+                        </div>
+                        <a href="{{ Storage::url($page->file_path) }}" target="_blank"
+                            class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline">
+                            <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                            Unduh PDF
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Sidebar outline --}}
+        <aside class="hidden lg:block">
+            <div class="sticky top-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="border-b border-gray-100 px-5 py-4">
+                    <p class="font-bold text-gray-900">Daftar Materi</p>
+                    <p class="mt-0.5 text-xs text-gray-400">{{ $done }} dari {{ $totalPages }} selesai</p>
+                </div>
+                <ol class="divide-y divide-gray-50">
+                    @foreach($pages as $p)
+                        @php $isDone = in_array($p->id, $pagesCompleted); $isCurrent = $p->id === $page->id; @endphp
+                        <li>
+                            <a href="{{ route('portal.modules.pages.show', [$module, $p]) }}"
+                                class="flex items-center gap-3 px-5 py-3 transition-colors {{ $isCurrent ? 'bg-indigo-50' : 'hover:bg-slate-50' }}">
+                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold
+                                    {{ $isDone ? 'bg-emerald-100 text-emerald-600' : ($isCurrent ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400') }}">
+                                    @if($isDone)
+                                        <x-heroicon-s-check class="h-3.5 w-3.5" />
+                                    @else
+                                        {{ $loop->iteration }}
+                                    @endif
+                                </span>
+                                <span class="truncate text-sm font-medium {{ $isCurrent ? 'text-indigo-700' : ($isDone ? 'text-gray-400' : 'text-gray-700') }}">
+                                    {{ $p->title }}
+                                </span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ol>
+            </div>
+        </aside>
     </div>
 @endsection

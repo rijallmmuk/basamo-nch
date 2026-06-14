@@ -17,6 +17,17 @@ class PageController extends Controller
     {
         $user = auth()->user();
 
+        // Pastikan modul published dan milik nagari user (atau global)
+        if ($module->status !== 'published' ||
+            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+            abort(404);
+        }
+
+        // Pastikan halaman ini memang milik modul ini
+        if ($page->module_id !== $module->id) {
+            abort(404);
+        }
+
         if (! $this->progressService->isModuleAccessible($user, $module)) {
             return redirect()->route('portal.modules.index');
         }

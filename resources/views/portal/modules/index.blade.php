@@ -1,96 +1,97 @@
 @extends('portal.layouts.app')
 
-@section('title', 'Daftar Modul')
+@section('title', 'Semua Modul')
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-xl font-bold text-gray-900">Modul Pembelajaran</h1>
-        <p class="text-sm text-gray-500 mt-1">Selamat datang, {{ auth()->user()->name }}</p>
+    {{-- Header --}}
+    <div class="mb-5">
+        <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">Daftar Modul</h1>
+        <p class="mt-1 text-sm text-gray-500">Pilih modul untuk mulai atau melanjutkan belajar.</p>
     </div>
 
     @if($modules->isEmpty())
-        <div class="text-center py-16 text-gray-400">
-            <div class="text-5xl mb-3">📚</div>
-            <p class="font-medium">Belum ada modul tersedia</p>
-            <p class="text-sm mt-1">Modul akan ditampilkan setelah admin mempublikasikannya</p>
-        </div>
+        <x-portal.empty
+            icon="heroicon-o-book-open"
+            title="Belum ada modul tersedia"
+            subtitle="Modul akan muncul setelah admin mempublikasikannya." />
     @else
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             @foreach($modules as $module)
                 @php
                     $status = $statusMap[$module->id] ?? 'available';
                     $progress = $module->progress->first();
-                    $pagesCompleted = $progress?->pages_completed ?? [];
-                    $totalPages = $module->pages()->count();
-                    $progressPct = $totalPages > 0 ? (int)(count($pagesCompleted) / $totalPages * 100) : 0;
+                    $pagesDone = count($progress?->pages_completed ?? []);
+                    $pct = $module->pages_count > 0 ? (int) ($pagesDone / $module->pages_count * 100) : 0;
+                    $locked = $status === 'locked';
                 @endphp
 
-                <div class="bg-white rounded-xl border {{ $status === 'locked' ? 'border-gray-200 opacity-70' : 'border-gray-200' }} overflow-hidden">
-                    <div class="flex items-start gap-4 p-4">
+                <div class="flex flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition {{ $locked ? 'opacity-70' : 'hover:shadow-md' }}">
 
-                        {{-- Thumbnail / Status icon --}}
-                        <div class="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-indigo-50 flex items-center justify-center">
-                            @if($module->thumbnail)
-                                <img src="{{ Storage::url($module->thumbnail) }}" alt="" class="w-full h-full object-cover">
-                            @else
-                                <span class="text-2xl">
-                                    @if($status === 'locked') 🔒
-                                    @elseif($status === 'completed') ✅
-                                    @else 📖
-                                    @endif
-                                </span>
-                            @endif
-                        </div>
-
-                        {{-- Info --}}
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-start justify-between gap-2">
-                                <h3 class="font-semibold text-gray-900 text-sm leading-snug">{{ $module->title }}</h3>
-                                @if($status === 'completed')
-                                    <span class="shrink-0 text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">Selesai</span>
-                                @elseif($status === 'in_progress')
-                                    <span class="shrink-0 text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">Berlangsung</span>
-                                @elseif($status === 'locked')
-                                    <span class="shrink-0 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">🔒 Terkunci</span>
-                                @endif
-                            </div>
-
-                            @if($module->description)
-                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ strip_tags($module->description) }}</p>
-                            @endif
-
-                            @if($status === 'locked' && $module->prerequisite)
-                                <p class="text-xs text-amber-600 mt-1">Prasyarat: {{ $module->prerequisite->title }}</p>
-                            @endif
-
-                            {{-- Progress bar --}}
-                            @if($status === 'in_progress' && $totalPages > 0)
-                                <div class="mt-2">
-                                    <div class="flex justify-between text-xs text-gray-400 mb-1">
-                                        <span>{{ count($pagesCompleted) }}/{{ $totalPages }} halaman</span>
-                                        <span>{{ $progressPct }}%</span>
-                                    </div>
-                                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-indigo-500 rounded-full transition-all"
-                                            style="width: {{ $progressPct }}%"></div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
+                    {{-- Top row: order + status --}}
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                            <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-gray-500">{{ $module->order }}</span>
+                            @unless($module->nagari_id) Modul Global @endunless
+                        </span>
+                        <x-portal.status-badge :status="$status" />
                     </div>
 
-                    {{-- Action --}}
-                    @if($status !== 'locked')
-                        <div class="border-t border-gray-100 px-4 py-3">
+                    {{-- Title + desc --}}
+                    <h2 class="text-base font-bold leading-snug {{ $locked ? 'text-gray-500' : 'text-gray-900' }}">
+                        {{ $module->title }}
+                    </h2>
+                    @if($module->description)
+                        <p class="mt-1.5 line-clamp-2 text-sm text-gray-500">{{ strip_tags($module->description) }}</p>
+                    @endif
+
+                    {{-- Prerequisite warning --}}
+                    @if($locked && $module->prerequisite)
+                        <p class="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                            <x-heroicon-s-lock-closed class="mt-px h-3.5 w-3.5 shrink-0" />
+                            Selesaikan dulu: {{ $module->prerequisite->title }}
+                        </p>
+                    @endif
+
+                    {{-- Progress --}}
+                    @if($status === 'in_progress' && $module->pages_count > 0)
+                        <div class="mt-4">
+                            <div class="mb-1.5 flex items-center justify-between text-xs">
+                                <span class="font-medium text-gray-500">{{ $pagesDone }}/{{ $module->pages_count }} materi</span>
+                                <span class="font-bold text-indigo-600">{{ $pct }}%</span>
+                            </div>
+                            <div class="h-1.5 overflow-hidden rounded-full bg-gray-100">
+                                <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: {{ $pct }}%"></div>
+                            </div>
+                        </div>
+                    @else
+                        <p class="mt-3 inline-flex items-center gap-1.5 text-xs text-gray-400">
+                            <x-heroicon-o-document-text class="h-4 w-4" />
+                            {{ $module->pages_count }} materi
+                        </p>
+                    @endif
+
+                    {{-- CTA --}}
+                    <div class="mt-4 pt-1">
+                        @if($locked)
+                            <span class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-400">
+                                <x-heroicon-s-lock-closed class="h-4 w-4" />
+                                Terkunci
+                            </span>
+                        @else
                             <a href="{{ route('portal.modules.show', $module) }}"
-                                class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                                @if($status === 'completed') Lihat Modul →
-                                @elseif($status === 'in_progress') Lanjutkan Belajar →
-                                @else Mulai Belajar →
+                                class="flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors
+                                    @if($status === 'completed') bg-gray-100 text-gray-700 hover:bg-gray-200
+                                    @else bg-indigo-600 text-white hover:bg-indigo-700 @endif">
+                                @if($status === 'completed')
+                                    <x-heroicon-o-eye class="h-4 w-4" /> Lihat Kembali
+                                @elseif($status === 'in_progress')
+                                    <x-heroicon-o-play class="h-4 w-4" /> Lanjutkan
+                                @else
+                                    <x-heroicon-o-play class="h-4 w-4" /> Mulai Belajar
                                 @endif
                             </a>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             @endforeach
         </div>

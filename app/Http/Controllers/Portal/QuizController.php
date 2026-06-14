@@ -16,6 +16,18 @@ class QuizController extends Controller
     public function show(Module $module): View|RedirectResponse
     {
         $user = auth()->user();
+
+        // Pastikan modul published dan milik nagari user (atau global)
+        if ($module->status !== 'published' ||
+            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+            abort(404);
+        }
+
+        if (! $this->progressService->isModuleAccessible($user, $module)) {
+            return redirect()->route('portal.modules.index')
+                ->with('error', 'Selesaikan modul prasyarat terlebih dahulu.');
+        }
+
         $quiz = $module->quiz;
 
         if (! $quiz) {
@@ -28,21 +40,16 @@ class QuizController extends Controller
         }
 
         // Sudah lulus
-        $hasPassedAttempt = QuizAttempt::where('user_id', $user->id)
-            ->where('quiz_id', $quiz->id)
-            ->where('status', 'passed')
-            ->exists();
-
-        if ($hasPassedAttempt) {
+        if (QuizAttempt::where('user_id', $user->id)->where('quiz_id', $quiz->id)->where('status', 'passed')->exists()) {
             return redirect()->route('portal.modules.show', $module)
-                ->with('info', 'Anda sudah lulus kuis ini. 🎉');
+                ->with('info', 'Anda sudah lulus kuis ini.');
         }
 
-        // Cek batas percobaan
+        // Cek batas percobaan — termasuk pending_review agar tidak bisa submit ulang saat menunggu
         if ($quiz->max_attempts > 0) {
             $attemptCount = QuizAttempt::where('user_id', $user->id)
                 ->where('quiz_id', $quiz->id)
-                ->whereIn('status', ['passed', 'failed'])
+                ->whereIn('status', ['passed', 'failed', 'pending_review'])
                 ->count();
 
             if ($attemptCount >= $quiz->max_attempts) {

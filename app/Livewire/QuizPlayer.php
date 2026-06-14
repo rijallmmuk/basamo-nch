@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
@@ -13,6 +14,8 @@ class QuizPlayer extends Component
 {
     public Quiz $quiz;
 
+    public Module $module;
+
     public array $answers = [];
 
     public bool $submitted = false;
@@ -21,11 +24,12 @@ class QuizPlayer extends Component
 
     public ?int $resultScore = null;
 
-    public array $errors = [];
+    public array $quizErrors = [];
 
     public function mount(Quiz $quiz): void
     {
         $this->quiz = $quiz;
+        $this->module = $quiz->module;
     }
 
     #[Computed]
@@ -37,13 +41,15 @@ class QuizPlayer extends Component
     public function submit(): void
     {
         // Validasi semua soal pilihan ganda sudah dijawab
+        $this->quizErrors = [];
+
         foreach ($this->questions as $question) {
             if ($question->type === 'multiple_choice' && empty($this->answers[$question->id])) {
-                $this->errors[] = "Soal #{$question->order} belum dijawab.";
+                $this->quizErrors[] = "Soal #{$question->order} belum dijawab.";
             }
         }
 
-        if (! empty($this->errors)) {
+        if (! empty($this->quizErrors)) {
             return;
         }
 

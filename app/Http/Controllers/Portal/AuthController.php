@@ -40,7 +40,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('portal.modules.index');
+        return redirect()->route('portal.home');
     }
 
     public function showRegister(): View
@@ -73,7 +73,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('portal.modules.index');
+        return redirect()->route('portal.home');
     }
 
     public function logout(Request $request): RedirectResponse
