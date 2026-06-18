@@ -6,6 +6,23 @@
 
 ---
 
+### [2026-06] NagariResource (M1) — manajemen nagari + SoftDeletes
+**Keputusan**: `NagariResource` (grup "Pengaturan"), **hanya super_admin** (`NagariPolicy` semua false; super via Gate::before; nagari_admin ditolak). Form: Identitas (nama, kode unik→UPPERCASE) · Wilayah (provinsi/kab/kec + koordinat) · Kontak & Status. Tabel: jumlah warga & modul (withCount), badge status.
+- **SoftDeletes** ditambah ke tabel `nagaris` (arsip + restore).
+- **Guard anti-orphan**: nagari tak bisa dihapus selama masih punya pengguna/modul (`NagariResource::guardAgainstDependents()` + `$action->halt()` + notifikasi). Force delete cek termasuk yang sudah di-soft-delete (FK `nullOnDelete` akan men-null-kan saat hard delete). Hapus massal dihilangkan agar guard per-record selalu jalan.
+**Alasan**: Nagari = akar multi-tenancy berskala nasional; menghapus tanpa guard akan meng-orphan warga/modul. SoftDeletes memberi jaring pengaman + jejak audit.
+**Verifikasi**: `tests/Feature/NagariResourceTest.php` (4 lulus): create + normalisasi kode, tolak hapus bila ada warga, arsip nagari kosong, penolakan nagari_admin.
+
+### [2026-06] UserResource (M2) — manajemen pengguna oleh admin
+**Keputusan**: Panel `/admin` punya `UserResource` (grup "Pengaturan").
+- **super_admin**: CRUD semua pengguna lintas nagari, set semua peran; peran `super_admin` → `nagari_id` null (global).
+- **nagari_admin**: hanya pengguna di nagarinya (scope di `getEloquentQuery` + `getRecordRouteBindingEloquentQuery`), hanya boleh buat/kelola `warga`/`umkm_owner`; `nagari_id` dipaksa ke miliknya (field nagari disembunyikan).
+- **Pengaman**: password di-hash (cast) & opsional saat edit (`dehydrated(filled)` + `confirmed`, min 8); tak bisa hapus akun sendiri (aksi disembunyikan); tak bisa menurunkan peran/menonaktifkan diri sendiri (`mutateFormDataBeforeSave`). `UserPolicy` berbasis role (super_admin via Gate::before).
+- Peran disinkronkan otomatis ke Spatie via observer `User::booted` (lihat keputusan RBAC).
+**Alasan**: Super_admin & admin nagari perlu kelola akun lewat UI (bukan tinker/seeder) — fungsi inti operasional. Pola tenant-admin multi-tenant standar.
+**Verifikasi**: `tests/Feature/UserResourceTest.php` (4 lulus): create+hash+sync role, scope nagari_admin, larangan peran admin oleh nagari_admin, hapus-diri disembunyikan.
+**Ditunda**: impersonate, 2FA admin, audit-log UI, bulk-import — belum diperlukan MVP.
+
 ### [2026-06] RBAC: kolom `role` = sumber kebenaran tunggal (audit super_admin)
 **Keputusan**: Otoritas diturunkan dari **kolom `users.role`**, bukan Spatie role.
 - super_admin bypass via `Gate::before` di `AppServiceProvider` yang cek `isSuperAdmin()` (kolom). Tak lagi bergantung pada `hasRole()` Spatie → tak ada "admin hantu".

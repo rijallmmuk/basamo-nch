@@ -193,8 +193,8 @@
 - [~] Audit semua scope nagari (pastikan tidak ada data bocor) — super_admin & QuizResource route-binding (L2) beres; sisanya saat resource baru
 - [~] Test semua 4 role login dan akses fitur — `SuperAdminAccessTest` (akses panel + policy + observer) lulus; login flow per role menyusul
 - [ ] RBAC: kolom `role` = sumber kebenaran (Gate::before + observer sync) — SELESAI (lihat DECISIONS 2026-06)
-- [ ] (M1) NagariResource — super_admin kelola nagari via UI (ditunda, perlu dibahas)
-- [ ] (M2) UserResource — super_admin kelola user/admin + aktif-nonaktif (ditunda, perlu dibahas)
+- [x] (M1) NagariResource — super_admin kelola nagari (CRUD, SoftDeletes, guard anti-orphan, withCount warga/modul, NagariPolicy super_admin-only) + test
+- [x] (M2) UserResource — super_admin & nagari_admin kelola user (CRUD, scope nagari, hash password, pengaman self-lockout, UserPolicy) + test
 - [ ] Responsive check portal warga di mobile
 - [ ] Optimasi query N+1 (gunakan `with()` di semua Resource)
 - [ ] Pest test untuk Services utama: LmsPointService, dll
