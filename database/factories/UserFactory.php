@@ -42,4 +42,29 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'super_admin', 'status' => 'active']);
+    }
+
+    public function nagariAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'nagari_admin', 'status' => 'active']);
+    }
+
+    public function warga(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'warga', 'status' => 'active']);
+    }
+
+    public function umkmOwner(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'umkm_owner', 'status' => 'active']);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => ['status' => 'inactive']);
+    }
 }

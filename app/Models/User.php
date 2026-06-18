@@ -13,18 +13,41 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'nagari_id', 'role', 'avatar', 'total_points', 'status'])]
+#[Fillable(['name', 'username', 'email', 'password', 'nagari_id', 'role', 'avatar', 'total_points', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
+    protected static function booted(): void
+    {
+        // Kolom `role` adalah sumber kebenaran. Saat role berubah, samakan Spatie role
+        // agar Shield & cek hasRole() tetap konsisten (tak ada "admin hantu").
+        static::saved(function (self $user): void {
+            if (! ($user->wasRecentlyCreated || $user->wasChanged('role'))) {
+                return;
+            }
+
+            if (blank($user->role)) {
+                $user->syncRoles([]);
+
+                return;
+            }
+
+            if (Role::where('name', $user->role)->where('guard_name', 'web')->exists()) {
+                $user->syncRoles([$user->role]);
+            }
+        });
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return in_array($this->role, ['super_admin', 'nagari_admin']);
+        return $this->status === 'active'
+            && in_array($this->role, ['super_admin', 'nagari_admin'], true);
     }
 
     public function isSuperAdmin(): bool

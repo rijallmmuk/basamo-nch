@@ -4,72 +4,75 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Quiz;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+/**
+ * super_admin dilewatkan via Gate::before (akses penuh).
+ * Policy ini mengatur nagari_admin; scope per-nagari ditegakkan di query Resource.
+ */
 class QuizPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function view(AuthUser $authUser, Quiz $quiz): bool
+    public function view(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('View:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function update(AuthUser $authUser, Quiz $quiz): bool
+    public function update(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('Update:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function delete(AuthUser $authUser, Quiz $quiz): bool
+    public function delete(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('Delete:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('DeleteAny:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function restore(AuthUser $authUser, Quiz $quiz): bool
+    public function restore(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('Restore:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function forceDelete(AuthUser $authUser, Quiz $quiz): bool
+    public function forceDelete(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('ForceDelete:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function forceDeleteAny(User $user): bool
     {
-        return $authUser->can('ForceDeleteAny:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function restoreAny(User $user): bool
     {
-        return $authUser->can('RestoreAny:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function replicate(AuthUser $authUser, Quiz $quiz): bool
+    public function replicate(User $user, Quiz $quiz): bool
     {
-        return $authUser->can('Replicate:Quiz');
+        return $user->isNagariAdmin();
     }
 
-    public function reorder(AuthUser $authUser): bool
+    public function reorder(User $user): bool
     {
-        return $authUser->can('Reorder:Quiz');
+        return $user->isNagariAdmin();
     }
-
 }

@@ -4,72 +4,75 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\QuizAttempt;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+/**
+ * super_admin dilewatkan via Gate::before. nagari_admin boleh melihat (untuk pemantauan).
+ * Attempt dibuat oleh warga lewat portal (di luar policy ini), bukan oleh admin.
+ */
 class QuizAttemptPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:QuizAttempt');
+        return $user->isNagariAdmin();
     }
 
-    public function view(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function view(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('View:QuizAttempt');
+        return $user->isNagariAdmin();
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:QuizAttempt');
+        return false;
     }
 
-    public function update(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function update(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('Update:QuizAttempt');
+        return false;
     }
 
-    public function delete(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function delete(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('Delete:QuizAttempt');
+        return false;
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('DeleteAny:QuizAttempt');
+        return false;
     }
 
-    public function restore(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function restore(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('Restore:QuizAttempt');
+        return false;
     }
 
-    public function forceDelete(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function forceDelete(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('ForceDelete:QuizAttempt');
+        return false;
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function forceDeleteAny(User $user): bool
     {
-        return $authUser->can('ForceDeleteAny:QuizAttempt');
+        return false;
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function restoreAny(User $user): bool
     {
-        return $authUser->can('RestoreAny:QuizAttempt');
+        return false;
     }
 
-    public function replicate(AuthUser $authUser, QuizAttempt $quizAttempt): bool
+    public function replicate(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $authUser->can('Replicate:QuizAttempt');
+        return false;
     }
 
-    public function reorder(AuthUser $authUser): bool
+    public function reorder(User $user): bool
     {
-        return $authUser->can('Reorder:QuizAttempt');
+        return false;
     }
-
 }

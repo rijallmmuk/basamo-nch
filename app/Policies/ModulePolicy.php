@@ -4,72 +4,75 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+/**
+ * super_admin dilewatkan via Gate::before (akses penuh).
+ * Policy ini mengatur nagari_admin; scope per-nagari ditegakkan di query Resource.
+ */
 class ModulePolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function view(AuthUser $authUser, Module $module): bool
+    public function view(User $user, Module $module): bool
     {
-        return $authUser->can('View:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function update(AuthUser $authUser, Module $module): bool
+    public function update(User $user, Module $module): bool
     {
-        return $authUser->can('Update:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function delete(AuthUser $authUser, Module $module): bool
+    public function delete(User $user, Module $module): bool
     {
-        return $authUser->can('Delete:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('DeleteAny:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function restore(AuthUser $authUser, Module $module): bool
+    public function restore(User $user, Module $module): bool
     {
-        return $authUser->can('Restore:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function forceDelete(AuthUser $authUser, Module $module): bool
+    public function forceDelete(User $user, Module $module): bool
     {
-        return $authUser->can('ForceDelete:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function forceDeleteAny(User $user): bool
     {
-        return $authUser->can('ForceDeleteAny:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function restoreAny(User $user): bool
     {
-        return $authUser->can('RestoreAny:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function replicate(AuthUser $authUser, Module $module): bool
+    public function replicate(User $user, Module $module): bool
     {
-        return $authUser->can('Replicate:Module');
+        return $user->isNagariAdmin();
     }
 
-    public function reorder(AuthUser $authUser): bool
+    public function reorder(User $user): bool
     {
-        return $authUser->can('Reorder:Module');
+        return $user->isNagariAdmin();
     }
-
 }

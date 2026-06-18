@@ -51,12 +51,26 @@ class QuizResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery()
-            ->with('module')
-            ->withCount('questions');
+        return static::scopeToNagari(
+            parent::getEloquentQuery()
+                ->with('module')
+                ->withCount('questions')
+        );
+    }
 
-        // nagari_admin hanya melihat kuis dari modul nagarinya sendiri.
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return static::scopeToNagari(parent::getRecordRouteBindingEloquentQuery());
+    }
+
+    /**
+     * nagari_admin hanya boleh mengakses kuis dari modul nagarinya sendiri.
+     * super_admin melihat semua. Dipakai oleh listing & route-model binding (edit/URL langsung).
+     */
+    protected static function scopeToNagari(Builder $query): Builder
+    {
         $user = auth()->user();
+
         if ($user?->isNagariAdmin()) {
             $query->whereHas('module', fn (Builder $q) => $q->where('nagari_id', $user->nagari_id));
         }
