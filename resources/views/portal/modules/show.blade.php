@@ -22,7 +22,7 @@
         <div class="space-y-4 lg:col-span-2">
 
             {{-- Header card --}}
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <x-portal.card :padded="false">
                 <div class="h-1.5 w-full {{ $isCompleted ? 'bg-emerald-500' : ($progress ? 'bg-indigo-500' : 'bg-indigo-200') }}"></div>
 
                 <div class="p-5 sm:p-6">
@@ -53,7 +53,7 @@
                         </div>
                     @endif
                 </div>
-            </div>
+            </x-portal.card>
 
             {{-- Quiz CTA --}}
             @if($module->quiz)
@@ -102,7 +102,7 @@
 
         {{-- RIGHT: course outline --}}
         <div>
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:sticky lg:top-20">
+            <x-portal.card :padded="false" class="lg:sticky lg:top-20">
                 <div class="border-b border-gray-100 px-5 py-4">
                     <h2 class="font-bold text-gray-900">Daftar Materi</h2>
                     <p class="mt-0.5 text-xs text-gray-400">{{ $total }} materi · {{ $done }} selesai</p>
@@ -146,7 +146,7 @@
                         </div>
                     @endunless
                 @endif
-            </div>
+            </x-portal.card>
         </div>
     </div>
 @endsection

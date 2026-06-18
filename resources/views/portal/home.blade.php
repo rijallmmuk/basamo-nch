@@ -68,18 +68,13 @@
             ];
         @endphp
         @foreach($stats as $s)
-            <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="flex items-center gap-2.5">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg {{ $s['bg'] }}">
-                        <x-dynamic-component :component="$s['icon']" class="h-5 w-5 {{ $s['fg'] }}" />
-                    </span>
-                    <span class="text-sm font-medium text-gray-500">{{ $s['label'] }}</span>
-                </div>
-                <p class="mt-3 text-3xl font-bold text-gray-900">
-                    {{ $s['value'] }}
-                    @if(! empty($s['sub']))<span class="text-sm font-normal text-gray-400">{{ $s['sub'] }}</span>@endif
-                </p>
-            </div>
+            <x-portal.stat
+                :label="$s['label']"
+                :value="$s['value']"
+                :sub="$s['sub'] ?? null"
+                :icon="$s['icon']"
+                :iconBg="$s['bg']"
+                :iconFg="$s['fg']" />
         @endforeach
     </div>
 
@@ -87,7 +82,7 @@
 
         {{-- Lanjutkan Belajar --}}
         <div class="lg:col-span-3">
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <x-portal.card :padded="false">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                     <div class="flex items-center gap-2.5">
                         <x-heroicon-s-academic-cap class="h-5 w-5 text-indigo-500" />
@@ -154,12 +149,12 @@
                         @endforeach
                     </div>
                 @endif
-            </div>
+            </x-portal.card>
         </div>
 
         {{-- Peringkat XP Nagari --}}
         <div class="lg:col-span-2">
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <x-portal.card :padded="false">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                     <div class="flex items-center gap-2.5">
                         <x-heroicon-s-trophy class="h-5 w-5 text-amber-500" />
@@ -202,7 +197,7 @@
                         </div>
                     @endif
                 @endif
-            </div>
+            </x-portal.card>
         </div>
     </div>
 

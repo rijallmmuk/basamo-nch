@@ -32,7 +32,7 @@
     @if($warga->isEmpty())
         <x-portal.empty icon="heroicon-o-trophy" title="Belum ada peringkat" subtitle="Peringkat muncul setelah warga mengumpulkan XP." />
     @else
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <x-portal.card :padded="false">
             <div class="divide-y divide-gray-100">
                 @foreach($warga as $w)
                     @php
@@ -52,7 +52,7 @@
                     </div>
                 @endforeach
             </div>
-        </div>
+        </x-portal.card>
 
         <div class="mt-5">
             {{ $warga->links() }}

@@ -78,7 +78,7 @@
 
         {{-- Content --}}
         <div class="lg:col-span-2">
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <x-portal.card :padded="false">
                 <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6">
                     <div class="min-w-0">
                         <p class="text-xs font-medium text-gray-400">Materi {{ $currentIdx }} dari {{ $totalPages }}</p>
@@ -135,12 +135,12 @@
                         </a>
                     @endif
                 </div>
-            </div>
+            </x-portal.card>
         </div>
 
         {{-- Sidebar outline --}}
         <aside class="hidden lg:block">
-            <div class="sticky top-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <x-portal.card :padded="false" class="sticky top-20">
                 <div class="border-b border-gray-100 px-5 py-4">
                     <p class="font-bold text-gray-900">Daftar Materi</p>
                     <p class="mt-0.5 text-xs text-gray-400">{{ $done }} dari {{ $totalPages }} selesai</p>
@@ -166,7 +166,7 @@
                         </li>
                     @endforeach
                 </ol>
-            </div>
+            </x-portal.card>
         </aside>
     </div>
 @endsection

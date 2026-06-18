@@ -29,11 +29,10 @@
             <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>
         @enderror
         <div class="mt-3 flex justify-end">
-            <button type="submit"
-                class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-base font-bold text-white transition-colors hover:bg-indigo-700">
+            <x-portal.button type="submit" size="lg">
                 <x-heroicon-o-paper-airplane class="h-5 w-5" />
                 Kirim
-            </button>
+            </x-portal.button>
         </div>
     </form>
 
