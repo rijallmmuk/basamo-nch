@@ -10,7 +10,7 @@
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap.
 **Progres**: ~92%. Git bersih & ter-push ke origin/main.
-**Login uji**: super_admin `admin@basamo.nch` / `password`. Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
+**Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
 
@@ -18,9 +18,8 @@
 > Konfirmasi arah dulu ke user, lalu kerjakan. Kandidat (urut saran):
 1. **Data demo/seeder** — XP & leaderboard sekarang masih 0; seed warga + progres + XP agar showcase terlihat hidup.
 2. **Lapak UMKM** (2.6) — halaman placeholder + menu "Produk Saya" (khusus `umkm_owner`). Belum dibangun.
-3. **Konsistensi** — terapkan komponen `x-portal.button`/`card` ke seluruh halaman (sekarang baru breadcrumb/toast/stat yang dipakai).
-4. **Milestone berikutnya** — UMKM (M4) / SDGs (M3) / Dashboard admin (M5).
-5. **Testing Pest** — coverage portal/admin masih minim.
+3. **Milestone berikutnya** — UMKM (M4) / SDGs (M3) / Dashboard admin (M5).
+4. **Testing Pest** — coverage portal/admin masih minim.
 
 ---
 
@@ -33,8 +32,16 @@
 **XP** (idempotent via `xp_logs`): modul selesai +50, lulus kuis +100, diskusi (posting pertama/modul) +20 → `users.total_points`. `LmsPointService`.
 
 **UI kit** (`components/portal/`): avatar, status-badge, content-badge, empty, breadcrumb, button, card, badge, progress, stat, toast. Dependency: `canvas-confetti`.
+Adopsi: `card` (panel) dipakai di home/leaderboard/modules show+page; `stat` di dashboard (hapus duplikasi); `button` di form diskusi. Sengaja DILEWATI (tak memetakan bersih ke 4 varian/risiko regresi): CTA modul berkondisi completed/in_progress (modules index+show), reader-nav page (varian emerald/border), kartu padded dalam loop & form (discuss reply/notif).
 
 ---
+
+## Audit super_admin (2026-06-18) — SELESAI fondasi
+- RBAC dirombak: **kolom `role` = sumber kebenaran tunggal**. super_admin via `Gate::before` (cek kolom); policy berbasis role; observer sinkron Spatie role saat kolom berubah.
+- Fix: B2 (admin nonaktif diblokir di `canAccessPanel`), H1 (nagari_admin tak lagi panel kosong), L2 (scoping route-binding QuizResource), L1 (`modules.created_by` nullable+nullOnDelete).
+- Test: `tests/Feature/SuperAdminAccessTest.php` (6 lulus). Factory dapat state role: `superAdmin()/nagariAdmin()/warga()/umkmOwner()/inactive()`.
+- **MASIH KURANG (didiskusikan, ditunda):** `NagariResource` (M1) & `UserResource` (M2) — super_admin belum bisa kelola nagari/user via UI. Dashboard super_admin masih kosong (M5). `FilamentInfoWidget` (promo) sebaiknya dibuang utk produksi.
+- Catatan pre-existing: `tests/Feature/ExampleTest` gagal (uji `/` = 200 tapi app redirect 302) — bukan dari perubahan ini.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

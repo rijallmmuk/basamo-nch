@@ -6,6 +6,25 @@
 
 ---
 
+### [2026-06] RBAC: kolom `role` = sumber kebenaran tunggal (audit super_admin)
+**Keputusan**: Otoritas diturunkan dari **kolom `users.role`**, bukan Spatie role.
+- super_admin bypass via `Gate::before` di `AppServiceProvider` yang cek `isSuperAdmin()` (kolom). Tak lagi bergantung pada `hasRole()` Spatie → tak ada "admin hantu".
+- Policy (`ModulePolicy`/`QuizPolicy`/`QuizAttemptPolicy`/`RolePolicy`) ditulis berbasis role (`isNagariAdmin()`), bukan permission granular Spatie. Memperbaiki bug `nagari_admin` 0-permission → panel kosong (H1).
+- `User::booted()` menambahkan observer: saat kolom `role` berubah, Spatie role disinkronkan otomatis (`syncRoles`) agar Shield/`hasRole()` tetap konsisten. Spatie tetap ada (Shield) tapi tak lagi otoritatif.
+- `canAccessPanel()` kini mensyaratkan `status === 'active'` (B2) — admin nonaktif diblokir.
+- `QuizResource::getRecordRouteBindingEloquentQuery()` ditambah scoping nagari (L2) — `nagari_admin` tak bisa buka kuis nagari lain via URL.
+- Migration: `modules.created_by` → nullable + `nullOnDelete` (L1).
+**Alasan**: Desain proyek = 4 role tetap & dikelola di kode (nav Role disembunyikan). Satu sumber kebenaran menghapus risiko desync kolom vs Spatie role. Diverifikasi via `tests/Feature/SuperAdminAccessTest.php` (6 test).
+**Ditolak**: Spatie sebagai sumber tunggal (invasif ke middleware portal yang sudah pakai kolom role); pertahankan dua sumber + sekadar observer (tetap menyisakan ketergantungan ganda).
+
+### [2026-06] Login admin: username ATAU email
+**Keputusan**: Panel `/admin` bisa login dengan **username maupun email** di satu field. Kolom `username` (nullable, unique) ditambah ke `users`; migration backfill username dari bagian lokal email (dijamin unik) agar akun lama tetap bisa login. Custom Login page `App\Filament\Auth\Login` (extends `Filament\Auth\Pages\Login`) override `getEmailFormComponent()` → field `login`, dan `getCredentialsFromFormData()` deteksi email via `FILTER_VALIDATE_EMAIL` lalu pilih kolom `email`/`username`. Didaftarkan via `->login(\App\Filament\Auth\Login::class)`.
+**Alasan**: Warga/admin nagari lebih hafal username daripada email; tetap mendukung email untuk yang terbiasa. Tanpa ubah guard/provider — cukup ubah kredensial yang dikirim ke `attempt()`.
+**Catatan lokasi**: Login page diletakkan di `app/Filament/Auth/` (BUKAN `app/Filament/Pages/`) supaya tidak ikut ter-`discoverPages` & terdaftar sebagai page biasa (bisa bentrok rute).
+**Ditolak**: Username-saja (buang email) — kurang fleksibel utk akun yang sudah pakai email; ubah `config/auth` provider — tak perlu, override di Login page lebih lokal.
+
+---
+
 ## Arsitektur & Framework
 
 ### [2026-06] Arsitektur 3 lapisan dalam satu proyek Laravel (REVISI FINAL)
