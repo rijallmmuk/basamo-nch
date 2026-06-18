@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin@basamo.nch'],
             [
                 'name' => 'Super Admin',
+                'username' => 'superadmin',
                 'password' => Hash::make('password'),
                 'role' => 'super_admin',
                 'status' => 'active',
@@ -36,6 +37,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin.nagari@basamo.nch'],
             [
                 'name' => 'Admin Nagari Harapan',
+                'username' => 'adminnagari',
                 'password' => Hash::make('password'),
                 'nagari_id' => $nagari?->id,
                 'role' => 'nagari_admin',
