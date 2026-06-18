@@ -8,14 +8,18 @@
 
 ## Status
 
-**Fase**: MVP — LMS (portal warga + admin) hampir lengkap.
-**Progres**: ~92%. Git bersih & ter-push ke origin/main.
+**Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
+**Progres**: ~94%. ⚠️ Pekerjaan terakhir ada di branch **`feat/login-username-rbac-audit`** (BELUM merge ke main).
 **Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
 
 ## ⏭️ BERIKUTNYA (saat user ketik "lanjut")
-> Konfirmasi arah dulu ke user, lalu kerjakan. Kandidat (urut saran):
+> Konfirmasi arah dulu ke user, lalu kerjakan.
+
+**⚠️ Git tertunda:** branch `feat/login-username-rbac-audit` = 7 commit (UI kit · login username/email · audit RBAC · UserResource · NagariResource · docs). 4 commit awal sudah ter-push; **3 commit terakhir belum di-push**. **PR ke main belum dibuka** (URL & body sudah disiapkan; `gh` terpasang di `~/.local/bin` tapi belum login). Tindakan: `git push` lalu buka PR.
+
+> Kandidat fitur (urut saran):
 1. **Data demo/seeder** — XP & leaderboard sekarang masih 0; seed warga + progres + XP agar showcase terlihat hidup.
 2. **Lapak UMKM** (2.6) — halaman placeholder + menu "Produk Saya" (khusus `umkm_owner`). Belum dibangun.
 3. **Milestone berikutnya** — UMKM (M4) / SDGs (M3) / Dashboard admin (M5).
