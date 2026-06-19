@@ -29,7 +29,7 @@ class UmkmProduct extends Model implements HasMedia
     protected function casts(): array
     {
         return [
-            'harga' => 'decimal:2',
+            'harga' => 'integer',
             'approved_at' => 'datetime',
             'view_count' => 'integer',
         ];
