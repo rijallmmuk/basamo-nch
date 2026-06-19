@@ -12,8 +12,8 @@ class ModuleObserver
     public function creating(Module $module): void
     {
         // Auto-urut: modul baru ditaruh di urutan terakhir.
-        if (empty($module->order)) {
-            $module->order = (Module::max('order') ?? 0) + 1;
+        if (empty($module->sort_order)) {
+            $module->sort_order = (Module::max('sort_order') ?? 0) + 1;
         }
     }
 

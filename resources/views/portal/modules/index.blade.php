@@ -30,7 +30,7 @@
                     {{-- Top row: order + status --}}
                     <div class="mb-3 flex items-center justify-between gap-3">
                         <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                            <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-gray-500">{{ $module->order }}</span>
+                            <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-gray-500">{{ $module->sort_order }}</span>
                             @unless($module->nagari_id) Modul Global @endunless
                         </span>
                         <x-portal.status-badge :status="$status" />

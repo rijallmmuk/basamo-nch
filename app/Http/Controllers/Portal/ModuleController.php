@@ -26,7 +26,7 @@ class ModuleController extends Controller
                 'prerequisite',
             ])
             ->withCount('pages')
-            ->orderBy('order')
+            ->orderBy('sort_order')
             ->get();
 
         $statusMap = $modules->mapWithKeys(

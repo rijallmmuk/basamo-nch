@@ -19,7 +19,7 @@ class Module extends Model
 
     protected $fillable = [
         'nagari_id', 'title', 'slug', 'description',
-        'order', 'prerequisite_module_id', 'status', 'created_by',
+        'sort_order', 'prerequisite_module_id', 'status', 'created_by',
     ];
 
     public function getSlugOptions(): SlugOptions
@@ -48,7 +48,7 @@ class Module extends Model
 
     public function pages(): HasMany
     {
-        return $this->hasMany(ModulePage::class)->orderBy('order')->orderBy('id');
+        return $this->hasMany(ModulePage::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function quiz(): HasOne

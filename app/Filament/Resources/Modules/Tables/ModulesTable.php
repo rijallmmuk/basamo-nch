@@ -40,7 +40,7 @@ class ModulesTable
                         default => 'gray',
                     }),
 
-                TextColumn::make('order')
+                TextColumn::make('sort_order')
                     ->label('Urutan')
                     ->numeric()
                     ->sortable(),
@@ -80,7 +80,7 @@ class ModulesTable
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->reorderable('order')
-            ->defaultSort('order', 'asc');
+            ->reorderable('sort_order')
+            ->defaultSort('sort_order', 'asc');
     }
 }

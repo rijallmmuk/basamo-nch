@@ -47,7 +47,7 @@ class QuizPlayer extends Component
 
         foreach ($this->questions as $question) {
             if (empty($this->answers[$question->id])) {
-                $this->quizErrors[] = "Soal #{$question->order} belum dijawab.";
+                $this->quizErrors[] = "Soal #{$question->sort_order} belum dijawab.";
             }
         }
 
