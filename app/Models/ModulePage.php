@@ -4,13 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ModulePage extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'module_id', 'title', 'type', 'content',
         'video_url', 'file_path', 'sort_order',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'type', 'module_id', 'sort_order'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('materi');
+    }
 
     protected static function booted(): void
     {

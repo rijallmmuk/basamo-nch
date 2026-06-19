@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -19,7 +21,16 @@ use Spatie\Sluggable\SlugOptions;
 #[ObservedBy([ModuleObserver::class])]
 class Module extends Model implements HasMedia
 {
-    use HasSlug, InteractsWithMedia, SoftDeletes;
+    use HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'status', 'nagari_id', 'sort_order', 'estimated_minutes', 'prerequisite_module_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('modul');
+    }
 
     protected $fillable = [
         'nagari_id', 'title', 'slug', 'description',

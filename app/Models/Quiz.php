@@ -8,13 +8,26 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[ObservedBy([QuizObserver::class])]
 class Quiz extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'module_id', 'passing_score', 'max_attempts',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['module_id', 'passing_score', 'max_attempts'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('kuis');
+    }
 
     protected function casts(): array
     {
