@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\Nagari;
 use App\Models\User;
+use App\Models\Wilayah;
+use Closure;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -49,6 +52,27 @@ class UserForm
                             ->helperText('Opsional. Untuk komunikasi & menyampaikan kode OTP.')
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->columnSpanFull(),
+
+                        Select::make('wilayah_id')
+                            ->label(fn (Get $get): string => static::wilayahLabel($get))
+                            ->options(fn (Get $get): array => static::wilayahOptions($get))
+                            ->searchable()
+                            ->placeholder('— Pilih —')
+                            ->helperText('Opsional. Atur daftarnya di menu Wilayah.')
+                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                            // Pertahanan server-side: wilayah harus milik nagari warga.
+                            ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                if (! $value) {
+                                    return;
+                                }
+
+                                $nagariId = static::resolveNagariId($get);
+
+                                if (! Wilayah::whereKey($value)->where('nagari_id', $nagariId)->exists()) {
+                                    $fail('Wilayah tidak sesuai dengan nagari.');
+                                }
+                            })
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Akses')
@@ -76,6 +100,8 @@ class UserForm
                             ->relationship('nagari', 'nama')
                             ->searchable()
                             ->preload()
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, callable $set) => $set('wilayah_id', null))
                             ->placeholder('— Pilih nagari —')
                             ->visible(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
                             ->required(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
@@ -116,6 +142,41 @@ class UserForm
     protected static function isPortalRole(Get $get): bool
     {
         return in_array($get('role'), ['warga', 'umkm_owner'], true);
+    }
+
+    /** Nagari konteks: nagari_admin → miliknya; super_admin → pilihan di form. */
+    protected static function resolveNagariId(Get $get): ?int
+    {
+        $actor = auth()->user();
+
+        return $actor?->isNagariAdmin()
+            ? $actor->nagari_id
+            : ($get('nagari_id') ? (int) $get('nagari_id') : null);
+    }
+
+    /** Daftar wilayah untuk nagari konteks (untuk Select alamat warga). */
+    protected static function wilayahOptions(Get $get): array
+    {
+        $nagariId = static::resolveNagariId($get);
+
+        if (! $nagariId) {
+            return [];
+        }
+
+        return Wilayah::where('nagari_id', $nagariId)
+            ->orderBy('nama')
+            ->pluck('nama', 'id')
+            ->all();
+    }
+
+    /** Label field mengikuti sebutan wilayah nagari (Jorong/Dusun/…). */
+    protected static function wilayahLabel(Get $get): string
+    {
+        $nagariId = static::resolveNagariId($get);
+
+        return $nagariId
+            ? (Nagari::find($nagariId)?->wilayah_label ?? 'Wilayah')
+            : 'Wilayah';
     }
 
     /**

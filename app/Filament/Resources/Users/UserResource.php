@@ -53,7 +53,7 @@ class UserResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
-                ->with('nagari')
+                ->with(['nagari', 'wilayah'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }

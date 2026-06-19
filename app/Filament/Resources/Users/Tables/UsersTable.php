@@ -75,6 +75,11 @@ class UsersTable
                     ->color('gray')
                     ->sortable(),
 
+                TextColumn::make('wilayah.nama')
+                    ->label('Wilayah')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
