@@ -202,12 +202,14 @@
 - [x] (M1) NagariResource — super_admin kelola nagari (CRUD, SoftDeletes, guard anti-orphan, withCount warga/modul, NagariPolicy super_admin-only) + test
 - [x] (M2) UserResource — super_admin & nagari_admin kelola user (CRUD, scope nagari, hash password, pengaman self-lockout, UserPolicy) + test
 - [ ] Responsive check portal warga di mobile
-- [ ] Optimasi query N+1 (gunakan `with()` di semua Resource)
+- [x] Optimasi query N+1 LMS — eager-load di Module/Quiz/ActivityLog Resource (with/withCount/withExists)
 - [ ] Pest test untuk Services utama: LmsPointService, dll
-- [ ] Setup Spatie Activity Log di semua operasi kritis
+- [x] Setup Spatie Activity Log di operasi kritis (2026-06-19) — Module/ModulePage/Quiz/Nagari/User
+      + viewer "Log Aktivitas" super_admin + test
 - [ ] Setup Spatie Backup terjadwal
 - [ ] Review semua Policy untuk edge case
-- [ ] Dokumentasi `.env.example` lengkap
+- [x] Dokumentasi `.env.example` lengkap (2026-06-19) — identitas, locale id, storage R2, upload PDF
+- [ ] (enhancement) Ordering modul per-nagari (kini global; keputusan produk, lihat PROGRESS)
 
 ---
 

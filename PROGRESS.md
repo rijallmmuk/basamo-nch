@@ -9,7 +9,7 @@
 ## Status
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~95%. ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan LMS, dibuat di atasnya).
+**Progres**: ~96%. LMS admin sudah di-audit & di-hardening (audit trail, integritas konten, suite hijau). ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan + audit + hardening LMS, dibuat di atasnya).
 **Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
@@ -79,6 +79,20 @@ Lanjutan: audit menyeluruh sisi Filament. Tiap poin = 1 commit; test hijau (22 l
   withCount pages, withExists quiz); hapus `withCount` ganda di `QuizzesTable`.
 - **Ditunda (sadar):** kuis multi "semua benar" (#5), modul publish tanpa materi (#4),
   Activity Log operasi kritis, ordering modul per-nagari.
+
+## Hardening produksi (2026-06-19) — branch `feat/lms-modul-kuis-refinement`
+Lanjutan menuju siap-produksi. Suite kini **hijau penuh (29 lulus)**.
+- **Audit trail (Activity Log):** trait `LogsActivity` di Module, ModulePage, Quiz, Nagari,
+  User (password tak pernah dilog). Viewer read-only **"Log Aktivitas"** (grup Pengaturan,
+  super_admin-only): waktu, pelaku+role, objek, aksi, ID, ringkasan "field: lama → baru",
+  filter objek & aksi. Test: `ActivityLogResourceTest`.
+- **#4 Integritas:** modul tak bisa dipublish tanpa ≥1 materi (validasi status di ModuleForm).
+  Test: `ModulePublishGuardTest`.
+- **#5 Integritas:** soal kuis wajib punya minimal satu opsi salah (tak boleh semua benar).
+- **Test pra-eksis diperbaiki:** `ExampleTest` kini smoke test benar (root → `portal.login`).
+- **`.env.example`:** identitas Basamo NCH, locale id, panduan storage R2, batas upload PDF.
+- **Ordering modul per-nagari:** ditinjau → **dibiarkan** (reorder sudah ter-scope aman, urutan
+  portal deterministik). Interleaving global vs lokal = keputusan produk, bukan bug. Future enhancement.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
