@@ -18,7 +18,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'nagari_id', 'role', 'avatar', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'nagari_id', 'wilayah_id', 'role', 'avatar', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -114,6 +114,11 @@ class User extends Authenticatable implements FilamentUser
     public function nagari(): BelongsTo
     {
         return $this->belongsTo(Nagari::class);
+    }
+
+    public function wilayah(): BelongsTo
+    {
+        return $this->belongsTo(Wilayah::class);
     }
 
     public function moduleProgress(): HasMany
