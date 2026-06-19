@@ -7,6 +7,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -18,6 +20,13 @@ class ModulesTable
     {
         return $table
             ->columns([
+                SpatieMediaLibraryImageColumn::make('cover')
+                    ->label('Cover')
+                    ->collection('cover')
+                    ->conversion('card')
+                    ->height(36)
+                    ->defaultImageUrl(asset('images/default-module-cover.svg')),
+
                 TextColumn::make('title')
                     ->label('Judul')
                     ->searchable()
@@ -41,10 +50,25 @@ class ModulesTable
                         default => 'gray',
                     }),
 
+                TextColumn::make('pages_count')
+                    ->label('Materi')
+                    ->badge()
+                    ->color('gray'),
+
+                IconColumn::make('quiz_exists')
+                    ->label('Kuis')
+                    ->boolean(),
+
+                TextColumn::make('estimated_minutes')
+                    ->label('Durasi')
+                    ->formatStateUsing(fn (?int $state): string => $state ? $state.' mnt' : '—')
+                    ->toggleable(),
+
                 TextColumn::make('sort_order')
                     ->label('Urutan')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('creator.name')
                     ->label('Dibuat oleh')
