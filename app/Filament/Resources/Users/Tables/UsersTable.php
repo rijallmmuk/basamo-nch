@@ -136,6 +136,42 @@ class UsersTable
                             ->send();
                     }),
 
+                Action::make('beriAksesUmkm')
+                    ->label('Beri akses UMKM')
+                    ->icon('heroicon-o-building-storefront')
+                    ->color('success')
+                    ->visible(fn (User $record): bool => $record->role === 'warga')
+                    ->requiresConfirmation()
+                    ->modalHeading('Beri akses UMKM')
+                    ->modalDescription('Warga ini menjadi Pemilik UMKM — bisa mengisi profil usaha & mengelola produk di portal. Akses belajar tetap ada.')
+                    ->action(function (User $record): void {
+                        $record->update(['role' => 'umkm_owner']);
+
+                        Notification::make()
+                            ->title('Akses UMKM diberikan')
+                            ->body($record->name.' kini Pemilik UMKM.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('cabutAksesUmkm')
+                    ->label('Cabut akses UMKM')
+                    ->icon('heroicon-o-building-storefront')
+                    ->color('warning')
+                    ->visible(fn (User $record): bool => $record->role === 'umkm_owner')
+                    ->requiresConfirmation()
+                    ->modalHeading('Cabut akses UMKM')
+                    ->modalDescription('Pemilik UMKM kembali menjadi Warga biasa. Profil & produk yang sudah ada tetap tersimpan, tetapi tidak dapat dikelola olehnya.')
+                    ->action(function (User $record): void {
+                        $record->update(['role' => 'warga']);
+
+                        Notification::make()
+                            ->title('Akses UMKM dicabut')
+                            ->body($record->name.' kembali menjadi Warga.')
+                            ->success()
+                            ->send();
+                    }),
+
                 EditAction::make(),
                 DeleteAction::make()
                     // Tak boleh menghapus akun sendiri (cegah self-lockout).
