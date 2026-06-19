@@ -24,7 +24,8 @@ class PasswordController extends Controller
         $request->user()->forceFill([
             'password' => $data['password'],   // di-hash via cast
             'must_change_password' => false,
-            'initial_otp' => null,             // OTP hangus setelah diganti
+            'initial_otp' => null,             // OTP plaintext dihapus setelah diganti
+            'otp_expires_at' => null,
         ])->save();
 
         return redirect()->route('portal.home')

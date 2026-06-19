@@ -54,6 +54,15 @@ class AuthController extends Controller
                 ->withInput();
         }
 
+        // OTP awal kedaluwarsa: tolak, minta admin terbitkan ulang.
+        if (Auth::user()->otpExpired()) {
+            Auth::logout();
+
+            return back()
+                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Nagari untuk reset OTP.'])
+                ->withInput();
+        }
+
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 

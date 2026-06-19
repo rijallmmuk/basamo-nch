@@ -37,6 +37,7 @@ class CreateUser extends CreateRecord
             $otp = User::generateOtp();
             $data['password'] = $otp;
             $data['initial_otp'] = $otp;
+            $data['otp_expires_at'] = now()->addDays(User::OTP_TTL_DAYS);
             $data['must_change_password'] = true;
         }
 
