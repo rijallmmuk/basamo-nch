@@ -26,7 +26,8 @@ class ModulesTable
 
                 TextColumn::make('nagari.nama')
                     ->label('Nagari')
-                    ->default('🌐 Global')
+                    ->default('Global')
+                    ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->sortable()
                     ->badge()
                     ->color('info'),

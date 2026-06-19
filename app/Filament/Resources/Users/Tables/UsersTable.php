@@ -58,7 +58,8 @@ class UsersTable
 
                 TextColumn::make('nagari.nama')
                     ->label('Nagari')
-                    ->default('🌐 Global')
+                    ->default('Global')
+                    ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->badge()
                     ->color('gray')
                     ->sortable(),

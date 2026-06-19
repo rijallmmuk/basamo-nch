@@ -35,9 +35,9 @@ class PagesRelationManager extends RelationManager
                 Select::make('type')
                     ->label('Tipe Konten')
                     ->options([
-                        'text' => '📝 Teks',
-                        'video' => '🎬 Video',
-                        'pdf' => '📄 PDF',
+                        'text' => 'Teks',
+                        'video' => 'Video',
+                        'pdf' => 'PDF',
                     ])
                     ->required()
                     ->default('text')
@@ -94,10 +94,16 @@ class PagesRelationManager extends RelationManager
                     ->label('Tipe')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'text' => '📝 Teks',
-                        'video' => '🎬 Video',
-                        'pdf' => '📄 PDF',
+                        'text' => 'Teks',
+                        'video' => 'Video',
+                        'pdf' => 'PDF',
                         default => $state,
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'text' => 'heroicon-o-document-text',
+                        'video' => 'heroicon-o-play-circle',
+                        'pdf' => 'heroicon-o-document',
+                        default => 'heroicon-o-document',
                     })
                     ->color(fn (string $state): string => match ($state) {
                         'text' => 'info',
