@@ -14,14 +14,14 @@ class Nagari extends Model
     use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'kode', 'provinsi', 'kabupaten', 'kecamatan',
+        'nama', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'kode', 'status', 'kabupaten', 'kecamatan'])
+            ->logOnly(['nama', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('nagari');
@@ -35,5 +35,10 @@ class Nagari extends Model
     public function modules(): HasMany
     {
         return $this->hasMany(Module::class);
+    }
+
+    public function wilayah(): HasMany
+    {
+        return $this->hasMany(Wilayah::class);
     }
 }

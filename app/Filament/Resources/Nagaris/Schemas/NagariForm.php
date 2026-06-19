@@ -31,6 +31,14 @@ class NagariForm
                             ->placeholder('NCH-001')
                             ->helperText('Kode unik nagari, mis. NCH-001.')
                             ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
+
+                        TextInput::make('wilayah_label')
+                            ->label('Sebutan unit wilayah')
+                            ->default('Jorong')
+                            ->required()
+                            ->maxLength(30)
+                            ->datalist(['Jorong', 'Korong', 'Kampuang', 'Dusun'])
+                            ->helperText('Sebutan bagian dalam nagari ini — mis. Jorong / Korong / Dusun.'),
                     ]),
 
                 Section::make('Wilayah')
