@@ -135,7 +135,8 @@ INDEX(user_id), INDEX(module_id), INDEX(status)
 ```sql
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
-title               VARCHAR(255) NOT NULL   -- opsional di form; auto "Kuis: {judul modul}" bila kosong
+-- tanpa kolom `title`: label diturunkan dari modul → "Kuis: {judul modul}"
+--   (accessor Quiz::title). 1 modul = 1 kuis, judul redundan.
 passing_score       TINYINT UNSIGNED DEFAULT 70   -- nilai minimum lulus (skala 0–100)
 max_attempts        TINYINT UNSIGNED DEFAULT 3
 created_at, updated_at

@@ -68,9 +68,12 @@
 - [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
 
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
-- [x] FilamentResource: `QuizResource` (buat kuis per modul); judul kuis opsional auto-default (2026-06-19)
+- [x] FilamentResource: `QuizResource` (buat kuis per modul); **judul kuis dihapus** — diturunkan
+      dari modul "Kuis: {judul modul}" (2026-06-19)
 - [x] Form builder soal **pilihan ganda saja** (Repeater opsi, tandai jawaban benar)
 - [x] Jawaban benar boleh >1 → soal pilihan jamak + **partial credit** (2026-06-19)
+- [x] Audit admin (2026-06-19): keamanan modul kuis (anti cross-nagari), validasi materi per tipe,
+      guard kuis tanpa soal, emoji→Heroicons, kolom tabel modul (cover/materi/kuis/durasi)
 - [x] ~~Antrian penilaian essay~~ — DIBATALKAN: kuis MC-only auto-grade; QuizAttemptResource + LmsEssayGradingService dihapus
 - [x] ~~Beri nilai + feedback essay~~ — DIBATALKAN (lihat keputusan di DECISIONS.md 2026-06)
 

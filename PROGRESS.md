@@ -64,6 +64,22 @@ kecuali `ExampleTest` pra-eksis 302).
 - **Ditolak/ditunda:** pembahasan jawaban kuis (tak perlu), kategori/level modul (tak perlu),
   search/filter portal (fokus admin dulu).
 
+## Audit admin LMS (2026-06-19) — branch `feat/lms-modul-kuis-refinement`
+Lanjutan: audit menyeluruh sisi Filament. Tiap poin = 1 commit; test hijau (22 lulus).
+- **#1 Keamanan:** nagari_admin tak bisa menempelkan kuis ke modul nagari lain/global —
+  validasi server-side di `QuizForm` (sebelumnya hanya `modifyQueryUsing` = batas opsi tampil).
+- **Judul kuis dihapus** (supersede B4): drop `quizzes.title`; label via accessor `Quiz::title`
+  → "Kuis: {judul modul}". Bersihkan form/observer/tabel/view/test.
+- **#2 Integritas materi:** `required` kondisional di `PagesRelationManager` (teks→konten,
+  video→URL, pdf→file). Cegah halaman materi kosong.
+- **#3 Guard kuis kosong:** `QuizController` redirect bila kuis 0 soal; CTA modul disembunyikan;
+  guard defensif di `QuizPlayer::submit`. Test ditambah.
+- **#6/#8 Konsistensi:** emoji (📝🎬📄, 🌐) → Heroicons; helper text video diluruskan.
+- **#7/#9 Tabel admin:** `ModulesTable` + cover/materi/kuis/durasi (eager-load media,
+  withCount pages, withExists quiz); hapus `withCount` ganda di `QuizzesTable`.
+- **Ditunda (sadar):** kuis multi "semua benar" (#5), modul publish tanpa materi (#4),
+  Activity Log operasi kritis, ordering modul per-nagari.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
