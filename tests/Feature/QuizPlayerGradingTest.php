@@ -132,6 +132,25 @@ it('soal pilihan jamak: memilih opsi salah kena penalti', function () {
         ->and(QuizAnswer::where('attempt_id', $attempt->id)->count())->toBe(3);
 });
 
+it('soal pilihan jamak: mencentang SEMUA opsi bernilai 0 (anti-tebak)', function () {
+    // 2 benar + 2 salah. Centang semua → 2/2 − 2/2 = 0.
+    $q = makeSingleQuestionQuiz([
+        ['text' => 'Benar A', 'correct' => true],
+        ['text' => 'Benar B', 'correct' => true],
+        ['text' => 'Salah A', 'correct' => false],
+        ['text' => 'Salah B', 'correct' => false],
+    ]);
+    $allIds = $q->options->pluck('id')->all();
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
+        ->set('answers', [$q->id => $allIds])
+        ->call('submit');
+
+    $attempt = QuizAttempt::first();
+    expect($attempt->score)->toBe(0)
+        ->and($attempt->status)->toBe('failed');
+});
+
 it('kuis tanpa soal tidak membuat attempt saat submit', function () {
     $module = Module::create([
         'title' => 'Modul Kosong '.uniqid(),
