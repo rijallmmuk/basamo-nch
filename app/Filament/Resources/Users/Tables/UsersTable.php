@@ -3,12 +3,14 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -48,6 +50,15 @@ class UsersTable
                     ->label('Email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('initial_otp')
+                    ->label('OTP awal')
+                    ->badge()
+                    ->color('warning')
+                    ->copyable()
+                    ->placeholder('—')
+                    ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
+                    ->toggleable(),
 
                 TextColumn::make('role')
                     ->label('Peran')
@@ -101,6 +112,25 @@ class UsersTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                Action::make('resetOtp')
+                    ->label('Reset OTP')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->visible(fn (User $record): bool => $record->isPortalAccount())
+                    ->requiresConfirmation()
+                    ->modalHeading('Terbitkan OTP baru')
+                    ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
+                    ->action(function (User $record): void {
+                        $otp = $record->issueOtp();
+
+                        Notification::make()
+                            ->title('OTP baru diterbitkan')
+                            ->body("NIK {$record->username} · OTP: {$otp}. Sampaikan ke warga.")
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    }),
+
                 EditAction::make(),
                 DeleteAction::make()
                     // Tak boleh menghapus akun sendiri (cegah self-lockout).

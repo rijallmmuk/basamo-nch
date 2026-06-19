@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\User;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -24,18 +25,29 @@ class UserForm
                             ->maxLength(255),
 
                         TextInput::make('username')
-                            ->label('Username')
+                            ->label(fn (Get $get): string => static::isPortalRole($get) ? 'NIK' : 'Username')
                             ->required()
                             ->maxLength(255)
-                            ->alphaDash()
+                            ->rules(fn (Get $get): array => static::isPortalRole($get) ? ['digits:16'] : ['alpha_dash'])
+                            ->helperText(fn (Get $get): ?string => static::isPortalRole($get)
+                                ? 'NIK 16 digit — dipakai warga untuk login portal.'
+                                : null)
                             ->unique(User::class, 'username', ignoreRecord: true),
 
                         TextInput::make('email')
                             ->label('Email')
                             ->email()
-                            ->required()
+                            ->required(fn (Get $get): bool => ! static::isPortalRole($get))
                             ->maxLength(255)
                             ->unique(User::class, 'email', ignoreRecord: true)
+                            ->columnSpanFull(),
+
+                        TextInput::make('phone')
+                            ->label('No. WhatsApp')
+                            ->tel()
+                            ->maxLength(20)
+                            ->helperText('Opsional. Untuk komunikasi & menyampaikan kode OTP.')
+                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->columnSpanFull(),
                     ]),
 
@@ -70,8 +82,14 @@ class UserForm
                             ->columnSpanFull(),
                     ]),
 
+                Placeholder::make('otp_info')
+                    ->label('Sandi awal (OTP)')
+                    ->content('Sistem membuat kode OTP otomatis sebagai sandi awal. Kode ditampilkan setelah akun dibuat — sampaikan ke warga. Warga wajib menggantinya saat login pertama. Untuk menerbitkan ulang, pakai aksi "Reset OTP".')
+                    ->visible(fn (Get $get): bool => static::isPortalRole($get)),
+
                 Section::make('Keamanan')
                     ->columns(2)
+                    ->visible(fn (Get $get): bool => ! static::isPortalRole($get))
                     ->schema([
                         TextInput::make('password')
                             ->label('Kata sandi')
@@ -92,6 +110,12 @@ class UserForm
                             ->required(fn (string $operation, Get $get): bool => $operation === 'create' || filled($get('password'))),
                     ]),
             ]);
+    }
+
+    /** Peran portal (warga/umkm_owner) → login NIK + OTP, tanpa sandi manual. */
+    protected static function isPortalRole(Get $get): bool
+    {
+        return in_array($get('role'), ['warga', 'umkm_owner'], true);
     }
 
     /**
