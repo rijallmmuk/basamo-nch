@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Tables;
 
-use App\Filament\Resources\UmkmProfiles\Schemas\UmkmProfileForm;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -28,9 +27,10 @@ class UmkmProfilesTable
                     ->label('Pemilik')
                     ->searchable(),
 
-                TextColumn::make('kategori')
+                TextColumn::make('category.nama')
+                    ->label('Kategori')
                     ->badge()
-                    ->searchable(),
+                    ->sortable(),
 
                 TextColumn::make('nagari.nama')
                     ->label('Nagari')
@@ -59,8 +59,9 @@ class UmkmProfilesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('kategori')
-                    ->options(UmkmProfileForm::KATEGORI),
+                SelectFilter::make('umkm_category_id')
+                    ->label('Kategori')
+                    ->relationship('category', 'nama'),
                 SelectFilter::make('status')
                     ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
                 TrashedFilter::make(),

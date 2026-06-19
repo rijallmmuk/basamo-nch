@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Nagari;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -42,7 +43,7 @@ it('pemilik membuat profil usaha (nagari ikut pemilik)', function () {
     $this->actingAs($owner)
         ->post(route('portal.umkm.profile.store'), [
             'nama_usaha' => 'Keripik Sanjai',
-            'kategori' => 'Kuliner',
+            'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
         ])
         ->assertRedirect(route('portal.umkm.index'));

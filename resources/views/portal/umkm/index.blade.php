@@ -45,7 +45,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <h2 class="truncate text-lg font-bold text-gray-900">{{ $profile->nama_usaha }}</h2>
-                        <span class="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">{{ $kategori[$profile->kategori] ?? $profile->kategori }}</span>
+                        <span class="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">{{ $profile->category?->nama }}</span>
                     </div>
                     @if($profile->deskripsi)
                         <p class="mt-1.5 text-sm text-gray-500">{{ $profile->deskripsi }}</p>

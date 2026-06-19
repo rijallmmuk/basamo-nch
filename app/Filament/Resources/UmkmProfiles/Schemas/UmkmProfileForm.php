@@ -11,17 +11,6 @@ use Filament\Schemas\Schema;
 
 class UmkmProfileForm
 {
-    /** Kategori usaha umum di nagari. */
-    public const KATEGORI = [
-        'Kuliner' => 'Kuliner',
-        'Kerajinan' => 'Kerajinan',
-        'Fashion' => 'Fashion & Tekstil',
-        'Pertanian' => 'Pertanian & Perkebunan',
-        'Peternakan' => 'Peternakan & Perikanan',
-        'Jasa' => 'Jasa',
-        'Lainnya' => 'Lainnya',
-    ];
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -34,7 +23,7 @@ class UmkmProfileForm
                             ->options(fn () => static::ownerOptions())
                             ->searchable()
                             ->required()
-                            ->helperText('Hanya warga yang sudah diberi akses UMKM (role Pemilik UMKM).')
+                            ->helperText('Hanya warga yang sudah diberi akses UMKM.')
                             ->columnSpanFull(),
                     ]),
 
@@ -46,11 +35,12 @@ class UmkmProfileForm
                             ->required()
                             ->maxLength(255),
 
-                        Select::make('kategori')
+                        Select::make('umkm_category_id')
                             ->label('Kategori')
-                            ->options(self::KATEGORI)
+                            ->relationship('category', 'nama')
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->preload(),
 
                         TextInput::make('whatsapp')
                             ->label('No. WhatsApp')

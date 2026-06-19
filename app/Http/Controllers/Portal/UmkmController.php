@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
-use App\Filament\Resources\UmkmProfiles\Schemas\UmkmProfileForm;
 use App\Http\Controllers\Controller;
+use App\Models\UmkmCategory;
 use App\Services\UmkmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,12 +17,9 @@ class UmkmController extends Controller
     public function index(): View
     {
         $profile = auth()->user()->umkmProfile;
-        $profile?->loadMissing(['products' => fn ($q) => $q->latest()]);
+        $profile?->loadMissing(['category', 'products' => fn ($q) => $q->latest()]);
 
-        return view('portal.umkm.index', [
-            'profile' => $profile,
-            'kategori' => UmkmProfileForm::KATEGORI,
-        ]);
+        return view('portal.umkm.index', ['profile' => $profile]);
     }
 
     /** Form profil usaha (buat bila belum ada, atau ubah). */
@@ -30,7 +27,7 @@ class UmkmController extends Controller
     {
         return view('portal.umkm.profile', [
             'profile' => auth()->user()->umkmProfile,
-            'kategori' => UmkmProfileForm::KATEGORI,
+            'kategori' => UmkmCategory::options(),
         ]);
     }
 
@@ -38,7 +35,7 @@ class UmkmController extends Controller
     {
         $data = $request->validate([
             'nama_usaha' => ['required', 'string', 'max:255'],
-            'kategori' => ['required', 'string', 'in:'.implode(',', array_keys(UmkmProfileForm::KATEGORI))],
+            'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
             'whatsapp' => ['required', 'string', 'max:20'],
             'deskripsi' => ['nullable', 'string', 'max:2000'],
             'alamat' => ['nullable', 'string', 'max:500'],

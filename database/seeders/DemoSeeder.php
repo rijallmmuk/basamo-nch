@@ -7,6 +7,7 @@ use App\Models\Module;
 use App\Models\Nagari;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -287,11 +288,13 @@ class DemoSeeder extends Seeder
             $owner = $wargaList[$i];
             $owner->update(['umkm_access_granted_at' => now()]);
 
+            $categoryId = UmkmCategory::where('slug', strtolower($kategori))->value('id');
+
             $profile = UmkmProfile::firstOrCreate(
                 ['nagari_id' => $nagari->id, 'user_id' => $owner->id],
                 [
                     'nama_usaha' => $namaUsaha.' ('.$nagari->kode.')',
-                    'kategori' => $kategori,
+                    'umkm_category_id' => $categoryId,
                     'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$nagari->nama.'.',
                     'alamat' => 'Pasar '.$nagari->nama,
                     'whatsapp' => '0812'.sprintf('%08d', random_int(0, 99999999)),

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Nagari;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,8 +23,8 @@ class UmkmProfileFactory extends Factory
         return [
             'nagari_id' => Nagari::factory(),
             'user_id' => User::factory()->umkmOwner(),
+            'umkm_category_id' => UmkmCategory::query()->inRandomOrder()->value('id'),
             'nama_usaha' => fake()->unique()->company(),
-            'kategori' => fake()->randomElement(['Kuliner', 'Kerajinan', 'Fashion', 'Pertanian', 'Jasa']),
             'deskripsi' => fake()->sentence(12),
             'alamat' => fake()->address(),
             'whatsapp' => fake()->numerify('08##########'),

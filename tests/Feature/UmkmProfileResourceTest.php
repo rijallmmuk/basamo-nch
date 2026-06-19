@@ -6,6 +6,7 @@ use App\Filament\Resources\UmkmProfiles\Pages\ListUmkmProfiles;
 use App\Filament\Resources\UmkmProfiles\RelationManagers\ProductsRelationManager;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\Nagari;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -41,7 +42,7 @@ it('membuat profil UMKM mewarisi nagari dari pemiliknya', function () {
         ->fillForm([
             'user_id' => $owner->id,
             'nama_usaha' => 'Keripik Uji',
-            'kategori' => 'Kuliner',
+            'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
             'status' => 'active',
         ])

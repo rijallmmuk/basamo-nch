@@ -31,14 +31,14 @@
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
-                    <label for="kategori" class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori</label>
-                    <select id="kategori" name="kategori" required class="{{ $inputClass }}">
+                    <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori</label>
+                    <select id="umkm_category_id" name="umkm_category_id" required class="{{ $inputClass }}">
                         <option value="">— Pilih kategori —</option>
                         @foreach($kategori as $value => $label)
-                            <option value="{{ $value }}" @selected(old('kategori', $profile?->kategori) === $value)>{{ $label }}</option>
+                            <option value="{{ $value }}" @selected((int) old('umkm_category_id', $profile?->umkm_category_id) === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
-                    @error('kategori') <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('umkm_category_id') <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div>

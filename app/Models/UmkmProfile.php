@@ -19,8 +19,8 @@ class UmkmProfile extends Model
     use HasFactory, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nagari_id', 'user_id', 'nama_usaha', 'slug',
-        'kategori', 'deskripsi', 'alamat', 'whatsapp', 'status',
+        'nagari_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
+        'deskripsi', 'alamat', 'whatsapp', 'status',
     ];
 
     public function getSlugOptions(): SlugOptions
@@ -34,7 +34,7 @@ class UmkmProfile extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_usaha', 'kategori', 'whatsapp', 'status', 'nagari_id', 'user_id'])
+            ->logOnly(['nama_usaha', 'umkm_category_id', 'whatsapp', 'status', 'nagari_id', 'user_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('umkm');
@@ -43,6 +43,11 @@ class UmkmProfile extends Model
     public function nagari(): BelongsTo
     {
         return $this->belongsTo(Nagari::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(UmkmCategory::class, 'umkm_category_id');
     }
 
     public function owner(): BelongsTo
