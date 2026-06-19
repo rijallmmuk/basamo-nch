@@ -47,14 +47,16 @@ class PagesRelationManager extends RelationManager
                 RichEditor::make('content')
                     ->label('Konten')
                     ->visible(fn ($get) => $get('type') === 'text')
+                    ->required(fn ($get) => $get('type') === 'text')
                     ->columnSpanFull(),
 
                 TextInput::make('video_url')
                     ->label('URL Video')
                     ->url()
-                    ->placeholder('https://www.youtube.com/embed/...')
-                    ->helperText('Paste link embed YouTube atau Google Drive')
+                    ->placeholder('https://www.youtube.com/watch?v=...')
+                    ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
                     ->visible(fn ($get) => $get('type') === 'video')
+                    ->required(fn ($get) => $get('type') === 'video')
                     ->maxLength(500)
                     ->columnSpanFull(),
 
@@ -65,6 +67,7 @@ class PagesRelationManager extends RelationManager
                     ->directory('modules/pages/pdf')
                     ->visibility('public')
                     ->visible(fn ($get) => $get('type') === 'pdf')
+                    ->required(fn ($get) => $get('type') === 'pdf')
                     ->maxSize(10240) // 10 MB
                     ->helperText('Maksimal 10 MB, format PDF.')
                     ->columnSpanFull(),
