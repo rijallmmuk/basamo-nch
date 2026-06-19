@@ -41,4 +41,9 @@ class Nagari extends Model
     {
         return $this->hasMany(Wilayah::class);
     }
+
+    public function umkmProfiles(): HasMany
+    {
+        return $this->hasMany(UmkmProfile::class);
+    }
 }
