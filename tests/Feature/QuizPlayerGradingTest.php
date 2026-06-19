@@ -25,7 +25,6 @@ function makeSingleQuestionQuiz(array $options, int $passingScore = 50): QuizQue
 
     $quiz = Quiz::create([
         'module_id' => $module->id,
-        'title' => 'Kuis Uji',
         'passing_score' => $passingScore,
         'max_attempts' => 3,
     ]);

@@ -1,6 +1,6 @@
 @extends('portal.layouts.app')
 
-@section('title', 'Kuis: ' . $quiz->title)
+@section('title', $quiz->title)
 
 @section('content')
     {{-- Breadcrumb --}}

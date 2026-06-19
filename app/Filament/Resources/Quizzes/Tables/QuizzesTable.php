@@ -20,14 +20,8 @@ class QuizzesTable
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('title')
-                    ->label('Judul Kuis')
-                    ->searchable()
-                    ->wrap(),
-
                 TextColumn::make('questions_count')
                     ->label('Soal')
-                    ->counts('questions')
                     ->badge()
                     ->color('info'),
 

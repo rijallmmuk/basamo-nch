@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Quizzes\Schemas;
 
+use App\Models\Module;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -38,12 +40,21 @@ class QuizForm
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->columnSpanFull(),
+                    // Pertahanan server-side (modifyQueryUsing hanya membatasi opsi yang tampil):
+                    // nagari_admin tak boleh menempelkan kuis ke modul nagari lain / modul global.
+                    ->rule(fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                        $user = auth()->user();
 
-                TextInput::make('title')
-                    ->label('Judul Kuis')
-                    ->helperText('Kosongkan untuk memakai "Kuis: {judul modul}" otomatis.')
-                    ->maxLength(255)
+                        if (! $user?->isNagariAdmin()) {
+                            return;
+                        }
+
+                        $module = Module::find($value);
+
+                        if (! $module || $module->nagari_id !== $user->nagari_id) {
+                            $fail('Modul tidak valid untuk nagari Anda.');
+                        }
+                    })
                     ->columnSpanFull(),
 
                 TextInput::make('passing_score')
