@@ -9,7 +9,7 @@
 ## Status
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~96%. LMS admin di-audit & di-hardening; **provisioning akun warga (NIK + OTP) selesai**. ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan + audit + hardening LMS + provisioning warga, dibuat di atasnya).
+**Progres**: ~97%. Seluruh pekerjaan LMS + provisioning warga sudah **di-merge ke `main`** & di-push. Sedang berjalan: branch **`feat/master-wilayah-nagari`** (master data wilayah + alamat warga) — belum merge.
 **Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
@@ -107,6 +107,19 @@ Pindah fase ke manajemen warga. Suite **36 test hijau**.
 - **Keamanan:** password/OTP tak pernah dilog/diserialisasi.
 - **Ditunda (sadar):** akses UMKM (aksi admin "naikkan" warga→umkm_owner, saat pilar UMKM);
   alamat terstruktur jorong/dusun (butuh master data wilayah nagari); field warga lain menyusul.
+
+## Master data wilayah nagari (2026-06-19) — branch `feat/master-wilayah-nagari`
+Branch baru dari `main` (sudah berisi semua pekerjaan sebelumnya). Suite **40 test hijau**.
+- **Model:** 1 tingkat. Tabel `wilayah` (nagari_id, nama, unik per nagari, softDeletes).
+  **Sebutan unit diatur per nagari** via `nagaris.wilayah_label` (default Jorong; datalist
+  Jorong/Korong/Kampuang/Dusun di NagariForm).
+- **Admin:** `WilayahResource` (grup Pengaturan) — nagari_admin kelola wilayah nagarinya,
+  super_admin semua (pilih nagari + filter). `WilayahPolicy`, LogsActivity, withCount warga.
+- **Alamat warga:** `users.wilayah_id` (nullOnDelete) + Select di UserForm (opsi ter-scope ke
+  nagari warga, label ikut sebutan nagari, reset saat nagari berubah, validasi anti cross-nagari).
+  Kolom Wilayah di tabel pengguna.
+- **Test:** `WilayahResourceTest` (scope nagari, unik per nagari, alamat warga anti cross-nagari).
+- **Ditunda:** RW/RT (lebih dalam) bila perlu nanti; field warga lain menyusul.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

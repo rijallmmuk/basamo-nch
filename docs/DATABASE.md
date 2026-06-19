@@ -58,17 +58,32 @@ kode                VARCHAR(50)  UNIQUE NOT NULL
 provinsi            VARCHAR(100)
 kabupaten           VARCHAR(100)
 kecamatan           VARCHAR(100)
+wilayah_label       VARCHAR(30) DEFAULT 'Jorong'  -- sebutan unit wilayah nagari ini (Jorong/Dusun/Korong/…)
 koordinat_lat       DECIMAL(10,8) NULLABLE
 koordinat_lng       DECIMAL(11,8) NULLABLE
 kontak              VARCHAR(20) NULLABLE   -- nomor WA admin
 status              ENUM('active','inactive') DEFAULT 'active'
-created_at, updated_at
+created_at, updated_at, deleted_at
 ```
+
+### `wilayah` — Unit wilayah dalam nagari (1 tingkat)
+```sql
+id                  BIGINT UNSIGNED PK AUTO_INCREMENT
+nagari_id           BIGINT UNSIGNED FK → nagaris CASCADE DELETE
+nama                VARCHAR(255) NOT NULL
+created_at, updated_at, deleted_at
+
+INDEX(nagari_id), UNIQUE(nagari_id, nama)
+```
+> Sebutan unit (Jorong/Dusun/Korong/…) diatur per nagari via `nagaris.wilayah_label`.
+> Dikelola di `WilayahResource` (nagari_admin: nagarinya; super_admin: semua). Warga memilih
+> wilayahnya via `users.wilayah_id` (opsional).
 
 ### `users` 🌐 — Semua pengguna sistem
 ```sql
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 nagari_id           BIGINT UNSIGNED FK → nagaris (NULLABLE untuk super_admin)
+wilayah_id          BIGINT UNSIGNED FK → wilayah NULLABLE (nullOnDelete)  -- alamat warga (jorong/dusun)
 name                VARCHAR(255) NOT NULL
 username            VARCHAR(255) UNIQUE NULLABLE  -- admin: username; warga/umkm: NIK 16 digit (login)
 email               VARCHAR(255) UNIQUE NULLABLE  -- opsional untuk warga (banyak NULL diizinkan)

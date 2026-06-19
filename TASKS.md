@@ -205,6 +205,8 @@
 - [ ] RBAC: kolom `role` = sumber kebenaran (Gate::before + observer sync) — SELESAI (lihat DECISIONS 2026-06)
 - [x] (M1) NagariResource — super_admin kelola nagari (CRUD, SoftDeletes, guard anti-orphan, withCount warga/modul, NagariPolicy super_admin-only) + test
 - [x] (M2) UserResource — super_admin & nagari_admin kelola user (CRUD, scope nagari, hash password, pengaman self-lockout, UserPolicy) + test
+- [x] (M1) WilayahResource (2026-06-19) — master data wilayah per nagari (1 tingkat, sebutan
+      konfigurabel), scope nagari, WilayahPolicy, audit; alamat warga users.wilayah_id + test
 - [ ] Responsive check portal warga di mobile
 - [x] Optimasi query N+1 LMS — eager-load di Module/Quiz/ActivityLog Resource (with/withCount/withExists)
 - [ ] Pest test untuk Services utama: LmsPointService, dll
