@@ -87,6 +87,7 @@
             @foreach($this->questions as $question)
                 @php
                     $isUnanswered = ! empty($quizErrors) && empty($answers[$question->id]);
+                    $isMulti = $question->options->where('is_correct', true)->count() > 1;
                 @endphp
                 <div class="overflow-hidden rounded-2xl border bg-white shadow-sm {{ $isUnanswered ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200' }}">
 
@@ -97,6 +98,12 @@
                         </span>
                         <div class="flex-1">
                             <p class="text-[15px] font-semibold leading-relaxed text-gray-900">{{ $question->question }}</p>
+                            @if($isMulti)
+                                <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
+                                    <x-heroicon-o-check-circle class="h-3.5 w-3.5" />
+                                    Pilih semua jawaban yang benar
+                                </p>
+                            @endif
                         </div>
                     </div>
 
@@ -104,11 +111,16 @@
                     <div class="px-5 py-4 sm:px-6 sm:py-5">
                         <div class="space-y-2.5">
                             @foreach($question->options as $option)
-                                @php $isSelected = isset($answers[$question->id]) && $answers[$question->id] == $option->id; @endphp
+                                @php
+                                    $sel = $answers[$question->id] ?? null;
+                                    $isSelected = $isMulti
+                                        ? in_array($option->id, (array) $sel)
+                                        : ($sel !== null && $sel == $option->id);
+                                @endphp
                                 <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all
                                     {{ $isSelected ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
-                                    <input type="radio" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
-                                        class="h-5 w-5 shrink-0 accent-indigo-600">
+                                    <input type="{{ $isMulti ? 'checkbox' : 'radio' }}" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
+                                        class="h-5 w-5 shrink-0 accent-indigo-600 {{ $isMulti ? 'rounded' : '' }}">
                                     <span class="text-sm leading-relaxed text-gray-800">{{ $option->option_text }}</span>
                                 </label>
                             @endforeach

@@ -34,6 +34,7 @@ class QuestionsRelationManager extends RelationManager
 
                 Repeater::make('options')
                     ->label('Pilihan Jawaban')
+                    ->helperText('Tandai minimal satu jawaban benar. Bila >1 ditandai, soal menjadi pilihan jamak (warga boleh pilih banyak).')
                     ->relationship('options', fn ($query) => $query->orderBy('sort_order'))
                     ->orderColumn('sort_order')
                     ->schema([
@@ -54,8 +55,8 @@ class QuestionsRelationManager extends RelationManager
                     ->cloneable(false)
                     ->rule(fn () => function (string $attribute, $value, \Closure $fail) {
                         $correct = collect($value)->filter(fn ($opt) => ! empty($opt['is_correct']))->count();
-                        if ($correct !== 1) {
-                            $fail('Tandai tepat satu pilihan sebagai jawaban benar.');
+                        if ($correct < 1) {
+                            $fail('Tandai minimal satu pilihan sebagai jawaban benar.');
                         }
                     })
                     ->columnSpanFull(),

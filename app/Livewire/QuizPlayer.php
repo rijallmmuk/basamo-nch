@@ -62,30 +62,43 @@ class QuizPlayer extends Component
             'submitted_at' => now(),
         ]);
 
-        $correctCount = 0;
+        $scoreSum = 0.0;
         $totalQuestions = 0;
 
         foreach ($this->questions as $question) {
             $totalQuestions++;
-            $value = $this->answers[$question->id] ?? null;
 
-            $selectedOption = $question->options->firstWhere('id', (int) $value);
-            $isCorrect = $selectedOption?->is_correct ?? false;
+            // Soal bisa punya >1 jawaban benar → nilai partial credit per soal.
+            $selectedIds = collect((array) ($this->answers[$question->id] ?? []))
+                ->map(fn ($v) => (int) $v)
+                ->filter()
+                ->unique();
 
-            QuizAnswer::create([
-                'attempt_id' => $attempt->id,
-                'question_id' => $question->id,
-                'selected_option_id' => $selectedOption?->id,
-                'is_correct' => $isCorrect,
-            ]);
+            $correctIds = $question->options->where('is_correct', true)->pluck('id');
+            $incorrectIds = $question->options->where('is_correct', false)->pluck('id');
 
-            if ($isCorrect) {
-                $correctCount++;
+            $correctSelected = $selectedIds->intersect($correctIds)->count();
+            $wrongSelected = $selectedIds->intersect($incorrectIds)->count();
+
+            // frac = max(0, (benar terpilih / total benar) − (salah terpilih / total salah))
+            $penalty = $incorrectIds->count() > 0 ? $wrongSelected / $incorrectIds->count() : 0;
+            $fraction = max(0, ($correctSelected / max($correctIds->count(), 1)) - $penalty);
+
+            $scoreSum += $fraction;
+
+            // Simpan satu baris per opsi yang dipilih warga.
+            foreach ($selectedIds as $optionId) {
+                QuizAnswer::create([
+                    'attempt_id' => $attempt->id,
+                    'question_id' => $question->id,
+                    'selected_option_id' => $optionId,
+                    'is_correct' => $correctIds->contains($optionId),
+                ]);
             }
         }
 
-        // Nilai dinormalisasi 0–100 berdasarkan jumlah jawaban benar.
-        $percentage = $totalQuestions > 0 ? (int) round(($correctCount / $totalQuestions) * 100) : 0;
+        // Nilai dinormalisasi 0–100 dari total fraksi soal benar.
+        $percentage = $totalQuestions > 0 ? (int) round(($scoreSum / $totalQuestions) * 100) : 0;
         $passed = $percentage >= $this->quiz->passing_score;
 
         $attempt->update([
