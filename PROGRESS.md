@@ -8,8 +8,10 @@
 
 ## Status
 
-**Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~97%. LMS + provisioning warga + master wilayah sudah di **`main`** & di-push. Sedang berjalan: branch **`feat/demo-seeder`** (data demo) — belum merge.
+**Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
+**Progres**: ~98%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
+branch **`feat/umkm`** — akses UMKM, UmkmProfileResource + antrian verifikasi, dashboard
+ApexCharts (data demo). Belum merge. Sisi portal UMKM (M2.6/M4.2) & katalog publik belum.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
@@ -24,9 +26,11 @@
 **⚠️ Git tertunda:** branch `feat/login-username-rbac-audit` = 7 commit (UI kit · login username/email · audit RBAC · UserResource · NagariResource · docs). 4 commit awal sudah ter-push; **3 commit terakhir belum di-push**. **PR ke main belum dibuka** (URL & body sudah disiapkan; `gh` terpasang di `~/.local/bin` tapi belum login). Tindakan: `git push` lalu buka PR.
 
 > Kandidat fitur (urut saran):
-1. **Data demo/seeder** — XP & leaderboard sekarang masih 0; seed warga + progres + XP agar showcase terlihat hidup.
-2. **Lapak UMKM** (2.6) — halaman placeholder + menu "Produk Saya" (khusus `umkm_owner`). Belum dibangun.
-3. **Milestone berikutnya** — UMKM (M4) / SDGs (M3) / Dashboard admin (M5).
+1. **Lapak UMKM sisi portal** (M2.6/M4.2) — menu "Produk Saya" (khusus `umkm_owner`):
+   form profil usaha + CRUD produk + upload foto (Media Library, maks 5) → status pending.
+2. **Katalog publik `/umkm`** (M4.3) — tanpa login, filter nagari/kategori, kartu produk
+   + tombol WA, counter view. (Frontend publik Lapisan 1.)
+3. **Pilar SDGs (M3)** atau **IoT (M5.3)** — lalu lengkapi chart SDGs radial + panel IoT.
 4. **Testing Pest** — coverage portal/admin masih minim.
 
 ---
@@ -124,6 +128,26 @@ Branch baru dari `main` (sudah berisi semua pekerjaan sebelumnya). Suite **40 te
   Kolom Wilayah di tabel pengguna.
 - **Test:** `WilayahResourceTest` (scope nagari, unik per nagari, alamat warga anti cross-nagari).
 - **Ditunda:** RW/RT (lebih dalam) bila perlu nanti; field warga lain menyusul.
+
+## Pilar UMKM + Dashboard admin (2026-06-19) — branch `feat/umkm`
+Lanjutan dari skema/model UMKM (commit `44e713e`). Suite **hijau (56 test)**.
+- **Akses UMKM:** aksi tabel "Beri akses UMKM" (warga→umkm_owner) & "Cabut akses
+  UMKM" (umkm_owner→warga) di UsersTable + konfirmasi/notifikasi. `UmkmProfilePolicy`
+  (nagari_admin; super_admin via Gate::before). Test `UmkmAccessTest`.
+- **UmkmProfileResource** (grup nav **"UMKM"**): CRUD profil usaha, scope nagari
+  (nagari_admin nagarinya, super_admin semua), pemilik = akun `umkm_owner`, **nagari
+  diwarisi dari pemilik** (CreateUmkmProfile::mutateFormDataBeforeCreate), filter
+  kategori/status. `ProductsRelationManager` = **antrian verifikasi** (aksi Setujui/
+  Tolak + alasan wajib → status + approved_by/at). Test `UmkmProfileResourceTest`.
+- **Factory** UmkmProfile/UmkmProduct (+HasFactory). **DemoSeeder**: sebagian warga
+  → umkm_owner + profil + produk status beragam (pending/approved/rejected).
+- **Dashboard admin** (M5.1/5.2) — semua **ter-scope role**: `PlatformStatsWidget`
+  (kartu Nagari[super]/Warga/UMKM/Produk menunggu), `LmsProgresChart` (bar: modul
+  selesai/nagari), `UmkmKategoriChart` (donut), `AktivitasBelajarChart` (area 30 hari:
+  modul+kuis). ApexCharts pakai data demo. `FilamentInfoWidget` (promo) dibuang.
+  Test `DashboardWidgetsTest`.
+- **Belum:** Lapak UMKM sisi portal (M2.6 / M4.2: form profil & produk pemilik,
+  upload foto, katalog publik `/umkm`). Chart SDGs & panel IoT menunggu pilarnya.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

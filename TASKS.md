@@ -136,11 +136,13 @@
 ## Milestone 4 — UMKM (Target: Minggu 8–9)
 
 ### 4.1 Manajemen UMKM (Admin Nagari)
-- [ ] Buat akun pemilik UMKM dari panel Admin Nagari
-- [ ] (keputusan) Akses UMKM = aksi admin "beri akses" yang menaikkan warga → `umkm_owner`
-      (warga existing, bukan akun baru). Field/alamat warga akan bertambah seiring kebutuhan.
-- [ ] FilamentResource: `UmkmProfileResource` (kelola profil usaha)
-- [ ] Antrian verifikasi produk dengan approval/reject + alasan
+- [x] Buat akun pemilik UMKM dari panel Admin Nagari (via UserResource + aksi beri akses)
+- [x] (keputusan) Akses UMKM = aksi admin "beri akses" yang menaikkan warga → `umkm_owner`
+      (warga existing, bukan akun baru) — aksi tabel "Beri/Cabut akses UMKM" + UmkmAccessTest
+- [x] FilamentResource: `UmkmProfileResource` (kelola profil usaha; scope nagari, pemilik
+      = akun umkm_owner, nagari diwarisi dari pemilik) + UmkmProfileResourceTest
+- [x] Antrian verifikasi produk dengan approval/reject + alasan (ProductsRelationManager:
+      aksi Setujui/Tolak → status + approved_by/at + rejection_reason)
 
 ### 4.2 Input Produk (Pemilik UMKM)
 - [ ] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp)
@@ -159,18 +161,18 @@
 ## Milestone 5 — Dashboard & IoT (Target: Minggu 10–11)
 
 ### 5.1 Dashboard Super Admin
-- [ ] Metric cards: total nagari, warga, UMKM, sensor aktif
-- [ ] ApexCharts: kemajuan LMS per nagari (bar chart)
-- [ ] ApexCharts: SDGs 18 poin rata-rata (radial chart)
-- [ ] ApexCharts: tren aktivitas 30 hari (line chart)
-- [ ] ApexCharts: sebaran kategori UMKM (donut chart)
-- [ ] Panel IoT: status sensor semua nagari
+- [x] Metric cards: total nagari, warga, UMKM, produk menunggu (PlatformStatsWidget; sensor IoT menyusul)
+- [x] ApexCharts: kemajuan LMS per nagari (bar chart) — LmsProgresChart
+- [ ] ApexCharts: SDGs 18 poin rata-rata (radial chart) — menunggu pilar SDGs
+- [x] ApexCharts: tren aktivitas 30 hari (area chart) — AktivitasBelajarChart (modul + kuis)
+- [x] ApexCharts: sebaran kategori UMKM (donut chart) — UmkmKategoriChart
+- [ ] Panel IoT: status sensor semua nagari — menunggu pilar IoT
 - [ ] Feed berita & aktivitas terbaru
 
 ### 5.2 Dashboard Admin Nagari
-- [ ] Dashboard filtered per nagari (sama strukturnya, data nagari sendiri)
-- [ ] Widget: antrian essay menunggu penilaian
-- [ ] Widget: produk UMKM menunggu verifikasi
+- [x] Dashboard filtered per nagari (widget yang sama, ter-scope ke nagari admin)
+- [x] ~~Widget: antrian essay~~ — DIBATALKAN (kuis MC-only auto-grade)
+- [x] Widget: produk UMKM menunggu verifikasi (kartu "Produk menunggu" di PlatformStatsWidget)
 
 ### 5.3 Sensor IoT Simulasi
 - [ ] Model + migration iot_sensors + iot_readings
