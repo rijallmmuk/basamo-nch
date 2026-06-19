@@ -7,6 +7,7 @@ use App\Http\Controllers\Portal\LeaderboardController;
 use App\Http\Controllers\Portal\ModuleController;
 use App\Http\Controllers\Portal\NotificationController;
 use App\Http\Controllers\Portal\PageController;
+use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\QuizController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,10 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
     // Protected (warga & umkm_owner only)
     Route::middleware('portal')->group(function () {
+        // Ganti sandi (juga jadi gerbang paksa-ganti saat login pertama via OTP)
+        Route::get('ganti-sandi', [PasswordController::class, 'edit'])->name('password.edit');
+        Route::post('ganti-sandi', [PasswordController::class, 'update'])->name('password.update');
+
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');

@@ -26,6 +26,11 @@ class EnsurePortalUser
                 ->with('error', 'Akun ini tidak memiliki akses portal warga.');
         }
 
+        // Login pertama dengan OTP: wajib ganti sandi sebelum mengakses portal.
+        if (auth()->user()->must_change_password && ! $request->routeIs('portal.password.*')) {
+            return redirect()->route('portal.password.edit');
+        }
+
         return $next($request);
     }
 }
