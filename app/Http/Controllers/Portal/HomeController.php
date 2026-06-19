@@ -49,12 +49,12 @@ class HomeController extends Controller
             ->where('nagari_id', $user->nagari_id);
 
         $topUsers = $wargaQuery()
-            ->orderByDesc('total_points')
+            ->orderByDesc('total_xp')
             ->orderBy('name')
             ->take(5)
-            ->get(['id', 'name', 'total_points']);
+            ->get(['id', 'name', 'total_xp']);
 
-        $myRank = $wargaQuery()->where('total_points', '>', $user->total_points)->count() + 1;
+        $myRank = $wargaQuery()->where('total_xp', '>', $user->total_xp)->count() + 1;
         $totalWarga = $wargaQuery()->count();
 
         return view('portal.home', compact(

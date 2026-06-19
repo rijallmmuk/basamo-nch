@@ -70,7 +70,7 @@ class UsersTable
                     ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
 
-                TextColumn::make('total_points')
+                TextColumn::make('total_xp')
                     ->label('XP')
                     ->numeric()
                     ->sortable()

@@ -63,7 +63,7 @@
         @php
             $stats = [
                 ['label' => 'Modul Selesai', 'value' => $completedCount, 'icon' => 'heroicon-s-check-badge', 'bg' => 'bg-emerald-100', 'fg' => 'text-emerald-600'],
-                ['label' => 'XP Terkumpul', 'value' => number_format($user->total_points), 'icon' => 'heroicon-s-sparkles', 'bg' => 'bg-amber-100', 'fg' => 'text-amber-600'],
+                ['label' => 'XP Terkumpul', 'value' => number_format($user->total_xp), 'icon' => 'heroicon-s-sparkles', 'bg' => 'bg-amber-100', 'fg' => 'text-amber-600'],
                 ['label' => 'Peringkat Nagari', 'value' => '#'.$myRank, 'sub' => 'dari '.$totalWarga.' warga', 'icon' => 'heroicon-s-trophy', 'bg' => 'bg-indigo-100', 'fg' => 'text-indigo-600'],
             ];
         @endphp
@@ -182,7 +182,7 @@
                                 <p class="min-w-0 flex-1 truncate text-sm font-semibold {{ $isMe ? 'text-indigo-700' : 'text-gray-800' }}">
                                     {{ $w->name }}@if($isMe) <span class="text-xs font-normal text-indigo-500">(kamu)</span>@endif
                                 </p>
-                                <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($w->total_points) }}</span>
+                                <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($w->total_xp) }}</span>
                             </li>
                         @endforeach
                     </ul>
@@ -192,7 +192,7 @@
                                 <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">{{ $myRank }}</span>
                                 <x-portal.avatar :name="$user->name" variant="solid" size="sm" />
                                 <p class="min-w-0 flex-1 truncate text-sm font-semibold text-indigo-700">{{ $user->name }} <span class="text-xs font-normal text-indigo-500">(kamu)</span></p>
-                                <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($user->total_points) }}</span>
+                                <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($user->total_xp) }}</span>
                             </div>
                         </div>
                     @endif

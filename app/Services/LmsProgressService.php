@@ -57,7 +57,7 @@ class LmsProgressService
     {
         $progress = UserModuleProgress::firstOrCreate(
             ['user_id' => $user->id, 'module_id' => $module->id],
-            ['status' => 'in_progress', 'pages_completed' => [], 'points_earned' => 0]
+            ['status' => 'in_progress', 'pages_completed' => []]
         );
 
         $pagesCompleted = $progress->pages_completed ?? [];

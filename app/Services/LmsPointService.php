@@ -36,7 +36,7 @@ class LmsPointService
 
     /**
      * Catat XP sekali saja (idempotent via UNIQUE(user, source, source_id))
-     * lalu tambahkan ke total_points hanya bila baris baru benar-benar dibuat.
+     * lalu tambahkan ke total_xp hanya bila baris baru benar-benar dibuat.
      */
     private function award(User $user, string $source, int $sourceId, int $amount): void
     {
@@ -46,7 +46,7 @@ class LmsPointService
         );
 
         if ($log->wasRecentlyCreated) {
-            $user->increment('total_points', $amount);
+            $user->increment('total_xp', $amount);
         }
     }
 }

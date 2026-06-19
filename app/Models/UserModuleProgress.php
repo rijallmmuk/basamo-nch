@@ -9,7 +9,7 @@ class UserModuleProgress extends Model
 {
     protected $fillable = [
         'user_id', 'module_id', 'pages_completed',
-        'status', 'points_earned', 'completed_at',
+        'status', 'completed_at',
     ];
 
     protected function casts(): array

@@ -9,7 +9,7 @@ use Illuminate\View\View;
 class LeaderboardController extends Controller
 {
     /**
-     * Peringkat XP warga se-nagari (urut total_points).
+     * Peringkat XP warga se-nagari (urut total_xp).
      */
     public function index(): View
     {
@@ -18,7 +18,7 @@ class LeaderboardController extends Controller
         $warga = User::query()
             ->whereIn('role', ['warga', 'umkm_owner'])
             ->where('nagari_id', $user->nagari_id)
-            ->orderByDesc('total_points')
+            ->orderByDesc('total_xp')
             ->orderBy('name')
             ->paginate(20);
 
@@ -37,7 +37,7 @@ class LeaderboardController extends Controller
     {
         return User::whereIn('role', ['warga', 'umkm_owner'])
             ->where('nagari_id', $user->nagari_id)
-            ->where('total_points', '>', $user->total_points)
+            ->where('total_xp', '>', $user->total_xp)
             ->count() + 1;
     }
 }

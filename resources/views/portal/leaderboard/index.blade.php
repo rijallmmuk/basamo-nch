@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="text-right">
-            <p class="text-2xl font-bold">{{ number_format(auth()->user()->total_points) }}</p>
+            <p class="text-2xl font-bold">{{ number_format(auth()->user()->total_xp) }}</p>
             <p class="text-xs text-indigo-200">XP</p>
         </div>
     </div>
@@ -48,7 +48,7 @@
                                 {{ $w->name }}@if($isMe) <span class="text-xs font-normal text-indigo-500">(kamu)</span>@endif
                             </p>
                         </div>
-                        <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($w->total_points) }} <span class="text-xs font-normal text-gray-400">XP</span></span>
+                        <span class="shrink-0 text-sm font-bold text-indigo-600">{{ number_format($w->total_xp) }} <span class="text-xs font-normal text-gray-400">XP</span></span>
                     </div>
                 @endforeach
             </div>
