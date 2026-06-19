@@ -62,8 +62,8 @@
                 </div>
             </x-portal.card>
 
-            {{-- Quiz CTA --}}
-            @if($module->quiz)
+            {{-- Quiz CTA (hanya bila kuis sudah punya soal) --}}
+            @if($module->quiz && $module->quiz->questions()->exists())
                 @if($isCompleted)
                     <a href="{{ route('portal.modules.quiz', $module) }}"
                         class="flex items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-5 transition-colors hover:bg-indigo-100">

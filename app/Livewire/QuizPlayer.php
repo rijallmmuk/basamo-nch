@@ -42,6 +42,11 @@ class QuizPlayer extends Component
 
     public function submit(): void
     {
+        // Defensif: kuis tanpa soal tak bisa dikumpulkan (normalnya sudah diblokir controller).
+        if ($this->questions->isEmpty()) {
+            return;
+        }
+
         // Validasi semua soal sudah dijawab
         $this->quizErrors = [];
 

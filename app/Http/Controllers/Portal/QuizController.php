@@ -34,6 +34,12 @@ class QuizController extends Controller
             return redirect()->route('portal.modules.show', $module);
         }
 
+        // Kuis belum siap bila belum ada soal — jangan biarkan warga "gagal" tanpa soal.
+        if ($quiz->questions()->doesntExist()) {
+            return redirect()->route('portal.modules.show', $module)
+                ->with('info', 'Kuis untuk modul ini belum tersedia.');
+        }
+
         if (! $this->progressService->isModuleCompleted($user, $module)) {
             return redirect()->route('portal.modules.show', $module)
                 ->with('error', 'Selesaikan semua halaman materi terlebih dahulu.');

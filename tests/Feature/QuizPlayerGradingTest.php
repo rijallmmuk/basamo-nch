@@ -132,6 +132,22 @@ it('soal pilihan jamak: memilih opsi salah kena penalti', function () {
         ->and(QuizAnswer::where('attempt_id', $attempt->id)->count())->toBe(3);
 });
 
+it('kuis tanpa soal tidak membuat attempt saat submit', function () {
+    $module = Module::create([
+        'title' => 'Modul Kosong '.uniqid(),
+        'slug' => 'modul-kosong-'.uniqid(),
+        'status' => 'published',
+        'sort_order' => 1,
+    ]);
+    $quiz = Quiz::create(['module_id' => $module->id, 'passing_score' => 50, 'max_attempts' => 3]);
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $quiz])
+        ->call('submit')
+        ->assertSet('submitted', false);
+
+    expect(QuizAttempt::count())->toBe(0);
+});
+
 it('memvalidasi soal yang belum dijawab tanpa membuat attempt', function () {
     $q = makeSingleQuestionQuiz([
         ['text' => 'Benar', 'correct' => true],
