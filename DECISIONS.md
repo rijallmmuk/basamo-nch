@@ -192,6 +192,21 @@
 **Ditolak**: Flux (Breadcrumbs & Toast tier berbayar + perlu restyle); WireUI/Mary/daisyUI (bawa design-system sendiri, bentrok); SweetAlert2/Toastr (Toastr dilarang; gaya beda); GSAP/AOS (berlebihan).
 **Mekanisme perayaan**: lulus kuis → QuizPlayer dispatch `confetti`+`toast`; modul selesai → flash `celebrate` → script page.blade memicu confetti+toast.
 
+### [2026-06] Akses UMKM = kapabilitas, bukan role (MEMBATALKAN role `umkm_owner`)
+**Keputusan**: `umkm_owner` **dihapus** sebagai role. Role = persona stabil: `super_admin`, `nagari_admin`, `warga`. Akses UMKM jadi **kapabilitas** di atas `warga`, ditandai kolom `users.umkm_access_granted_at` (timestamp nullable). Aksi admin "Beri/Cabut akses UMKM" set/null timestamp (tak ubah peran). Cek via `User::hasUmkmAccess()`. Kolom `role` diubah dari enum native → `string(20)`.
+**Alasan**: Pemilik UMKM tetap warga (tetap belajar/kuis/leaderboard); UMKM cuma menu tambahan → secara semantik *kapabilitas*, bukan persona. Role tunggal per kolom tak bisa dikomposisi (warga DAN umkm), dan dengan 4 pilar berisiko **ledakan kombinatorial** role. Flag kapabilitas independen komposabel → aman untuk pilar berikutnya (SDGs/IoT). Best practice RBAC: role = SIAPA, permission/capability = APA.
+**Ditolak**: (a) Spatie permission `umkm.manage` — lebih scalable tapi mesin lebih berat tanpa untung selama belum ada sub-izin dalam satu pilar; dipakai nanti bila perlu granularitas. (b) Biarkan role `umkm_owner` — tak salah untuk app kecil, tapi mulai menyusahkan saat kapabilitas pilar bertambah.
+
+### [2026-06] OTP awal punya masa berlaku (security)
+**Keputusan**: `users.otp_expires_at` (7 hari, `User::OTP_TTL_DAYS`). Login portal menolak OTP kedaluwarsa → minta admin reset. `initial_otp` (plaintext untuk relay admin) + expiry dihapus saat warga ganti sandi.
+**Alasan**: Kredensial sementara tanpa expiry = "sandi abadi"; bila DB bocor, akun yang belum login langsung jebol. Expiry membatasi jendela paparan.
+**Ditolak**: Hash `initial_otp` — admin tak bisa lagi relay kode ke warga (UX provisioning NIK+OTP butuh plaintext). Kompromi: simpan plaintext tapi berbatas waktu + dihapus setelah dipakai.
+
+### [2026-06] Integritas & taksonomi UMKM
+**Keputusan**: (a) `umkm_products.harga` integer rupiah (`unsignedBigInteger`), bukan `decimal(12,2)` — Rupiah tak punya pecahan. (b) `umkm_profiles.user_id` UNIQUE → 1 warga = 1 lapak (sesuai relasi HasOne). (c) Kategori UMKM jadi tabel `umkm_categories` (taksonomi global, dikelola super_admin, punya ikon/slug/urutan) menggantikan kolom string.
+**Alasan**: Standar industri uang = integer satuan terkecil; constraint DB menegakkan aturan yang sebelumnya hanya di kode; taksonomi sebagai data (bukan const PHP) → dikelola admin, punya ikon, jadi fondasi filter katalog publik.
+**Ditolak**: Konversi semua enum native → string menyeluruh — ROI tipis untuk MySQL + set nilai stabil, churn lebar (tiap form/tabel/test); ditunda jadi pass terfokus bila target DB berubah / set nilai bertambah. `umkm_profiles.user_id` HasMany (1 warga banyak usaha) = perluasan produk, bukan perbaikan; ditunda.
+
 ```
 ### [YYYY-MM] Judul keputusan
 **Keputusan**: Apa yang diputuskan.

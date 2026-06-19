@@ -11,8 +11,8 @@
 **Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
 **Progres**: ~98%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
 branch **`feat/umkm`** — akses UMKM, UmkmProfileResource + antrian verifikasi, dashboard
-ApexCharts (data demo), **+ Lapak "Produk Saya" sisi portal pemilik** (profil + CRUD produk
-+ foto). Belum merge. Sisa pilar UMKM: **katalog publik `/umkm`** (M4.3) belum dibangun.
+ApexCharts, Lapak portal pemilik, **+ audit RBAC/DB (role→kapabilitas, OTP expiry, harga
+integer, taksonomi kategori)**. Belum merge. Sisa pilar UMKM: **katalog publik `/umkm`** (M4.3).
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
@@ -165,6 +165,21 @@ Sisi pemilik UMKM (M2.6/M4.2). Suite **hijau (64 test)**.
   `npm run dev`/`npm run build` agar ter-compile.
 - **Belum:** katalog publik `/umkm` (M4.3, frontend Lapisan 1, tanpa login).
 
+## Audit RBAC & DB + hardening UMKM (2026-06-19) — branch `feat/umkm`
+Tinjauan best-practice bersama user → 4 fase, tiap fase = commit. Suite **hijau (68)**.
+- **Fase 1 — Keamanan OTP:** `users.otp_expires_at` (7 hari). Login tolak OTP
+  kedaluwarsa; `initial_otp`+expiry dihapus saat ganti sandi. Tutup celah OTP plaintext abadi.
+- **Fase 2 — Integritas:** `umkm_products.harga` → integer rupiah (bukan decimal);
+  `umkm_profiles.user_id` UNIQUE (1 warga = 1 lapak).
+- **Fase 3 — RBAC (besar):** **`umkm_owner` bukan role lagi.** Role = persona
+  (super_admin/nagari_admin/warga); akses UMKM = kapabilitas `users.umkm_access_granted_at`
+  (`User::hasUmkmAccess()`). `role` enum→string(20). Aksi beri/cabut set/null timestamp.
+  Semua query/middleware/policy/form/seeder/factory/test disesuaikan. (Detail: DECISIONS.)
+- **Fase 4 — Taksonomi:** kategori UMKM → tabel `umkm_categories` (ikon/slug/urutan,
+  dikelola super_admin via `UmkmCategoryResource`); `umkm_profiles.umkm_category_id` FK.
+  **DITUNDA sadar:** konversi enum native→string menyeluruh (ROI tipis, churn lebar).
+- Migrasi data dibuat **portabel** (subquery korelasi) agar lolos di MySQL (dev) & SQLite (test).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
@@ -172,3 +187,4 @@ Sisi pemilik UMKM (M2.6/M4.2). Suite **hijau (64 test)**.
 - UI: komponen Blade sendiri (bukan Flux/WireUI) + canvas-confetti.
 - PDF materi: disk `public` + symlink; PHP `upload_max_filesize=10M`/`post_max_size=12M` (set di server; lihat DECISIONS).
 - Filament v5: `Schema $schema`; shield define_via_gate; super_admin via Gate::before.
+- RBAC: role = persona (super_admin/nagari_admin/warga). Akses UMKM = kapabilitas (`users.umkm_access_granted_at`, `hasUmkmAccess()`), bukan role. Kategori UMKM = tabel `umkm_categories`.
