@@ -18,18 +18,18 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'password', 'nagari_id', 'role', 'avatar', 'total_xp', 'status'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'nagari_id', 'role', 'avatar', 'total_xp', 'status'])]
+#[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes;
 
-    /** Audit akun: jangan pernah log password. */
+    /** Audit akun: jangan pernah log password/OTP. */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'username', 'email', 'role', 'nagari_id', 'status'])
+            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'nagari_id', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('pengguna');
@@ -72,11 +72,41 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'nagari_admin';
     }
 
+    /** Akun portal (warga/umkm_owner) yang disediakan admin via NIK + OTP. */
+    public function isPortalAccount(): bool
+    {
+        return in_array($this->role, ['warga', 'umkm_owner'], true);
+    }
+
+    /** Kode OTP 6 digit (sandi sementara awal). */
+    public static function generateOtp(): string
+    {
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Terbitkan OTP baru sebagai sandi sementara; login berikutnya wajib ganti.
+     * Mengembalikan kode plain agar admin bisa menyampaikannya ke warga.
+     */
+    public function issueOtp(): string
+    {
+        $otp = static::generateOtp();
+
+        $this->forceFill([
+            'password' => $otp,            // di-hash via cast saat save
+            'initial_otp' => $otp,         // disimpan agar admin bisa relay
+            'must_change_password' => true,
+        ])->save();
+
+        return $otp;
+    }
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
             'total_xp' => 'integer',
         ];
     }
