@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-use App\Models\Nagari;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -20,13 +20,29 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'login' => 'required|string',     // NIK (warga) atau email
+            'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        $throttleKey = Str::lower($credentials['login']).'|'.$request->ip();
+
+        // Anti brute-force: maks 5 percobaan / menit per identitas+IP.
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
             return back()
-                ->withErrors(['email' => 'Email atau password salah.'])
+                ->withErrors(['login' => "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik."])
+                ->withInput();
+        }
+
+        // NIK disimpan di kolom username; email dideteksi via format.
+        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (! Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+            RateLimiter::hit($throttleKey, 60);
+
+            return back()
+                ->withErrors(['login' => 'NIK/email atau sandi salah.'])
                 ->withInput();
         }
 
@@ -34,43 +50,11 @@ class AuthController extends Controller
             Auth::logout();
 
             return back()
-                ->withErrors(['email' => 'Akun ini tidak memiliki akses portal warga.'])
+                ->withErrors(['login' => 'Akun ini tidak memiliki akses portal warga.'])
                 ->withInput();
         }
 
-        $request->session()->regenerate();
-
-        return redirect()->route('portal.home');
-    }
-
-    public function showRegister(): View
-    {
-        $nagaris = Nagari::where('status', 'active')->orderBy('nama')->get();
-
-        return view('portal.auth.register', compact('nagaris'));
-    }
-
-    public function register(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
-            'nagari_id' => 'required|exists:nagaris,id',
-        ]);
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-            'nagari_id' => $data['nagari_id'],
-            'role' => 'warga',
-            'status' => 'active',
-        ]);
-
-        $user->assignRole('warga');
-
-        Auth::login($user);
+        RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
         return redirect()->route('portal.home');

@@ -34,18 +34,18 @@
             <form method="POST" action="{{ route('portal.login') }}" class="space-y-4">
                 @csrf
 
-                {{-- Email --}}
+                {{-- NIK / Email --}}
                 <div>
-                    <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">
-                        Email
+                    <label for="login" class="mb-1.5 block text-sm font-medium text-gray-700">
+                        NIK / Email
                     </label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}"
-                        autocomplete="email" autofocus
+                    <input type="text" id="login" name="login" value="{{ old('login') }}"
+                        autocomplete="username" autofocus inputmode="text"
                         class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
-                               @error('email') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
+                               @error('login') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
                                @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
-                        placeholder="nama@email.com">
-                    @error('email')
+                        placeholder="NIK 16 digit atau email">
+                    @error('login')
                         <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -82,13 +82,9 @@
             </form>
         </div>
 
-        {{-- Register link --}}
-        <p class="mt-5 text-center text-sm text-gray-500">
-            Belum punya akun?
-            <a href="{{ route('portal.register') }}"
-                class="font-semibold text-indigo-600 transition-colors hover:text-indigo-700 hover:underline">
-                Daftar sekarang
-            </a>
+        {{-- Akun warga dibuat oleh Admin Nagari --}}
+        <p class="mt-5 text-center text-xs text-gray-400">
+            Akun dibuat oleh Admin Nagari. Hubungi admin nagari Anda untuk mendapatkan NIK & kode OTP.
         </p>
     </div>
 
