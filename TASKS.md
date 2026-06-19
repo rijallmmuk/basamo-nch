@@ -62,12 +62,15 @@
 - [x] Integrasi RichEditor bawaan Filament untuk konten halaman (teks)
 - [x] Field URL terpisah untuk embed video YouTube/Google Drive
 - [x] Field prerequisite_module pada form modul
-- [x] ~~Upload thumbnail modul~~ — DIBATALKAN: modul tanpa thumbnail (kolom di-drop, field admin & tampilan portal dihapus)
+- [x] Cover modul (2026-06-19) — dihidupkan lagi via Spatie Media Library (koleksi `cover`,
+      konversi `card` webp 800×450) + cover default global; tampil di portal
+- [x] Estimasi durasi belajar (2026-06-19) — `modules.estimated_minutes` + field admin + badge portal
 - [x] Distribusi modul: toggle global vs lokal per nagari (via nagari_id nullable)
 
 ### 2.2 Kuis & Evaluasi (Admin — Filament)
-- [x] FilamentResource: `QuizResource` (buat kuis per modul)
+- [x] FilamentResource: `QuizResource` (buat kuis per modul); judul kuis opsional auto-default (2026-06-19)
 - [x] Form builder soal **pilihan ganda saja** (Repeater opsi, tandai jawaban benar)
+- [x] Jawaban benar boleh >1 → soal pilihan jamak + **partial credit** (2026-06-19)
 - [x] ~~Antrian penilaian essay~~ — DIBATALKAN: kuis MC-only auto-grade; QuizAttemptResource + LmsEssayGradingService dihapus
 - [x] ~~Beri nilai + feedback essay~~ — DIBATALKAN (lihat keputusan di DECISIONS.md 2026-06)
 

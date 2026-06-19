@@ -75,7 +75,7 @@ email_verified_at   TIMESTAMP NULLABLE
 password            VARCHAR(255) NOT NULL
 role                ENUM('super_admin','nagari_admin','warga','umkm_owner')
 avatar              VARCHAR(255) NULLABLE
-total_points        INT UNSIGNED DEFAULT 0   -- poin LMS leaderboard
+total_xp            INT UNSIGNED DEFAULT 0   -- XP LMS leaderboard (idempotent via xp_logs)
 status              ENUM('active','inactive') DEFAULT 'active'
 remember_token      VARCHAR(100) NULLABLE
 created_at, updated_at, deleted_at
@@ -90,13 +90,16 @@ nagari_id           BIGINT UNSIGNED FK → nagaris NULLABLE  -- NULL = modul glo
 title               VARCHAR(255) NOT NULL
 slug                VARCHAR(255) UNIQUE NOT NULL
 description         TEXT NULLABLE
-order               SMALLINT UNSIGNED DEFAULT 0
+sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`, kata kunci SQL)
+estimated_minutes   SMALLINT UNSIGNED NULLABLE    -- estimasi durasi belajar (menit)
 prerequisite_module_id  BIGINT UNSIGNED FK → modules NULLABLE
 status              ENUM('draft','published') DEFAULT 'draft'
-created_by          BIGINT UNSIGNED FK → users
+created_by          BIGINT UNSIGNED FK → users NULLABLE (nullOnDelete)
 created_at, updated_at, deleted_at
 
-INDEX(nagari_id), INDEX(status), INDEX(order)
+INDEX(nagari_id), INDEX(status), INDEX(sort_order)
+-- Cover modul: via Spatie Media Library (koleksi `cover`, singleFile, konversi
+--   `card` webp 800×450). Fallback global: public/images/default-module-cover.svg.
 ```
 
 ### `module_pages` — Halaman materi per modul
@@ -108,10 +111,10 @@ type                ENUM('text','pdf','video') NOT NULL
 content             LONGTEXT NULLABLE        -- konten RichEditor Filament (HTML)
 video_url           VARCHAR(500) NULLABLE    -- YouTube / Google Drive embed URL
 file_path           VARCHAR(500) NULLABLE    -- path PDF
-order               SMALLINT UNSIGNED DEFAULT 0
+sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`)
 created_at, updated_at
 
-INDEX(module_id), INDEX(order)
+INDEX(module_id), INDEX(sort_order)
 ```
 
 ### `user_module_progress` — Progress belajar warga
@@ -121,7 +124,6 @@ user_id             BIGINT UNSIGNED FK → users CASCADE DELETE
 module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
 pages_completed     JSON NULLABLE            -- array page_id yang sudah selesai
 status              ENUM('not_started','in_progress','completed')
-points_earned       SMALLINT UNSIGNED DEFAULT 0
 completed_at        TIMESTAMP NULLABLE
 created_at, updated_at
 
@@ -133,7 +135,7 @@ INDEX(user_id), INDEX(module_id), INDEX(status)
 ```sql
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
-title               VARCHAR(255) NOT NULL
+title               VARCHAR(255) NOT NULL   -- opsional di form; auto "Kuis: {judul modul}" bila kosong
 passing_score       TINYINT UNSIGNED DEFAULT 70   -- nilai minimum lulus (skala 0–100)
 max_attempts        TINYINT UNSIGNED DEFAULT 3
 created_at, updated_at
@@ -146,21 +148,23 @@ UNIQUE(module_id)
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 quiz_id             BIGINT UNSIGNED FK → quizzes CASCADE DELETE
 question            TEXT NOT NULL
-order               SMALLINT UNSIGNED DEFAULT 0
+sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`)
 created_at, updated_at
 
-INDEX(quiz_id), INDEX(order)
+INDEX(quiz_id), INDEX(sort_order)
 ```
 > Kuis **hanya pilihan ganda** (MVP). Tidak ada kolom `type`; setiap soal selalu punya `quiz_options`.
-> **Semua soal setara** (tanpa bobot poin). Nilai = (jumlah benar ÷ jumlah soal) × 100, skala 0–100.
+> **Jawaban benar boleh >1** (implisit: bila opsi `is_correct` >1 → soal pilihan jamak/checkbox).
+> **Semua soal setara** (tanpa bobot poin). Nilai = (Σ fraksi soal ÷ jumlah soal) × 100, skala 0–100.
+> Fraksi per soal (partial credit) = max(0, benar_terpilih/total_benar − salah_terpilih/total_salah).
 
 ### `quiz_options` — Pilihan jawaban (multiple choice)
 ```sql
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 question_id         BIGINT UNSIGNED FK → quiz_questions CASCADE DELETE
 option_text         TEXT NOT NULL
-is_correct          BOOLEAN DEFAULT FALSE
-order               TINYINT UNSIGNED DEFAULT 0
+is_correct          BOOLEAN DEFAULT FALSE   -- boleh >1 benar per soal
+sort_order          TINYINT UNSIGNED DEFAULT 0   -- (dulu `order`)
 created_at, updated_at
 
 INDEX(question_id)
@@ -185,10 +189,11 @@ id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 attempt_id          BIGINT UNSIGNED FK → quiz_attempts CASCADE DELETE
 question_id         BIGINT UNSIGNED FK → quiz_questions
 selected_option_id  BIGINT UNSIGNED FK → quiz_options NULLABLE
-is_correct          BOOLEAN NULLABLE
+is_correct          BOOLEAN NULLABLE     -- apakah opsi yang dipilih ini termasuk jawaban benar
 created_at, updated_at
 
 INDEX(attempt_id), INDEX(question_id)
+-- Soal pilihan jamak: SATU baris per opsi yang dipilih (1 soal → beberapa baris).
 ```
 
 ### `discussions` — Forum diskusi per modul

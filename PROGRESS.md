@@ -9,7 +9,7 @@
 ## Status
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~94%. ⚠️ Pekerjaan terakhir ada di branch **`feat/login-username-rbac-audit`** (BELUM merge ke main).
+**Progres**: ~95%. ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan LMS, dibuat di atasnya).
 **Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
@@ -29,7 +29,7 @@
 
 ## Yang sudah jadi (LMS)
 
-**Admin (Filament /admin):** CRUD Modul (auto-order, drag, slug stabil, tanpa thumbnail, scoping nagari), CRUD Kuis (MC-only, nilai 0–100 tanpa %, 1 modul=1 kuis, validasi 1 jawaban benar, max_attempts 0=tak terbatas), Materi (teks/PDF disk public maks 10MB/video YouTube+GDrive). Menu Role disembunyikan.
+**Admin (Filament /admin):** CRUD Modul (auto-order via `sort_order`, drag, slug stabil, **cover via Media Library + estimasi durasi**, scoping nagari), CRUD Kuis (MC-only, nilai 0–100 tanpa %, 1 modul=1 kuis, **judul opsional**, **jawaban benar boleh >1 → partial credit**, max_attempts 0=tak terbatas), Materi (teks/PDF disk public maks 10MB/video YouTube+GDrive). Menu Role disembunyikan.
 
 **Portal warga:** Shell = sidebar (desktop) + bottom-nav (mobile) + top header (lonceng notifikasi + dropdown user). Dashboard (hero progres, kartu Modul Selesai/XP/Peringkat, Lanjutkan Belajar, Peringkat XP Top 5). Daftar/detail modul, baca materi, QuizPlayer (confetti+toast saat lulus), Diskusi per modul, Notifikasi in-app, Leaderboard XP per nagari.
 
@@ -48,6 +48,21 @@ Adopsi: `card` (panel) dipakai di home/leaderboard/modules show+page; `stat` di 
 - **NagariResource (M1) — SELESAI**: CRUD nagari (grup Pengaturan, super_admin-only). SoftDeletes + guard anti-orphan (tak bisa hapus bila masih ada warga/modul). Kolom jumlah warga/modul. Test: `tests/Feature/NagariResourceTest.php` (4 lulus).
 - **MASIH KURANG:** Dashboard super_admin masih kosong (M5). `FilamentInfoWidget` (promo) sebaiknya dibuang utk produksi. Onboarding flow (buat nagari → buat admin) kini bisa via UI.
 - Catatan pre-existing: `tests/Feature/ExampleTest` gagal (uji `/` = 200 tapi app redirect 302) — bukan dari perubahan ini.
+
+## Penyempurnaan LMS (2026-06-19) — branch `feat/lms-modul-kuis-refinement`
+Hasil evaluasi fitur LMS bersama user. Tiap poin = 1 commit; test hijau (21 lulus,
+kecuali `ExampleTest` pra-eksis 302).
+- **B1** drop kolom mati `user_module_progress.points_earned`.
+- **B2** rename `users.total_points` → `total_xp` (model, service, controller, view, UsersTable).
+- **B5** rename kolom `order` → `sort_order` (modules, module_pages, quiz_questions, quiz_options).
+- **B4** judul kuis opsional → auto `"Kuis: {judul modul}"` via `QuizObserver::saving`.
+- **A5** `modules.estimated_minutes` + field admin + badge "± N menit" di portal.
+- **A2** cover modul via Spatie Media Library (koleksi `cover`, konversi `card` webp 800×450,
+  nonQueued) + cover default global `public/images/default-module-cover.svg` + tampil portal.
+- **A1** kuis: jawaban benar boleh >1 → **partial credit**. Soal multi (checkbox) implisit bila
+  `is_correct` >1. `QuizAnswer` kini 1 baris per opsi terpilih. Test `QuizPlayerGradingTest` (6 kasus).
+- **Ditolak/ditunda:** pembahasan jawaban kuis (tak perlu), kategori/level modul (tak perlu),
+  search/filter portal (fokus admin dulu).
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
