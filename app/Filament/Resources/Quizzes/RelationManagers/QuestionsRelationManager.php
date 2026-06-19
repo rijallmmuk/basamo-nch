@@ -54,9 +54,14 @@ class QuestionsRelationManager extends RelationManager
                     ->addActionLabel('+ Tambah Pilihan')
                     ->cloneable(false)
                     ->rule(fn () => function (string $attribute, $value, \Closure $fail) {
-                        $correct = collect($value)->filter(fn ($opt) => ! empty($opt['is_correct']))->count();
+                        $options = collect($value);
+                        $correct = $options->filter(fn ($opt) => ! empty($opt['is_correct']))->count();
+
                         if ($correct < 1) {
                             $fail('Tandai minimal satu pilihan sebagai jawaban benar.');
+                        } elseif ($correct >= $options->count()) {
+                            // Semua opsi benar = soal tak bermakna (selalu 100).
+                            $fail('Minimal satu pilihan harus salah.');
                         }
                     })
                     ->columnSpanFull(),

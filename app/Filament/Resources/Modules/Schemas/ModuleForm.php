@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Modules\Schemas;
 
 use App\Models\Module;
+use Closure;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -58,6 +59,13 @@ class ModuleForm
                     ])
                     ->default('draft')
                     ->required()
+                    ->helperText('Publish hanya bisa setelah modul memiliki minimal satu materi.')
+                    // Cegah modul kosong tampil ke warga: publish butuh ≥1 materi.
+                    ->rule(fn (?Module $record): Closure => function (string $attribute, $value, Closure $fail) use ($record) {
+                        if ($value === 'published' && (! $record || $record->pages()->doesntExist())) {
+                            $fail('Tambahkan minimal satu materi sebelum modul dipublish.');
+                        }
+                    })
                     ->columnSpan(1),
 
                 TextInput::make('estimated_minutes')
