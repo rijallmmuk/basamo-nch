@@ -45,7 +45,7 @@ class HomeController extends Controller
         $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
 
         // Peringkat XP se-nagari (Top 5 + posisi user)
-        $wargaQuery = fn () => User::whereIn('role', ['warga', 'umkm_owner'])
+        $wargaQuery = fn () => User::where('role', 'warga')
             ->where('nagari_id', $user->nagari_id);
 
         $topUsers = $wargaQuery()

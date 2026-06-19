@@ -46,7 +46,7 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        if (! in_array(Auth::user()->role, ['warga', 'umkm_owner'])) {
+        if (Auth::user()->role !== 'warga') {
             Auth::logout();
 
             return back()

@@ -32,7 +32,7 @@ class DemoSeeder extends Seeder
     {
         $this->points = app(LmsPointService::class);
 
-        foreach (['super_admin', 'nagari_admin', 'warga', 'umkm_owner'] as $role) {
+        foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
@@ -285,7 +285,7 @@ class DemoSeeder extends Seeder
             }
 
             $owner = $wargaList[$i];
-            $owner->update(['role' => 'umkm_owner']);
+            $owner->update(['umkm_access_granted_at' => now()]);
 
             $profile = UmkmProfile::firstOrCreate(
                 ['nagari_id' => $nagari->id, 'user_id' => $owner->id],

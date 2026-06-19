@@ -18,7 +18,7 @@ class PlatformStatsWidget extends StatsOverviewWidget
         $user = auth()->user();
         $nagariId = $user?->isNagariAdmin() ? $user->nagari_id : null;
 
-        $wargaQuery = User::whereIn('role', ['warga', 'umkm_owner'])
+        $wargaQuery = User::where('role', 'warga')
             ->when($nagariId, fn ($q) => $q->where('nagari_id', $nagariId));
 
         $umkmQuery = UmkmProfile::query()

@@ -39,7 +39,7 @@ class ModuleObserver
     private function notifyWarga(Module $module): void
     {
         $query = User::query()
-            ->whereIn('role', ['warga', 'umkm_owner'])
+            ->where('role', 'warga')
             ->where('status', 'active');
 
         if ($module->nagari_id !== null) {

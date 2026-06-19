@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Pastikan semua role tersedia
-        foreach (['super_admin', 'nagari_admin', 'warga', 'umkm_owner'] as $role) {
+        foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 

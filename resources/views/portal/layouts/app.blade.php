@@ -15,7 +15,7 @@
         $onModule = request()->routeIs('portal.modules.*');
         $onUmkm = request()->routeIs('portal.umkm.*');
         $user = auth()->user();
-        $isUmkmOwner = $user->role === 'umkm_owner';
+        $isUmkmOwner = $user->hasUmkmAccess();
         $unreadCount = $user->unreadNotifications()->count();
     @endphp
 

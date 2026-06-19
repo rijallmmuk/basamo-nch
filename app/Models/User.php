@@ -19,7 +19,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'avatar', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'avatar', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -30,7 +30,7 @@ class User extends Authenticatable implements FilamentUser
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'nagari_id', 'status'])
+            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'nagari_id', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('pengguna');
@@ -73,10 +73,19 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'nagari_admin';
     }
 
-    /** Akun portal (warga/umkm_owner) yang disediakan admin via NIK + OTP. */
+    /** Akun portal (warga) yang disediakan admin via NIK + OTP. */
     public function isPortalAccount(): bool
     {
-        return in_array($this->role, ['warga', 'umkm_owner'], true);
+        return $this->role === 'warga';
+    }
+
+    /**
+     * Kapabilitas UMKM: warga yang diberi akses "Produk Saya" oleh Admin Nagari.
+     * Ini kemampuan tambahan di atas peran warga, BUKAN peran terpisah.
+     */
+    public function hasUmkmAccess(): bool
+    {
+        return $this->umkm_access_granted_at !== null;
     }
 
     /** Masa berlaku OTP awal (hari) sebelum dianggap kedaluwarsa. */
@@ -121,6 +130,7 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'must_change_password' => 'boolean',
             'otp_expires_at' => 'datetime',
+            'umkm_access_granted_at' => 'datetime',
             'total_xp' => 'integer',
         ];
     }

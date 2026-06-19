@@ -138,10 +138,10 @@ class UserForm
             ]);
     }
 
-    /** Peran portal (warga/umkm_owner) → login NIK + OTP, tanpa sandi manual. */
+    /** Peran portal (warga) → login NIK + OTP, tanpa sandi manual. */
     protected static function isPortalRole(Get $get): bool
     {
-        return in_array($get('role'), ['warga', 'umkm_owner'], true);
+        return $get('role') === 'warga';
     }
 
     /** Nagari konteks: nagari_admin → miliknya; super_admin → pilihan di form. */
@@ -181,7 +181,8 @@ class UserForm
 
     /**
      * super_admin boleh menetapkan semua peran; nagari_admin hanya boleh
-     * membuat akun warga / pemilik UMKM (tidak boleh membuat admin).
+     * membuat akun warga (tidak boleh membuat admin). Akses UMKM diberikan
+     * terpisah lewat aksi tabel, bukan saat memilih peran.
      *
      * @return array<string, string>
      */
@@ -190,7 +191,6 @@ class UserForm
         if (auth()->user()?->isNagariAdmin()) {
             return [
                 'warga' => 'Warga',
-                'umkm_owner' => 'Pemilik UMKM',
             ];
         }
 
@@ -198,7 +198,6 @@ class UserForm
             'super_admin' => 'Super Admin',
             'nagari_admin' => 'Admin Nagari',
             'warga' => 'Warga',
-            'umkm_owner' => 'Pemilik UMKM',
         ];
     }
 }

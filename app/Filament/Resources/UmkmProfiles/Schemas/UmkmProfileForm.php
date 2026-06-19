@@ -80,7 +80,7 @@ class UmkmProfileForm
     }
 
     /**
-     * Opsi pemilik = akun Pemilik UMKM. nagari_admin hanya nagarinya.
+     * Opsi pemilik = warga yang sudah diberi akses UMKM. nagari_admin hanya nagarinya.
      *
      * @return array<int, string>
      */
@@ -89,7 +89,8 @@ class UmkmProfileForm
         $actor = auth()->user();
 
         return User::query()
-            ->where('role', 'umkm_owner')
+            ->where('role', 'warga')
+            ->whereNotNull('umkm_access_granted_at')
             ->when($actor?->isNagariAdmin(), fn ($q) => $q->where('nagari_id', $actor->nagari_id))
             ->orderBy('name')
             ->pluck('name', 'id')

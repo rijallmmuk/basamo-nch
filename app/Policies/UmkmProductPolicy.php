@@ -29,7 +29,7 @@ class UmkmProductPolicy
 
     private function ownsProduct(User $user, UmkmProduct $product): bool
     {
-        return $user->role === 'umkm_owner'
+        return $user->hasUmkmAccess()
             && $product->umkmProfile?->user_id === $user->id;
     }
 }

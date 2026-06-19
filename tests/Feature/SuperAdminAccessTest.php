@@ -41,7 +41,7 @@ it('nagari_admin dapat mengelola modul tetapi tidak role', function () {
         ->and(Gate::forUser($user)->check('viewAny', Role::class))->toBeFalse();
 });
 
-it('warga & umkm_owner tidak bisa akses panel maupun resource admin', function () {
+it('warga (termasuk yang punya akses UMKM) tidak bisa akses panel maupun resource admin', function () {
     foreach ([User::factory()->warga()->create(), User::factory()->umkmOwner()->create()] as $user) {
         expect($user->canAccessPanel(adminPanel()))->toBeFalse()
             ->and(Gate::forUser($user)->check('viewAny', Module::class))->toBeFalse();
@@ -49,7 +49,7 @@ it('warga & umkm_owner tidak bisa akses panel maupun resource admin', function (
 });
 
 it('mengubah kolom role otomatis menyinkronkan Spatie role', function () {
-    foreach (['super_admin', 'nagari_admin', 'warga', 'umkm_owner'] as $role) {
+    foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
     }
 

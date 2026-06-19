@@ -16,14 +16,14 @@ class LeaderboardController extends Controller
         $user = auth()->user();
 
         $warga = User::query()
-            ->whereIn('role', ['warga', 'umkm_owner'])
+            ->where('role', 'warga')
             ->where('nagari_id', $user->nagari_id)
             ->orderByDesc('total_xp')
             ->orderBy('name')
             ->paginate(20);
 
         $myRank = $this->rankOf($user);
-        $totalWarga = User::whereIn('role', ['warga', 'umkm_owner'])
+        $totalWarga = User::where('role', 'warga')
             ->where('nagari_id', $user->nagari_id)
             ->count();
 
@@ -35,7 +35,7 @@ class LeaderboardController extends Controller
      */
     private function rankOf(User $user): int
     {
-        return User::whereIn('role', ['warga', 'umkm_owner'])
+        return User::where('role', 'warga')
             ->where('nagari_id', $user->nagari_id)
             ->where('total_xp', '>', $user->total_xp)
             ->count() + 1;

@@ -22,14 +22,12 @@ class UsersTable
         'super_admin' => 'Super Admin',
         'nagari_admin' => 'Admin Nagari',
         'warga' => 'Warga',
-        'umkm_owner' => 'Pemilik UMKM',
     ];
 
     private const ROLE_COLORS = [
         'super_admin' => 'danger',
         'nagari_admin' => 'warning',
         'warga' => 'info',
-        'umkm_owner' => 'success',
     ];
 
     public static function configure(Table $table): Table
@@ -66,6 +64,15 @@ class UsersTable
                     ->formatStateUsing(fn (?string $state): string => self::ROLE_LABELS[$state] ?? ($state ?? '—'))
                     ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray')
                     ->sortable(),
+
+                TextColumn::make('umkm_access_granted_at')
+                    ->label('Akses UMKM')
+                    ->badge()
+                    ->placeholder('—')
+                    ->formatStateUsing(fn (): string => 'Pemilik UMKM')
+                    ->color('success')
+                    ->icon('heroicon-o-building-storefront')
+                    ->toggleable(),
 
                 TextColumn::make('nagari.nama')
                     ->label('Nagari')
@@ -140,16 +147,16 @@ class UsersTable
                     ->label('Beri akses UMKM')
                     ->icon('heroicon-o-building-storefront')
                     ->color('success')
-                    ->visible(fn (User $record): bool => $record->role === 'warga')
+                    ->visible(fn (User $record): bool => $record->role === 'warga' && ! $record->hasUmkmAccess())
                     ->requiresConfirmation()
                     ->modalHeading('Beri akses UMKM')
-                    ->modalDescription('Warga ini menjadi Pemilik UMKM — bisa mengisi profil usaha & mengelola produk di portal. Akses belajar tetap ada.')
+                    ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
                     ->action(function (User $record): void {
-                        $record->update(['role' => 'umkm_owner']);
+                        $record->update(['umkm_access_granted_at' => now()]);
 
                         Notification::make()
                             ->title('Akses UMKM diberikan')
-                            ->body($record->name.' kini Pemilik UMKM.')
+                            ->body($record->name.' kini bisa mengelola UMKM.')
                             ->success()
                             ->send();
                     }),
@@ -158,16 +165,16 @@ class UsersTable
                     ->label('Cabut akses UMKM')
                     ->icon('heroicon-o-building-storefront')
                     ->color('warning')
-                    ->visible(fn (User $record): bool => $record->role === 'umkm_owner')
+                    ->visible(fn (User $record): bool => $record->hasUmkmAccess())
                     ->requiresConfirmation()
                     ->modalHeading('Cabut akses UMKM')
-                    ->modalDescription('Pemilik UMKM kembali menjadi Warga biasa. Profil & produk yang sudah ada tetap tersimpan, tetapi tidak dapat dikelola olehnya.')
+                    ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil & produk yang sudah ada tetap tersimpan, tetapi tidak dapat dikelola olehnya.')
                     ->action(function (User $record): void {
-                        $record->update(['role' => 'warga']);
+                        $record->update(['umkm_access_granted_at' => null]);
 
                         Notification::make()
                             ->title('Akses UMKM dicabut')
-                            ->body($record->name.' kembali menjadi Warga.')
+                            ->body($record->name.' tidak lagi mengelola UMKM.')
                             ->success()
                             ->send();
                     }),

@@ -13,8 +13,8 @@ class CreateUser extends CreateRecord
 
     /**
      * nagari_admin tidak melihat field nagari — akun yang dibuat dipaksa
-     * ke nagarinya sendiri (warga/umkm_owner). Akun portal (warga/umkm)
-     * memakai sandi awal OTP otomatis (wajib diganti saat login pertama).
+     * ke nagarinya sendiri (warga). Akun portal (warga) memakai sandi awal
+     * OTP otomatis (wajib diganti saat login pertama).
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -33,7 +33,7 @@ class CreateUser extends CreateRecord
         }
 
         // Akun portal: sandi awal = OTP (di-hash via cast), wajib diganti.
-        if (in_array($data['role'] ?? null, ['warga', 'umkm_owner'], true)) {
+        if (($data['role'] ?? null) === 'warga') {
             $otp = User::generateOtp();
             $data['password'] = $otp;
             $data['initial_otp'] = $otp;

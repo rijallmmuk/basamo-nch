@@ -8,7 +8,7 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('admin nagari memberi akses UMKM ke warga (warga → umkm_owner)', function () {
+it('admin nagari memberi akses UMKM ke warga (tanpa mengubah peran)', function () {
     $nagari = Nagari::factory()->create();
     $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
     $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
@@ -18,10 +18,12 @@ it('admin nagari memberi akses UMKM ke warga (warga → umkm_owner)', function (
     Livewire::test(ListUsers::class)
         ->callTableAction('beriAksesUmkm', $warga);
 
-    expect($warga->refresh()->role)->toBe('umkm_owner');
+    $warga->refresh();
+    expect($warga->role)->toBe('warga')
+        ->and($warga->hasUmkmAccess())->toBeTrue();
 });
 
-it('admin nagari mencabut akses UMKM (umkm_owner → warga)', function () {
+it('admin nagari mencabut akses UMKM', function () {
     $nagari = Nagari::factory()->create();
     $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
     $owner = User::factory()->umkmOwner()->create(['nagari_id' => $nagari->id]);
@@ -31,5 +33,7 @@ it('admin nagari mencabut akses UMKM (umkm_owner → warga)', function () {
     Livewire::test(ListUsers::class)
         ->callTableAction('cabutAksesUmkm', $owner);
 
-    expect($owner->refresh()->role)->toBe('warga');
+    $owner->refresh();
+    expect($owner->role)->toBe('warga')
+        ->and($owner->hasUmkmAccess())->toBeFalse();
 });

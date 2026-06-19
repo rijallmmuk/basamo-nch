@@ -24,7 +24,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Protected (warga & umkm_owner only)
+    // Protected (akun portal warga saja)
     Route::middleware('portal')->group(function () {
         // Ganti sandi (juga jadi gerbang paksa-ganti saat login pertama via OTP)
         Route::get('ganti-sandi', [PasswordController::class, 'edit'])->name('password.edit');
@@ -48,7 +48,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
             Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
         });
 
-        // Lapak UMKM "Produk Saya" — khusus Pemilik UMKM (umkm_owner).
+        // Lapak UMKM "Produk Saya" — khusus warga dengan akses UMKM.
         Route::middleware('umkm.owner')->prefix('umkm')->name('umkm.')->group(function () {
             Route::get('/', [UmkmController::class, 'index'])->name('index');
             Route::get('profil', [UmkmController::class, 'editProfile'])->name('profile.edit');

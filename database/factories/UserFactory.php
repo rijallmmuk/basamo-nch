@@ -58,9 +58,14 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => ['role' => 'warga', 'status' => 'active']);
     }
 
+    /** Warga dengan kapabilitas UMKM (akses "Produk Saya"). */
     public function umkmOwner(): static
     {
-        return $this->state(fn (array $attributes) => ['role' => 'umkm_owner', 'status' => 'active']);
+        return $this->state(fn (array $attributes) => [
+            'role' => 'warga',
+            'status' => 'active',
+            'umkm_access_granted_at' => now(),
+        ]);
     }
 
     public function inactive(): static

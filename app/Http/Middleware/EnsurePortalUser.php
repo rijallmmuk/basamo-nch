@@ -19,7 +19,7 @@ class EnsurePortalUser
             return redirect()->route('portal.login');
         }
 
-        if (! in_array(auth()->user()->role, ['warga', 'umkm_owner'])) {
+        if (auth()->user()->role !== 'warga') {
             auth()->logout();
 
             return redirect()->route('portal.login')
