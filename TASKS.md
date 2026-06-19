@@ -112,7 +112,8 @@
 - [x] Beranda (dashboard): hero sapaan + statistik + spotlight "Lanjutkan" + Aktivitas Belajar
 - [x] Redesign UI LMS menyeluruh + komponen `components/portal/` (avatar, status-badge, content-badge, empty)
 - [x] Halaman Leaderboard XP (per nagari) + panel Top 5 di dashboard
-- [ ] Halaman Lapak UMKM (info akses untuk warga / placeholder untuk umkm_owner)
+- [x] Halaman Lapak UMKM "Produk Saya" (umkm_owner): profil usaha + CRUD produk + foto;
+      menu hanya tampil untuk pemilik (middleware umkm.owner). Test PortalUmkmTest
 - [x] Shell: sidebar (desktop) + bottom nav (mobile); notifikasi+dropdown di top header
 
 ---
@@ -145,10 +146,10 @@
       aksi Setujui/Tolak → status + approved_by/at + rejection_reason)
 
 ### 4.2 Input Produk (Pemilik UMKM)
-- [ ] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp)
-- [ ] Portal: form tambah/edit produk (nama, deskripsi, harga opsional)
-- [ ] Upload multiple foto produk (maks 5) via Media Library
-- [ ] Status produk: pending/approved/rejected
+- [x] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp, alamat) — nagari ikut pemilik
+- [x] Portal: form tambah/edit produk (nama, deskripsi, harga opsional)
+- [x] Upload multiple foto produk (maks 5) via Media Library + hapus foto saat edit
+- [x] Status produk: pending/approved/rejected — produk baru/diubah → pending (verifikasi ulang)
 
 ### 4.3 Katalog Publik
 - [ ] Halaman `/umkm` — akses tanpa login

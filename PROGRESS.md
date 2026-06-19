@@ -11,7 +11,8 @@
 **Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
 **Progres**: ~98%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
 branch **`feat/umkm`** — akses UMKM, UmkmProfileResource + antrian verifikasi, dashboard
-ApexCharts (data demo). Belum merge. Sisi portal UMKM (M2.6/M4.2) & katalog publik belum.
+ApexCharts (data demo), **+ Lapak "Produk Saya" sisi portal pemilik** (profil + CRUD produk
++ foto). Belum merge. Sisa pilar UMKM: **katalog publik `/umkm`** (M4.3) belum dibangun.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
@@ -26,12 +27,11 @@ ApexCharts (data demo). Belum merge. Sisi portal UMKM (M2.6/M4.2) & katalog publ
 **⚠️ Git tertunda:** branch `feat/login-username-rbac-audit` = 7 commit (UI kit · login username/email · audit RBAC · UserResource · NagariResource · docs). 4 commit awal sudah ter-push; **3 commit terakhir belum di-push**. **PR ke main belum dibuka** (URL & body sudah disiapkan; `gh` terpasang di `~/.local/bin` tapi belum login). Tindakan: `git push` lalu buka PR.
 
 > Kandidat fitur (urut saran):
-1. **Lapak UMKM sisi portal** (M2.6/M4.2) — menu "Produk Saya" (khusus `umkm_owner`):
-   form profil usaha + CRUD produk + upload foto (Media Library, maks 5) → status pending.
-2. **Katalog publik `/umkm`** (M4.3) — tanpa login, filter nagari/kategori, kartu produk
-   + tombol WA, counter view. (Frontend publik Lapisan 1.)
-3. **Pilar SDGs (M3)** atau **IoT (M5.3)** — lalu lengkapi chart SDGs radial + panel IoT.
-4. **Testing Pest** — coverage portal/admin masih minim.
+1. **Katalog publik `/umkm`** (M4.3) — tanpa login, filter nagari/kategori, kartu produk
+   (foto, info, tombol WA), counter view. Frontend publik Lapisan 1 (Blade+Tailwind, SEO).
+   Hanya produk `status=approved`. Detail produk → galeri foto + tombol WhatsApp.
+2. **Pilar SDGs (M3)** atau **IoT (M5.3)** — lalu lengkapi chart SDGs radial + panel IoT.
+3. **Testing Pest** — coverage portal/admin masih minim.
 
 ---
 
@@ -148,6 +148,22 @@ Lanjutan dari skema/model UMKM (commit `44e713e`). Suite **hijau (56 test)**.
   Test `DashboardWidgetsTest`.
 - **Belum:** Lapak UMKM sisi portal (M2.6 / M4.2: form profil & produk pemilik,
   upload foto, katalog publik `/umkm`). Chart SDGs & panel IoT menunggu pilarnya.
+
+## Lapak UMKM sisi portal (2026-06-19) — branch `feat/umkm`
+Sisi pemilik UMKM (M2.6/M4.2). Suite **hijau (64 test)**.
+- **Akses:** middleware `umkm.owner` (alias di bootstrap) — area "Produk Saya" khusus
+  role `umkm_owner`; warga biasa dialihkan ke beranda. Menu "Produk Saya" di sidebar +
+  bottom-nav portal hanya tampil untuk pemilik.
+- **Produk Saya** (`/portal/umkm`): ringkasan profil usaha + daftar produk (kartu +
+  badge status pending/approved/rejected, alasan tolak tampil). Form profil usaha
+  (nagari ikut pemilik). CRUD produk + upload foto (Media Library koleksi `photos`,
+  **maks 5**, hapus foto via checkbox saat edit). **Produk baru/diubah → status pending**
+  (verifikasi ulang oleh Admin Nagari di `ProductsRelationManager`).
+- **Arsitektur:** `UmkmService` (logic profil/produk/foto), `UmkmProductPolicy` (pemilik
+  hanya kelola produknya), base `Controller` kini pakai `AuthorizesRequests`.
+- **Catatan:** kelas Tailwind baru (`file:`, `group-has-[:checked]:`) → jalankan
+  `npm run dev`/`npm run build` agar ter-compile.
+- **Belum:** katalog publik `/umkm` (M4.3, frontend Lapisan 1, tanpa login).
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
