@@ -9,8 +9,12 @@
 ## Status
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~97%. Seluruh pekerjaan LMS + provisioning warga sudah **di-merge ke `main`** & di-push. Sedang berjalan: branch **`feat/master-wilayah-nagari`** (master data wilayah + alamat warga) — belum merge.
-**Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
+**Progres**: ~97%. LMS + provisioning warga + master wilayah sudah di **`main`** & di-push. Sedang berjalan: branch **`feat/demo-seeder`** (data demo) — belum merge.
+**Login demo** (jalankan `php artisan migrate:fresh --seed`):
+- super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
+- nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
+- warga (portal): login **NIK** mis. `3201000000000101` / `password` (16 warga, 2 nagari)
+- Catatan: warga demo `must_change_password=false` agar bisa langsung login showcase.
 
 ---
 
