@@ -9,7 +9,7 @@
 ## Status
 
 **Fase**: MVP — LMS (portal warga + admin) hampir lengkap; manajemen tenant (Nagari) & pengguna kini ada di /admin.
-**Progres**: ~96%. LMS admin sudah di-audit & di-hardening (audit trail, integritas konten, suite hijau). ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan + audit + hardening LMS, dibuat di atasnya).
+**Progres**: ~96%. LMS admin di-audit & di-hardening; **provisioning akun warga (NIK + OTP) selesai**. ⚠️ Dua branch belum merge: **`feat/login-username-rbac-audit`** (RBAC/UserResource/NagariResource) lalu **`feat/lms-modul-kuis-refinement`** (penyempurnaan + audit + hardening LMS + provisioning warga, dibuat di atasnya).
 **Login uji**: super_admin username `admin` atau email `admin@basamo.nch` / `password` (login admin terima username **atau** email). Warga uji: `rijal@mail.com` (password tak diketahui — pakai reset bila perlu).
 
 ---
@@ -93,6 +93,20 @@ Lanjutan menuju siap-produksi. Suite kini **hijau penuh (29 lulus)**.
 - **`.env.example`:** identitas Basamo NCH, locale id, panduan storage R2, batas upload PDF.
 - **Ordering modul per-nagari:** ditinjau → **dibiarkan** (reorder sudah ter-scope aman, urutan
   portal deterministik). Interleaving global vs lokal = keputusan produk, bukan bug. Future enhancement.
+
+## Provisioning akun warga (2026-06-19) — branch `feat/lms-modul-kuis-refinement`
+Pindah fase ke manajemen warga. Suite **36 test hijau**.
+- **Model akun warga:** dibuat Admin Nagari (self-register DIHAPUS). Login = **NIK (username)
+  16 digit + OTP** (sandi awal). Login pertama **wajib ganti sandi**. Email **opsional** + No. WhatsApp.
+- **DB:** `users` + `phone`, `must_change_password`, `initial_otp`; `email` → nullable.
+- **Admin:** `UserForm` role-aware (warga: NIK/email opsional/phone, tanpa sandi manual). `CreateUser`
+  generate OTP + tampilkan ke admin. Tabel: kolom "OTP awal" + aksi **"Reset OTP"**.
+- **Portal:** login terima NIK/email + **rate-limit** (5/menit, tutup celah brute-force).
+  `EnsurePortalUser` paksa ke `portal.password.edit` bila `must_change_password`. `PasswordController`
+  + view mandiri (set sandi → clear OTP).
+- **Keamanan:** password/OTP tak pernah dilog/diserialisasi.
+- **Ditunda (sadar):** akses UMKM (aksi admin "naikkan" warga→umkm_owner, saat pilar UMKM);
+  alamat terstruktur jorong/dusun (butuh master data wilayah nagari); field warga lain menyusul.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

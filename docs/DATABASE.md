@@ -70,9 +70,13 @@ created_at, updated_at
 id                  BIGINT UNSIGNED PK AUTO_INCREMENT
 nagari_id           BIGINT UNSIGNED FK → nagaris (NULLABLE untuk super_admin)
 name                VARCHAR(255) NOT NULL
-email               VARCHAR(255) UNIQUE NOT NULL
+username            VARCHAR(255) UNIQUE NULLABLE  -- admin: username; warga/umkm: NIK 16 digit (login)
+email               VARCHAR(255) UNIQUE NULLABLE  -- opsional untuk warga (banyak NULL diizinkan)
+phone               VARCHAR(20) NULLABLE          -- No. WhatsApp/HP warga
 email_verified_at   TIMESTAMP NULLABLE
 password            VARCHAR(255) NOT NULL
+must_change_password BOOLEAN DEFAULT FALSE        -- paksa ganti sandi di login pertama (OTP)
+initial_otp         VARCHAR(12) NULLABLE          -- OTP awal (sementara), dikosongkan setelah ganti sandi
 role                ENUM('super_admin','nagari_admin','warga','umkm_owner')
 avatar              VARCHAR(255) NULLABLE
 total_xp            INT UNSIGNED DEFAULT 0   -- XP LMS leaderboard (idempotent via xp_logs)
@@ -82,6 +86,10 @@ created_at, updated_at, deleted_at
 
 INDEX(nagari_id), INDEX(role)
 ```
+> **Provisioning warga:** akun dibuat Admin Nagari (tanpa self-register). Warga login dengan
+> **NIK (username) + OTP** (sandi awal). OTP `initial_otp` ditampilkan ke admin untuk disampaikan;
+> login pertama memaksa ganti sandi (`must_change_password`). Login portal terima NIK atau email
+> (+ rate-limit). `password`/`initial_otp` tak pernah dilog/diserialisasi.
 
 ### `modules` — Modul LMS
 ```sql

@@ -78,7 +78,9 @@
 - [x] ~~Beri nilai + feedback essay~~ — DIBATALKAN (lihat keputusan di DECISIONS.md 2026-06)
 
 ### 2.3 Portal Belajar Warga (CUSTOM Blade + Livewire — LAPISAN 2)
-- [x] Setup auth Laravel untuk warga (login/register portal) + middleware role
+- [x] Setup auth Laravel untuk warga + middleware role
+- [x] Provisioning akun warga (2026-06-19): dibuat Admin Nagari, login **NIK + OTP**, paksa ganti
+      sandi login pertama, email opsional + No. WhatsApp, rate-limit login, self-register dihapus
 - [x] Layout portal: header + bottom navigation bar (menggantikan sidebar)
 - [x] Controller + halaman daftar modul dengan status (terkunci/tersedia/selesai)
 - [x] Halaman detail modul + course outline + navigasi halaman per halaman
@@ -135,6 +137,8 @@
 
 ### 4.1 Manajemen UMKM (Admin Nagari)
 - [ ] Buat akun pemilik UMKM dari panel Admin Nagari
+- [ ] (keputusan) Akses UMKM = aksi admin "beri akses" yang menaikkan warga → `umkm_owner`
+      (warga existing, bukan akun baru). Field/alamat warga akan bertambah seiring kebutuhan.
 - [ ] FilamentResource: `UmkmProfileResource` (kelola profil usaha)
 - [ ] Antrian verifikasi produk dengan approval/reject + alasan
 
