@@ -1,7 +1,9 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
+test('root mengarahkan ke halaman login portal', function () {
+    $this->get('/')->assertRedirect(route('portal.login'));
+});
 
-    $response->assertStatus(200);
+test('halaman login portal dapat diakses tamu', function () {
+    $this->get(route('portal.login'))->assertSuccessful();
 });
