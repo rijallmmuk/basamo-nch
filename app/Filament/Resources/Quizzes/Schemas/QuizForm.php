@@ -42,7 +42,7 @@ class QuizForm
 
                 TextInput::make('title')
                     ->label('Judul Kuis')
-                    ->required()
+                    ->helperText('Kosongkan untuk memakai "Kuis: {judul modul}" otomatis.')
                     ->maxLength(255)
                     ->columnSpanFull(),
 
