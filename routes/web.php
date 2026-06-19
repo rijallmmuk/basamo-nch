@@ -9,6 +9,8 @@ use App\Http\Controllers\Portal\NotificationController;
 use App\Http\Controllers\Portal\PageController;
 use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\QuizController;
+use App\Http\Controllers\Portal\UmkmController;
+use App\Http\Controllers\Portal\UmkmProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('portal.login'));
@@ -44,6 +46,19 @@ Route::prefix('portal')->name('portal.')->group(function () {
             Route::post('{module:slug}/discuss', [DiscussionController::class, 'store'])->name('discuss.store');
             Route::get('{module:slug}/discuss/{discussion}', [DiscussionController::class, 'show'])->name('discuss.show');
             Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
+        });
+
+        // Lapak UMKM "Produk Saya" — khusus Pemilik UMKM (umkm_owner).
+        Route::middleware('umkm.owner')->prefix('umkm')->name('umkm.')->group(function () {
+            Route::get('/', [UmkmController::class, 'index'])->name('index');
+            Route::get('profil', [UmkmController::class, 'editProfile'])->name('profile.edit');
+            Route::post('profil', [UmkmController::class, 'storeProfile'])->name('profile.store');
+
+            Route::get('produk/baru', [UmkmProductController::class, 'create'])->name('products.create');
+            Route::post('produk', [UmkmProductController::class, 'store'])->name('products.store');
+            Route::get('produk/{product}/ubah', [UmkmProductController::class, 'edit'])->name('products.edit');
+            Route::put('produk/{product}', [UmkmProductController::class, 'update'])->name('products.update');
+            Route::delete('produk/{product}', [UmkmProductController::class, 'destroy'])->name('products.destroy');
         });
     });
 });
