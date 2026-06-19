@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Database\Factories\UmkmProductFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +18,8 @@ use Spatie\Sluggable\SlugOptions;
 
 class UmkmProduct extends Model implements HasMedia
 {
-    use HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
+    /** @use HasFactory<UmkmProductFactory> */
+    use HasFactory, HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'umkm_profile_id', 'nama_produk', 'slug', 'deskripsi', 'harga',
