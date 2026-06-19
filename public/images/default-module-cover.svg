@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" role="img" aria-label="Modul Pembelajaran Basamo NCH">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <circle cx="660" cy="70" r="140" fill="#ffffff" opacity="0.06"/>
+  <circle cx="120" cy="400" r="110" fill="#ffffff" opacity="0.06"/>
+  <g transform="translate(320,96) scale(6.6667)" fill="#ffffff" opacity="0.95">
+    <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.949 49.949 0 0 0-9.902 3.912l-.003.002a.75.75 0 0 1-.69 0 50.878 50.878 0 0 0-2.736-1.314v-.224c0-.131.067-.248.172-.311a54.616 54.616 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.857 1.857 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z"/>
+    <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286A48.45 48.45 0 0 1 8.93 13.91l.45.207a2.25 2.25 0 0 0 1.872 0l.45-.207a48.45 48.45 0 0 1 1.358.621c.001.041.001.082.001.123v.792Z"/>
+    <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z"/>
+  </g>
+  <text x="400" y="348" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="46" font-weight="700" fill="#ffffff">Basamo NCH</text>
+  <text x="400" y="388" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="24" fill="#ffffff" opacity="0.8">Modul Pembelajaran</text>
+</svg>

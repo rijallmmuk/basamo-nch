@@ -23,6 +23,7 @@
 
             {{-- Header card --}}
             <x-portal.card :padded="false">
+                <img src="{{ $module->coverUrl() }}" alt="" class="h-40 w-full object-cover sm:h-48">
                 <div class="h-1.5 w-full {{ $isCompleted ? 'bg-emerald-500' : ($progress ? 'bg-indigo-500' : 'bg-indigo-200') }}"></div>
 
                 <div class="p-5 sm:p-6">

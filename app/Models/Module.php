@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 #[ObservedBy([ModuleObserver::class])]
-class Module extends Model
+class Module extends Model implements HasMedia
 {
-    use HasSlug, SoftDeletes;
+    use HasSlug, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'nagari_id', 'title', 'slug', 'description',
@@ -28,6 +32,35 @@ class Module extends Model
             'sort_order' => 'integer',
             'estimated_minutes' => 'integer',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('cover')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Optimasi berat halaman: crop 16:9 + format webp. nonQueued = langsung jadi
+        // tanpa perlu queue worker (cocok MVP).
+        $this->addMediaConversion('card')
+            ->fit(Fit::Crop, 800, 450)
+            ->format('webp')
+            ->nonQueued();
+    }
+
+    /**
+     * URL cover (konversi 'card') dengan fallback ke cover default global.
+     */
+    public function coverUrl(): string
+    {
+        $media = $this->getFirstMedia('cover');
+
+        return $media
+            ? $media->getUrl('card')
+            : asset('images/default-module-cover.svg');
     }
 
     public function getSlugOptions(): SlugOptions

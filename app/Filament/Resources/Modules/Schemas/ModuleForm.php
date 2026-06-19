@@ -6,6 +6,7 @@ use App\Models\Module;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -94,6 +95,16 @@ class ModuleForm
                 RichEditor::make('description')
                     ->label('Deskripsi')
                     ->nullable()
+                    ->columnSpanFull(),
+
+                SpatieMediaLibraryFileUpload::make('cover')
+                    ->label('Cover Modul')
+                    ->helperText('Opsional. Bila kosong, dipakai cover default. Disarankan rasio 16:9.')
+                    ->collection('cover')
+                    ->image()
+                    ->imageEditor()
+                    ->imageEditorAspectRatios(['16:9'])
+                    ->maxSize(2048)
                     ->columnSpanFull(),
 
                 Hidden::make('created_by')
