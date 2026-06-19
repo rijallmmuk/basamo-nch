@@ -31,6 +31,12 @@
                         @unless($module->nagari_id)
                             <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Modul Global</span>
                         @endunless
+                        @if($module->estimated_minutes)
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
+                                <x-heroicon-o-clock class="h-3.5 w-3.5" />
+                                ± {{ $module->estimated_minutes }} menit
+                            </span>
+                        @endif
                     </div>
 
                     <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ $module->title }}</h1>

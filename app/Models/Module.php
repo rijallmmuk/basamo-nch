@@ -19,8 +19,16 @@ class Module extends Model
 
     protected $fillable = [
         'nagari_id', 'title', 'slug', 'description',
-        'sort_order', 'prerequisite_module_id', 'status', 'created_by',
+        'sort_order', 'estimated_minutes', 'prerequisite_module_id', 'status', 'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'sort_order' => 'integer',
+            'estimated_minutes' => 'integer',
+        ];
+    }
 
     public function getSlugOptions(): SlugOptions
     {

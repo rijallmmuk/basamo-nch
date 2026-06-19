@@ -44,6 +44,13 @@
                         <p class="mt-1.5 line-clamp-2 text-sm text-gray-500">{{ strip_tags($module->description) }}</p>
                     @endif
 
+                    @if($module->estimated_minutes)
+                        <p class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-gray-400">
+                            <x-heroicon-o-clock class="h-4 w-4" />
+                            ± {{ $module->estimated_minutes }} menit
+                        </p>
+                    @endif
+
                     {{-- Prerequisite warning --}}
                     @if($locked && $module->prerequisite)
                         <p class="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">

@@ -59,6 +59,16 @@ class ModuleForm
                     ->required()
                     ->columnSpan(1),
 
+                TextInput::make('estimated_minutes')
+                    ->label('Estimasi Durasi')
+                    ->helperText('Perkiraan lama belajar modul ini. Opsional.')
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(1000)
+                    ->suffix('menit')
+                    ->nullable()
+                    ->columnSpan(1),
+
                 Select::make('prerequisite_module_id')
                     ->label('Prasyarat Modul')
                     ->relationship(
