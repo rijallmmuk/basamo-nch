@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Module;
+use App\Models\UserModuleProgress;
 use App\Services\LmsProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -29,8 +30,15 @@ class ModuleController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        // Ambil sekali: modul yang sudah diselesaikan user → hitung status in-memory
+        // (hindari N+1: tanpa ini setiap modul memicu 2 query progres).
+        $completedModuleIds = UserModuleProgress::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->pluck('module_id')
+            ->all();
+
         $statusMap = $modules->mapWithKeys(
-            fn ($m) => [$m->id => $this->progressService->getModuleStatus($user, $m)]
+            fn ($m) => [$m->id => $this->progressService->getModuleStatusUsing($m, $m->progress->first(), $completedModuleIds)]
         );
 
         return view('portal.modules.index', compact('modules', 'statusMap'));

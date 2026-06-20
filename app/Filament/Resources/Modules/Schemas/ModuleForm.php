@@ -9,6 +9,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -46,6 +47,8 @@ class ModuleForm
                     ->nullable()
                     ->searchable()
                     ->preload()
+                    // Ubah nagari → segarkan opsi prasyarat (harus global/senagari).
+                    ->live()
                     // Hanya super_admin yang menentukan nagari/global.
                     // nagari_admin: nagari_id diisi otomatis (lihat CreateModule).
                     ->visible(fn () => auth()->user()?->isSuperAdmin())
@@ -83,21 +86,43 @@ class ModuleForm
                     ->relationship(
                         name: 'prerequisite',
                         titleAttribute: 'title',
-                        modifyQueryUsing: function ($query, ?Module $record) {
+                        modifyQueryUsing: function ($query, ?Module $record, Get $get) {
                             // Tidak boleh menjadikan modul sebagai prasyarat dirinya sendiri.
                             if ($record) {
                                 $query->whereKeyNot($record->getKey());
                             }
-                            // nagari_admin hanya boleh memilih prasyarat dari nagarinya sendiri.
-                            if (auth()->user()?->isNagariAdmin()) {
-                                $query->where('nagari_id', auth()->user()->nagari_id);
-                            }
+
+                            // Prasyarat hanya boleh modul GLOBAL atau SENAGARI dengan modul ini.
+                            // Mencegah modul terkunci permanen bagi warga yang tak punya akses
+                            // ke prasyarat lintas-nagari.
+                            $nagariId = self::moduleNagariId($get);
+
+                            $query->where(function ($q) use ($nagariId) {
+                                $q->whereNull('nagari_id');
+                                if ($nagariId) {
+                                    $q->orWhere('nagari_id', $nagariId);
+                                }
+                            });
                         },
                     )
                     ->placeholder('— Tidak ada prasyarat —')
                     ->nullable()
                     ->searchable()
                     ->preload()
+                    // Guard server-side (otoritatif): tolak prasyarat lintas-nagari
+                    // walau opsi dipaksa lewat request.
+                    ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                        if (! $value) {
+                            return;
+                        }
+
+                        $prerequisite = Module::find($value);
+
+                        if ($prerequisite && $prerequisite->nagari_id !== null
+                            && $prerequisite->nagari_id != self::moduleNagariId($get)) {
+                            $fail('Prasyarat harus modul global atau dari nagari yang sama.');
+                        }
+                    })
                     ->columnSpan(1),
 
                 RichEditor::make('description')
@@ -119,5 +144,22 @@ class ModuleForm
                     ->default(fn () => auth()->id()),
             ])
             ->columns(2);
+    }
+
+    /**
+     * Nagari efektif modul yang sedang disunting. nagari_admin: selalu nagarinya
+     * (field nagari_id disembunyikan). super_admin: dari pilihan form (null = global).
+     */
+    protected static function moduleNagariId(Get $get): ?int
+    {
+        $user = auth()->user();
+
+        if ($user?->isNagariAdmin()) {
+            return $user->nagari_id;
+        }
+
+        $value = $get('nagari_id');
+
+        return $value ? (int) $value : null;
     }
 }

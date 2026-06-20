@@ -196,6 +196,29 @@ Frontend Lapisan 1 (Blade+Tailwind, tanpa login). Suite **hijau (72 test)**.
 - **Test:** `PublicUmkmCatalogTest` (4 kasus) + `UmkmProfileResourceTest` (assert notifikasi).
 - **Catatan:** jalankan `npm run build` (sudah) — view publik baru pakai kelas Tailwind.
 
+## Audit modul LMS (2026-06-20) — branch `feat/umkm`
+Audit kesiapan produksi modul (DB→model→policy→admin→portal). Suite **hijau (81)**.
+Test baru: `LmsModuleAuditTest` (9 kasus). Yang diperbaiki:
+- **#1 XSS (kritis):** konten materi & deskripsi modul kini `->sanitizeHtml()` di Blade
+  (`page.blade:93`, `show.blade:47`). Sebelumnya `{!! mentah !!}` → admin nagari bisa
+  inject `<script>` ke browser warga.
+- **#2 Prasyarat lintas-nagari (tinggi):** guard di `ModuleForm` (filter opsi + rule
+  server-side) — prasyarat wajib global ATAU senagari. Cegah modul terkunci permanen.
+- **#3/#4 Penyelesaian (tinggi):** `markPageCompleted` ditulis ulang — rekonsiliasi
+  `pages_completed` terhadap halaman yang masih ada (buang ID hantu) + hitung ulang
+  status tiap buka (tak lagi early-return). Hapus halaman tak lagi membuat warga macet
+  `in_progress`/XP tak cair. Dibungkus transaksi + `lockForUpdate` (anti race).
+- **#5 N+1:** `ModuleController::index` ambil `completedModuleIds` sekali →
+  `getModuleStatusUsing()` in-memory (sebelumnya ~2 query/modul).
+- **#6 Notifikasi publish:** `NewModulePublished` jadi `ShouldQueue` + observer
+  `chunkById(500)` (modul global tak lagi blok request / boros memori).
+- **#7/#8 File yatim:** `ModulePage` hapus PDF saat record dihapus/diganti; kosongkan
+  kolom tak relevan saat ganti tipe. `ModuleObserver::deleting` bersihkan PDF saat
+  modul di-force-delete (cascade DB lewati event).
+- **#11 Prasyarat dihapus:** soft-delete prasyarat tak lagi mengunci warga.
+- **#9 (by design, tak diubah):** "selesai" = membuka tiap halaman (tanpa dwell/scroll).
+  Keputusan produk — perlu arahan bila mau gating lebih ketat.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

@@ -90,7 +90,7 @@
                 <div class="p-5 sm:p-6 lg:p-8">
                     @if($page->type === 'text')
                         <div class="prose prose-sm max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
-                            {!! $page->content !!}
+                            {!! str($page->content)->sanitizeHtml() !!}
                         </div>
                     @elseif($page->type === 'video')
                         @php
