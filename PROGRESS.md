@@ -239,6 +239,30 @@ Test: +4 di `QuizPlayerGradingTest` (12 total). Yang diperbaiki:
   (sisa essay; ubah enum = churn besar), D5 `is_pinned`/soft-delete diskusi tanpa UI
   moderasi admin (fitur belum dibangun).
 
+## Audit auth warga NIK+OTP (2026-06-20) — branch `feat/umkm`
+Audit kesiapan produksi alur login/provisioning warga. Suite **hijau (92)**.
+Test: `AuthWargaAuditTest` (7 kasus, semua bug dikonfirmasi merah dulu). Diperbaiki:
+- **A1 (tinggi):** warga `status=inactive` **dulu tetap bisa login & pakai portal**
+  (login & `EnsurePortalUser` tak cek status; bandingkan `canAccessPanel` admin yang cek).
+  Kini ditolak di login **dan** dikeluarkan di tengah sesi via middleware.
+- **A5 (sedang):** ganti sandi biasa kini wajib `current_password` (rule Laravel).
+  Paksa-ganti login pertama tetap tanpa (sudah autentik via OTP). View change-password
+  tampilkan field sandi lama secara kondisional.
+- **A6 (sedang):** kebijakan sandi warga `Password::min(8)->letters()->numbers()`
+  (sebelumnya `min:8` saja).
+- **Bonus (robustness):** `HomeController` `total_xp ?? 0` pada query peringkat —
+  **bukan** bug produksi (`auth()->user()` selalu dimuat dari DB, kolom NOT NULL default 0);
+  hanya artefak test (factory tak set total_xp). Factory kini set `total_xp=0` cermin DB.
+- **Aman terverifikasi:** provisioning (NIK `digits:16` unik, OTP 6-digit `random_int`,
+  expiry 7h konsisten, Reset OTP via `issueOtp`), session regenerate saat login,
+  logout invalidate+regenerateToken, CSRF di semua form, autocomplete benar,
+  `password` hashed cast, `initial_otp` Hidden + tak di-log, gating admin↔portal via role.
+- **Didokumentasikan, tak diubah:** A2 rate-limiter tak `hit` di cabang role/otp-mismatch
+  (butuh kredensial valid; menghindari penalti admin yang salah form), A3 throttle key
+  per-identitas+IP (kompromi wajar), A4 `initial_otp` plaintext + expiry 7h (keputusan sadar).
+- **Koreksi audit kuis:** K5 (enum mati `pending_review`) **TIDAK ADA** — enum live sudah
+  `enum('in_progress','passed','failed')`; saya keliru baca file migrasi *create*, bukan DB live.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

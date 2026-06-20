@@ -26,6 +26,14 @@ class EnsurePortalUser
                 ->with('error', 'Akun ini tidak memiliki akses portal warga.');
         }
 
+        // Nonaktif di tengah sesi (admin menonaktifkan) → keluarkan langsung.
+        if (auth()->user()->status !== 'active') {
+            auth()->logout();
+
+            return redirect()->route('portal.login')
+                ->with('error', 'Akun Anda nonaktif. Hubungi Admin Nagari.');
+        }
+
         // Login pertama dengan OTP: wajib ganti sandi sebelum mengakses portal.
         if (auth()->user()->must_change_password && ! $request->routeIs('portal.password.*')) {
             return redirect()->route('portal.password.edit');

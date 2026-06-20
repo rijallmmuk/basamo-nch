@@ -54,7 +54,7 @@ class HomeController extends Controller
             ->take(5)
             ->get(['id', 'name', 'total_xp']);
 
-        $myRank = $wargaQuery()->where('total_xp', '>', $user->total_xp)->count() + 1;
+        $myRank = $wargaQuery()->where('total_xp', '>', $user->total_xp ?? 0)->count() + 1;
         $totalWarga = $wargaQuery()->count();
 
         return view('portal.home', compact(

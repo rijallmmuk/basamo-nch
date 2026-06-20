@@ -54,6 +54,15 @@ class AuthController extends Controller
                 ->withInput();
         }
 
+        // Akun nonaktif diblokir: menonaktifkan warga = cabut akses portal.
+        if (Auth::user()->status !== 'active') {
+            Auth::logout();
+
+            return back()
+                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Nagari.'])
+                ->withInput();
+        }
+
         // OTP awal kedaluwarsa: tolak, minta admin terbitkan ulang.
         if (Auth::user()->otpExpired()) {
             Auth::logout();
