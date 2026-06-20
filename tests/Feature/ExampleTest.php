@@ -1,7 +1,11 @@
 <?php
 
-test('root mengarahkan ke halaman login portal', function () {
-    $this->get('/')->assertRedirect(route('portal.login'));
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+test('root menampilkan landing page publik', function () {
+    $this->get('/')->assertOk()->assertSee('Basamo NCH');
 });
 
 test('halaman login portal dapat diakses tamu', function () {

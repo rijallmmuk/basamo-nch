@@ -411,6 +411,19 @@ ke create-nya). Diverifikasi via `mysqldump --no-data` sebelum/sesudah: skema
   (role + super admin, esensial produksi, idempotent) + `DemoSeeder` (panggil CoreSeeder
   lalu isi demo). `DatabaseSeeder`→`DemoSeeder`. Produksi: `db:seed --class=CoreSeeder`.
 - `migrate:fresh --seed` terverifikasi: 2 nagari, 16 warga, 6 UMKM, 7 modul, 16 produk.
+- **Sudah merge ke `main`** (PR #2). Pasca-merge: `migrate:fresh --seed` bersih + suite
+  **hijau penuh (130 test, 370 assertion, 0 gagal)** dikonfirmasi ulang.
+
+## Landing publik + hardening back-button (2026-06-20) — branch `feat/public-landing-portal-nostore`
+- **Landing page `/`** (Lapisan 1, tanpa login): `Public\HomeController` + `public.home`
+  (hero, statistik ringkas ter-cache 1 jam, 4 pilar — LMS/UMKM aktif, SDGs/IoT "segera").
+  Header layout publik kini brand "Basamo NCH" → tautan ke beranda. Sebelumnya `/` redirect
+  ke login portal (belum ada halaman depan).
+- **Anti back-button:** middleware `PreventCachedHistory` (alias `no-store`) di grup portal
+  terproteksi → `Cache-Control: no-store` + `Pragma: no-cache`. Setelah logout, Back tak lagi
+  menampilkan dashboard basi dari riwayat browser (akses server sudah aman sebelumnya).
+- Test: `PublicHomeTest` (landing tampil, header no-store di portal, publik tanpa no-store);
+  `ExampleTest` diselaraskan (root → landing). Suite **hijau (133)**. `npm run build` dijalankan.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

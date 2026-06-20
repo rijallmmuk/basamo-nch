@@ -9,7 +9,7 @@
 <body class="min-h-full bg-slate-50 text-gray-900 antialiased">
     <header class="border-b border-gray-200 bg-white">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-            <a href="{{ route('public.umkm.index') }}" class="text-lg font-bold">Katalog UMKM Nagari</a>
+            <a href="{{ route('public.home') }}" class="text-lg font-bold">Basamo NCH</a>
             <a href="{{ route('portal.login') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">Masuk Portal</a>
         </div>
     </header>
