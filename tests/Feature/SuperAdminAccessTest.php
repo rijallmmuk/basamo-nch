@@ -33,6 +33,12 @@ it('super_admin melewati semua ability berdasarkan kolom role saja (tanpa Spatie
         ->and(Gate::forUser($user)->check('delete', Module::class))->toBeTrue();
 });
 
+it('dashboard admin merender widget (plugin ApexCharts terdaftar)', function () {
+    $user = User::factory()->superAdmin()->create();
+
+    $this->actingAs($user)->get('/admin')->assertSuccessful();
+});
+
 it('nagari_admin dapat mengelola modul tetapi tidak role', function () {
     $user = User::factory()->nagariAdmin()->create();
 
