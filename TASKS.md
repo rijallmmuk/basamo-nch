@@ -106,6 +106,10 @@
 - [x] View: CTA "Ruang Diskusi" di `modules/show.blade.php` + `discuss/index.blade.php` (thread list + form tanya)
 - [x] View: `modules/discuss/thread.blade.php` — thread detail + balasan + form balas
 - [x] Warga hanya bisa lihat & reply diskusi sesama nagari (scope via nagari penulis)
+- [x] Moderasi admin (2026-06-20): `DiscussionResource` di `/admin` (grup LMS) — super_admin
+      semua nagari, nagari_admin hanya nagarinya. Aksi pin/lepas, hapus/pulihkan (soft-delete),
+      force-delete. `DiscussionPolicy` + Activity Log. Rate-limit posting (throttle:15,1).
+      Test `DiscussionModerationTest`
 
 ### 2.6 Kerangka Halaman Front-End (sample, konten placeholder)
 > Dikerjakan setelah LMS (2.3–2.5) selesai

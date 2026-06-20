@@ -263,6 +263,20 @@ Test: `AuthWargaAuditTest` (7 kasus, semua bug dikonfirmasi merah dulu). Diperba
 - **Koreksi audit kuis:** K5 (enum mati `pending_review`) **TIDAK ADA** — enum live sudah
   `enum('in_progress','passed','failed')`; saya keliru baca file migrasi *create*, bukan DB live.
 
+## Moderasi diskusi (2026-06-20) — branch `feat/umkm`
+Menutup celah **D5** dari audit diskusi. Suite **hijau (99)**. Test: `DiscussionModerationTest` (7).
+- **`DiscussionResource`** (grup nav LMS, read-only — tanpa create/edit isi): tabel thread+balasan
+  per modul, kolom tipe/modul/penulis/nagari/isi/balasan/disematkan/dibuat/dihapus. Filter
+  tipe/modul/nagari(super)/disematkan/trashed.
+- **Cakupan:** super_admin semua nagari; nagari_admin **hanya diskusi warga nagarinya** (scope
+  query `whereHas user nagari_id` + `DiscussionPolicy` per-record). super_admin via Gate::before.
+- **Aksi:** Sematkan/Lepas (`is_pinned`, hanya pertanyaan top-level), Hapus (soft), Pulihkan,
+  Force-delete. `Discussion` kini `LogsActivity` (log pin + hapus/pulihkan, useLogName `diskusi`).
+- **Integrasi portal:** soft-delete otomatis menyembunyikan dari portal (SoftDeletes scope di
+  relasi `discussions()`/`replies`); pin menaikkan thread (portal `orderByDesc('is_pinned')`).
+- **Catatan minor (sadar):** soft-delete thread tak cascade ke balasannya (balasan jadi tak
+  terjangkau di portal karena thread 404; tetap tampil di tabel admin untuk dimoderasi terpisah).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
