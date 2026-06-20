@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Notifications\UmkmProductVerified;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 
@@ -76,6 +77,24 @@ class UmkmService
         }
 
         $this->attachPhotos($product, $photos);
+
+        return $product;
+    }
+
+    /**
+     * Verifikasi produk oleh admin (setujui/tolak). Menyetel jejak verifikasi lalu
+     * memberi tahu pemilik. Dipakai antrian verifikasi global & relation manager.
+     */
+    public function verifyProduct(UmkmProduct $product, string $status, ?int $approverId = null, ?string $reason = null): UmkmProduct
+    {
+        $product->update([
+            'status' => $status,
+            'rejection_reason' => $status === 'rejected' ? $reason : null,
+            'approved_by' => $status === 'approved' ? $approverId : null,
+            'approved_at' => $status === 'approved' ? now() : null,
+        ]);
+
+        $product->umkmProfile->owner?->notify(new UmkmProductVerified($product));
 
         return $product;
     }

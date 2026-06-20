@@ -17,6 +17,17 @@ class UmkmProductPolicy
 {
     use HandlesAuthorization;
 
+    /** Antrian verifikasi admin: nagari_admin (super_admin via Gate::before). */
+    public function viewAny(User $user): bool
+    {
+        return $user->isNagariAdmin();
+    }
+
+    public function view(User $user, UmkmProduct $product): bool
+    {
+        return $user->isNagariAdmin();
+    }
+
     public function update(User $user, UmkmProduct $product): bool
     {
         return $this->ownsProduct($user, $product);

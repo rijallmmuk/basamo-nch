@@ -1,32 +1,33 @@
 <?php
 
-namespace App\Filament\Resources\UmkmProfiles\RelationManagers;
+namespace App\Filament\Resources\UmkmProducts\Tables;
 
 use App\Models\UmkmProduct;
 use App\Services\UmkmService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
-class ProductsRelationManager extends RelationManager
+class UmkmProductsTable
 {
-    protected static string $relationship = 'products';
-
-    protected static ?string $title = 'Produk';
-
-    public function table(Table $table): Table
+    public static function configure(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('nama_produk')
             ->columns([
                 TextColumn::make('nama_produk')
-                    ->label('Nama produk')
+                    ->label('Produk')
                     ->searchable(),
+
+                TextColumn::make('umkmProfile.nama_usaha')
+                    ->label('Usaha')
+                    ->searchable(),
+
+                TextColumn::make('umkmProfile.nagari.nama')
+                    ->label('Nagari')
+                    ->visible(fn () => auth()->user()?->isSuperAdmin()),
 
                 TextColumn::make('harga')
                     ->label('Harga')
@@ -47,11 +48,6 @@ class ProductsRelationManager extends RelationManager
                         default => 'warning',
                     }),
 
-                TextColumn::make('view_count')
-                    ->label('Dilihat')
-                    ->sortable()
-                    ->toggleable(),
-
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->dateTime('d M Y')
@@ -63,7 +59,8 @@ class ProductsRelationManager extends RelationManager
                         'pending' => 'Menunggu',
                         'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
-                    ]),
+                    ])
+                    ->default('pending'),
             ])
             ->recordActions([
                 Action::make('approve')
@@ -72,7 +69,8 @@ class ProductsRelationManager extends RelationManager
                     ->color('success')
                     ->visible(fn (UmkmProduct $record): bool => $record->status !== 'approved')
                     ->requiresConfirmation()
-                    ->action(fn (UmkmProduct $record) => $this->setStatus($record, 'approved')),
+                    ->action(fn (UmkmProduct $record) => app(UmkmService::class)
+                        ->verifyProduct($record, 'approved', Auth::id())),
 
                 Action::make('reject')
                     ->label('Tolak')
@@ -85,19 +83,9 @@ class ProductsRelationManager extends RelationManager
                             ->required()
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
-                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, 'rejected', $data['rejection_reason'])),
+                    ->action(fn (UmkmProduct $record, array $data) => app(UmkmService::class)
+                        ->verifyProduct($record, 'rejected', Auth::id(), $data['rejection_reason'])),
             ])
-            ->defaultSort('created_at', 'desc');
-    }
-
-    /** Form tak dipakai (produk dibuat pemilik di portal); verifikasi via aksi. */
-    public function form(Schema $schema): Schema
-    {
-        return $schema->components([]);
-    }
-
-    protected function setStatus(UmkmProduct $product, string $status, ?string $reason = null): void
-    {
-        app(UmkmService::class)->verifyProduct($product, $status, Auth::id(), $reason);
+            ->defaultSort('created_at', 'asc');
     }
 }
