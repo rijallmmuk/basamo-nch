@@ -26,10 +26,10 @@ class QuizObserver
             $query->where('nagari_id', $module->nagari_id);
         }
 
-        $users = $query->get();
-
-        if ($users->isNotEmpty()) {
+        // Kirim bertahap (notifikasi sudah ShouldQueue) agar tak memuat seluruh
+        // warga ke memori untuk modul global.
+        $query->chunkById(500, function ($users) use ($quiz) {
             Notification::send($users, new NewQuizPublished($quiz));
-        }
+        });
     }
 }

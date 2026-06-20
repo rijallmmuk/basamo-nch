@@ -40,10 +40,55 @@ class QuizPlayer extends Component
         return $this->quiz->questions()->with('options')->get();
     }
 
+    /**
+     * Apakah user masih boleh mengerjakan kuis ini (sumber kebenaran server)?
+     * Diblokir bila sudah lulus atau batas percobaan habis.
+     */
+    private function canAttempt(): bool
+    {
+        $userId = auth()->id();
+
+        $alreadyPassed = QuizAttempt::where('user_id', $userId)
+            ->where('quiz_id', $this->quiz->id)
+            ->where('status', 'passed')
+            ->exists();
+
+        if ($alreadyPassed) {
+            return false;
+        }
+
+        if ($this->quiz->max_attempts > 0) {
+            $finishedAttempts = QuizAttempt::where('user_id', $userId)
+                ->where('quiz_id', $this->quiz->id)
+                ->whereIn('status', ['passed', 'failed'])
+                ->count();
+
+            if ($finishedAttempts >= $this->quiz->max_attempts) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function submit(): void
     {
+        // Sudah dikumpulkan di sesi komponen ini — cegah submit ganda.
+        if ($this->submitted) {
+            return;
+        }
+
         // Defensif: kuis tanpa soal tak bisa dikumpulkan (normalnya sudah diblokir controller).
         if ($this->questions->isEmpty()) {
+            return;
+        }
+
+        // Re-validasi kelayakan di server. Gating di controller hanya berlaku saat GET;
+        // tanpa ini, submit() bisa dipanggil berulang via Livewire untuk melewati
+        // batas percobaan atau mengulang setelah sudah lulus.
+        if (! $this->canAttempt()) {
+            $this->quizErrors = ['Kamu tidak dapat mengerjakan kuis ini lagi.'];
+
             return;
         }
 
@@ -73,14 +118,18 @@ class QuizPlayer extends Component
         foreach ($this->questions as $question) {
             $totalQuestions++;
 
+            $correctIds = $question->options->where('is_correct', true)->pluck('id');
+            $incorrectIds = $question->options->where('is_correct', false)->pluck('id');
+
             // Soal bisa punya >1 jawaban benar → nilai partial credit per soal.
+            // Saring ke opsi milik soal ini saja: cegah ID asing dari klien memicu
+            // error FK saat simpan atau mengotori data.
             $selectedIds = collect((array) ($this->answers[$question->id] ?? []))
                 ->map(fn ($v) => (int) $v)
                 ->filter()
-                ->unique();
-
-            $correctIds = $question->options->where('is_correct', true)->pluck('id');
-            $incorrectIds = $question->options->where('is_correct', false)->pluck('id');
+                ->unique()
+                ->intersect($question->options->pluck('id'))
+                ->values();
 
             $correctSelected = $selectedIds->intersect($correctIds)->count();
             $wrongSelected = $selectedIds->intersect($incorrectIds)->count();

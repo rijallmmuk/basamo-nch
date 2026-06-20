@@ -180,3 +180,82 @@ it('memvalidasi soal yang belum dijawab tanpa membuat attempt', function () {
 
     expect(QuizAttempt::count())->toBe(0);
 });
+
+// ── K1: batas percobaan ditegakkan di server (anti-bypass via Livewire) ──
+it('menolak submit bila batas percobaan sudah habis', function () {
+    $q = makeSingleQuestionQuiz([
+        ['text' => 'Benar', 'correct' => true],
+        ['text' => 'Salah', 'correct' => false],
+    ], passingScore: 50);
+    $q->quiz->update(['max_attempts' => 1]);
+    $correctId = $q->options->firstWhere('is_correct', true)->id;
+
+    // Sudah ada 1 attempt gagal → kuota habis.
+    QuizAttempt::create([
+        'user_id' => $this->warga->id, 'quiz_id' => $q->quiz->id,
+        'status' => 'failed', 'score' => 0, 'submitted_at' => now(),
+    ]);
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
+        ->set('answers', [$q->id => $correctId])
+        ->call('submit')
+        ->assertSet('submitted', false);
+
+    // Tidak ada attempt baru yang dibuat.
+    expect(QuizAttempt::where('quiz_id', $q->quiz->id)->count())->toBe(1);
+});
+
+it('menolak submit bila user sudah lulus', function () {
+    $q = makeSingleQuestionQuiz([
+        ['text' => 'Benar', 'correct' => true],
+        ['text' => 'Salah', 'correct' => false],
+    ], passingScore: 50);
+    $q->quiz->update(['max_attempts' => 0]); // tak terbatas
+    $correctId = $q->options->firstWhere('is_correct', true)->id;
+
+    QuizAttempt::create([
+        'user_id' => $this->warga->id, 'quiz_id' => $q->quiz->id,
+        'status' => 'passed', 'score' => 100, 'submitted_at' => now(),
+    ]);
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
+        ->set('answers', [$q->id => $correctId])
+        ->call('submit')
+        ->assertSet('submitted', false);
+
+    expect(QuizAttempt::where('quiz_id', $q->quiz->id)->count())->toBe(1);
+});
+
+it('submit ganda dalam satu sesi hanya membuat satu attempt', function () {
+    $q = makeSingleQuestionQuiz([
+        ['text' => 'Benar', 'correct' => true],
+        ['text' => 'Salah', 'correct' => false],
+    ], passingScore: 50);
+    $q->quiz->update(['max_attempts' => 0]);
+    $correctId = $q->options->firstWhere('is_correct', true)->id;
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
+        ->set('answers', [$q->id => $correctId])
+        ->call('submit')
+        ->assertSet('submitted', true)
+        ->call('submit'); // panggilan kedua harus diabaikan
+
+    expect(QuizAttempt::where('quiz_id', $q->quiz->id)->count())->toBe(1);
+});
+
+// ── K2: ID opsi palsu dari klien tidak memicu error / data sampah ──
+it('mengabaikan ID opsi asing tanpa error dan tanpa baris jawaban', function () {
+    $q = makeSingleQuestionQuiz([
+        ['text' => 'Benar', 'correct' => true],
+        ['text' => 'Salah', 'correct' => false],
+    ], passingScore: 50);
+
+    Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
+        ->set('answers', [$q->id => [999999]]) // ID opsi tak ada
+        ->call('submit')
+        ->assertSet('submitted', true);
+
+    $attempt = QuizAttempt::first();
+    expect($attempt->score)->toBe(0)
+        ->and(QuizAnswer::where('attempt_id', $attempt->id)->count())->toBe(0);
+});

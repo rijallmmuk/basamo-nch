@@ -3,10 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\Quiz;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class NewQuizPublished extends Notification
+class NewQuizPublished extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(public Quiz $quiz) {}
 
     /**

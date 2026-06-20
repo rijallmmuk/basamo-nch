@@ -50,9 +50,12 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
             // Forum diskusi per modul
             Route::get('{module:slug}/discuss', [DiscussionController::class, 'index'])->name('discuss');
-            Route::post('{module:slug}/discuss', [DiscussionController::class, 'store'])->name('discuss.store');
             Route::get('{module:slug}/discuss/{discussion}', [DiscussionController::class, 'show'])->name('discuss.show');
-            Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
+            // Posting dibatasi laju untuk meredam spam (anti-flood).
+            Route::middleware('throttle:15,1')->group(function () {
+                Route::post('{module:slug}/discuss', [DiscussionController::class, 'store'])->name('discuss.store');
+                Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
+            });
         });
 
         // Lapak UMKM "Produk Saya" — khusus warga dengan akses UMKM.

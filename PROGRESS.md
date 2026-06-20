@@ -219,6 +219,26 @@ Test baru: `LmsModuleAuditTest` (9 kasus). Yang diperbaiki:
 - **#9 (by design, tak diubah):** "selesai" = membuka tiap halaman (tanpa dwell/scroll).
   Keputusan produk — perlu arahan bila mau gating lebih ketat.
 
+## Audit kuis + diskusi LMS (2026-06-20) — branch `feat/umkm`
+Lanjutan audit kesiapan produksi (DB→model→policy→admin→portal). Suite **hijau (85)**.
+Test: +4 di `QuizPlayerGradingTest` (12 total). Yang diperbaiki:
+- **K1 (tinggi):** `QuizPlayer::submit()` kini re-validasi kelayakan di server
+  (`canAttempt()` + guard `submitted`). Sebelumnya gating hanya saat GET di controller —
+  `submit()` bisa dipanggil berulang via Livewire untuk **melewati `max_attempts`** /
+  mengulang setelah lulus. Sekarang ditolak server-side.
+- **K2 (sedang):** `submit()` menyaring `selected_option_id` ke opsi milik soal
+  (intersect) — cegah ID asing dari klien memicu error FK / baris jawaban sampah.
+- **K3 (sedang):** `NewQuizPublished` jadi `ShouldQueue` + `QuizObserver` `chunkById(500)`
+  (paralel modul #6).
+- **D4 (hardening):** rute POST diskusi (store/reply) diberi `throttle:15,1` (anti-spam).
+- **Aman terverifikasi:** diskusi XSS-safe (`{{ }}`), scoping nagari solid
+  (`guardModule`+`threadVisibleToUser`), nesting dibatasi top-level; kuis scoring
+  partial-credit benar, guard admin (≥1 benar & ≥1 salah), XP idempotent.
+- **Didokumentasikan, tak diubah:** K4 notif "kuis baru" prematur (kuis dibuat sebelum
+  ada soal — perbaikan = redesign notif), K5 enum mati `quiz_attempts.status=pending_review`
+  (sisa essay; ubah enum = churn besar), D5 `is_pinned`/soft-delete diskusi tanpa UI
+  moderasi admin (fitur belum dibangun).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
