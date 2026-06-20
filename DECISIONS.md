@@ -22,6 +22,18 @@ Semua tabel (kecuali global: modul global, users, taksonomi) punya `nagari_id` +
 
 ### Stack inti
 - **MySQL** (tim familiar, support penuh). Test pakai SQLite — migrasi dibuat portabel agar lolos keduanya.
+
+### Skema untuk skala nasional (index, kolom, retensi)
+- **PK semua `bigint`** (Laravel default) — aman dari overflow di skala jutaan baris.
+- **Index komposit** untuk query panas, menggantikan index satu-kolom redundan (tanpa bloat):
+  `users(nagari_id,role,status,total_xp)` (leaderboard filter+sort 1 index), `quiz_attempts(user_id,quiz_id,status)`,
+  `notifications(notifiable_type,notifiable_id,read_at)` (unread tiap page-load), `umkm_products(status,approved_at)`,
+  `discussions(module_id,parent_id)`.
+- **Retensi** tabel event (jadwal di `routes/console.php`): prune notifikasi read >90 hari + `activitylog:clean` harian.
+- **Denormalisasi sengaja**: `user_module_progress.pages_completed` = JSON (1 baris/user-modul, bukan 1 baris/halaman).
+- **Dipertahankan**: `email_verified_at` (bawaan Laravel), enum `quiz_attempts.status=in_progress` (ruang fitur resume).
+- **Ditunda**: seragamkan bahasa kolom (LMS English vs UMKM/nagari Indonesia) = churn besar, bukan kebutuhan teknis.
+**Naming**: tabel plural konsisten (`nagaris`, `wilayahs`, `umkm_profiles`).
 - **Auth**: Filament bawaan (admin) + auth Laravel + middleware (portal). Satu model `User`. **TANPA Jetstream** (konflik Livewire v4 ↔ Filament v5).
 - **RBAC**: Filament Shield + Spatie Permission (lihat "role = sumber kebenaran").
 

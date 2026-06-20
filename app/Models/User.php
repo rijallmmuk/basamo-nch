@@ -19,7 +19,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'avatar', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser
 {

@@ -348,6 +348,22 @@ Suite **hijau (113)**. Test: `MediaUploadAuditTest` (3) + probe verifikasi.
 - **Catatan (sadar):** PDF materi di disk publik = bisa diakses tanpa login bila URL bocor
   (keputusan MVP; materi edukatif non-sensitif).
 
+## Audit migrasi/skema DB — skala nasional (2026-06-20) — branch `feat/umkm`
+Audit 19 tabel + index dari DB live. Suite **hijau (113)** di MySQL (dev) & SQLite (test). 3 migrasi:
+- **Index komposit** (`optimize_indexes_for_national_scale`): `users(nagari_id,role,status,total_xp)`
+  [leaderboard filter+sort 1 index], `quiz_attempts(user_id,quiz_id,status)`,
+  `notifications(notifiable_type,notifiable_id,read_at)` [unread tiap page-load],
+  `umkm_products(status,approved_at)` [katalog publik], `discussions(module_id,parent_id)`.
+  **Buang 6 index single redundan** (prefix kiri komposit/unique) → tanpa bloat.
+- **Buang kolom mati** `users.avatar` (tak pernah diisi; avatar = inisial).
+- **Rename `wilayah`→`wilayahs`** (konsistensi plural; FK users.wilayah_id ikut otomatis).
+- **Retensi** (`routes/console.php`): prune notifikasi read >90 hari + `activitylog:clean` harian
+  (onOneServer) — cegah tabel event membengkak.
+- **Dipertahankan sadar:** `email_verified_at` (bawaan Laravel), enum `quiz_attempts.status=in_progress`
+  (ruang fitur resume), `pages_completed` JSON (denormalisasi tepat untuk skala).
+- **Ditunda (keputusan gaya):** seragamkan bahasa kolom (LMS English vs UMKM/nagari Indonesia) —
+  churn besar, bukan kebutuhan teknis.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
