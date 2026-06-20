@@ -30,6 +30,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // Cerminkan default DB (NOT NULL default 0) agar model in-memory tak null.
+            'total_xp' => 0,
         ];
     }
 
@@ -58,9 +60,14 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => ['role' => 'warga', 'status' => 'active']);
     }
 
+    /** Warga dengan kapabilitas UMKM (akses "Produk Saya"). */
     public function umkmOwner(): static
     {
-        return $this->state(fn (array $attributes) => ['role' => 'umkm_owner', 'status' => 'active']);
+        return $this->state(fn (array $attributes) => [
+            'role' => 'warga',
+            'status' => 'active',
+            'umkm_access_granted_at' => now(),
+        ]);
     }
 
     public function inactive(): static

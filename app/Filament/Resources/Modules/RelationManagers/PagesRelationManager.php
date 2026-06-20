@@ -63,7 +63,8 @@ class PagesRelationManager extends RelationManager
                 FileUpload::make('file_path')
                     ->label('File PDF')
                     ->acceptedFileTypes(['application/pdf'])
-                    ->disk('public')
+                    // Disk unggahan publik (MEDIA_DISK) — portabel ke R2 di produksi.
+                    ->disk(config('media-library.disk_name'))
                     ->directory('modules/pages/pdf')
                     ->visibility('public')
                     ->visible(fn ($get) => $get('type') === 'pdf')

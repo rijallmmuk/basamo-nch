@@ -29,6 +29,24 @@
             <form method="POST" action="{{ route('portal.password.update') }}" class="space-y-4">
                 @csrf
 
+                {{-- Sandi lama — hanya untuk ganti sandi biasa (bukan paksa-ganti login pertama) --}}
+                @unless(auth()->user()->must_change_password)
+                    <div>
+                        <label for="current_password" class="mb-1.5 block text-sm font-medium text-gray-700">
+                            Kata Sandi Saat Ini
+                        </label>
+                        <input type="password" id="current_password" name="current_password"
+                            autocomplete="current-password"
+                            class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
+                                   @error('current_password') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
+                                   @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                            placeholder="••••••••">
+                        @error('current_password')
+                            <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endunless
+
                 {{-- Password baru --}}
                 <div>
                     <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700">

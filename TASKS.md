@@ -106,13 +106,18 @@
 - [x] View: CTA "Ruang Diskusi" di `modules/show.blade.php` + `discuss/index.blade.php` (thread list + form tanya)
 - [x] View: `modules/discuss/thread.blade.php` — thread detail + balasan + form balas
 - [x] Warga hanya bisa lihat & reply diskusi sesama nagari (scope via nagari penulis)
+- [x] Moderasi admin (2026-06-20): `DiscussionResource` di `/admin` (grup LMS) — super_admin
+      semua nagari, nagari_admin hanya nagarinya. Aksi pin/lepas, hapus/pulihkan (soft-delete),
+      force-delete. `DiscussionPolicy` + Activity Log. Rate-limit posting (throttle:15,1).
+      Test `DiscussionModerationTest`
 
 ### 2.6 Kerangka Halaman Front-End (sample, konten placeholder)
 > Dikerjakan setelah LMS (2.3–2.5) selesai
 - [x] Beranda (dashboard): hero sapaan + statistik + spotlight "Lanjutkan" + Aktivitas Belajar
 - [x] Redesign UI LMS menyeluruh + komponen `components/portal/` (avatar, status-badge, content-badge, empty)
 - [x] Halaman Leaderboard XP (per nagari) + panel Top 5 di dashboard
-- [ ] Halaman Lapak UMKM (info akses untuk warga / placeholder untuk umkm_owner)
+- [x] Halaman Lapak UMKM "Produk Saya" (umkm_owner): profil usaha + CRUD produk + foto;
+      menu hanya tampil untuk pemilik (middleware umkm.owner). Test PortalUmkmTest
 - [x] Shell: sidebar (desktop) + bottom nav (mobile); notifikasi+dropdown di top header
 
 ---
@@ -136,41 +141,46 @@
 ## Milestone 4 — UMKM (Target: Minggu 8–9)
 
 ### 4.1 Manajemen UMKM (Admin Nagari)
-- [ ] Buat akun pemilik UMKM dari panel Admin Nagari
-- [ ] (keputusan) Akses UMKM = aksi admin "beri akses" yang menaikkan warga → `umkm_owner`
-      (warga existing, bukan akun baru). Field/alamat warga akan bertambah seiring kebutuhan.
-- [ ] FilamentResource: `UmkmProfileResource` (kelola profil usaha)
-- [ ] Antrian verifikasi produk dengan approval/reject + alasan
+- [x] Buat akun pemilik UMKM dari panel Admin Nagari (via UserResource + aksi beri akses)
+- [x] (keputusan) Akses UMKM = aksi admin "beri akses" yang menaikkan warga → `umkm_owner`
+      (warga existing, bukan akun baru) — aksi tabel "Beri/Cabut akses UMKM" + UmkmAccessTest
+- [x] FilamentResource: `UmkmProfileResource` (kelola profil usaha; scope nagari, pemilik
+      = akun umkm_owner, nagari diwarisi dari pemilik) + UmkmProfileResourceTest
+- [x] Antrian verifikasi produk dengan approval/reject + alasan (ProductsRelationManager:
+      aksi Setujui/Tolak → status + approved_by/at + rejection_reason)
 
 ### 4.2 Input Produk (Pemilik UMKM)
-- [ ] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp)
-- [ ] Portal: form tambah/edit produk (nama, deskripsi, harga opsional)
-- [ ] Upload multiple foto produk (maks 5) via Media Library
-- [ ] Status produk: pending/approved/rejected
+- [x] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp, alamat) — nagari ikut pemilik
+- [x] Portal: form tambah/edit produk (nama, deskripsi, harga opsional)
+- [x] Upload multiple foto produk (maks 5) via Media Library + hapus foto saat edit
+- [x] Status produk: pending/approved/rejected — produk baru/diubah → pending (verifikasi ulang)
 
-### 4.3 Katalog Publik
-- [ ] Halaman `/umkm` — akses tanpa login
-- [ ] Filter by nagari + kategori
-- [ ] Kartu produk dengan foto, info, tombol WA
-- [ ] Counter view produk
+### 4.3 Katalog Publik ✓ SELESAI
+- [x] Halaman `/umkm` — akses tanpa login (Lapisan 1, Blade+Tailwind); hanya produk approved
+      dari usaha aktif. `UmkmCatalogController` + layout `public/layouts/app`
+- [x] Filter by nagari + kategori + pencarian nama produk (query string preserved)
+- [x] Kartu produk dengan foto, info, tombol WA (detail: galeri foto + WhatsApp via `whatsappUrl()`)
+- [x] Counter view produk (atomik, tanpa bump updated_at)
+- [x] Notifikasi in-app pemilik saat produk disetujui/ditolak (`UmkmProductVerified`)
+- [x] Test `PublicUmkmCatalogTest` (scope approved/aktif, filter, view_count, 404 non-approved)
 
 ---
 
 ## Milestone 5 — Dashboard & IoT (Target: Minggu 10–11)
 
 ### 5.1 Dashboard Super Admin
-- [ ] Metric cards: total nagari, warga, UMKM, sensor aktif
-- [ ] ApexCharts: kemajuan LMS per nagari (bar chart)
-- [ ] ApexCharts: SDGs 18 poin rata-rata (radial chart)
-- [ ] ApexCharts: tren aktivitas 30 hari (line chart)
-- [ ] ApexCharts: sebaran kategori UMKM (donut chart)
-- [ ] Panel IoT: status sensor semua nagari
+- [x] Metric cards: total nagari, warga, UMKM, produk menunggu (PlatformStatsWidget; sensor IoT menyusul)
+- [x] ApexCharts: kemajuan LMS per nagari (bar chart) — LmsProgresChart
+- [ ] ApexCharts: SDGs 18 poin rata-rata (radial chart) — menunggu pilar SDGs
+- [x] ApexCharts: tren aktivitas 30 hari (area chart) — AktivitasBelajarChart (modul + kuis)
+- [x] ApexCharts: sebaran kategori UMKM (donut chart) — UmkmKategoriChart
+- [ ] Panel IoT: status sensor semua nagari — menunggu pilar IoT
 - [ ] Feed berita & aktivitas terbaru
 
 ### 5.2 Dashboard Admin Nagari
-- [ ] Dashboard filtered per nagari (sama strukturnya, data nagari sendiri)
-- [ ] Widget: antrian essay menunggu penilaian
-- [ ] Widget: produk UMKM menunggu verifikasi
+- [x] Dashboard filtered per nagari (widget yang sama, ter-scope ke nagari admin)
+- [x] ~~Widget: antrian essay~~ — DIBATALKAN (kuis MC-only auto-grade)
+- [x] Widget: produk UMKM menunggu verifikasi (kartu "Produk menunggu" di PlatformStatsWidget)
 
 ### 5.3 Sensor IoT Simulasi
 - [ ] Model + migration iot_sensors + iot_readings

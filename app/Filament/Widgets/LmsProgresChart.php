@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use App\Models\UserModuleProgress;
+use Illuminate\Support\Facades\DB;
+use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+
+class LmsProgresChart extends ApexChartWidget
+{
+    protected static ?string $chartId = 'lmsProgresChart';
+
+    protected static ?string $heading = 'Penyelesaian Modul per Nagari';
+
+    protected static ?int $sort = 2;
+
+    protected function getOptions(): array
+    {
+        $user = auth()->user();
+
+        $rows = UserModuleProgress::query()
+            ->where('user_module_progress.status', 'completed')
+            ->join('users', 'users.id', '=', 'user_module_progress.user_id')
+            ->join('nagaris', 'nagaris.id', '=', 'users.nagari_id')
+            ->when($user?->isNagariAdmin(), fn ($q) => $q->where('users.nagari_id', $user->nagari_id))
+            ->groupBy('nagaris.id', 'nagaris.nama')
+            ->orderBy('nagaris.nama')
+            ->select('nagaris.nama', DB::raw('COUNT(*) as total'))
+            ->pluck('total', 'nama');
+
+        return [
+            'chart' => [
+                'type' => 'bar',
+                'height' => 300,
+                'toolbar' => ['show' => false],
+            ],
+            'series' => [
+                [
+                    'name' => 'Modul selesai',
+                    'data' => $rows->values()->all() ?: [0],
+                ],
+            ],
+            'xaxis' => [
+                'categories' => $rows->keys()->all() ?: ['Belum ada data'],
+                'labels' => ['style' => ['fontFamily' => 'inherit']],
+            ],
+            'yaxis' => [
+                'labels' => ['style' => ['fontFamily' => 'inherit']],
+            ],
+            'colors' => ['#10b981'],
+            'plotOptions' => [
+                'bar' => ['borderRadius' => 4, 'horizontal' => false],
+            ],
+            'dataLabels' => ['enabled' => false],
+        ];
+    }
+}

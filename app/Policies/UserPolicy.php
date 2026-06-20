@@ -9,7 +9,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * super_admin dilewatkan via Gate::before (akses penuh).
- * Policy ini mengatur nagari_admin: hanya kelola warga/umkm_owner di nagarinya.
+ * Policy ini mengatur nagari_admin: hanya kelola warga di nagarinya.
  */
 class UserPolicy
 {
@@ -18,7 +18,7 @@ class UserPolicy
     /**
      * @return list<string>
      */
-    private const MANAGEABLE_ROLES = ['warga', 'umkm_owner'];
+    private const MANAGEABLE_ROLES = ['warga'];
 
     public function viewAny(User $actor): bool
     {
@@ -73,7 +73,7 @@ class UserPolicy
     }
 
     /**
-     * nagari_admin hanya boleh mengelola warga/umkm_owner di nagarinya sendiri.
+     * nagari_admin hanya boleh mengelola warga di nagarinya sendiri.
      */
     private function managesInNagari(User $actor, User $target): bool
     {

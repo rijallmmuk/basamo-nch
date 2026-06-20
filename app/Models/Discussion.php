@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Discussion extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'module_id', 'user_id', 'parent_id', 'body', 'is_pinned',
@@ -20,6 +22,16 @@ class Discussion extends Model
         return [
             'is_pinned' => 'boolean',
         ];
+    }
+
+    /** Audit moderasi: sematan + hapus/pulihkan (event delete/restore otomatis dicatat). */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['is_pinned'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('diskusi');
     }
 
     public function module(): BelongsTo

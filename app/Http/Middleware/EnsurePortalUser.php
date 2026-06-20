@@ -19,11 +19,19 @@ class EnsurePortalUser
             return redirect()->route('portal.login');
         }
 
-        if (! in_array(auth()->user()->role, ['warga', 'umkm_owner'])) {
+        if (auth()->user()->role !== 'warga') {
             auth()->logout();
 
             return redirect()->route('portal.login')
                 ->with('error', 'Akun ini tidak memiliki akses portal warga.');
+        }
+
+        // Nonaktif di tengah sesi (admin menonaktifkan) → keluarkan langsung.
+        if (auth()->user()->status !== 'active') {
+            auth()->logout();
+
+            return redirect()->route('portal.login')
+                ->with('error', 'Akun Anda nonaktif. Hubungi Admin Nagari.');
         }
 
         // Login pertama dengan OTP: wajib ganti sandi sebelum mengakses portal.

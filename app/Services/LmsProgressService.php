@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\ModulePage;
 use App\Models\User;
 use App\Models\UserModuleProgress;
+use Illuminate\Support\Facades\DB;
 
 class LmsProgressService
 {
@@ -17,10 +18,37 @@ class LmsProgressService
             return true;
         }
 
+        // Prasyarat yang sudah dihapus (soft-delete) tidak boleh mengunci warga selamanya.
+        if (! $module->prerequisite()->exists()) {
+            return true;
+        }
+
         return UserModuleProgress::where('user_id', $user->id)
             ->where('module_id', $module->prerequisite_module_id)
             ->where('status', 'completed')
             ->exists();
+    }
+
+    /**
+     * Status modul tanpa query tambahan: pakai data yang sudah di-eager-load.
+     * `$completedModuleIds` = daftar module_id yang sudah diselesaikan user (diambil sekali).
+     *
+     * @param  array<int, int>  $completedModuleIds
+     */
+    public function getModuleStatusUsing(Module $module, ?UserModuleProgress $progress, array $completedModuleIds): string
+    {
+        // `$module->prerequisite` null bila prasyarat sudah dihapus → tidak mengunci.
+        if ($module->prerequisite_module_id
+            && $module->prerequisite
+            && ! in_array($module->prerequisite_module_id, $completedModuleIds, true)) {
+            return 'locked';
+        }
+
+        return match ($progress?->status) {
+            'completed' => 'completed',
+            'in_progress' => 'in_progress',
+            default => 'available',
+        };
     }
 
     public function isModuleCompleted(User $user, Module $module): bool
@@ -55,28 +83,40 @@ class LmsProgressService
 
     public function markPageCompleted(User $user, Module $module, ModulePage $page): void
     {
-        $progress = UserModuleProgress::firstOrCreate(
+        UserModuleProgress::firstOrCreate(
             ['user_id' => $user->id, 'module_id' => $module->id],
             ['status' => 'in_progress', 'pages_completed' => []]
         );
 
-        $pagesCompleted = $progress->pages_completed ?? [];
+        // ID halaman yang masih ada — dipakai untuk rekonsiliasi (buang ID hantu
+        // sisa halaman yang sudah dihapus admin) dan menghitung ulang penyelesaian.
+        $validPageIds = $module->pages()->pluck('id')->all();
 
-        if (in_array($page->id, $pagesCompleted)) {
-            return;
-        }
+        // Kunci baris progres agar aman dari race double-submit.
+        $isAllDone = DB::transaction(function () use ($user, $module, $page, $validPageIds) {
+            $progress = UserModuleProgress::where('user_id', $user->id)
+                ->where('module_id', $module->id)
+                ->lockForUpdate()
+                ->first();
 
-        $pagesCompleted[] = $page->id;
-        $totalPages = $module->pages()->count();
-        $isAllDone = count($pagesCompleted) >= $totalPages;
+            $pagesCompleted = array_values(array_intersect(
+                array_unique([...($progress->pages_completed ?? []), $page->id]),
+                $validPageIds
+            ));
 
-        $progress->update([
-            'pages_completed' => $pagesCompleted,
-            'status' => $isAllDone ? 'completed' : 'in_progress',
-            'completed_at' => $isAllDone ? now() : null,
-        ]);
+            $allDone = count($validPageIds) > 0 && count($pagesCompleted) === count($validPageIds);
 
-        // XP modul selesai (idempotent — hanya sekali per modul).
+            $progress->update([
+                'pages_completed' => $pagesCompleted,
+                'status' => $allDone ? 'completed' : 'in_progress',
+                // Pertahankan waktu selesai pertama; jangan di-bump ulang.
+                'completed_at' => $allDone ? ($progress->completed_at ?? now()) : null,
+            ]);
+
+            return $allDone;
+        });
+
+        // XP modul selesai (idempotent — hanya sekali per modul via xp_logs).
         if ($isAllDone) {
             $this->pointService->awardModuleCompletion($user, $module);
         }

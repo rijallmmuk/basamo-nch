@@ -10,26 +10,31 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'nagari_id', 'wilayah_id', 'role', 'avatar', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasMedia
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
 
     /** Audit akun: jangan pernah log password/OTP. */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'nagari_id', 'status'])
+            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'nagari_id', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('pengguna');
@@ -56,6 +61,30 @@ class User extends Authenticatable implements FilamentUser
         });
     }
 
+    /** Foto profil (opsional, diunggah warga sendiri di portal). */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Crop, 256, 256)
+            ->format('webp')
+            ->nonQueued();
+    }
+
+    /** URL foto profil (konversi thumb) atau null bila belum ada → fallback inisial. */
+    public function avatarUrl(): ?string
+    {
+        $media = $this->getFirstMedia('avatar');
+
+        return $media ? $media->getUrl('thumb') : null;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->status === 'active'
@@ -72,11 +101,23 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'nagari_admin';
     }
 
-    /** Akun portal (warga/umkm_owner) yang disediakan admin via NIK + OTP. */
+    /** Akun portal (warga) yang disediakan admin via NIK + OTP. */
     public function isPortalAccount(): bool
     {
-        return in_array($this->role, ['warga', 'umkm_owner'], true);
+        return $this->role === 'warga';
     }
+
+    /**
+     * Kapabilitas UMKM: warga yang diberi akses "Produk Saya" oleh Admin Nagari.
+     * Ini kemampuan tambahan di atas peran warga, BUKAN peran terpisah.
+     */
+    public function hasUmkmAccess(): bool
+    {
+        return $this->umkm_access_granted_at !== null;
+    }
+
+    /** Masa berlaku OTP awal (hari) sebelum dianggap kedaluwarsa. */
+    public const OTP_TTL_DAYS = 7;
 
     /** Kode OTP 6 digit (sandi sementara awal). */
     public static function generateOtp(): string
@@ -95,10 +136,19 @@ class User extends Authenticatable implements FilamentUser
         $this->forceFill([
             'password' => $otp,            // di-hash via cast saat save
             'initial_otp' => $otp,         // disimpan agar admin bisa relay
+            'otp_expires_at' => now()->addDays(self::OTP_TTL_DAYS),
             'must_change_password' => true,
         ])->save();
 
         return $otp;
+    }
+
+    /** OTP awal sudah lewat masa berlaku (perlu di-reset admin). */
+    public function otpExpired(): bool
+    {
+        return $this->must_change_password
+            && $this->otp_expires_at !== null
+            && $this->otp_expires_at->isPast();
     }
 
     protected function casts(): array
@@ -107,6 +157,8 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'must_change_password' => 'boolean',
+            'otp_expires_at' => 'datetime',
+            'umkm_access_granted_at' => 'datetime',
             'total_xp' => 'integer',
         ];
     }
@@ -119,6 +171,11 @@ class User extends Authenticatable implements FilamentUser
     public function wilayah(): BelongsTo
     {
         return $this->belongsTo(Wilayah::class);
+    }
+
+    public function umkmProfile(): HasOne
+    {
+        return $this->hasOne(UmkmProfile::class);
     }
 
     public function moduleProgress(): HasMany

@@ -19,17 +19,17 @@ class QuizObserver
         }
 
         $query = User::query()
-            ->whereIn('role', ['warga', 'umkm_owner'])
+            ->where('role', 'warga')
             ->where('status', 'active');
 
         if ($module->nagari_id !== null) {
             $query->where('nagari_id', $module->nagari_id);
         }
 
-        $users = $query->get();
-
-        if ($users->isNotEmpty()) {
+        // Kirim bertahap (notifikasi sudah ShouldQueue) agar tak memuat seluruh
+        // warga ke memori untuk modul global.
+        $query->chunkById(500, function ($users) use ($quiz) {
             Notification::send($users, new NewQuizPublished($quiz));
-        }
+        });
     }
 }

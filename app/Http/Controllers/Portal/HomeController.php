@@ -44,8 +44,9 @@ class HomeController extends Controller
         $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->pages_completed ?? []));
         $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
 
-        // Peringkat XP se-nagari (Top 5 + posisi user)
-        $wargaQuery = fn () => User::whereIn('role', ['warga', 'umkm_owner'])
+        // Peringkat XP se-nagari (Top 5 + posisi user) — hanya warga aktif.
+        $wargaQuery = fn () => User::where('role', 'warga')
+            ->where('status', 'active')
             ->where('nagari_id', $user->nagari_id);
 
         $topUsers = $wargaQuery()
@@ -54,7 +55,7 @@ class HomeController extends Controller
             ->take(5)
             ->get(['id', 'name', 'total_xp']);
 
-        $myRank = $wargaQuery()->where('total_xp', '>', $user->total_xp)->count() + 1;
+        $myRank = $wargaQuery()->where('total_xp', '>', $user->total_xp ?? 0)->count() + 1;
         $totalWarga = $wargaQuery()->count();
 
         return view('portal.home', compact(

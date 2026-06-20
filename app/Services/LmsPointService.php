@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Models\XpLog;
+use Illuminate\Support\Facades\DB;
 
 class LmsPointService
 {
@@ -40,13 +41,16 @@ class LmsPointService
      */
     private function award(User $user, string $source, int $sourceId, int $amount): void
     {
-        $log = XpLog::firstOrCreate(
-            ['user_id' => $user->id, 'source' => $source, 'source_id' => $sourceId],
-            ['nagari_id' => $user->nagari_id, 'amount' => $amount],
-        );
+        // Satu transaksi: ledger & total_xp tak boleh drift bila gagal di tengah.
+        DB::transaction(function () use ($user, $source, $sourceId, $amount) {
+            $log = XpLog::firstOrCreate(
+                ['user_id' => $user->id, 'source' => $source, 'source_id' => $sourceId],
+                ['nagari_id' => $user->nagari_id, 'amount' => $amount],
+            );
 
-        if ($log->wasRecentlyCreated) {
-            $user->increment('total_xp', $amount);
-        }
+            if ($log->wasRecentlyCreated) {
+                $user->increment('total_xp', $amount);
+            }
+        });
     }
 }

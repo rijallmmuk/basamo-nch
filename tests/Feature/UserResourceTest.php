@@ -15,7 +15,7 @@ use function Pest\Laravel\actingAs;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    foreach (['super_admin', 'nagari_admin', 'warga', 'umkm_owner'] as $role) {
+    foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
     }
 

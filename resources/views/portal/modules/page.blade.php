@@ -90,7 +90,7 @@
                 <div class="p-5 sm:p-6 lg:p-8">
                     @if($page->type === 'text')
                         <div class="prose prose-sm max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
-                            {!! $page->content !!}
+                            {!! str($page->content)->sanitizeHtml() !!}
                         </div>
                     @elseif($page->type === 'video')
                         @php
@@ -125,10 +125,11 @@
                             </div>
                         @endif
                     @elseif($page->type === 'pdf' && $page->file_path)
+                        @php $pdfUrl = Storage::disk(config('media-library.disk_name'))->url($page->file_path); @endphp
                         <div class="overflow-hidden rounded-xl border border-gray-200">
-                            <embed src="{{ Storage::disk('public')->url($page->file_path) }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
+                            <embed src="{{ $pdfUrl }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
                         </div>
-                        <a href="{{ Storage::disk('public')->url($page->file_path) }}" target="_blank"
+                        <a href="{{ $pdfUrl }}" target="_blank"
                             class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline">
                             <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
                             Unduh PDF

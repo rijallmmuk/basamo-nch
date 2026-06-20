@@ -44,7 +44,7 @@
 
                     @if($module->description)
                         <div class="prose prose-sm mt-2 max-w-none leading-relaxed text-gray-600">
-                            {!! $module->description !!}
+                            {!! str($module->description)->sanitizeHtml() !!}
                         </div>
                     @endif
 

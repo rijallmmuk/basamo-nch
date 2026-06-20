@@ -80,10 +80,36 @@ it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
 
     $warga->refresh();
     expect($warga->must_change_password)->toBeFalse()
-        ->and($warga->initial_otp)->toBeNull();
+        ->and($warga->initial_otp)->toBeNull()
+        ->and($warga->otp_expires_at)->toBeNull();
 
     // Portal kini bisa diakses.
     $this->get(route('portal.home'))->assertSuccessful();
+});
+
+it('OTP awal punya masa berlaku saat diterbitkan', function () {
+    $warga = User::factory()->warga()->create(['nagari_id' => Nagari::factory()->create()->id]);
+    $warga->issueOtp();
+
+    expect($warga->otp_expires_at)->not->toBeNull()
+        ->and($warga->otp_expires_at->isFuture())->toBeTrue();
+});
+
+it('login ditolak bila OTP awal sudah kedaluwarsa', function () {
+    $nagari = Nagari::factory()->create();
+    $warga = User::factory()->warga()->create([
+        'nagari_id' => $nagari->id,
+        'username' => '3201010101010010',
+    ]);
+    $otp = $warga->issueOtp();
+
+    // Mundurkan masa berlaku ke masa lalu.
+    $warga->forceFill(['otp_expires_at' => now()->subDay()])->save();
+
+    $this->post(route('portal.login'), ['login' => '3201010101010010', 'password' => $otp])
+        ->assertSessionHasErrors('login');
+
+    $this->assertGuest();
 });
 
 it('admin tidak bisa login ke portal warga', function () {

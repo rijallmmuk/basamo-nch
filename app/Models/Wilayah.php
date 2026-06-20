@@ -13,8 +13,6 @@ class Wilayah extends Model
 {
     use LogsActivity, SoftDeletes;
 
-    protected $table = 'wilayah';
-
     protected $fillable = ['nagari_id', 'nama'];
 
     public function getActivitylogOptions(): LogOptions

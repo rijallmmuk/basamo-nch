@@ -7,6 +7,9 @@ use App\Models\Module;
 use App\Models\Nagari;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\UmkmCategory;
+use App\Models\UmkmProduct;
+use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Models\UserModuleProgress;
 use App\Models\Wilayah;
@@ -30,7 +33,7 @@ class DemoSeeder extends Seeder
     {
         $this->points = app(LmsPointService::class);
 
-        foreach (['super_admin', 'nagari_admin', 'warga', 'umkm_owner'] as $role) {
+        foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
@@ -55,6 +58,7 @@ class DemoSeeder extends Seeder
             $warga = $this->seedWarga($nagari, $wilayah);
             $this->seedProgress($warga, $modules);
             $this->seedDiscussions($warga, $globalModules[0]);
+            $this->seedUmkm($nagari, $warga, $superAdmin);
         }
 
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
@@ -256,6 +260,68 @@ class DemoSeeder extends Seeder
                     );
                     $this->points->awardQuizPass($warga, $module->quiz);
                 }
+            }
+        }
+    }
+
+    /**
+     * Naikkan sebagian warga → Pemilik UMKM, beri profil usaha + produk dengan
+     * status beragam (pending/approved/rejected) agar antrian verifikasi &
+     * dashboard punya data nyata.
+     *
+     * @param  array<int, User>  $wargaList
+     */
+    private function seedUmkm(Nagari $nagari, array $wargaList, User $verifier): void
+    {
+        // Cetak biru usaha: [nama, kategori, [produk...]].
+        $blueprints = [
+            ['Keripik Sanjai Amai', 'Kuliner', ['Keripik Balado Pedas', 'Keripik Singkong Original', 'Sanjai Lado Mudo']],
+            ['Tenun Songket Lestari', 'Kerajinan', ['Songket Benang Emas', 'Selendang Tenun', 'Kain Sarung Tenun']],
+            ['Kopi Robusta Bukik', 'Kuliner', ['Kopi Bubuk 250g', 'Biji Kopi Sangrai']],
+        ];
+
+        foreach ($blueprints as $i => [$namaUsaha, $kategori, $produk]) {
+            if (! isset($wargaList[$i])) {
+                break;
+            }
+
+            $owner = $wargaList[$i];
+            $owner->update(['umkm_access_granted_at' => now()]);
+
+            $categoryId = UmkmCategory::where('slug', strtolower($kategori))->value('id');
+
+            $profile = UmkmProfile::firstOrCreate(
+                ['nagari_id' => $nagari->id, 'user_id' => $owner->id],
+                [
+                    'nama_usaha' => $namaUsaha.' ('.$nagari->kode.')',
+                    'umkm_category_id' => $categoryId,
+                    'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$nagari->nama.'.',
+                    'alamat' => 'Pasar '.$nagari->nama,
+                    'whatsapp' => '0812'.sprintf('%08d', random_int(0, 99999999)),
+                    'status' => 'active',
+                ],
+            );
+
+            foreach ($produk as $j => $nama) {
+                // Variasi status: produk pertama disetujui, kedua menunggu, sisanya acak.
+                $status = match (true) {
+                    $j === 0 => 'approved',
+                    $j === 1 => 'pending',
+                    default => ['approved', 'pending', 'rejected'][random_int(0, 2)],
+                };
+
+                UmkmProduct::firstOrCreate(
+                    ['umkm_profile_id' => $profile->id, 'nama_produk' => $nama],
+                    [
+                        'deskripsi' => $nama.' produksi '.$namaUsaha.'.',
+                        'harga' => random_int(10, 150) * 1000,
+                        'status' => $status,
+                        'rejection_reason' => $status === 'rejected' ? 'Foto produk kurang jelas, mohon unggah ulang.' : null,
+                        'approved_by' => $status === 'approved' ? $verifier->id : null,
+                        'approved_at' => $status === 'approved' ? now()->subDays(random_int(1, 10)) : null,
+                        'view_count' => random_int(0, 350),
+                    ],
+                );
             }
         }
     }

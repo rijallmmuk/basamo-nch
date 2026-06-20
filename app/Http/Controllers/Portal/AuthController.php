@@ -46,11 +46,29 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        if (! in_array(Auth::user()->role, ['warga', 'umkm_owner'])) {
+        if (Auth::user()->role !== 'warga') {
             Auth::logout();
 
             return back()
                 ->withErrors(['login' => 'Akun ini tidak memiliki akses portal warga.'])
+                ->withInput();
+        }
+
+        // Akun nonaktif diblokir: menonaktifkan warga = cabut akses portal.
+        if (Auth::user()->status !== 'active') {
+            Auth::logout();
+
+            return back()
+                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Nagari.'])
+                ->withInput();
+        }
+
+        // OTP awal kedaluwarsa: tolak, minta admin terbitkan ulang.
+        if (Auth::user()->otpExpired()) {
+            Auth::logout();
+
+            return back()
+                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Nagari untuk reset OTP.'])
                 ->withInput();
         }
 
