@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('discussions', function (Blueprint $table) {
@@ -21,15 +18,13 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('module_id');
             $table->index('user_id');
             $table->index('parent_id');
+            // Daftar thread per modul (parent_id NULL); juga index FK module_id (prefix kiri).
+            $table->index(['module_id', 'parent_id'], 'discussions_module_parent_idx');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('discussions');

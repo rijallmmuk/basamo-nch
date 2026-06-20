@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('quiz_options', function (Blueprint $table) {
@@ -16,16 +13,13 @@ return new class extends Migration
             $table->foreignId('question_id')->constrained('quiz_questions')->cascadeOnDelete();
             $table->text('option_text');
             $table->boolean('is_correct')->default(false);
-            $table->unsignedTinyInteger('order')->default(0);
+            $table->unsignedTinyInteger('sort_order')->default(0);
             $table->timestamps();
 
             $table->index('question_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('quiz_options');

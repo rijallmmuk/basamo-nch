@@ -8,10 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            NagariSeeder::class,
-            UserSeeder::class,
-            DemoSeeder::class,
-        ]);
+        // DemoSeeder memanggil CoreSeeder (role + super admin) lebih dulu, lalu
+        // mengisi data demo. Produksi: `db:seed --class=CoreSeeder` saja.
+        $this->call(DemoSeeder::class);
     }
 }
