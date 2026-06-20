@@ -399,6 +399,19 @@ Suite **hijau (130)**. Tanpa dependency baru.
 - **DITUNDA #5 (cache halaman katalog):** keputusan infra — disarankan edge-cache Cloudflare di
   `/umkm` (bukan kode app), karena coupling CDN + interaksi dengan view_count di halaman detail.
 
+## Konsolidasi migrasi & seeder (2026-06-20) — branch `feat/umkm`
+Rapikan riwayat migrasi: **46 → 22 file** (1 migrasi per tabel, semua alter dilipat
+ke create-nya). Diverifikasi via `mysqldump --no-data` sebelum/sesudah: skema
+**fungsional identik** (beda hanya kosmetik — nama index `order`→`sort_order`,
+`wilayah`→`wilayahs`, urutan kolom `event` di tabel vendor). Suite **hijau (130)**.
+- FK users→nagaris/wilayahs ditambah di migrasi tabel terkait (users dibuat duluan).
+- `umkm_categories` dipindah sebelum `umkm_profiles` (FK inline). FULLTEXT umkm_products
+  MySQL-guarded. Komposit index skala-nasional kini inline di create masing-masing.
+- **Seeder:** `NagariSeeder`+`UserSeeder` (redundan dgn DemoSeeder) dihapus → `CoreSeeder`
+  (role + super admin, esensial produksi, idempotent) + `DemoSeeder` (panggil CoreSeeder
+  lalu isi demo). `DatabaseSeeder`→`DemoSeeder`. Produksi: `db:seed --class=CoreSeeder`.
+- `migrate:fresh --seed` terverifikasi: 2 nagari, 16 warga, 6 UMKM, 7 modul, 16 produk.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

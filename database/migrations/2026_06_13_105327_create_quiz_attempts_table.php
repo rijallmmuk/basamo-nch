@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('quiz_attempts', function (Blueprint $table) {
@@ -16,21 +13,17 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('quiz_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('score')->nullable();
-            $table->enum('status', ['in_progress', 'pending_review', 'passed', 'failed']);
+            $table->enum('status', ['in_progress', 'passed', 'failed']);
             $table->timestamp('submitted_at')->nullable();
-            $table->timestamp('reviewed_at')->nullable();
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->index('user_id');
             $table->index('quiz_id');
             $table->index('status');
+            // Cek sudah-lulus / sisa percobaan per user per kuis (juga index FK user_id).
+            $table->index(['user_id', 'quiz_id', 'status'], 'quiz_attempts_user_quiz_status_idx');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('quiz_attempts');

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('modules', function (Blueprint $table) {
@@ -17,23 +14,20 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->string('thumbnail')->nullable();
-            $table->unsignedSmallInteger('order')->default(0);
+            $table->unsignedSmallInteger('sort_order')->default(0);
+            $table->unsignedSmallInteger('estimated_minutes')->nullable(); // estimasi durasi belajar
             $table->foreignId('prerequisite_module_id')->nullable()->constrained('modules')->nullOnDelete();
             $table->enum('status', ['draft', 'published'])->default('draft');
-            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('nagari_id');
             $table->index('status');
-            $table->index('order');
+            $table->index('sort_order');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('modules');

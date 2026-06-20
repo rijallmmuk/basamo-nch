@@ -6,28 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('nagari_id')->nullable(); // FK → nagaris, nullable untuk super_admin
+            // FK → nagaris/wilayahs ditambah di migrasi tabel terkait (dibuat setelah users).
+            $table->unsignedBigInteger('nagari_id')->nullable();   // nullable untuk super_admin
+            $table->unsignedBigInteger('wilayah_id')->nullable();  // unit wilayah warga (opsional)
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username')->nullable()->unique();
+            $table->string('email')->nullable()->unique();         // opsional: NIK identitas utama
+            $table->string('phone', 20)->nullable();               // No. WhatsApp/HP
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['super_admin', 'nagari_admin', 'warga', 'umkm_owner'])->nullable();
-            $table->string('avatar')->nullable();
-            $table->unsignedInteger('total_points')->default(0);
+            $table->boolean('must_change_password')->default(false);
+            $table->string('initial_otp', 12)->nullable();         // OTP awal (kredensial sementara)
+            $table->timestamp('otp_expires_at')->nullable();
+            $table->string('role', 20)->nullable();                // persona: super_admin|nagari_admin|warga
+            $table->timestamp('umkm_access_granted_at')->nullable(); // kapabilitas UMKM (bukan role)
+            $table->unsignedInteger('total_xp')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('nagari_id');
             $table->index('role');
+            // Leaderboard: WHERE nagari,role,status ORDER BY total_xp (filter + sort 1 index).
+            // Komposit ini juga jadi index FK untuk nagari_id (prefix kiri).
+            $table->index(['nagari_id', 'role', 'status', 'total_xp'], 'users_nagari_role_status_xp_idx');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -46,9 +52,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

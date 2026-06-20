@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /** Taksonomi UMKM global (dikelola, bukan hardcode). */
+    /** Taksonomi UMKM global (dikelola, bukan hardcode) — di-seed langsung di migrasi. */
     private const CATEGORIES = [
         ['slug' => 'kuliner', 'nama' => 'Kuliner', 'icon' => 'heroicon-o-cake'],
         ['slug' => 'kerajinan', 'nama' => 'Kerajinan', 'icon' => 'heroicon-o-sparkles'],
@@ -37,45 +37,10 @@ return new class extends Migration
                 'updated_at' => now(),
             ]);
         }
-
-        Schema::table('umkm_profiles', function (Blueprint $table) {
-            $table->foreignId('umkm_category_id')->nullable()->after('user_id')
-                ->constrained('umkm_categories')->nullOnDelete();
-        });
-
-        // Petakan nilai kategori lama (mis. "Kuliner") ke kategori via slug.
-        // Subquery berkorelasi → portabel (MySQL & SQLite).
-        DB::statement('
-            UPDATE umkm_profiles
-            SET umkm_category_id = (
-                SELECT id FROM umkm_categories WHERE slug = LOWER(umkm_profiles.kategori)
-            )
-        ');
-
-        Schema::table('umkm_profiles', function (Blueprint $table) {
-            $table->dropIndex('umkm_profiles_kategori_index');
-            $table->dropColumn('kategori');
-        });
     }
 
     public function down(): void
     {
-        Schema::table('umkm_profiles', function (Blueprint $table) {
-            $table->string('kategori', 100)->default('Lainnya')->after('user_id');
-            $table->index('kategori');
-        });
-
-        DB::statement('
-            UPDATE umkm_profiles
-            SET kategori = (
-                SELECT nama FROM umkm_categories WHERE id = umkm_profiles.umkm_category_id
-            )
-        ');
-
-        Schema::table('umkm_profiles', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('umkm_category_id');
-        });
-
         Schema::dropIfExists('umkm_categories');
     }
 };

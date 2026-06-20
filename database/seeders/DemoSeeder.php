@@ -16,7 +16,6 @@ use App\Models\Wilayah;
 use App\Services\LmsPointService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 /**
  * Data demo agar /admin & portal terlihat hidup: 2 nagari (sebutan wilayah
@@ -33,12 +32,9 @@ class DemoSeeder extends Seeder
     {
         $this->points = app(LmsPointService::class);
 
-        foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
-            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        }
-
-        $superAdmin = User::where('role', 'super_admin')->first()
-            ?? $this->createSuperAdmin();
+        // Role RBAC + super admin (esensial, idempotent) — sumber tunggal di CoreSeeder.
+        $this->call(CoreSeeder::class);
+        $superAdmin = User::where('role', 'super_admin')->firstOrFail();
 
         $globalModules = $this->seedGlobalModules($superAdmin);
 
@@ -62,17 +58,6 @@ class DemoSeeder extends Seeder
         }
 
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
-    }
-
-    private function createSuperAdmin(): User
-    {
-        $u = User::firstOrCreate(
-            ['email' => 'admin@basamo.nch'],
-            ['name' => 'Super Admin', 'username' => 'superadmin', 'password' => Hash::make('password'), 'role' => 'super_admin', 'status' => 'active'],
-        );
-        $u->assignRole('super_admin');
-
-        return $u;
     }
 
     private function seedNagari(string $kode, string $nama, string $sebutan, string $kabupaten): Nagari
