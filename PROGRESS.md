@@ -381,6 +381,24 @@ Test: `ProfilePhotoLogoTest` (6).
   di tabel `media`, bukan kolom. Logo kabupaten di-attach per-nagari (bukan tabel kabupaten
   terpisah) demi kesederhanaan; normalisasi bisa menyusul bila perlu.
 
+## Audit pengambilan & penampilan data (2026-06-20) — branch `feat/umkm`
+Fokus skala nasional: jalur baca/tampil katalog publik (trafik tinggi, tanpa login).
+Suite **hijau (130)**. Tanpa dependency baru.
+- **#1 view_count anti-inflasi:** increment maks 1×/pengunjung/6 jam via `Cache::add` atomik
+  (kunci IP+produk) di `UmkmCatalogController::show` — cegah write amplification & inflasi bot.
+- **#2 simplePaginate:** katalog publik tak lagi jalankan `COUNT(*)` terfilter tiap load.
+- **#3 pencarian FULLTEXT:** index `umkm_products_search_fulltext` (nama+deskripsi); query
+  boolean+wildcard awalan, operator dibersihkan; fallback LIKE untuk term <3 huruf / non-MySQL
+  (sqlite test). Migrasi MySQL-guarded.
+- **#4 cache dropdown filter:** `nagariList`/`kategoriList` di-`Cache::remember` 1 jam.
+- **#6 Antrian Verifikasi Produk (global):** `UmkmProductResource` (list-only, grup UMKM, badge
+  jumlah pending) — nagari_admin lintas-usaha di nagarinya, super_admin semua. Logika verifikasi
+  dipindah ke `UmkmService::verifyProduct` (dipakai resource + relation manager). Policy
+  `viewAny/view` admin. Test `UmkmProductVerificationTest` (4).
+- **#7 normalisasi WhatsApp:** `UmkmProfile::normalizedWhatsapp()` tangani 0/00/+62/8xx.
+- **DITUNDA #5 (cache halaman katalog):** keputusan infra — disarankan edge-cache Cloudflare di
+  `/umkm` (bukan kode app), karena coupling CDN + interaksi dengan view_count di halaman detail.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
