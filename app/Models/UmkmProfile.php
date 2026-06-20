@@ -40,6 +40,15 @@ class UmkmProfile extends Model
             ->useLogName('umkm');
     }
 
+    /** URL wa.me dengan nomor dinormalisasi (08xx → 628xx) + pesan opsional. */
+    public function whatsappUrl(?string $message = null): string
+    {
+        $number = preg_replace('/\D/', '', (string) $this->whatsapp);
+        $number = preg_replace('/^0/', '62', $number);
+
+        return 'https://wa.me/'.$number.($message ? '?text='.rawurlencode($message) : '');
+    }
+
     public function nagari(): BelongsTo
     {
         return $this->belongsTo(Nagari::class);

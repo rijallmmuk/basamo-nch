@@ -151,11 +151,14 @@
 - [x] Upload multiple foto produk (maks 5) via Media Library + hapus foto saat edit
 - [x] Status produk: pending/approved/rejected — produk baru/diubah → pending (verifikasi ulang)
 
-### 4.3 Katalog Publik
-- [ ] Halaman `/umkm` — akses tanpa login
-- [ ] Filter by nagari + kategori
-- [ ] Kartu produk dengan foto, info, tombol WA
-- [ ] Counter view produk
+### 4.3 Katalog Publik ✓ SELESAI
+- [x] Halaman `/umkm` — akses tanpa login (Lapisan 1, Blade+Tailwind); hanya produk approved
+      dari usaha aktif. `UmkmCatalogController` + layout `public/layouts/app`
+- [x] Filter by nagari + kategori + pencarian nama produk (query string preserved)
+- [x] Kartu produk dengan foto, info, tombol WA (detail: galeri foto + WhatsApp via `whatsappUrl()`)
+- [x] Counter view produk (atomik, tanpa bump updated_at)
+- [x] Notifikasi in-app pemilik saat produk disetujui/ditolak (`UmkmProductVerified`)
+- [x] Test `PublicUmkmCatalogTest` (scope approved/aktif, filter, view_count, 404 non-approved)
 
 ---
 

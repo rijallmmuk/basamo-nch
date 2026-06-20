@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UmkmProfiles\RelationManagers;
 
 use App\Models\UmkmProduct;
+use App\Notifications\UmkmProductVerified;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -103,5 +104,8 @@ class ProductsRelationManager extends RelationManager
             'approved_by' => $status === 'approved' ? Auth::id() : null,
             'approved_at' => $status === 'approved' ? now() : null,
         ]);
+
+        // Beri tahu pemilik hasil verifikasi (notifikasi in-app portal).
+        $product->umkmProfile->owner?->notify(new UmkmProductVerified($product));
     }
 }

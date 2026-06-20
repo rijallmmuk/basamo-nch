@@ -9,10 +9,11 @@
 ## Status
 
 **Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
-**Progres**: ~98%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
+**Progres**: ~99%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
 branch **`feat/umkm`** — akses UMKM, UmkmProfileResource + antrian verifikasi, dashboard
-ApexCharts, Lapak portal pemilik, **+ audit RBAC/DB (role→kapabilitas, OTP expiry, harga
-integer, taksonomi kategori)**. Belum merge. Sisa pilar UMKM: **katalog publik `/umkm`** (M4.3).
+ApexCharts, Lapak portal pemilik, **katalog publik `/umkm` (M4.3 SELESAI)**, **+ audit RBAC/DB
+(role→kapabilitas, OTP expiry, harga integer, taksonomi kategori)**. Belum merge.
+**Pilar UMKM kini lengkap** (admin + portal pemilik + katalog publik). Next: SDGs/IoT atau PR ke main.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
@@ -179,6 +180,21 @@ Tinjauan best-practice bersama user → 4 fase, tiap fase = commit. Suite **hija
   dikelola super_admin via `UmkmCategoryResource`); `umkm_profiles.umkm_category_id` FK.
   **DITUNDA sadar:** konversi enum native→string menyeluruh (ROI tipis, churn lebar).
 - Migrasi data dibuat **portabel** (subquery korelasi) agar lolos di MySQL (dev) & SQLite (test).
+
+## Katalog publik /umkm (2026-06-20) — branch `feat/umkm`
+Frontend Lapisan 1 (Blade+Tailwind, tanpa login). Suite **hijau (72 test)**.
+- **Route:** `public.umkm.index` (`/umkm`) + `public.umkm.show` (`/umkm/{product:slug}`).
+  `UmkmCatalogController`: hanya produk `status=approved` dari profil `status=active`.
+- **Index:** filter nagari + kategori + pencarian nama (query string preserved), grid kartu
+  produk (foto via `coverUrl()` konversi `card`, harga rupiah/"Hubungi penjual"), paginate 12.
+- **Detail:** galeri foto, deskripsi, info usaha, tombol WhatsApp via `UmkmProfile::whatsappUrl()`
+  (normalisasi 08xx→628xx + pesan). View counter atomik (`view_count + 1` tanpa bump updated_at).
+  Non-approved/usaha nonaktif → 404.
+- **Notifikasi:** `UmkmProductVerified` (database) dikirim ke pemilik saat admin setujui/tolak
+  di `ProductsRelationManager` → muncul di lonceng portal.
+- **Layout:** `public/layouts/app.blade.php` (header + link Masuk Portal + footer).
+- **Test:** `PublicUmkmCatalogTest` (4 kasus) + `UmkmProfileResourceTest` (assert notifikasi).
+- **Catatan:** jalankan `npm run build` (sudah) — view publik baru pakai kelas Tailwind.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

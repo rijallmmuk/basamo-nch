@@ -10,8 +10,10 @@ use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Notifications\UmkmProductVerified;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -53,10 +55,13 @@ it('membuat profil UMKM mewarisi nagari dari pemiliknya', function () {
         ->toBe($nagari->id);
 });
 
-it('admin menyetujui produk UMKM', function () {
+it('admin menyetujui produk UMKM dan memberi tahu pemilik', function () {
+    Notification::fake();
+
     $nagari = Nagari::factory()->create();
     $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id]);
+    $owner = User::factory()->umkmOwner()->create(['nagari_id' => $nagari->id]);
+    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->actingAs($admin);
@@ -70,6 +75,8 @@ it('admin menyetujui produk UMKM', function () {
     $product->refresh();
     expect($product->status)->toBe('approved')
         ->and($product->approved_by)->toBe($admin->id);
+
+    Notification::assertSentTo($owner, UmkmProductVerified::class);
 });
 
 it('admin menolak produk UMKM dengan alasan', function () {

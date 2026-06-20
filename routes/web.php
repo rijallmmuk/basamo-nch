@@ -11,9 +11,16 @@ use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\QuizController;
 use App\Http\Controllers\Portal\UmkmController;
 use App\Http\Controllers\Portal\UmkmProductController;
+use App\Http\Controllers\Public\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('portal.login'));
+
+// ── LAPISAN 1: Frontend publik (tanpa login) ──────────────────────────
+Route::prefix('umkm')->name('public.umkm.')->group(function () {
+    Route::get('/', [UmkmCatalogController::class, 'index'])->name('index');
+    Route::get('{product:slug}', [UmkmCatalogController::class, 'show'])->name('show');
+});
 
 Route::prefix('portal')->name('portal.')->group(function () {
     // Guest only — akun warga dibuat Admin Nagari (tanpa self-register).
