@@ -16,15 +16,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasMedia
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
 
     /** Audit akun: jangan pernah log password/OTP. */
     public function getActivitylogOptions(): LogOptions
@@ -55,6 +59,30 @@ class User extends Authenticatable implements FilamentUser
                 $user->syncRoles([$user->role]);
             }
         });
+    }
+
+    /** Foto profil (opsional, diunggah warga sendiri di portal). */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Crop, 256, 256)
+            ->format('webp')
+            ->nonQueued();
+    }
+
+    /** URL foto profil (konversi thumb) atau null bila belum ada → fallback inisial. */
+    public function avatarUrl(): ?string
+    {
+        $media = $this->getFirstMedia('avatar');
+
+        return $media ? $media->getUrl('thumb') : null;
     }
 
     public function canAccessPanel(Panel $panel): bool

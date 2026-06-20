@@ -8,6 +8,7 @@ use App\Http\Controllers\Portal\ModuleController;
 use App\Http\Controllers\Portal\NotificationController;
 use App\Http\Controllers\Portal\PageController;
 use App\Http\Controllers\Portal\PasswordController;
+use App\Http\Controllers\Portal\ProfileController;
 use App\Http\Controllers\Portal\QuizController;
 use App\Http\Controllers\Portal\UmkmController;
 use App\Http\Controllers\Portal\UmkmProductController;
@@ -41,6 +42,10 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
         Route::get('leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
+
+        // Profil warga (foto profil)
+        Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('profil', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('index');

@@ -364,6 +364,23 @@ Audit 19 tabel + index dari DB live. Suite **hijau (113)** di MySQL (dev) & SQLi
 - **Ditunda (keputusan gaya):** seragamkan bahasa kolom (LMS English vs UMKM/nagari Indonesia) —
   churn besar, bukan kebutuhan teknis.
 
+## Foto profil + logo nagari (2026-06-20) — branch `feat/umkm`
+Fitur media via Spatie Media Library (tanpa dependency baru — sudah terpasang). Suite **hijau (119)**.
+Test: `ProfilePhotoLogoTest` (6).
+- **Foto profil warga:** `User implements HasMedia` koleksi `avatar` (singleFile, konversi `thumb`
+  crop 256² webp) + `avatarUrl()`. Halaman portal **"Profil Saya"** (`portal.profile.edit/update`):
+  unggah/ganti/hapus foto; tautan di dropdown header. Komponen `x-portal.avatar` kini terima
+  `:src` (foto bila ada, fallback inisial) — dipakai di header. `ProfileController`.
+- **Logo nagari:** `Nagari implements HasMedia` koleksi `logo` (opsional) + `logo_kabupaten`
+  (terima SVG) + `logoUrl()`/`kabupatenLogoUrl()` (serve original — SVG aman). Field upload di
+  `NagariForm` (super_admin). Helper siap untuk frontend publik.
+- **Foto produk UMKM:** sudah multi-foto (maks 5) — tak berubah.
+- **Storage:** semua ikut `MEDIA_DISK` (lihat unifikasi storage); kelas Tailwind `file:` baru →
+  `npm run build` (sudah).
+- **Catatan:** kolom mati `users.avatar` (di-drop saat audit DB) memang tak dipakai — avatar kini
+  di tabel `media`, bukan kolom. Logo kabupaten di-attach per-nagari (bukan tabel kabupaten
+  terpisah) demi kesederhanaan; normalisasi bisa menyusul bila perlu.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

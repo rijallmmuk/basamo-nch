@@ -2,6 +2,7 @@
     'name' => '?',
     'size' => 'md',
     'variant' => 'soft',
+    'src' => null,
 ])
 
 @php
@@ -15,9 +16,14 @@
         'solid' => 'bg-indigo-600 text-white',
         'gray' => 'bg-gray-100 text-gray-600',
     ];
-    $classes = ($sizes[$size] ?? $sizes['md']).' '.($variants[$variant] ?? $variants['soft']);
+    $dim = $sizes[$size] ?? $sizes['md'];
 @endphp
 
-<div {{ $attributes->merge(['class' => "flex shrink-0 items-center justify-center rounded-full font-bold {$classes}"]) }}>
-    {{ strtoupper(mb_substr($name ?: '?', 0, 1)) }}
-</div>
+@if($src)
+    <img src="{{ $src }}" alt="{{ $name }}"
+        {{ $attributes->merge(['class' => "shrink-0 rounded-full object-cover {$dim}"]) }}>
+@else
+    <div {{ $attributes->merge(['class' => "flex shrink-0 items-center justify-center rounded-full font-bold {$dim} ".($variants[$variant] ?? $variants['soft'])]) }}>
+        {{ strtoupper(mb_substr($name ?: '?', 0, 1)) }}
+    </div>
+@endif

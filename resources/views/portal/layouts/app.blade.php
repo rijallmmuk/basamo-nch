@@ -86,7 +86,7 @@
                     <div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false" @click.outside="open = false">
                         <button @click="open = !open"
                             class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-1.5 py-1.5 transition-colors hover:bg-gray-50 lg:pl-2 lg:pr-3">
-                            <x-portal.avatar :name="$user->name" variant="solid" size="sm" />
+                            <x-portal.avatar :name="$user->name" :src="$user->avatarUrl()" variant="solid" size="sm" />
                             <span class="hidden max-w-[8rem] truncate text-sm font-semibold text-gray-700 lg:block">{{ explode(' ', $user->name)[0] }}</span>
                             <x-heroicon-s-chevron-down class="hidden h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform duration-200 lg:block"
                                 ::class="{ 'rotate-180': open }" />
@@ -100,13 +100,18 @@
                             x-transition:leave-end="opacity-0 scale-95"
                             class="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-2xl bg-white p-1.5 shadow-lg ring-1 ring-black/5">
                             <div class="flex items-center gap-3 px-3 py-3">
-                                <x-portal.avatar :name="$user->name" variant="solid" size="lg" />
+                                <x-portal.avatar :name="$user->name" :src="$user->avatarUrl()" variant="solid" size="lg" />
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold text-gray-900">{{ $user->name }}</p>
                                     <p class="truncate text-xs text-gray-400">{{ $user->nagari?->nama ?? 'Warga' }}</p>
                                 </div>
                             </div>
                             <div class="border-t border-gray-100 pt-1.5">
+                                <a href="{{ route('portal.profile.edit') }}"
+                                    class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+                                    <x-heroicon-o-user-circle class="h-5 w-5 shrink-0 text-gray-400" />
+                                    Profil Saya
+                                </a>
                                 <form method="POST" action="{{ route('portal.logout') }}">
                                     @csrf
                                     <button type="submit"

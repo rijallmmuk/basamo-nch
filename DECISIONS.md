@@ -126,6 +126,11 @@ Konsistensi via `components/portal/` sendiri (breadcrumb/button/card/badge/progr
 **Alasan**: Sebelumnya PDF hard-coded disk `public` di 5 tempat → tak ikut R2. Satu env menyatukan semua unggahan agar migrasi storage = ubah env.
 **Catatan**: PDF di disk publik bisa diakses tanpa login bila URL bocor (keputusan MVP; materi edukatif non-sensitif).
 
+### Foto profil & logo via Media Library (bukan kolom string)
+Foto profil warga (`User` koleksi `avatar`, singleFile + konversi `thumb` 256² webp) & logo nagari/kabupaten (`Nagari` koleksi `logo` + `logo_kabupaten`, terima SVG, serve original) pakai Spatie Media Library — konsisten dgn cover modul & foto produk, ikut `MEDIA_DISK`, auto-cleanup. Kolom `users.avatar` (string) dibuang.
+**Alasan**: Satu mekanisme media (konversi, disk portabel, hapus otomatis) > kolom path manual. Tanpa dependency baru (GD sudah ada).
+**Ditunda**: tabel `kabupatens` ternormalisasi (kini logo kabupaten di-attach per-nagari) — bila perlu hemat duplikasi/kelola terpusat.
+
 ---
 
 ## Admin (Resources)

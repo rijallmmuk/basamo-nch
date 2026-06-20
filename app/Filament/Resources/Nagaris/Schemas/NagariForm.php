@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Nagaris\Schemas;
 
 use App\Models\Nagari;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -59,6 +60,24 @@ class NagariForm
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180),
+                    ]),
+
+                Section::make('Logo')
+                    ->columns(2)
+                    ->schema([
+                        SpatieMediaLibraryFileUpload::make('logo')
+                            ->label('Logo nagari')
+                            ->collection('logo')
+                            ->image()
+                            ->maxSize(2048)
+                            ->helperText('Opsional. JPG/PNG/WEBP/SVG, maks 2 MB.'),
+
+                        SpatieMediaLibraryFileUpload::make('logo_kabupaten')
+                            ->label('Logo kabupaten/kota')
+                            ->collection('logo_kabupaten')
+                            ->image()
+                            ->maxSize(2048)
+                            ->helperText('Logo kabupaten/kota induk nagari ini.'),
                     ]),
 
                 Section::make('Kontak & Status')
