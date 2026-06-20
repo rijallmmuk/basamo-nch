@@ -277,6 +277,23 @@ Menutup celah **D5** dari audit diskusi. Suite **hijau (99)**. Test: `Discussion
 - **Catatan minor (sadar):** soft-delete thread tak cascade ke balasannya (balasan jadi tak
   terjangkau di portal karena thread 404; tetap tampil di tabel admin untuk dimoderasi terpisah).
 
+## Audit XP & leaderboard (2026-06-20) — branch `feat/umkm`
+Audit kesiapan produksi (DB→model→service→controller→view). Suite **hijau (104)**.
+Test: `LmsXpLeaderboardTest` (5). Diperbaiki:
+- **L1 (sedang):** warga `status!=active` dulu ikut leaderboard + hitungan peringkat/total.
+  Kini `LeaderboardController` & `HomeController` (Top 5) filter `status='active'`.
+- **L2 (sedang):** peringkat daftar (posisional `firstItem+index`) tak konsisten dengan
+  badge "Posisimu" (kompetisi) saat **seri** (sering, XP kasar). Kini daftar pakai
+  **peringkat kompetisi** (`competitionRanks` — 1 query tambahan, tangani seri lintas-halaman),
+  konsisten dengan `rankOf`.
+- **L3 (robustness):** `rankOf` pakai `total_xp ?? 0`.
+- **L4 (robustness):** `LmsPointService::award` dibungkus `DB::transaction` (ledger & total_xp
+  tak drift bila gagal di tengah).
+- **Aman terverifikasi:** idempotensi kokoh (`xp_logs` UNIQUE(user,source,source_id) +
+  `firstOrCreate` tangkap race → tak ada XP ganda walau konkuren; `source` cegah tabrakan
+  module_id=quiz_id), warga soft-deleted keluar leaderboard (SoftDeletes), scoping per-nagari,
+  admin tak masuk (filter role=warga). Jumlah XP via konstanta (modul 50/kuis 100/diskusi 20).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

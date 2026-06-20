@@ -44,8 +44,9 @@ class HomeController extends Controller
         $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->pages_completed ?? []));
         $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
 
-        // Peringkat XP se-nagari (Top 5 + posisi user)
+        // Peringkat XP se-nagari (Top 5 + posisi user) — hanya warga aktif.
         $wargaQuery = fn () => User::where('role', 'warga')
+            ->where('status', 'active')
             ->where('nagari_id', $user->nagari_id);
 
         $topUsers = $wargaQuery()

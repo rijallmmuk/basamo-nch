@@ -4,40 +4,84 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 
 class LeaderboardController extends Controller
 {
     /**
-     * Peringkat XP warga se-nagari (urut total_xp).
+     * Peringkat XP warga se-nagari (urut total_xp). Hanya warga aktif.
      */
     public function index(): View
     {
         $user = auth()->user();
 
-        $warga = User::query()
-            ->where('role', 'warga')
-            ->where('nagari_id', $user->nagari_id)
+        $warga = $this->wargaQuery($user)
             ->orderByDesc('total_xp')
             ->orderBy('name')
             ->paginate(20);
 
-        $myRank = $this->rankOf($user);
-        $totalWarga = User::where('role', 'warga')
-            ->where('nagari_id', $user->nagari_id)
-            ->count();
+        return view('portal.leaderboard.index', [
+            'warga' => $warga,
+            'ranks' => $this->competitionRanks($user, $warga),
+            'myRank' => $this->rankOf($user),
+            'totalWarga' => $this->wargaQuery($user)->count(),
+        ]);
+    }
 
-        return view('portal.leaderboard.index', compact('warga', 'myRank', 'totalWarga'));
+    /** Kandidat peringkat: warga aktif se-nagari. */
+    private function wargaQuery(User $user): Builder
+    {
+        return User::query()
+            ->where('role', 'warga')
+            ->where('status', 'active')
+            ->where('nagari_id', $user->nagari_id);
     }
 
     /**
-     * Peringkat user = jumlah warga senagari dengan XP lebih tinggi + 1.
+     * Peringkat kompetisi (skor sama = peringkat sama) untuk baris di halaman ini,
+     * konsisten dengan rankOf(). Hanya 1 query tambahan (peringkat baris pertama).
+     *
+     * @return array<int, int> user_id => peringkat
+     */
+    private function competitionRanks(User $user, LengthAwarePaginator $warga): array
+    {
+        $items = $warga->items();
+
+        if ($items === []) {
+            return [];
+        }
+
+        // Peringkat baris pertama: jumlah warga ber-XP lebih tinggi + 1
+        // (menangani seri yang melintasi batas halaman).
+        $rank = $this->wargaQuery($user)
+            ->where('total_xp', '>', $items[0]->total_xp)
+            ->count() + 1;
+
+        $ranks = [];
+        $prevXp = null;
+
+        foreach ($items as $i => $w) {
+            // XP berbeda dari baris sebelumnya → peringkat = posisi global baris ini.
+            if ($i > 0 && $w->total_xp !== $prevXp) {
+                $rank = $warga->firstItem() + $i;
+            }
+
+            $ranks[$w->id] = $rank;
+            $prevXp = $w->total_xp;
+        }
+
+        return $ranks;
+    }
+
+    /**
+     * Peringkat user = jumlah warga aktif senagari dengan XP lebih tinggi + 1.
      */
     private function rankOf(User $user): int
     {
-        return User::where('role', 'warga')
-            ->where('nagari_id', $user->nagari_id)
-            ->where('total_xp', '>', $user->total_xp)
+        return $this->wargaQuery($user)
+            ->where('total_xp', '>', $user->total_xp ?? 0)
             ->count() + 1;
     }
 }

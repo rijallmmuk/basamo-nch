@@ -36,7 +36,7 @@
             <div class="divide-y divide-gray-100">
                 @foreach($warga as $w)
                     @php
-                        $rank = $warga->firstItem() + $loop->index;
+                        $rank = $ranks[$w->id] ?? ($warga->firstItem() + $loop->index);
                         $isMe = $w->id === auth()->id();
                         $medal = match ($rank) { 1 => 'bg-amber-400 text-white', 2 => 'bg-gray-300 text-white', 3 => 'bg-orange-300 text-white', default => 'bg-gray-100 text-gray-500' };
                     @endphp
