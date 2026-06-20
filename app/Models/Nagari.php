@@ -16,14 +16,59 @@ class Nagari extends Model implements HasMedia
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
+        'nama', 'jenis', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
+
+    /**
+     * Penyebutan wilayah administratif setingkat desa di Indonesia (skala nasional).
+     * String + dropdown agar fleksibel; daftar bisa ditambah tanpa migrasi.
+     *
+     * @var list<string>
+     */
+    public const JENIS = [
+        'Desa', 'Kelurahan', 'Nagari', 'Gampong', 'Kampung', 'Kalurahan',
+        'Lembang', 'Pekon', 'Tiyuh', 'Negeri', 'Nagori', 'Huta',
+    ];
+
+    /**
+     * Penyebutan sub-unit di bawah desa (dusun/lingkungan dan padanan daerahnya).
+     *
+     * @var list<string>
+     */
+    public const SUB_UNIT = [
+        'Dusun', 'Lingkungan', 'Jorong', 'Korong', 'Dukuh', 'Padukuhan',
+        'Banjar', 'Kampung', 'Lorong', 'RW',
+    ];
+
+    /** @return array<string, string> */
+    public static function jenisOptions(): array
+    {
+        return array_combine(self::JENIS, self::JENIS);
+    }
+
+    /** @return array<string, string> */
+    public static function subUnitOptions(): array
+    {
+        return array_combine(self::SUB_UNIT, self::SUB_UNIT);
+    }
+
+    /** Nama lengkap dengan penyebutan administratif, mis. "Nagari Koto Tuo". */
+    public function getNamaLengkapAttribute(): string
+    {
+        return trim(($this->jenis ? $this->jenis.' ' : '').$this->nama);
+    }
+
+    /** Sebutan sub-unit nagari ini; fallback umum bila belum diatur admin nagari. */
+    public function subUnitLabel(): string
+    {
+        return $this->wilayah_label ?: 'Sub-Unit Wilayah';
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
+            ->logOnly(['nama', 'jenis', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('nagari');

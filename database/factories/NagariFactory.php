@@ -19,7 +19,8 @@ class NagariFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => 'Nagari '.fake()->unique()->city(),
+            'nama' => fake()->unique()->city(),
+            'jenis' => 'Nagari',
             'kode' => 'NCH-'.Str::upper(Str::random(5)),
             'provinsi' => 'Sumatera Barat',
             'kabupaten' => fake()->city(),

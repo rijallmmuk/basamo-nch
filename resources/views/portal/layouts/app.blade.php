@@ -65,7 +65,7 @@
                     </div>
                     <div class="leading-tight">
                         <p class="text-sm font-bold text-gray-900">Basamo NCH</p>
-                        <p class="text-[11px] text-gray-400">{{ $user->nagari?->nama ?? 'Portal Warga' }}</p>
+                        <p class="text-[11px] text-gray-400">{{ $user->nagari?->nama_lengkap ?? 'Portal Warga' }}</p>
                     </div>
                 </a>
                 <div class="hidden lg:block"></div>
@@ -103,7 +103,7 @@
                                 <x-portal.avatar :name="$user->name" :src="$user->avatarUrl()" variant="solid" size="lg" />
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold text-gray-900">{{ $user->name }}</p>
-                                    <p class="truncate text-xs text-gray-400">{{ $user->nagari?->nama ?? 'Warga' }}</p>
+                                    <p class="truncate text-xs text-gray-400">{{ $user->nagari?->nama_lengkap ?? 'Warga' }}</p>
                                 </div>
                             </div>
                             <div class="border-t border-gray-100 pt-1.5">

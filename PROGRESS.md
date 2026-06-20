@@ -425,6 +425,20 @@ ke create-nya). Diverifikasi via `mysqldump --no-data` sebelum/sesudah: skema
 - Test: `PublicHomeTest` (landing tampil, header no-store di portal, publik tanpa no-store);
   `ExampleTest` diselaraskan (root → landing). Suite **hijau (133)**. `npm run build` dijalankan.
 
+## Penyebutan wilayah administratif nasional (2026-06-20) — branch `feat/penyebutan-wilayah-nasional`
+Dukungan multi-istilah administratif Indonesia (skala nasional). Suite **hijau (138)**.
+- **`nagaris.jenis`** (baru, wajib): penyebutan setingkat desa (Desa/Kelurahan/Nagari/Gampong/
+  Kampung/Kalurahan/Lembang/Pekon/Tiyuh/Negeri/Nagori/Huta) — string+dropdown, dipilih super_admin
+  & melekat. `wilayah_label` jadi **nullable** (sebutan sub-unit, diatur admin nagari).
+- Accessor `Nagari::namaLengkap` → "{jenis} {nama}" dipakai di landing/katalog/portal/tabel admin.
+  `subUnitLabel()` fallback **"Sub-Unit Wilayah"**. Daftar pilihan = konstanta `Nagari::JENIS`/`SUB_UNIT`.
+- **NagariForm (super_admin):** Select `jenis` wajib + `wilayah_label` opsional. NagarisTable +kolom jenis.
+- **Halaman baru "Pengaturan Nagari" (admin nagari, grup Pengaturan):** self-service sebutan sub-unit,
+  logo desa, kontak, koordinat — terikat nagarinya sendiri. super_admin tetap punya kendali penuh via
+  NagariResource. `nama` demo/factory tak lagi berawalan "Nagari" (jenis terpisah).
+- Validasi istilah via riset web (UU Desa / ragam sebutan desa). Test: `NagariPenyebutanTest`.
+- Migrasi diedit langsung di file konsolidasi `create_nagaris` (bukan alter baru) → `migrate:fresh`.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.

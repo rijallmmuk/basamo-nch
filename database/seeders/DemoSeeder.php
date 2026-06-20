@@ -39,12 +39,12 @@ class DemoSeeder extends Seeder
         $globalModules = $this->seedGlobalModules($superAdmin);
 
         $nagariData = [
-            ['NCH-001', 'Nagari Contoh Harapan', 'Jorong', 'Kabupaten Agam', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']],
-            ['NCH-002', 'Nagari Sungai Lansek', 'Korong', 'Kabupaten Padang Pariaman', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']],
+            ['NCH-001', 'Nagari', 'Contoh Harapan', 'Jorong', 'Kabupaten Agam', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']],
+            ['NCH-002', 'Nagari', 'Sungai Lansek', 'Korong', 'Kabupaten Padang Pariaman', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']],
         ];
 
-        foreach ($nagariData as [$kode, $nama, $sebutan, $kabupaten, $unitNames]) {
-            $nagari = $this->seedNagari($kode, $nama, $sebutan, $kabupaten);
+        foreach ($nagariData as [$kode, $jenis, $nama, $sebutan, $kabupaten, $unitNames]) {
+            $nagari = $this->seedNagari($kode, $jenis, $nama, $sebutan, $kabupaten);
             $wilayah = $this->seedWilayah($nagari, $unitNames);
             $this->seedNagariAdmin($nagari);
 
@@ -60,11 +60,11 @@ class DemoSeeder extends Seeder
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
     }
 
-    private function seedNagari(string $kode, string $nama, string $sebutan, string $kabupaten): Nagari
+    private function seedNagari(string $kode, string $jenis, string $nama, string $sebutan, string $kabupaten): Nagari
     {
         $nagari = Nagari::firstOrCreate(
             ['kode' => $kode],
-            ['nama' => $nama, 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
+            ['nama' => $nama, 'jenis' => $jenis, 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
         );
 
         $nagari->update(['wilayah_label' => $sebutan]);

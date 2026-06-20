@@ -19,10 +19,20 @@ class NagariForm
                 Section::make('Identitas')
                     ->columns(2)
                     ->schema([
-                        TextInput::make('nama')
-                            ->label('Nama nagari')
+                        Select::make('jenis')
+                            ->label('Penyebutan wilayah')
+                            ->options(Nagari::jenisOptions())
                             ->required()
-                            ->maxLength(255),
+                            ->searchable()
+                            ->native(false)
+                            ->default('Desa')
+                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
+
+                        TextInput::make('nama')
+                            ->label('Nama')
+                            ->required()
+                            ->maxLength(255)
+                            ->helperText('Tanpa awalan jenis. Ditampilkan sebagai "{jenis} {nama}".'),
 
                         TextInput::make('kode')
                             ->label('Kode')
@@ -30,16 +40,15 @@ class NagariForm
                             ->maxLength(50)
                             ->unique(Nagari::class, 'kode', ignoreRecord: true)
                             ->placeholder('NCH-001')
-                            ->helperText('Kode unik nagari, mis. NCH-001.')
+                            ->helperText('Kode unik, mis. NCH-001 atau kode wilayah resmi.')
                             ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
 
-                        TextInput::make('wilayah_label')
-                            ->label('Sebutan unit wilayah')
-                            ->default('Jorong')
-                            ->required()
-                            ->maxLength(30)
-                            ->datalist(['Jorong', 'Korong', 'Kampuang', 'Dusun'])
-                            ->helperText('Sebutan bagian dalam nagari ini — mis. Jorong / Korong / Dusun.'),
+                        Select::make('wilayah_label')
+                            ->label('Sebutan sub-unit (opsional)')
+                            ->options(Nagari::subUnitOptions())
+                            ->searchable()
+                            ->native(false)
+                            ->helperText('Boleh dikosongkan — admin nagari dapat mengaturnya sendiri.'),
                     ]),
 
                 Section::make('Wilayah')

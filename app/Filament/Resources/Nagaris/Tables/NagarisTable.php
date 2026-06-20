@@ -18,6 +18,12 @@ class NagarisTable
     {
         return $table
             ->columns([
+                TextColumn::make('jenis')
+                    ->label('Jenis')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()

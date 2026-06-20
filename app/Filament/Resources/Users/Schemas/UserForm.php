@@ -175,8 +175,8 @@ class UserForm
         $nagariId = static::resolveNagariId($get);
 
         return $nagariId
-            ? (Nagari::find($nagariId)?->wilayah_label ?? 'Wilayah')
-            : 'Wilayah';
+            ? (Nagari::find($nagariId)?->wilayah_label ?: 'Sub-Unit Wilayah')
+            : 'Sub-Unit Wilayah';
     }
 
     /**

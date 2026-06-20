@@ -24,7 +24,7 @@ beforeEach(function () {
 
 it('super_admin dapat membuat admin nagari, password ter-hash & role tersinkron', function () {
     actingAs(User::factory()->superAdmin()->create());
-    $nagari = Nagari::create(['nama' => 'Nagari Uji', 'kode' => 'NCH-TEST']);
+    $nagari = Nagari::factory()->create(['nama' => 'Nagari Uji', 'kode' => 'NCH-TEST']);
 
     Livewire::test(CreateUser::class)
         ->fillForm([
@@ -49,8 +49,8 @@ it('super_admin dapat membuat admin nagari, password ter-hash & role tersinkron'
 });
 
 it('nagari_admin hanya melihat pengguna di nagarinya sendiri', function () {
-    $nagariA = Nagari::create(['nama' => 'Nagari A', 'kode' => 'A1']);
-    $nagariB = Nagari::create(['nama' => 'Nagari B', 'kode' => 'B1']);
+    $nagariA = Nagari::factory()->create(['nama' => 'Nagari A', 'kode' => 'A1']);
+    $nagariB = Nagari::factory()->create(['nama' => 'Nagari B', 'kode' => 'B1']);
 
     actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $nagariA->id]));
     $wargaA = User::factory()->warga()->create(['nagari_id' => $nagariA->id]);
@@ -62,7 +62,7 @@ it('nagari_admin hanya melihat pengguna di nagarinya sendiri', function () {
 });
 
 it('nagari_admin tidak bisa membuat akun berperan admin', function () {
-    $nagari = Nagari::create(['nama' => 'Nagari A', 'kode' => 'A1']);
+    $nagari = Nagari::factory()->create(['nama' => 'Nagari A', 'kode' => 'A1']);
     actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]));
 
     Livewire::test(CreateUser::class)
