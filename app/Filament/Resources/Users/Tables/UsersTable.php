@@ -168,13 +168,16 @@ class UsersTable
                     ->visible(fn (User $record): bool => $record->hasUmkmAccess())
                     ->requiresConfirmation()
                     ->modalHeading('Cabut akses UMKM')
-                    ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil & produk yang sudah ada tetap tersimpan, tetapi tidak dapat dikelola olehnya.')
+                    ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil usahanya dinonaktifkan (keluar dari katalog publik); data tetap tersimpan dan bisa diaktifkan lagi bila akses dipulihkan.')
                     ->action(function (User $record): void {
                         $record->update(['umkm_access_granted_at' => null]);
 
+                        // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
+                        $record->umkmProfile?->update(['status' => 'inactive']);
+
                         Notification::make()
                             ->title('Akses UMKM dicabut')
-                            ->body($record->name.' tidak lagi mengelola UMKM.')
+                            ->body($record->name.' tidak lagi mengelola UMKM. Lapaknya dinonaktifkan.')
                             ->success()
                             ->send();
                     }),

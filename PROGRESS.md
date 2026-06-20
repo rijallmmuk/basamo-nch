@@ -294,6 +294,24 @@ Test: `LmsXpLeaderboardTest` (5). Diperbaiki:
   module_id=quiz_id), warga soft-deleted keluar leaderboard (SoftDeletes), scoping per-nagari,
   admin tak masuk (filter role=warga). Jumlah XP via konstanta (modul 50/kuis 100/diskusi 20).
 
+## Audit pilar UMKM (2026-06-20) — branch `feat/umkm`
+Audit kesiapan produksi end-to-end (DB→model→policy→admin→portal→publik). Suite **hijau (107)**.
+Test: `UmkmAuditTest` (3) + `UmkmAccessTest` diperluas. Diperbaiki:
+- **U1 (sedang):** katalog publik `show()` null-safe profil (`?->status`) — profil soft-deleted
+  tak lagi memicu 500 (kini 404).
+- **U2 (sedang):** form profil validasi `unique(user_id, ignoreRecord)` — profil ganda untuk
+  pemilik sama beri pesan validasi, bukan crash unique DB.
+- **U3 (keputusan user):** cabut akses UMKM kini **menonaktifkan profil** pemilik (keluar dari
+  katalog publik; data tetap, bisa diaktifkan lagi). Cegah konten publik tak terkelola.
+- **U4 (rendah):** validasi `harga` numeric→integer (cegah desimal terpotong).
+- **Aman terverifikasi:** ownership produk (`UmkmProductPolicy`: hasUmkmAccess + user_id),
+  **tak ada IDOR lintas-nagari** (`getRecordRouteBindingEloquentQuery` ter-scope), nagari diwarisi
+  pemilik, edit produk → reset pending, hapus foto ter-scope produk, katalog approved+aktif +
+  view-counter atomik pasca-otorisasi, XSS-safe (`{{ }}`), owner options ter-scope, kategori
+  global super_admin-only.
+- **Didokumentasikan (sadar):** U5 unggah foto >sisa-slot didrop tanpa error (by design),
+  U6 produk bisa ditambah ke profil nonaktif (tak tampil publik).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
