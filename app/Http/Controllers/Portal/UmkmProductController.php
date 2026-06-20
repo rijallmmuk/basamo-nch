@@ -80,7 +80,7 @@ class UmkmProductController extends Controller
         $validated = $request->validate([
             'nama_produk' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string', 'max:2000'],
-            'harga' => ['nullable', 'numeric', 'min:0', 'max:999999999'],
+            'harga' => ['nullable', 'integer', 'min:0', 'max:999999999'],
             'photos' => ['nullable', 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Schemas;
 
+use App\Models\UmkmProfile;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -23,7 +24,10 @@ class UmkmProfileForm
                             ->options(fn () => static::ownerOptions())
                             ->searchable()
                             ->required()
-                            ->helperText('Hanya warga yang sudah diberi akses UMKM.')
+                            // 1 warga = 1 lapak (umkm_profiles.user_id UNIQUE):
+                            // beri pesan validasi alih-alih error DB.
+                            ->unique(UmkmProfile::class, 'user_id', ignoreRecord: true)
+                            ->helperText('Hanya warga yang sudah diberi akses UMKM. Satu warga hanya boleh punya satu profil usaha.')
                             ->columnSpanFull(),
                     ]),
 

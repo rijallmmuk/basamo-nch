@@ -39,7 +39,7 @@ class UmkmCatalogController extends Controller
     public function show(UmkmProduct $product): View
     {
         abort_unless(
-            $product->status === 'approved' && $product->umkmProfile->status === 'active',
+            $product->status === 'approved' && $product->umkmProfile?->status === 'active',
             404
         );
 
