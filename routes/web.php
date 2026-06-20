@@ -12,12 +12,13 @@ use App\Http\Controllers\Portal\ProfileController;
 use App\Http\Controllers\Portal\QuizController;
 use App\Http\Controllers\Portal\UmkmController;
 use App\Http\Controllers\Portal\UmkmProductController;
+use App\Http\Controllers\Public\HomeController as PublicHomeController;
 use App\Http\Controllers\Public\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('portal.login'));
-
 // ── LAPISAN 1: Frontend publik (tanpa login) ──────────────────────────
+Route::get('/', [PublicHomeController::class, 'index'])->name('public.home');
+
 Route::prefix('umkm')->name('public.umkm.')->group(function () {
     Route::get('/', [UmkmCatalogController::class, 'index'])->name('index');
     Route::get('{product:slug}', [UmkmCatalogController::class, 'show'])->name('show');
@@ -32,8 +33,9 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Protected (akun portal warga saja)
-    Route::middleware('portal')->group(function () {
+    // Protected (akun portal warga saja). `no-store` cegah dashboard ter-cache
+    // di riwayat browser (Back setelah logout tak menampilkan halaman basi).
+    Route::middleware(['portal', 'no-store'])->group(function () {
         // Ganti sandi (juga jadi gerbang paksa-ganti saat login pertama via OTP)
         Route::get('ganti-sandi', [PasswordController::class, 'edit'])->name('password.edit');
         Route::post('ganti-sandi', [PasswordController::class, 'update'])->name('password.update');
