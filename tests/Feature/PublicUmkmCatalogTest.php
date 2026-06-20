@@ -36,6 +36,17 @@ it('filter kategori mempersempit hasil', function () {
         ->assertDontSee('Produk Dua');
 });
 
+it('pencarian mempersempit hasil katalog', function () {
+    $profile = UmkmProfile::factory()->create(['status' => 'active']);
+    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'nama_produk' => 'Keripik Singkong']);
+    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'nama_produk' => 'Rendang Daging']);
+
+    $this->get(route('public.umkm.index', ['q' => 'keripik']))
+        ->assertOk()
+        ->assertSee('Keripik Singkong')
+        ->assertDontSee('Rendang Daging');
+});
+
 it('detail produk approved tampil dan menambah view_count', function () {
     $profile = UmkmProfile::factory()->create(['status' => 'active']);
     $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'view_count' => 4]);
@@ -48,9 +59,33 @@ it('detail produk approved tampil dan menambah view_count', function () {
     expect($product->refresh()->view_count)->toBe(5);
 });
 
+it('view_count tidak dihitung dua kali untuk pengunjung yang sama dalam jendela throttle', function () {
+    $profile = UmkmProfile::factory()->create(['status' => 'active']);
+    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'view_count' => 0]);
+
+    // Kunjungan berulang dari IP yang sama (mis. refresh) hanya dihitung sekali.
+    $this->get(route('public.umkm.show', $product))->assertOk();
+    $this->get(route('public.umkm.show', $product))->assertOk();
+    $this->get(route('public.umkm.show', $product))->assertOk();
+
+    expect($product->refresh()->view_count)->toBe(1);
+});
+
 it('produk belum approved mengembalikan 404 di publik', function () {
     $profile = UmkmProfile::factory()->create(['status' => 'active']);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->get(route('public.umkm.show', $product))->assertNotFound();
 });
+
+it('menormalkan nomor WhatsApp ke format internasional Indonesia', function (string $input, string $expected) {
+    $profile = new UmkmProfile(['whatsapp' => $input]);
+
+    expect($profile->whatsappUrl())->toBe('https://wa.me/'.$expected);
+})->with([
+    'awalan 0' => ['08123456789', '628123456789'],
+    'sudah 62' => ['628123456789', '628123456789'],
+    'plus 62' => ['+62 812-3456-789', '628123456789'],
+    'tanpa 0' => ['8123456789', '628123456789'],
+    'prefix 00' => ['0062812345678', '62812345678'],
+]);

@@ -40,13 +40,23 @@ class UmkmProfile extends Model
             ->useLogName('umkm');
     }
 
-    /** URL wa.me dengan nomor dinormalisasi (08xx → 628xx) + pesan opsional. */
+    /** Nomor WhatsApp dinormalisasi ke format internasional Indonesia (62xxxx). */
+    public function normalizedWhatsapp(): string
+    {
+        // Buang non-digit lalu semua nol di depan (tangani 0, 00, +62 sekaligus).
+        $number = preg_replace('/^0+/', '', preg_replace('/\D/', '', (string) $this->whatsapp));
+
+        return match (true) {
+            str_starts_with($number, '62') => $number, // sudah kode negara
+            str_starts_with($number, '8') => '62'.$number, // 8xx (eks-0) → 628xx
+            default => $number,
+        };
+    }
+
+    /** URL wa.me dengan nomor dinormalisasi + pesan opsional. */
     public function whatsappUrl(?string $message = null): string
     {
-        $number = preg_replace('/\D/', '', (string) $this->whatsapp);
-        $number = preg_replace('/^0/', '62', $number);
-
-        return 'https://wa.me/'.$number.($message ? '?text='.rawurlencode($message) : '');
+        return 'https://wa.me/'.$this->normalizedWhatsapp().($message ? '?text='.rawurlencode($message) : '');
     }
 
     public function nagari(): BelongsTo
