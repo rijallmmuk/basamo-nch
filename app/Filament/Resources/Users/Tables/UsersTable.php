@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Models\User;
+use Closure;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
@@ -189,11 +192,32 @@ class UsersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->before(self::guardSelfInBulk()),
+                    ForceDeleteBulkAction::make()
+                        ->before(self::guardSelfInBulk()),
                     RestoreBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    /**
+     * Cegah self-lockout pada aksi massal: batalkan bila akun sendiri ikut terpilih
+     * (DeleteAction baris tunggal sudah menyembunyikan diri sendiri).
+     */
+    private static function guardSelfInBulk(): Closure
+    {
+        return function (Collection $records, BulkAction $action): void {
+            if ($records->contains(fn (User $record): bool => $record->getKey() === auth()->id())) {
+                Notification::make()
+                    ->title('Tidak bisa menghapus akun sendiri')
+                    ->body('Lepaskan centang pada akun Anda sebelum menghapus massal.')
+                    ->danger()
+                    ->send();
+
+                $action->halt();
+            }
+        };
     }
 }

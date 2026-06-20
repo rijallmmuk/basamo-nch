@@ -25,6 +25,9 @@ class CreateUser extends CreateRecord
 
         if ($actor->isNagariAdmin()) {
             $data['nagari_id'] = $actor->nagari_id;
+            // Guard server-side (tak bergantung enforcement opsi Select):
+            // nagari_admin hanya boleh membuat warga, bukan admin.
+            $data['role'] = 'warga';
         }
 
         // super_admin (global) tidak terikat nagari.

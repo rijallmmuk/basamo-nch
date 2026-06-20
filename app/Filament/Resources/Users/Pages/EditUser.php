@@ -39,6 +39,12 @@ class EditUser extends EditRecord
             $data['nagari_id'] = $this->record->nagari_id;
         }
 
+        // Guard server-side: nagari_admin tak boleh mengubah peran pengguna
+        // (hanya kelola warga; tak bisa menaikkan jadi admin).
+        if (auth()->user()->isNagariAdmin()) {
+            $data['role'] = $this->record->role;
+        }
+
         // super_admin (global) tidak terikat nagari.
         if (($data['role'] ?? null) === 'super_admin') {
             $data['nagari_id'] = null;

@@ -312,6 +312,26 @@ Test: `UmkmAuditTest` (3) + `UmkmAccessTest` diperluas. Diperbaiki:
 - **Didokumentasikan (sadar):** U5 unggah foto >sisa-slot didrop tanpa error (by design),
   U6 produk bisa ditambah ke profil nonaktif (tak tampil publik).
 
+## Audit infrastruktur admin (2026-06-20) — branch `feat/umkm`
+Audit User/Nagari/Wilayah Resource + dashboard widgets. Suite **hijau (110)**.
+Test: `AdminInfraAuditTest` (3). Diperbaiki (keduanya rendah/defense-in-depth):
+- **I1:** bulk delete pengguna kini cegah self-lockout (`guardSelfInBulk` → halt bila akun
+  sendiri terpilih). DeleteAction baris tunggal sudah aman; bulk sebelumnya tidak.
+- **I2:** guard server-side peran di `CreateUser`/`EditUser` — nagari_admin dipaksa `role=warga`
+  (create) & tak bisa ubah peran (edit), tak lagi bergantung pada enforcement opsi Select Filament.
+- **Aman terverifikasi (kuat):**
+  - **Tak ada eskalasi hak**: nagari_admin tak bisa buat/menaikkan admin (diuji dgn email+sandi
+    lengkap → Filament Select enforce `in:options`, plus guard I2). `UserPolicy` batasi
+    nagari_admin ke warga senagari.
+  - **Tak ada IDOR lintas-nagari**: User/Wilayah/Module/Quiz/UmkmProfile/Discussion semua
+    scope `getRecordRouteBindingEloquentQuery`.
+  - **Nagari** super_admin-only (NagariPolicy all-false + Gate::before); anti-orphan delete
+    ter-wire di DeleteAction tunggal + ForceDelete; tanpa bulk-delete (guard tak bisa dilewati).
+  - **Self-edit**: tak bisa self-demote/nonaktifkan/pindah-nagari (EditUser).
+  - **Dashboard widgets** semua ter-scope nagari untuk nagari_admin (PlatformStats/LmsProgres/
+    AktivitasBelajar/UmkmKategori) — tak ada bocor lintas-nagari.
+  - ActivityLog super-only read-only; password hashed cast + opsional saat edit.
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
