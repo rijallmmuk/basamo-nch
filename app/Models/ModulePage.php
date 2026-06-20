@@ -49,14 +49,14 @@ class ModulePage extends Model
         static::updating(function (ModulePage $page) {
             $original = $page->getOriginal('file_path');
             if ($original && $page->file_path !== $original) {
-                Storage::disk('public')->delete($original);
+                Storage::disk(config('media-library.disk_name'))->delete($original);
             }
         });
 
         // Hapus file PDF saat halaman dihapus.
         static::deleted(function (ModulePage $page) {
             if ($page->file_path) {
-                Storage::disk('public')->delete($page->file_path);
+                Storage::disk(config('media-library.disk_name'))->delete($page->file_path);
             }
         });
     }

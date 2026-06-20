@@ -332,6 +332,22 @@ Test: `AdminInfraAuditTest` (3). Diperbaiki (keduanya rendah/defense-in-depth):
     AktivitasBelajar/UmkmKategori) — tak ada bocor lintas-nagari.
   - ActivityLog super-only read-only; password hashed cast + opsional saat edit.
 
+## Audit notifikasi in-app & media/upload (2026-06-20) — branch `feat/umkm`
+Suite **hijau (113)**. Test: `MediaUploadAuditTest` (3) + probe verifikasi.
+- **Notifikasi — aman, tanpa perubahan:** `$user->notifications()` per-user (tak ada bocor
+  antar-warga); `data[title/body]` di-render `{{ }}` (XSS-safe); `data[icon]` literal di kode
+  (bukan input user); markAsRead saat buka halaman. Notif fan-out (modul/kuis) sudah ShouldQueue.
+- **Media — aman terverifikasi:** soft-delete produk **mempertahankan** foto (Spatie tak hapus
+  saat soft-delete — diuji); force-delete menghapus foto; batas 5 foto dihormati; validasi mime/size
+  (gambar 2MB, PDF 10MB); orphan PDF dibersihkan (audit modul); tanpa `{!! !!}`.
+- **Diperbaiki — portabilitas storage R2 (M1/M2, rendah):** unggahan **gambar** sudah ikut
+  `MEDIA_DISK` (default `public`), tapi **PDF materi** dulu hard-coded disk `'public'` di 5 tempat
+  (upload + render×2 + cleanup×2) → tak akan pindah ke R2. Kini semua lewat
+  `config('media-library.disk_name')` (= `MEDIA_DISK`), jadi **satu env** untuk semua unggahan.
+  `.env.example`: dokumentasikan `MEDIA_DISK` (set `s3` bareng `FILESYSTEM_DISK=s3` untuk R2).
+- **Catatan (sadar):** PDF materi di disk publik = bisa diakses tanpa login bila URL bocor
+  (keputusan MVP; materi edukatif non-sensitif).
+
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.
 - Scoping nagari admin manual (bukan Filament Tenancy). super_admin kelola global.
