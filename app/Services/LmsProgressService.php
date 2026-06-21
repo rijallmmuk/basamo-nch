@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ModuleProgressStatus;
 use App\Models\Module;
 use App\Models\ModulePage;
 use App\Models\User;
@@ -45,8 +46,8 @@ class LmsProgressService
         }
 
         return match ($progress?->status) {
-            'completed' => 'completed',
-            'in_progress' => 'in_progress',
+            ModuleProgressStatus::Completed => 'completed',
+            ModuleProgressStatus::InProgress => 'in_progress',
             default => 'available',
         };
     }
@@ -75,8 +76,8 @@ class LmsProgressService
         $progress = $this->getProgress($user, $module);
 
         return match ($progress?->status) {
-            'completed' => 'completed',
-            'in_progress' => 'in_progress',
+            ModuleProgressStatus::Completed => 'completed',
+            ModuleProgressStatus::InProgress => 'in_progress',
             default => 'available',
         };
     }
