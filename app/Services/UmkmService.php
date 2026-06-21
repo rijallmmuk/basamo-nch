@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -46,7 +47,7 @@ class UmkmService
     {
         $product = $profile->products()->create([
             ...$data,
-            'status' => 'pending',
+            'status' => UmkmProductStatus::Pending,
         ]);
 
         $this->attachPhotos($product, $photos);
@@ -66,7 +67,7 @@ class UmkmService
     {
         $product->update([
             ...$data,
-            'status' => 'pending',
+            'status' => UmkmProductStatus::Pending,
             'rejection_reason' => null,
             'approved_by' => null,
             'approved_at' => null,

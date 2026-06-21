@@ -22,8 +22,8 @@ class UmkmCatalogController extends Controller
     public function index(Request $request): View
     {
         $products = UmkmProduct::query()
-            ->where('status', 'approved')
-            ->whereHas('umkmProfile', fn ($q) => $q->where('status', 'active'))
+            ->where('status', UmkmProductStatus::Approved)
+            ->whereHas('umkmProfile', fn ($q) => $q->where('status', ActiveStatus::Active))
             ->with(['umkmProfile.desa', 'umkmProfile.category', 'media'])
             ->when($request->filled('q'), fn ($q) => $this->applySearch($q, trim((string) $request->input('q'))))
             ->when($request->filled('desa'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $request->integer('desa'))))
@@ -37,7 +37,7 @@ class UmkmCatalogController extends Controller
             'desaList' => Cache::remember(
                 'umkm.catalog.desa_list',
                 now()->addHour(),
-                fn () => Desa::where('status', 'active')->orderBy('nama')->pluck('nama', 'id'),
+                fn () => Desa::where('status', ActiveStatus::Active)->orderBy('nama')->pluck('nama', 'id'),
             ),
             'kategoriList' => Cache::remember(
                 'umkm.catalog.kategori_list',

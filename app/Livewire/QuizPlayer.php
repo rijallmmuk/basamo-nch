@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\QuizAttemptStatus;
 use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
@@ -50,7 +51,7 @@ class QuizPlayer extends Component
 
         $alreadyPassed = QuizAttempt::where('user_id', $userId)
             ->where('quiz_id', $this->quiz->id)
-            ->where('status', 'passed')
+            ->where('status', QuizAttemptStatus::Passed)
             ->exists();
 
         if ($alreadyPassed) {
@@ -60,7 +61,7 @@ class QuizPlayer extends Component
         if ($this->quiz->max_attempts > 0) {
             $finishedAttempts = QuizAttempt::where('user_id', $userId)
                 ->where('quiz_id', $this->quiz->id)
-                ->whereIn('status', ['passed', 'failed'])
+                ->whereIn('status', [QuizAttemptStatus::Passed, QuizAttemptStatus::Failed])
                 ->count();
 
             if ($finishedAttempts >= $this->quiz->max_attempts) {
@@ -108,7 +109,7 @@ class QuizPlayer extends Component
         $attempt = QuizAttempt::create([
             'user_id' => auth()->id(),
             'quiz_id' => $this->quiz->id,
-            'status' => 'in_progress',
+            'status' => QuizAttemptStatus::InProgress,
             'submitted_at' => now(),
         ]);
 
@@ -157,7 +158,7 @@ class QuizPlayer extends Component
 
         $attempt->update([
             'score' => $percentage,
-            'status' => $passed ? 'passed' : 'failed',
+            'status' => $passed ? QuizAttemptStatus::Passed : QuizAttemptStatus::Failed,
         ]);
 
         $this->resultStatus = $passed ? 'passed' : 'failed';

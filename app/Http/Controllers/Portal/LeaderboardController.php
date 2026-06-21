@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ActiveStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -35,7 +36,7 @@ class LeaderboardController extends Controller
     {
         return User::query()
             ->where('role', 'warga')
-            ->where('status', 'active')
+            ->where('status', ActiveStatus::Active)
             ->where('desa_id', $user->desa_id);
     }
 

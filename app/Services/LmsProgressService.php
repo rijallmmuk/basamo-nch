@@ -26,7 +26,7 @@ class LmsProgressService
 
         return UserModuleProgress::where('user_id', $user->id)
             ->where('module_id', $module->prerequisite_module_id)
-            ->where('status', 'completed')
+            ->where('status', ModuleProgressStatus::Completed)
             ->exists();
     }
 
@@ -56,7 +56,7 @@ class LmsProgressService
     {
         return UserModuleProgress::where('user_id', $user->id)
             ->where('module_id', $module->id)
-            ->where('status', 'completed')
+            ->where('status', ModuleProgressStatus::Completed)
             ->exists();
     }
 
@@ -86,7 +86,7 @@ class LmsProgressService
     {
         UserModuleProgress::firstOrCreate(
             ['user_id' => $user->id, 'module_id' => $module->id],
-            ['status' => 'in_progress', 'pages_completed' => []]
+            ['status' => ModuleProgressStatus::InProgress, 'pages_completed' => []]
         );
 
         // ID halaman yang masih ada — dipakai untuk rekonsiliasi (buang ID hantu
@@ -109,7 +109,7 @@ class LmsProgressService
 
             $progress->update([
                 'pages_completed' => $pagesCompleted,
-                'status' => $allDone ? 'completed' : 'in_progress',
+                'status' => $allDone ? ModuleProgressStatus::Completed : ModuleProgressStatus::InProgress,
                 // Pertahankan waktu selesai pertama; jangan di-bump ulang.
                 'completed_at' => $allDone ? ($progress->completed_at ?? now()) : null,
             ]);

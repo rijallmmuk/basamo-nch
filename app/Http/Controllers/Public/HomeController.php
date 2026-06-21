@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\ActiveStatus;
+use App\Enums\ModuleStatus;
+use App\Enums\UmkmProductStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Desa;
 use App\Models\Module;
@@ -18,9 +21,9 @@ class HomeController extends Controller
     public function index(): View
     {
         $stats = Cache::remember('public.home.stats', now()->addHour(), fn (): array => [
-            'desa' => Desa::where('status', 'active')->count(),
-            'produk' => UmkmProduct::where('status', 'approved')->count(),
-            'modul' => Module::where('status', 'published')->count(),
+            'desa' => Desa::where('status', ActiveStatus::Active)->count(),
+            'produk' => UmkmProduct::where('status', UmkmProductStatus::Approved)->count(),
+            'modul' => Module::where('status', ModuleStatus::Published)->count(),
         ]);
 
         return view('public.home', ['stats' => $stats]);

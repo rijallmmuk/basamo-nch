@@ -19,7 +19,7 @@ class ModuleController extends Controller
     {
         $user = auth()->user();
 
-        $modules = Module::where('status', 'published')
+        $modules = Module::where('status', ModuleStatus::Published)
             ->where(function ($q) use ($user) {
                 $q->whereNull('desa_id')
                     ->orWhere('desa_id', $user->desa_id);
@@ -35,7 +35,7 @@ class ModuleController extends Controller
         // Ambil sekali: modul yang sudah diselesaikan user → hitung status in-memory
         // (hindari N+1: tanpa ini setiap modul memicu 2 query progres).
         $completedModuleIds = UserModuleProgress::where('user_id', $user->id)
-            ->where('status', 'completed')
+            ->where('status', ModuleProgressStatus::Completed)
             ->pluck('module_id')
             ->all();
 

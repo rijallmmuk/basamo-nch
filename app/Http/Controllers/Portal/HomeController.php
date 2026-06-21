@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ActiveStatus;
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\User;
@@ -16,7 +18,7 @@ class HomeController extends Controller
     {
         $user = auth()->user();
 
-        $modules = Module::where('status', 'published')
+        $modules = Module::where('status', ModuleStatus::Published)
             ->where(function ($q) use ($user) {
                 $q->whereNull('desa_id')
                     ->orWhere('desa_id', $user->desa_id);
@@ -46,7 +48,7 @@ class HomeController extends Controller
 
         // Peringkat XP se-desa (Top 5 + posisi user) — hanya warga aktif.
         $wargaQuery = fn () => User::where('role', 'warga')
-            ->where('status', 'active')
+            ->where('status', ActiveStatus::Active)
             ->where('desa_id', $user->desa_id);
 
         $topUsers = $wargaQuery()
