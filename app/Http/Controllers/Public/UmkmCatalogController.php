@@ -24,7 +24,7 @@ class UmkmCatalogController extends Controller
         $products = UmkmProduct::query()
             ->where('status', UmkmProductStatus::Approved)
             ->whereHas('umkmProfile', fn ($q) => $q->where('status', ActiveStatus::Active))
-            ->with(['umkmProfile.desa', 'umkmProfile.category', 'media'])
+            ->with(['umkmProfile.desa.jenisDesa', 'umkmProfile.category', 'media'])
             ->when($request->filled('q'), fn ($q) => $this->applySearch($q, trim((string) $request->input('q'))))
             ->when($request->filled('desa'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $request->integer('desa'))))
             ->when($request->filled('kategori'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('umkm_category_id', $request->integer('kategori'))))
@@ -92,7 +92,7 @@ class UmkmCatalogController extends Controller
                 ->update(['view_count' => DB::raw('view_count + 1')]);
         }
 
-        $product->load(['umkmProfile.desa', 'umkmProfile.category', 'media']);
+        $product->load(['umkmProfile.desa.jenisDesa', 'umkmProfile.category', 'media']);
 
         return view('public.umkm.show', ['product' => $product]);
     }

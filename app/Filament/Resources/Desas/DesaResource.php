@@ -54,6 +54,7 @@ class DesaResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->with('jenisDesa')
             ->withCount(['users', 'modules'])
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
