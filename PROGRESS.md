@@ -6,6 +6,17 @@
 
 ---
 
+## Sesi 2026-06-21 (lanjutan) — Referensi wilayah resmi Sumbar (branch `feat/ref-wilayah-sumbar`, belum merge)
+
+Manfaatkan dump Kepmendagri (`wilayah.sql` + `wilayah_level_1_2.sql`, **tak masuk repo**). Suite 142 hijau.
+- **`ref_wilayah`** (datar: kode/nama/level/parent_kode + geo lat/lng/luas/penduduk/path utk prov & kab). Model `RefWilayah` (scope `level`/`childrenOf`, `logoUrl`). Data **Sumbar saja** (kode `13`): 1 prov + 19 kab + 179 kec + 1.265 desa = 1.464 baris → diekstrak ke `database/data/sumbar_wilayah.csv` + `_geo.json` (20), diimpor `WilayahSumbarSeeder` (dipanggil CoreSeeder, idempotent). Provinsi lain menyusul = tambah berkas + perluas seeder.
+- **`desas.wilayah_kode`** FK opsional → ref_wilayah. **DesaForm**: dropdown bertingkat Provinsi→Kab→Kec→Desa (helper prov/kab/kec `dehydrated(false)`, hidrasi balik dari wilayah_kode saat edit); auto-isi nama + provinsi/kab/kec (denormalized). **jenis_desa & jenis_sub_unit tetap manual** (bukan dari kode).
+- **Logo kab/kota**: 19 logo Sumbar → `public/images/wilayah/{kode}.png` (+thumbs); `Desa::kabupatenLogoUrl()` diturunkan dari wilayah_kode (media `logo_kabupaten` per-desa **dihapus**).
+- **Peta publik (polygon)**: data `path` tersimpan, **UI peta = fase lanjut** (Leaflet/GeoJSON).
+- TODO lanjut: halaman peta publik; kolom kabupaten di DesasTable (opsional); tampilkan logo kab di profil desa publik; provinsi lain.
+
+---
+
 ## Sesi 2026-06-21 — Refactor besar: nagari→desa, backed enums, jenis tabel (branch `feat/penyebutan-wilayah-nasional`)
 
 Tiga fase, tiap fase di-commit terpisah & suite hijau (138 test):
