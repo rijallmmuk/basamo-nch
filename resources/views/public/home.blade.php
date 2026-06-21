@@ -18,6 +18,10 @@
                 class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
                 Lihat Katalog UMKM
             </a>
+            <a href="{{ route('public.peta') }}"
+                class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                Peta Desa
+            </a>
             <a href="{{ route('portal.login') }}"
                 class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
                 Masuk Portal Warga

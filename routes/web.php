@@ -13,6 +13,7 @@ use App\Http\Controllers\Portal\QuizController;
 use App\Http\Controllers\Portal\UmkmController;
 use App\Http\Controllers\Portal\UmkmProductController;
 use App\Http\Controllers\Public\HomeController as PublicHomeController;
+use App\Http\Controllers\Public\PublicMapController;
 use App\Http\Controllers\Public\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,9 @@ Route::prefix('umkm')->name('public.umkm.')->group(function () {
     Route::get('/', [UmkmCatalogController::class, 'index'])->name('index');
     Route::get('{product:slug}', [UmkmCatalogController::class, 'show'])->name('show');
 });
+
+Route::get('peta', [PublicMapController::class, 'index'])->name('public.peta');
+Route::get('peta/data', [PublicMapController::class, 'data'])->name('public.peta.data');
 
 Route::prefix('portal')->name('portal.')->group(function () {
     // Guest only — akun warga dibuat Admin Desa (tanpa self-register).

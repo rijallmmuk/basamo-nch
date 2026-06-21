@@ -131,6 +131,11 @@ Foto profil warga (`User` koleksi `avatar`, singleFile + konversi `thumb` 256² 
 **Alasan**: Satu mekanisme media (konversi, disk portabel, hapus otomatis) > kolom path manual. Tanpa dependency baru (GD sudah ada).
 **Ditunda**: tabel `kabupatens` ternormalisasi (kini logo kabupaten di-attach per-nagari) — bila perlu hemat duplikasi/kelola terpusat.
 
+### Referensi wilayah resmi (`ref_wilayah`) + logo kab terpusat + peta Leaflet
+Data Kepmendagri (kode/nama prov→kab→kec→desa + geo) diekstrak **Sumbar dulu** ke `database/data/sumbar_wilayah.{csv,json}`, diimpor `WilayahSumbarSeeder` (di CoreSeeder) ke tabel datar `ref_wilayah` (level diturunkan dari kode). `desas.wilayah_kode` FK opsional; DesaForm super_admin pakai dropdown bertingkat (jenis/sub-unit **tetap manual**). Logo kab/kota dipindah ke `public/images/wilayah/` & diturunkan via `Desa::kabupatenLogoUrl()` (media `logo_kabupaten` per-desa **dibuang** — menjawab "Ditunda" di atas). Peta publik `/peta` pakai **Leaflet via CDN** (bukan paket npm) + polygon `ref_wilayah.path` (format tak konsisten → dinormalisasi di JS), choropleth jumlah desa terdaftar.
+**Alasan**: standardisasi nama/kode resmi, kurangi typo, logo tak perlu diunggah ulang, peta tanpa build step. **Ditunda**: provinsi lain (tambah berkas + perluas seeder); UI peta tingkat desa.
+**Ditolak**: simpan dump nasional 26 MB di repo (cukup subset Sumbar); auto-isi `jenis` dari kode (user mau pilih manual).
+
 ---
 
 ## Admin (Resources)
