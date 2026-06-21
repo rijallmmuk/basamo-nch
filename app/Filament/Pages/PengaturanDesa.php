@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Desa;
+use App\Models\JenisSubUnit;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -69,15 +70,15 @@ class PengaturanDesa extends Page
                 Section::make('Sebutan & Logo')
                     ->columns(2)
                     ->schema([
-                        Select::make('wilayah_label')
+                        Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit')
-                            ->options(Desa::subUnitOptions())
+                            ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
                             ->searchable()
                             ->native(false)
                             ->helperText('Sebutan bagian dalam desa ini — mis. Jorong / Dusun / Lingkungan. Dipakai di seluruh aplikasi.'),
 
                         SpatieMediaLibraryFileUpload::make('logo')
-                            ->label('Logo '.($this->desa?->jenis ?? 'desa'))
+                            ->label('Logo '.($this->desa?->jenisDesa?->nama ?? 'desa'))
                             ->collection('logo')
                             ->image()
                             ->maxSize(2048)

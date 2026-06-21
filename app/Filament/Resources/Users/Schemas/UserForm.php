@@ -176,7 +176,7 @@ class UserForm
         $desaId = static::resolveDesaId($get);
 
         return $desaId
-            ? (Desa::find($desaId)?->wilayah_label ?: 'Sub-Unit Wilayah')
+            ? (Desa::find($desaId)?->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah')
             : 'Sub-Unit Wilayah';
     }
 

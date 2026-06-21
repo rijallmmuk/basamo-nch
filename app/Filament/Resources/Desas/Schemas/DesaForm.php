@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Desas\Schemas;
 
 use App\Enums\ActiveStatus;
 use App\Models\Desa;
+use App\Models\JenisDesa;
+use App\Models\JenisSubUnit;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -20,14 +22,13 @@ class DesaForm
                 Section::make('Identitas')
                     ->columns(2)
                     ->schema([
-                        Select::make('jenis')
+                        Select::make('jenis_desa_id')
                             ->label('Penyebutan wilayah')
-                            ->options(Desa::jenisOptions())
+                            ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
                             ->required()
                             ->searchable()
                             ->native(false)
-                            ->default('Desa')
-                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Desa.'),
+                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
 
                         TextInput::make('nama')
                             ->label('Nama')
@@ -44,9 +45,9 @@ class DesaForm
                             ->helperText('Kode unik, mis. NCH-001 atau kode wilayah resmi.')
                             ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
 
-                        Select::make('wilayah_label')
+                        Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit (opsional)')
-                            ->options(Desa::subUnitOptions())
+                            ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
                             ->searchable()
                             ->native(false)
                             ->helperText('Boleh dikosongkan — admin desa dapat mengaturnya sendiri.'),

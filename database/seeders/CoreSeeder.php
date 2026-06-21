@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\JenisDesa;
+use App\Models\JenisSubUnit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +19,23 @@ class CoreSeeder extends Seeder
     {
         foreach (['super_admin', 'desa_admin', 'warga'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        }
+
+        // Referensi penyebutan administratif nasional (setingkat desa + sub-unit).
+        $jenisDesa = [
+            'Desa', 'Kelurahan', 'Nagari', 'Gampong', 'Kampung', 'Kalurahan',
+            'Lembang', 'Pekon', 'Tiyuh', 'Negeri', 'Nagori', 'Huta',
+        ];
+        foreach ($jenisDesa as $urutan => $nama) {
+            JenisDesa::firstOrCreate(['nama' => $nama], ['urutan' => $urutan]);
+        }
+
+        $jenisSubUnit = [
+            'Dusun', 'Lingkungan', 'Jorong', 'Korong', 'Dukuh', 'Padukuhan',
+            'Banjar', 'Kampung', 'Lorong', 'RW',
+        ];
+        foreach ($jenisSubUnit as $urutan => $nama) {
+            JenisSubUnit::firstOrCreate(['nama' => $nama], ['urutan' => $urutan]);
         }
 
         User::firstOrCreate(

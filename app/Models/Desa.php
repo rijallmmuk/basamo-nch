@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ActiveStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
@@ -17,7 +18,7 @@ class Desa extends Model implements HasMedia
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'jenis', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
+        'nama', 'jenis_desa_id', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
 
@@ -29,55 +30,24 @@ class Desa extends Model implements HasMedia
         ];
     }
 
-    /**
-     * Penyebutan wilayah administratif setingkat desa di Indonesia (skala nasional).
-     * String + dropdown agar fleksibel; daftar bisa ditambah tanpa migrasi.
-     *
-     * @var list<string>
-     */
-    public const JENIS = [
-        'Desa', 'Kelurahan', 'Desa', 'Gampong', 'Kampung', 'Kalurahan',
-        'Lembang', 'Pekon', 'Tiyuh', 'Negeri', 'Nagori', 'Huta',
-    ];
-
-    /**
-     * Penyebutan sub-unit di bawah desa (dusun/lingkungan dan padanan daerahnya).
-     *
-     * @var list<string>
-     */
-    public const SUB_UNIT = [
-        'Dusun', 'Lingkungan', 'Jorong', 'Korong', 'Dukuh', 'Padukuhan',
-        'Banjar', 'Kampung', 'Lorong', 'RW',
-    ];
-
-    /** @return array<string, string> */
-    public static function jenisOptions(): array
-    {
-        return array_combine(self::JENIS, self::JENIS);
-    }
-
-    /** @return array<string, string> */
-    public static function subUnitOptions(): array
-    {
-        return array_combine(self::SUB_UNIT, self::SUB_UNIT);
-    }
-
-    /** Nama lengkap dengan penyebutan administratif, mis. "Desa Koto Tuo". */
+    /** Nama lengkap dengan penyebutan administratif, mis. "Nagari Koto Tuo". */
     public function getNamaLengkapAttribute(): string
     {
-        return trim(($this->jenis ? $this->jenis.' ' : '').$this->nama);
+        $jenis = $this->jenisDesa?->nama;
+
+        return trim(($jenis ? $jenis.' ' : '').$this->nama);
     }
 
     /** Sebutan sub-unit desa ini; fallback umum bila belum diatur admin desa. */
     public function subUnitLabel(): string
     {
-        return $this->wilayah_label ?: 'Sub-Unit Wilayah';
+        return $this->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah';
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'jenis', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
+            ->logOnly(['nama', 'jenis_desa_id', 'kode', 'status', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('desa');
@@ -104,6 +74,16 @@ class Desa extends Model implements HasMedia
         $media = $this->getFirstMedia('logo_kabupaten');
 
         return $media ? $media->getUrl() : null;
+    }
+
+    public function jenisDesa(): BelongsTo
+    {
+        return $this->belongsTo(JenisDesa::class);
+    }
+
+    public function jenisSubUnit(): BelongsTo
+    {
+        return $this->belongsTo(JenisSubUnit::class);
     }
 
     public function users(): HasMany

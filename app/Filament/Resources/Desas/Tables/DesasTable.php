@@ -19,7 +19,7 @@ class DesasTable
     {
         return $table
             ->columns([
-                TextColumn::make('jenis')
+                TextColumn::make('jenisDesa.nama')
                     ->label('Jenis')
                     ->badge()
                     ->color('primary')

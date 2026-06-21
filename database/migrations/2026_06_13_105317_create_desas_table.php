@@ -11,15 +11,15 @@ return new class extends Migration
         Schema::create('desas', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            // Penyebutan wilayah administratif setingkat desa (Desa/Kelurahan/Desa/…),
-            // dipilih super_admin & melekat ke entitas. Skala nasional.
-            $table->string('jenis', 30);
+            // Penyebutan wilayah administratif setingkat desa (Desa/Kelurahan/Nagari/…),
+            // dipilih super_admin & melekat ke entitas. Referensi global jenis_desa.
+            $table->foreignId('jenis_desa_id')->constrained('jenis_desa')->restrictOnDelete();
             $table->string('kode', 50)->unique();
             $table->string('provinsi', 100)->nullable();
             $table->string('kabupaten', 100)->nullable();
             $table->string('kecamatan', 100)->nullable();
             // Sebutan sub-unit (Jorong/Dusun/Korong/…), diatur admin desa. Boleh kosong.
-            $table->string('wilayah_label', 30)->nullable();
+            $table->foreignId('jenis_sub_unit_id')->nullable()->constrained('jenis_sub_unit')->nullOnDelete();
             $table->decimal('koordinat_lat', 10, 8)->nullable();
             $table->decimal('koordinat_lng', 11, 8)->nullable();
             $table->string('kontak', 20)->nullable();

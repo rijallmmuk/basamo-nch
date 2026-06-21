@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Desa;
 use App\Models\Discussion;
+use App\Models\JenisDesa;
+use App\Models\JenisSubUnit;
 use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -64,10 +66,10 @@ class DemoSeeder extends Seeder
     {
         $desa = Desa::firstOrCreate(
             ['kode' => $kode],
-            ['nama' => $nama, 'jenis' => $jenis, 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
+            ['nama' => $nama, 'jenis_desa_id' => JenisDesa::where('nama', $jenis)->value('id'), 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
         );
 
-        $desa->update(['wilayah_label' => $sebutan]);
+        $desa->update(['jenis_sub_unit_id' => JenisSubUnit::where('nama', $sebutan)->value('id')]);
 
         return $desa;
     }

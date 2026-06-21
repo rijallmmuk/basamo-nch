@@ -3,6 +3,7 @@
 use App\Filament\Resources\Desas\Pages\CreateDesa;
 use App\Filament\Resources\Desas\Pages\ListDesas;
 use App\Models\Desa;
+use App\Models\JenisDesa;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,9 +26,12 @@ beforeEach(function () {
 it('super_admin dapat membuat desa dan kode dinormalkan huruf besar', function () {
     actingAs(User::factory()->superAdmin()->create());
 
+    $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
+
     Livewire::test(CreateDesa::class)
         ->fillForm([
             'nama' => 'Desa Baru',
+            'jenis_desa_id' => $jenis->id,
             'kode' => 'nch-099',
             'status' => 'active',
         ])
