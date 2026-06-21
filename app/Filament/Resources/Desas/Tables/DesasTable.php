@@ -8,7 +8,6 @@ use App\Models\Desa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -20,14 +19,9 @@ class DesasTable
     {
         return $table
             ->columns([
-                TextColumn::make('jenisDesa.nama')
-                    ->label('Jenis')
-                    ->badge()
-                    ->color('primary')
-                    ->sortable(),
-
                 TextColumn::make('nama')
                     ->label('Nama')
+                    ->formatStateUsing(fn (Desa $record): string => $record->nama_lengkap)
                     ->searchable()
                     ->sortable(),
 
@@ -37,13 +31,6 @@ class DesasTable
                     ->color('gray')
                     ->searchable()
                     ->sortable(),
-
-                ImageColumn::make('kabupatenLogo')
-                    ->label('Logo Kab')
-                    ->getStateUsing(fn (Desa $record): ?string => $record->kabupatenLogoUrl())
-                    ->height(28)
-                    ->extraImgAttributes(['class' => 'object-contain'])
-                    ->toggleable(),
 
                 TextColumn::make('kabupaten')
                     ->label('Kabupaten/Kota')
@@ -59,13 +46,6 @@ class DesasTable
                     ->counts('users')
                     ->badge()
                     ->color('info')
-                    ->sortable(),
-
-                TextColumn::make('modules_count')
-                    ->label('Modul')
-                    ->counts('modules')
-                    ->badge()
-                    ->color('warning')
                     ->sortable(),
 
                 TextColumn::make('status')

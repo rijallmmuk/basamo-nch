@@ -31,6 +31,12 @@ class CreateDesa extends CreateRecord
         });
     }
 
+    /** Setelah simpan, kembali ke daftar desa (bukan halaman edit yang mirip create). */
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function afterCreate(): void
     {
         $admin = $this->record->desaAdmin()->first();

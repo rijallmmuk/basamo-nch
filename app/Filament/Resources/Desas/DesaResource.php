@@ -56,7 +56,7 @@ class DesaResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with('jenisDesa')
-            ->withCount(['users', 'modules'])
+            ->withCount(['users'])
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 

@@ -9,6 +9,7 @@ use App\Models\JenisSubUnit;
 use App\Models\RefWilayah;
 use App\Models\User;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -122,6 +123,17 @@ class DesaForm
                             ->helperText(fn (?Model $record): string => $record
                                 ? 'Isi untuk menerbitkan OTP baru (reset sandi admin). Kosongkan bila tak ingin mengubah.'
                                 : 'Kosongkan untuk OTP otomatis, atau isi kode sendiri.'),
+
+                        Placeholder::make('admin_otp_current')
+                            ->label('Kode OTP saat ini')
+                            ->visible(fn (?Model $record): bool => $record instanceof Desa && $record->desaAdmin()->exists())
+                            ->content(function (?Model $record): string {
+                                $admin = $record instanceof Desa ? $record->desaAdmin()->first() : null;
+
+                                return filled($admin?->initial_otp)
+                                    ? $admin->initial_otp.' — belum diganti admin'
+                                    : 'Sudah diganti admin (OTP tak berlaku lagi).';
+                            }),
                     ]),
             ]);
     }
