@@ -17,6 +17,7 @@ class QuizAttempt extends Model
     {
         return [
             'status' => QuizAttemptStatus::class,
+            'score' => 'integer',
             'submitted_at' => 'datetime',
         ];
     }
