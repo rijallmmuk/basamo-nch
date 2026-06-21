@@ -33,8 +33,8 @@ class ModulesTable
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->default('Global')
                     ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->sortable()
@@ -88,9 +88,9 @@ class ModulesTable
                         'published' => 'Published',
                     ]),
 
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->placeholder('Semua (termasuk global)'),
 
                 TrashedFilter::make(),

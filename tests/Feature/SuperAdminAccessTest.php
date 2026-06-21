@@ -39,8 +39,8 @@ it('dashboard admin merender widget (plugin ApexCharts terdaftar)', function () 
     $this->actingAs($user)->get('/admin')->assertSuccessful();
 });
 
-it('nagari_admin dapat mengelola modul tetapi tidak role', function () {
-    $user = User::factory()->nagariAdmin()->create();
+it('desa_admin dapat mengelola modul tetapi tidak role', function () {
+    $user = User::factory()->desaAdmin()->create();
 
     expect(Gate::forUser($user)->check('viewAny', Module::class))->toBeTrue()
         ->and(Gate::forUser($user)->check('create', Module::class))->toBeTrue()
@@ -55,14 +55,14 @@ it('warga (termasuk yang punya akses UMKM) tidak bisa akses panel maupun resourc
 });
 
 it('mengubah kolom role otomatis menyinkronkan Spatie role', function () {
-    foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
+    foreach (['super_admin', 'desa_admin', 'warga'] as $role) {
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
     }
 
-    $user = User::factory()->nagariAdmin()->create();
-    expect($user->hasRole('nagari_admin'))->toBeTrue();
+    $user = User::factory()->desaAdmin()->create();
+    expect($user->hasRole('desa_admin'))->toBeTrue();
 
     $user->update(['role' => 'warga']);
     expect($user->fresh()->hasRole('warga'))->toBeTrue()
-        ->and($user->fresh()->hasRole('nagari_admin'))->toBeFalse();
+        ->and($user->fresh()->hasRole('desa_admin'))->toBeFalse();
 });

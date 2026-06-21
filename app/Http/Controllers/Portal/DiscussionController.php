@@ -16,7 +16,7 @@ class DiscussionController extends Controller
     public function __construct(private readonly LmsPointService $pointService) {}
 
     /**
-     * Daftar thread diskusi sebuah modul (hanya sesama nagari).
+     * Daftar thread diskusi sebuah modul (hanya sesama desa).
      */
     public function index(Module $module): View
     {
@@ -24,7 +24,7 @@ class DiscussionController extends Controller
 
         $threads = $module->discussions()
             ->whereNull('parent_id')
-            ->whereHas('user', fn ($q) => $q->where('nagari_id', $user->nagari_id))
+            ->whereHas('user', fn ($q) => $q->where('desa_id', $user->desa_id))
             ->with(['user:id,name'])
             ->withCount('replies')
             ->orderByDesc('is_pinned')
@@ -114,7 +114,7 @@ class DiscussionController extends Controller
         $user = auth()->user();
 
         if ($module->status !== 'published' ||
-            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+            ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }
 
@@ -122,12 +122,12 @@ class DiscussionController extends Controller
     }
 
     /**
-     * Thread valid bila milik modul ini, top-level, dan ditulis warga senagari.
+     * Thread valid bila milik modul ini, top-level, dan ditulis warga sedesa.
      */
     private function threadVisibleToUser(Module $module, Discussion $discussion, User $user): bool
     {
         return $discussion->module_id === $module->id
             && $discussion->parent_id === null
-            && $discussion->user?->nagari_id === $user->nagari_id;
+            && $discussion->user?->desa_id === $user->desa_id;
     }
 }

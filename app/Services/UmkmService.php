@@ -15,7 +15,7 @@ class UmkmService
     public const MAX_PHOTOS = 5;
 
     /**
-     * Buat atau perbarui profil usaha milik pemilik. Nagari mengikuti pemilik.
+     * Buat atau perbarui profil usaha milik pemilik. Desa mengikuti pemilik.
      *
      * @param  array<string, mixed>  $data
      */
@@ -31,13 +31,13 @@ class UmkmService
 
         return $owner->umkmProfile()->create([
             ...$data,
-            'nagari_id' => $owner->nagari_id,
+            'desa_id' => $owner->desa_id,
         ]);
     }
 
     /**
      * Tambah produk baru milik profil. Selalu mulai berstatus pending (menunggu
-     * verifikasi Admin Nagari).
+     * verifikasi Admin Desa).
      *
      * @param  array<string, mixed>  $data
      * @param  array<int, UploadedFile>  $photos

@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * super_admin dilewatkan via Gate::before. nagari_admin boleh melihat (untuk pemantauan).
+ * super_admin dilewatkan via Gate::before. desa_admin boleh melihat (untuk pemantauan).
  * Attempt dibuat oleh warga lewat portal (di luar policy ini), bukan oleh admin.
  */
 class QuizAttemptPolicy
@@ -18,12 +18,12 @@ class QuizAttemptPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->isNagariAdmin();
+        return $user->isDesaAdmin();
     }
 
     public function view(User $user, QuizAttempt $quizAttempt): bool
     {
-        return $user->isNagariAdmin();
+        return $user->isDesaAdmin();
     }
 
     public function create(User $user): bool

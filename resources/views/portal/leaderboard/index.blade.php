@@ -10,7 +10,7 @@
 
     <div class="mb-5">
         <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">Peringkat XP</h1>
-        <p class="mt-1 text-sm text-gray-500">Papan peringkat warga {{ auth()->user()->nagari?->nama_lengkap ?? 'nagari' }} berdasarkan XP.</p>
+        <p class="mt-1 text-sm text-gray-500">Papan peringkat warga {{ auth()->user()->desa?->nama_lengkap ?? 'desa' }} berdasarkan XP.</p>
     </div>
 
     {{-- Posisimu --}}

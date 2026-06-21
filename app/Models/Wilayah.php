@@ -13,20 +13,20 @@ class Wilayah extends Model
 {
     use LogsActivity, SoftDeletes;
 
-    protected $fillable = ['nagari_id', 'nama'];
+    protected $fillable = ['desa_id', 'nama'];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'nagari_id'])
+            ->logOnly(['nama', 'desa_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('wilayah');
     }
 
-    public function nagari(): BelongsTo
+    public function desa(): BelongsTo
     {
-        return $this->belongsTo(Nagari::class);
+        return $this->belongsTo(Desa::class);
     }
 
     public function users(): HasMany

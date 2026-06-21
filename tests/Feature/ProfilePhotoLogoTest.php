@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 
 function profileWarga(): User
 {
-    return User::factory()->warga()->create(['nagari_id' => Nagari::factory()->create()->id]);
+    return User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
 }
 
 it('halaman profil warga bisa dibuka', function () {
@@ -69,13 +69,13 @@ it('menolak file non-gambar sebagai foto profil', function () {
         ->assertSessionHasErrors('avatar');
 });
 
-it('nagari menyimpan logo nagari & logo kabupaten', function () {
+it('desa menyimpan logo desa & logo kabupaten', function () {
     Storage::fake(config('media-library.disk_name'));
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
 
-    $nagari->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('logo');
-    $nagari->addMedia(UploadedFile::fake()->image('kabupaten.png'))->toMediaCollection('logo_kabupaten');
+    $desa->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('logo');
+    $desa->addMedia(UploadedFile::fake()->image('kabupaten.png'))->toMediaCollection('logo_kabupaten');
 
-    expect($nagari->logoUrl())->not->toBeNull()
-        ->and($nagari->kabupatenLogoUrl())->not->toBeNull();
+    expect($desa->logoUrl())->not->toBeNull()
+        ->and($desa->kabupatenLogoUrl())->not->toBeNull();
 });

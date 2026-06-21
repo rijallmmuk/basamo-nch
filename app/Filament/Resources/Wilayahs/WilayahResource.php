@@ -50,28 +50,28 @@ class WilayahResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return static::scopeToNagari(
+        return static::scopeToDesa(
             parent::getEloquentQuery()
-                ->with('nagari')
+                ->with('desa')
                 ->withCount('users')
         );
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return static::scopeToNagari(parent::getRecordRouteBindingEloquentQuery());
+        return static::scopeToDesa(parent::getRecordRouteBindingEloquentQuery());
     }
 
     /**
-     * nagari_admin hanya mengelola wilayah nagarinya sendiri.
+     * desa_admin hanya mengelola wilayah desanya sendiri.
      * super_admin melihat semua (dilewatkan via Gate::before untuk policy).
      */
-    protected static function scopeToNagari(Builder $query): Builder
+    protected static function scopeToDesa(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->where('nagari_id', $user->nagari_id);
+        if ($user?->isDesaAdmin()) {
+            $query->where('desa_id', $user->desa_id);
         }
 
         return $query;

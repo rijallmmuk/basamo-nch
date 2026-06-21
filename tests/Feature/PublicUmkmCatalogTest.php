@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -8,9 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('katalog hanya menampilkan produk approved dari usaha aktif', function () {
-    $nagari = Nagari::factory()->create();
-    $aktif = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'status' => 'active']);
-    $nonaktif = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'status' => 'inactive']);
+    $desa = Desa::factory()->create();
+    $aktif = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'status' => 'active']);
+    $nonaktif = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'status' => 'inactive']);
 
     UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $aktif->id, 'nama_produk' => 'Keripik Tampil']);
     UmkmProduct::factory()->create(['umkm_profile_id' => $aktif->id, 'nama_produk' => 'Produk Pending', 'status' => 'pending']);
@@ -24,9 +24,9 @@ it('katalog hanya menampilkan produk approved dari usaha aktif', function () {
 });
 
 it('filter kategori mempersempit hasil', function () {
-    $nagari = Nagari::factory()->create();
-    $profilA = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'umkm_category_id' => 1]);
-    $profilB = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'umkm_category_id' => 2]);
+    $desa = Desa::factory()->create();
+    $profilA = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'umkm_category_id' => 1]);
+    $profilB = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'umkm_category_id' => 2]);
     UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilA->id, 'nama_produk' => 'Produk Satu']);
     UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilB->id, 'nama_produk' => 'Produk Dua']);
 

@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 
 /**
- * Nagari (akar multi-tenancy) hanya dikelola super_admin, yang dilewatkan via
+ * Desa (akar multi-tenancy) hanya dikelola super_admin, yang dilewatkan via
  * Gate::before. Role lain ditolak penuh.
  */
-class NagariPolicy
+class DesaPolicy
 {
     public function viewAny(User $user): bool
     {
         return false;
     }
 
-    public function view(User $user, Nagari $nagari): bool
+    public function view(User $user, Desa $desa): bool
     {
         return false;
     }
@@ -28,12 +28,12 @@ class NagariPolicy
         return false;
     }
 
-    public function update(User $user, Nagari $nagari): bool
+    public function update(User $user, Desa $desa): bool
     {
         return false;
     }
 
-    public function delete(User $user, Nagari $nagari): bool
+    public function delete(User $user, Desa $desa): bool
     {
         return false;
     }
@@ -43,12 +43,12 @@ class NagariPolicy
         return false;
     }
 
-    public function restore(User $user, Nagari $nagari): bool
+    public function restore(User $user, Desa $desa): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, Nagari $nagari): bool
+    public function forceDelete(User $user, Desa $desa): bool
     {
         return false;
     }
@@ -63,7 +63,7 @@ class NagariPolicy
         return false;
     }
 
-    public function replicate(User $user, Nagari $nagari): bool
+    public function replicate(User $user, Desa $desa): bool
     {
         return false;
     }

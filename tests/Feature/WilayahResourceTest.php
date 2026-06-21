@@ -3,7 +3,7 @@
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Wilayahs\Pages\CreateWilayah;
 use App\Filament\Resources\Wilayahs\Pages\ListWilayahs;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use App\Models\Wilayah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,9 +11,9 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('nagari_admin membuat wilayah ter-scope ke nagarinya', function () {
-    $nagari = Nagari::factory()->create();
-    $this->actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]));
+it('desa_admin membuat wilayah ter-scope ke desanya', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     Livewire::test(CreateWilayah::class)
         ->fillForm(['nama' => 'Jorong Koto Tuo'])
@@ -22,49 +22,49 @@ it('nagari_admin membuat wilayah ter-scope ke nagarinya', function () {
 
     $w = Wilayah::first();
     expect($w->nama)->toBe('Jorong Koto Tuo')
-        ->and($w->nagari_id)->toBe($nagari->id);
+        ->and($w->desa_id)->toBe($desa->id);
 });
 
-it('nama wilayah unik per nagari, boleh sama antar nagari', function () {
-    $a = Nagari::factory()->create();
-    $b = Nagari::factory()->create();
-    Wilayah::create(['nagari_id' => $a->id, 'nama' => 'Dusun Satu']);
+it('nama wilayah unik per desa, boleh sama antar desa', function () {
+    $a = Desa::factory()->create();
+    $b = Desa::factory()->create();
+    Wilayah::create(['desa_id' => $a->id, 'nama' => 'Dusun Satu']);
 
     $this->actingAs(User::factory()->superAdmin()->create());
 
-    // Nama sama di nagari berbeda → boleh.
+    // Nama sama di desa berbeda → boleh.
     Livewire::test(CreateWilayah::class)
-        ->fillForm(['nagari_id' => $b->id, 'nama' => 'Dusun Satu'])
+        ->fillForm(['desa_id' => $b->id, 'nama' => 'Dusun Satu'])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    // Duplikat di nagari yang sama → gagal.
+    // Duplikat di desa yang sama → gagal.
     Livewire::test(CreateWilayah::class)
-        ->fillForm(['nagari_id' => $a->id, 'nama' => 'Dusun Satu'])
+        ->fillForm(['desa_id' => $a->id, 'nama' => 'Dusun Satu'])
         ->call('create')
         ->assertHasFormErrors(['nama']);
 });
 
-it('nagari_admin hanya melihat wilayah nagarinya', function () {
-    $a = Nagari::factory()->create();
-    $b = Nagari::factory()->create();
-    Wilayah::create(['nagari_id' => $a->id, 'nama' => 'A1']);
-    Wilayah::create(['nagari_id' => $b->id, 'nama' => 'B1']);
+it('desa_admin hanya melihat wilayah desanya', function () {
+    $a = Desa::factory()->create();
+    $b = Desa::factory()->create();
+    Wilayah::create(['desa_id' => $a->id, 'nama' => 'A1']);
+    Wilayah::create(['desa_id' => $b->id, 'nama' => 'B1']);
 
-    $this->actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $a->id]));
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $a->id]));
 
     Livewire::test(ListWilayahs::class)
-        ->assertCanSeeTableRecords(Wilayah::where('nagari_id', $a->id)->get())
-        ->assertCanNotSeeTableRecords(Wilayah::where('nagari_id', $b->id)->get());
+        ->assertCanSeeTableRecords(Wilayah::where('desa_id', $a->id)->get())
+        ->assertCanNotSeeTableRecords(Wilayah::where('desa_id', $b->id)->get());
 });
 
-it('warga bisa diberi wilayah nagarinya, wilayah nagari lain ditolak', function () {
-    $a = Nagari::factory()->create();
-    $b = Nagari::factory()->create();
-    $wA = Wilayah::create(['nagari_id' => $a->id, 'nama' => 'A-Jorong']);
-    $wB = Wilayah::create(['nagari_id' => $b->id, 'nama' => 'B-Jorong']);
+it('warga bisa diberi wilayah desanya, wilayah desa lain ditolak', function () {
+    $a = Desa::factory()->create();
+    $b = Desa::factory()->create();
+    $wA = Wilayah::create(['desa_id' => $a->id, 'nama' => 'A-Jorong']);
+    $wB = Wilayah::create(['desa_id' => $b->id, 'nama' => 'B-Jorong']);
 
-    $this->actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $a->id]));
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $a->id]));
 
     Livewire::test(CreateUser::class)
         ->fillForm(['name' => 'W', 'username' => '3201010101019001', 'role' => 'warga', 'wilayah_id' => $wA->id])
@@ -73,7 +73,7 @@ it('warga bisa diberi wilayah nagarinya, wilayah nagari lain ditolak', function 
 
     expect(User::where('username', '3201010101019001')->first()->wilayah_id)->toBe($wA->id);
 
-    // Wilayah milik nagari lain → ditolak.
+    // Wilayah milik desa lain → ditolak.
     Livewire::test(CreateUser::class)
         ->fillForm(['name' => 'W2', 'username' => '3201010101019002', 'role' => 'warga', 'wilayah_id' => $wB->id])
         ->call('create')

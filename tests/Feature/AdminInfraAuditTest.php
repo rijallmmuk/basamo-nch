@@ -3,17 +3,17 @@
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-// ── I2: nagari_admin tak bisa eskalasi peran ─────────────────────────
-it('nagari_admin tak bisa membuat akun admin (role dipaksa warga)', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
+// ── I2: desa_admin tak bisa eskalasi peran ─────────────────────────
+it('desa_admin tak bisa membuat akun admin (role dipaksa warga)', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
     $this->actingAs($admin);
 
     Livewire::test(CreateUser::class)
@@ -32,14 +32,14 @@ it('nagari_admin tak bisa membuat akun admin (role dipaksa warga)', function () 
         ->toBeIn([null, 'warga']);
 });
 
-it('nagari_admin tak bisa menaikkan peran warga jadi admin', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'email' => 'w@x.test']);
+it('desa_admin tak bisa menaikkan peran warga jadi admin', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'email' => 'w@x.test']);
     $this->actingAs($admin);
 
     Livewire::test(EditUser::class, ['record' => $warga->getRouteKey()])
-        ->fillForm(['role' => 'nagari_admin', 'email' => 'w@x.test'])
+        ->fillForm(['role' => 'desa_admin', 'email' => 'w@x.test'])
         ->call('save');
 
     expect($warga->refresh()->role)->toBe('warga');
@@ -47,9 +47,9 @@ it('nagari_admin tak bisa menaikkan peran warga jadi admin', function () {
 
 // ── I1: bulk delete tak boleh menghapus akun sendiri ─────────────────
 it('super_admin tak bisa bulk-delete akun sendiri', function () {
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
     $super = User::factory()->superAdmin()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
 
     $this->actingAs($super);
 

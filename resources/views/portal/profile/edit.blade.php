@@ -28,7 +28,7 @@
                 <x-portal.avatar :name="$user->name" :src="$user->avatarUrl()" size="lg" variant="solid" class="!h-20 !w-20 !text-2xl" />
                 <div class="min-w-0">
                     <p class="truncate font-semibold text-gray-900">{{ $user->name }}</p>
-                    <p class="truncate text-sm text-gray-500">{{ $user->nagari?->nama_lengkap ?? 'Warga' }}</p>
+                    <p class="truncate text-sm text-gray-500">{{ $user->desa?->nama_lengkap ?? 'Warga' }}</p>
                 </div>
             </div>
 

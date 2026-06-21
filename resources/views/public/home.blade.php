@@ -6,11 +6,11 @@
     {{-- Hero --}}
     <section class="py-10 text-center sm:py-16">
         <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-            Platform Digital Nagari
+            Platform Digital Desa
         </span>
         <h1 class="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Basamo NCH</h1>
         <p class="mx-auto mt-3 max-w-2xl text-base text-gray-500 sm:text-lg">
-            Satu platform untuk memajukan nagari — belajar digital, memasarkan UMKM,
+            Satu platform untuk memajukan desa — belajar digital, memasarkan UMKM,
             mencatat capaian SDGs, dan memantau IoT desa.
         </p>
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -28,8 +28,8 @@
     {{-- Statistik ringkas --}}
     <section class="grid grid-cols-3 gap-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
         <div>
-            <p class="text-2xl font-bold text-indigo-600 sm:text-3xl">{{ number_format($stats['nagari']) }}</p>
-            <p class="mt-1 text-xs text-gray-500 sm:text-sm">Nagari aktif</p>
+            <p class="text-2xl font-bold text-indigo-600 sm:text-3xl">{{ number_format($stats['desa']) }}</p>
+            <p class="mt-1 text-xs text-gray-500 sm:text-sm">Desa aktif</p>
         </div>
         <div class="border-x border-gray-100">
             <p class="text-2xl font-bold text-indigo-600 sm:text-3xl">{{ number_format($stats['produk']) }}</p>
@@ -48,7 +48,7 @@
             @php
                 $pilar = [
                     ['LMS', 'Belajar Digital', 'Modul, kuis, dan leaderboard literasi digital untuk warga.', 'bg-emerald-50 text-emerald-700', true],
-                    ['UMKM', 'Katalog UMKM', 'Produk pelaku usaha nagari, terhubung langsung via WhatsApp.', 'bg-indigo-50 text-indigo-700', true],
+                    ['UMKM', 'Katalog UMKM', 'Produk pelaku usaha desa, terhubung langsung via WhatsApp.', 'bg-indigo-50 text-indigo-700', true],
                     ['SDGs', 'Capaian Desa', 'Pencatatan dan visualisasi capaian pembangunan berkelanjutan.', 'bg-amber-50 text-amber-700', false],
                     ['IoT', 'Pemantauan', 'Pemantauan sensor dan infrastruktur desa secara real-time.', 'bg-sky-50 text-sky-700', false],
                 ];

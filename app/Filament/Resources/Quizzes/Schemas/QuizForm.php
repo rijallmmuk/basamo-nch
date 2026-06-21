@@ -31,9 +31,9 @@ class QuizForm
                                 }
                             });
 
-                            // nagari_admin hanya boleh membuat kuis untuk modul nagarinya.
-                            if (auth()->user()?->isNagariAdmin()) {
-                                $query->where('nagari_id', auth()->user()->nagari_id);
+                            // desa_admin hanya boleh membuat kuis untuk modul desanya.
+                            if (auth()->user()?->isDesaAdmin()) {
+                                $query->where('desa_id', auth()->user()->desa_id);
                             }
                         },
                     )
@@ -41,18 +41,18 @@ class QuizForm
                     ->preload()
                     ->required()
                     // Pertahanan server-side (modifyQueryUsing hanya membatasi opsi yang tampil):
-                    // nagari_admin tak boleh menempelkan kuis ke modul nagari lain / modul global.
+                    // desa_admin tak boleh menempelkan kuis ke modul desa lain / modul global.
                     ->rule(fn (): Closure => function (string $attribute, $value, Closure $fail) {
                         $user = auth()->user();
 
-                        if (! $user?->isNagariAdmin()) {
+                        if (! $user?->isDesaAdmin()) {
                             return;
                         }
 
                         $module = Module::find($value);
 
-                        if (! $module || $module->nagari_id !== $user->nagari_id) {
-                            $fail('Modul tidak valid untuk nagari Anda.');
+                        if (! $module || $module->desa_id !== $user->desa_id) {
+                            $fail('Modul tidak valid untuk desa Anda.');
                         }
                     })
                     ->columnSpanFull(),

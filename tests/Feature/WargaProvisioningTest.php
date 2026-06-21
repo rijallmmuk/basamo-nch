@@ -1,7 +1,7 @@
 <?php
 
 use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -9,9 +9,9 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('admin nagari membuat warga → NIK + OTP, wajib ganti sandi', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
+it('admin desa membuat warga → NIK + OTP, wajib ganti sandi', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
     $this->actingAs($admin);
 
     Livewire::test(CreateUser::class)
@@ -27,15 +27,15 @@ it('admin nagari membuat warga → NIK + OTP, wajib ganti sandi', function () {
 
     expect($warga)->not->toBeNull()
         ->and($warga->role)->toBe('warga')
-        ->and($warga->nagari_id)->toBe($nagari->id)
+        ->and($warga->desa_id)->toBe($desa->id)
         ->and($warga->must_change_password)->toBeTrue()
         ->and($warga->initial_otp)->not->toBeNull()
         ->and(Hash::check($warga->initial_otp, $warga->password))->toBeTrue();
 });
 
 it('NIK harus 16 digit', function () {
-    $nagari = Nagari::factory()->create();
-    $this->actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]));
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     Livewire::test(CreateUser::class)
         ->fillForm(['name' => 'X', 'username' => '123', 'role' => 'warga'])
@@ -44,8 +44,8 @@ it('NIK harus 16 digit', function () {
 });
 
 it('beberapa warga tanpa email bisa dibuat (email opsional)', function () {
-    $nagari = Nagari::factory()->create();
-    $this->actingAs(User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]));
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     foreach (['3201010101010001', '3201010101010002'] as $nik) {
         Livewire::test(CreateUser::class)
@@ -58,9 +58,9 @@ it('beberapa warga tanpa email bisa dibuat (email opsional)', function () {
 });
 
 it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create([
-        'nagari_id' => $nagari->id,
+        'desa_id' => $desa->id,
         'username' => '3201010101010009',
     ]);
     $otp = $warga->issueOtp();
@@ -88,7 +88,7 @@ it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
 });
 
 it('OTP awal punya masa berlaku saat diterbitkan', function () {
-    $warga = User::factory()->warga()->create(['nagari_id' => Nagari::factory()->create()->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
     $warga->issueOtp();
 
     expect($warga->otp_expires_at)->not->toBeNull()
@@ -96,9 +96,9 @@ it('OTP awal punya masa berlaku saat diterbitkan', function () {
 });
 
 it('login ditolak bila OTP awal sudah kedaluwarsa', function () {
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create([
-        'nagari_id' => $nagari->id,
+        'desa_id' => $desa->id,
         'username' => '3201010101010010',
     ]);
     $otp = $warga->issueOtp();
@@ -113,8 +113,8 @@ it('login ditolak bila OTP awal sudah kedaluwarsa', function () {
 });
 
 it('admin tidak bisa login ke portal warga', function () {
-    $admin = User::factory()->nagariAdmin()->create([
-        'nagari_id' => Nagari::factory()->create()->id,
+    $admin = User::factory()->desaAdmin()->create([
+        'desa_id' => Desa::factory()->create()->id,
         'username' => 'adminx',
     ]);
 

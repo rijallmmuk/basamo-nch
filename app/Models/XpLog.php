@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class XpLog extends Model
 {
     protected $fillable = [
-        'user_id', 'nagari_id', 'source', 'source_id', 'amount',
+        'user_id', 'desa_id', 'source', 'source_id', 'amount',
     ];
 
     public function user(): BelongsTo

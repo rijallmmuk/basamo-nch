@@ -29,7 +29,7 @@
                 <div class="p-5 sm:p-6">
                     <div class="mb-3 flex flex-wrap items-center gap-2">
                         <x-portal.status-badge :status="$status" />
-                        @unless($module->nagari_id)
+                        @unless($module->desa_id)
                             <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Modul Global</span>
                         @endunless
                         @if($module->estimated_minutes)

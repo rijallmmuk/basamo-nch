@@ -32,8 +32,8 @@ class UmkmProfilesTable
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->sortable()
                     ->visible(fn () => auth()->user()?->isSuperAdmin()),
 

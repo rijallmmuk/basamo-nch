@@ -45,7 +45,7 @@ class ModuleObserver
 
     /**
      * Kirim notifikasi ke warga terkait: modul global → semua warga,
-     * modul lokal → warga nagari tsb saja.
+     * modul lokal → warga desa tsb saja.
      */
     private function notifyWarga(Module $module): void
     {
@@ -53,8 +53,8 @@ class ModuleObserver
             ->where('role', 'warga')
             ->where('status', 'active');
 
-        if ($module->nagari_id !== null) {
-            $query->where('nagari_id', $module->nagari_id);
+        if ($module->desa_id !== null) {
+            $query->where('desa_id', $module->desa_id);
         }
 
         // Kirim bertahap (notifikasi sudah ShouldQueue): modul global bisa

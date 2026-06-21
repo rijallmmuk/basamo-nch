@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use Illuminate\Contracts\View\View;
@@ -22,9 +22,9 @@ class UmkmCatalogController extends Controller
         $products = UmkmProduct::query()
             ->where('status', 'approved')
             ->whereHas('umkmProfile', fn ($q) => $q->where('status', 'active'))
-            ->with(['umkmProfile.nagari', 'umkmProfile.category', 'media'])
+            ->with(['umkmProfile.desa', 'umkmProfile.category', 'media'])
             ->when($request->filled('q'), fn ($q) => $this->applySearch($q, trim((string) $request->input('q'))))
-            ->when($request->filled('nagari'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('nagari_id', $request->integer('nagari'))))
+            ->when($request->filled('desa'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $request->integer('desa'))))
             ->when($request->filled('kategori'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('umkm_category_id', $request->integer('kategori'))))
             ->latest('approved_at')
             ->simplePaginate(12)
@@ -32,17 +32,17 @@ class UmkmCatalogController extends Controller
 
         return view('public.umkm.index', [
             'products' => $products,
-            'nagariList' => Cache::remember(
-                'umkm.catalog.nagari_list',
+            'desaList' => Cache::remember(
+                'umkm.catalog.desa_list',
                 now()->addHour(),
-                fn () => Nagari::where('status', 'active')->orderBy('nama')->pluck('nama', 'id'),
+                fn () => Desa::where('status', 'active')->orderBy('nama')->pluck('nama', 'id'),
             ),
             'kategoriList' => Cache::remember(
                 'umkm.catalog.kategori_list',
                 now()->addHour(),
                 fn () => UmkmCategory::orderBy('sort_order')->pluck('nama', 'id'),
             ),
-            'filters' => $request->only(['q', 'nagari', 'kategori']),
+            'filters' => $request->only(['q', 'desa', 'kategori']),
         ]);
     }
 
@@ -90,7 +90,7 @@ class UmkmCatalogController extends Controller
                 ->update(['view_count' => DB::raw('view_count + 1')]);
         }
 
-        $product->load(['umkmProfile.nagari', 'umkmProfile.category', 'media']);
+        $product->load(['umkmProfile.desa', 'umkmProfile.category', 'media']);
 
         return view('public.umkm.show', ['product' => $product]);
     }

@@ -1,7 +1,7 @@
 <?php
 
 use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -12,30 +12,30 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('antrian verifikasi nagari_admin hanya menampilkan produk di nagarinya', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagariA->id]);
+it('antrian verifikasi desa_admin hanya menampilkan produk di desanya', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
 
-    $profilA = UmkmProfile::factory()->create(['nagari_id' => $nagariA->id]);
-    $profilB = UmkmProfile::factory()->create(['nagari_id' => $nagariB->id]);
-    $milikSendiri = UmkmProduct::factory()->create(['umkm_profile_id' => $profilA->id, 'nama_produk' => 'Produk Nagari A']);
-    $nagariLain = UmkmProduct::factory()->create(['umkm_profile_id' => $profilB->id, 'nama_produk' => 'Produk Nagari B']);
+    $profilA = UmkmProfile::factory()->create(['desa_id' => $desaA->id]);
+    $profilB = UmkmProfile::factory()->create(['desa_id' => $desaB->id]);
+    $milikSendiri = UmkmProduct::factory()->create(['umkm_profile_id' => $profilA->id, 'nama_produk' => 'Produk Desa A']);
+    $desaLain = UmkmProduct::factory()->create(['umkm_profile_id' => $profilB->id, 'nama_produk' => 'Produk Desa B']);
 
     $this->actingAs($admin);
 
     Livewire::test(ListUmkmProducts::class)
         ->assertCanSeeTableRecords([$milikSendiri])
-        ->assertCanNotSeeTableRecords([$nagariLain]);
+        ->assertCanNotSeeTableRecords([$desaLain]);
 });
 
 it('menyetujui produk menyetel jejak verifikasi dan memberi tahu pemilik', function () {
     Notification::fake();
 
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $owner = User::factory()->umkmOwner()->create(['nagari_id' => $nagari->id]);
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'user_id' => $owner->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->actingAs($admin);
@@ -52,9 +52,9 @@ it('menyetujui produk menyetel jejak verifikasi dan memberi tahu pemilik', funct
 });
 
 it('menolak produk menyimpan alasan dan mengembalikan status', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->actingAs($admin);

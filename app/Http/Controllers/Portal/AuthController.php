@@ -59,7 +59,7 @@ class AuthController extends Controller
             Auth::logout();
 
             return back()
-                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Nagari.'])
+                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Desa.'])
                 ->withInput();
         }
 
@@ -68,7 +68,7 @@ class AuthController extends Controller
             Auth::logout();
 
             return back()
-                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Nagari untuk reset OTP.'])
+                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Desa untuk reset OTP.'])
                 ->withInput();
         }
 

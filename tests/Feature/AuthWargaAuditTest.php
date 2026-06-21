@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -8,10 +8,10 @@ uses(RefreshDatabase::class);
 
 function makeWarga(array $overrides = []): User
 {
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
 
     return User::factory()->warga()->create(array_merge([
-        'nagari_id' => $nagari->id,
+        'desa_id' => $desa->id,
         'username' => '3201000000000999',
         'password' => 'rahasia-warga',
         'must_change_password' => false,

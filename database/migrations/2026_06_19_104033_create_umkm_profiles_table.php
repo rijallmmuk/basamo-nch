@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('umkm_profiles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('nagari_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('desa_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete(); // 1 warga = 1 lapak
             $table->foreignId('umkm_category_id')->nullable()->constrained('umkm_categories')->nullOnDelete();
             $table->string('nama_usaha');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('nagari_id');
+            $table->index('desa_id');
             $table->index('status');
         });
     }

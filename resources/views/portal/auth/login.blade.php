@@ -82,9 +82,9 @@
             </form>
         </div>
 
-        {{-- Akun warga dibuat oleh Admin Nagari --}}
+        {{-- Akun warga dibuat oleh Admin Desa --}}
         <p class="mt-5 text-center text-xs text-gray-400">
-            Akun dibuat oleh Admin Nagari. Hubungi admin nagari Anda untuk mendapatkan NIK & kode OTP.
+            Akun dibuat oleh Admin Desa. Hubungi admin desa Anda untuk mendapatkan NIK & kode OTP.
         </p>
     </div>
 

@@ -24,8 +24,8 @@ it('super_admin dapat mengelola kategori UMKM', function () {
         ->and($cat->slug)->toBe('otomotif');
 });
 
-it('nagari_admin tidak dapat mengelola kategori UMKM (global)', function () {
-    $admin = User::factory()->nagariAdmin()->create();
+it('desa_admin tidak dapat mengelola kategori UMKM (global)', function () {
+    $admin = User::factory()->desaAdmin()->create();
 
     expect(Gate::forUser($admin)->check('viewAny', UmkmCategory::class))->toBeFalse();
 });

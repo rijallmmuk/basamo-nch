@@ -10,7 +10,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Taksonomi UMKM bersifat global → hanya super_admin (via Gate::before) yang
- * boleh mengelola. nagari_admin tidak. Semua metode false untuk non-super_admin.
+ * boleh mengelola. desa_admin tidak. Semua metode false untuk non-super_admin.
  */
 class UmkmCategoryPolicy
 {

@@ -64,7 +64,7 @@
             $stats = [
                 ['label' => 'Modul Selesai', 'value' => $completedCount, 'icon' => 'heroicon-s-check-badge', 'bg' => 'bg-emerald-100', 'fg' => 'text-emerald-600'],
                 ['label' => 'XP Terkumpul', 'value' => number_format($user->total_xp), 'icon' => 'heroicon-s-sparkles', 'bg' => 'bg-amber-100', 'fg' => 'text-amber-600'],
-                ['label' => 'Peringkat Nagari', 'value' => '#'.$myRank, 'sub' => 'dari '.$totalWarga.' warga', 'icon' => 'heroicon-s-trophy', 'bg' => 'bg-indigo-100', 'fg' => 'text-indigo-600'],
+                ['label' => 'Peringkat Desa', 'value' => '#'.$myRank, 'sub' => 'dari '.$totalWarga.' warga', 'icon' => 'heroicon-s-trophy', 'bg' => 'bg-indigo-100', 'fg' => 'text-indigo-600'],
             ];
         @endphp
         @foreach($stats as $s)
@@ -152,7 +152,7 @@
             </x-portal.card>
         </div>
 
-        {{-- Peringkat XP Nagari --}}
+        {{-- Peringkat XP Desa --}}
         <div class="lg:col-span-2">
             <x-portal.card :padded="false">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">

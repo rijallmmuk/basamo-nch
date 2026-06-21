@@ -23,13 +23,13 @@ class UsersTable
 {
     private const ROLE_LABELS = [
         'super_admin' => 'Super Admin',
-        'nagari_admin' => 'Admin Nagari',
+        'desa_admin' => 'Admin Desa',
         'warga' => 'Warga',
     ];
 
     private const ROLE_COLORS = [
         'super_admin' => 'danger',
-        'nagari_admin' => 'warning',
+        'desa_admin' => 'warning',
         'warga' => 'info',
     ];
 
@@ -77,8 +77,8 @@ class UsersTable
                     ->icon('heroicon-o-building-storefront')
                     ->toggleable(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->default('Global')
                     ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->badge()
@@ -114,9 +114,9 @@ class UsersTable
                     ->label('Peran')
                     ->options(self::ROLE_LABELS),
 
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->searchable()
                     ->preload(),
 

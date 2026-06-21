@@ -1,8 +1,8 @@
 <?php
 
 use App\Livewire\QuizPlayer;
+use App\Models\Desa;
 use App\Models\Module;
-use App\Models\Nagari;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
@@ -43,8 +43,8 @@ function makeSingleQuestionQuiz(array $options, int $passingScore = 50): QuizQue
 }
 
 beforeEach(function () {
-    $nagari = Nagari::factory()->create();
-    $this->warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $this->warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $this->actingAs($this->warga);
 });
 

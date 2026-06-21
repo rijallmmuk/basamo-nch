@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Nagaris\Schemas;
+namespace App\Filament\Resources\Desas\Schemas;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -10,7 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
-class NagariForm
+class DesaForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -21,12 +21,12 @@ class NagariForm
                     ->schema([
                         Select::make('jenis')
                             ->label('Penyebutan wilayah')
-                            ->options(Nagari::jenisOptions())
+                            ->options(Desa::jenisOptions())
                             ->required()
                             ->searchable()
                             ->native(false)
                             ->default('Desa')
-                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
+                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Desa.'),
 
                         TextInput::make('nama')
                             ->label('Nama')
@@ -38,17 +38,17 @@ class NagariForm
                             ->label('Kode')
                             ->required()
                             ->maxLength(50)
-                            ->unique(Nagari::class, 'kode', ignoreRecord: true)
+                            ->unique(Desa::class, 'kode', ignoreRecord: true)
                             ->placeholder('NCH-001')
                             ->helperText('Kode unik, mis. NCH-001 atau kode wilayah resmi.')
                             ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
 
                         Select::make('wilayah_label')
                             ->label('Sebutan sub-unit (opsional)')
-                            ->options(Nagari::subUnitOptions())
+                            ->options(Desa::subUnitOptions())
                             ->searchable()
                             ->native(false)
-                            ->helperText('Boleh dikosongkan — admin nagari dapat mengaturnya sendiri.'),
+                            ->helperText('Boleh dikosongkan — admin desa dapat mengaturnya sendiri.'),
                     ]),
 
                 Section::make('Wilayah')
@@ -75,7 +75,7 @@ class NagariForm
                     ->columns(2)
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('logo')
-                            ->label('Logo nagari')
+                            ->label('Logo desa')
                             ->collection('logo')
                             ->image()
                             ->maxSize(2048)
@@ -86,7 +86,7 @@ class NagariForm
                             ->collection('logo_kabupaten')
                             ->image()
                             ->maxSize(2048)
-                            ->helperText('Logo kabupaten/kota induk nagari ini.'),
+                            ->helperText('Logo kabupaten/kota induk desa ini.'),
                     ]),
 
                 Section::make('Kontak & Status')

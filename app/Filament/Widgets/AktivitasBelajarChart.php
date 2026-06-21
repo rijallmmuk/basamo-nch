@@ -22,7 +22,7 @@ class AktivitasBelajarChart extends ApexChartWidget
     protected function getOptions(): array
     {
         $user = auth()->user();
-        $nagariId = $user?->isNagariAdmin() ? $user->nagari_id : null;
+        $desaId = $user?->isDesaAdmin() ? $user->desa_id : null;
 
         $since = now()->subDays(29)->startOfDay();
 
@@ -35,9 +35,9 @@ class AktivitasBelajarChart extends ApexChartWidget
                 ->where('user_module_progress.status', 'completed')
                 ->whereNotNull('completed_at')
                 ->where('completed_at', '>=', $since)
-                ->when($nagariId, fn ($q) => $q
+                ->when($desaId, fn ($q) => $q
                     ->join('users', 'users.id', '=', 'user_module_progress.user_id')
-                    ->where('users.nagari_id', $nagariId)),
+                    ->where('users.desa_id', $desaId)),
             'completed_at',
             $buckets,
         );
@@ -47,9 +47,9 @@ class AktivitasBelajarChart extends ApexChartWidget
                 ->where('quiz_attempts.status', 'passed')
                 ->whereNotNull('submitted_at')
                 ->where('submitted_at', '>=', $since)
-                ->when($nagariId, fn ($q) => $q
+                ->when($desaId, fn ($q) => $q
                     ->join('users', 'users.id', '=', 'quiz_attempts.user_id')
-                    ->where('users.nagari_id', $nagariId)),
+                    ->where('users.desa_id', $desaId)),
             'submitted_at',
             $buckets,
         );

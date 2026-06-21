@@ -23,8 +23,8 @@ class WilayahsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->badge()
                     ->color('info')
                     ->sortable()
@@ -42,9 +42,9 @@ class WilayahsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->searchable()
                     ->preload()
                     ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),

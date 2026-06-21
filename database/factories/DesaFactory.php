@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<Nagari>
+ * @extends Factory<Desa>
  */
-class NagariFactory extends Factory
+class DesaFactory extends Factory
 {
-    protected $model = Nagari::class;
+    protected $model = Desa::class;
 
     /**
      * @return array<string, mixed>

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\User;
 use App\Models\Wilayah;
 use Closure;
@@ -60,16 +60,16 @@ class UserForm
                             ->placeholder('— Pilih —')
                             ->helperText('Opsional. Atur daftarnya di menu Wilayah.')
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
-                            // Pertahanan server-side: wilayah harus milik nagari warga.
+                            // Pertahanan server-side: wilayah harus milik desa warga.
                             ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                 if (! $value) {
                                     return;
                                 }
 
-                                $nagariId = static::resolveNagariId($get);
+                                $desaId = static::resolveDesaId($get);
 
-                                if (! Wilayah::whereKey($value)->where('nagari_id', $nagariId)->exists()) {
-                                    $fail('Wilayah tidak sesuai dengan nagari.');
+                                if (! Wilayah::whereKey($value)->where('desa_id', $desaId)->exists()) {
+                                    $fail('Wilayah tidak sesuai dengan desa.');
                                 }
                             })
                             ->columnSpanFull(),
@@ -92,17 +92,17 @@ class UserForm
                             ->required()
                             ->native(false),
 
-                        // super_admin tidak terikat nagari (global). Field hanya untuk super_admin
-                        // yang mengelola peran selain super_admin; untuk nagari_admin, nagari
+                        // super_admin tidak terikat desa (global). Field hanya untuk super_admin
+                        // yang mengelola peran selain super_admin; untuk desa_admin, desa
                         // dipaksa ke miliknya sendiri di halaman Create (tidak tampil di form).
-                        Select::make('nagari_id')
-                            ->label('Nagari')
-                            ->relationship('nagari', 'nama')
+                        Select::make('desa_id')
+                            ->label('Desa')
+                            ->relationship('desa', 'nama')
                             ->searchable()
                             ->preload()
                             ->live()
                             ->afterStateUpdated(fn (Get $get, callable $set) => $set('wilayah_id', null))
-                            ->placeholder('— Pilih nagari —')
+                            ->placeholder('— Pilih desa —')
                             ->visible(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
                             ->required(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
                             ->columnSpanFull(),
@@ -144,43 +144,43 @@ class UserForm
         return $get('role') === 'warga';
     }
 
-    /** Nagari konteks: nagari_admin → miliknya; super_admin → pilihan di form. */
-    protected static function resolveNagariId(Get $get): ?int
+    /** Desa konteks: desa_admin → miliknya; super_admin → pilihan di form. */
+    protected static function resolveDesaId(Get $get): ?int
     {
         $actor = auth()->user();
 
-        return $actor?->isNagariAdmin()
-            ? $actor->nagari_id
-            : ($get('nagari_id') ? (int) $get('nagari_id') : null);
+        return $actor?->isDesaAdmin()
+            ? $actor->desa_id
+            : ($get('desa_id') ? (int) $get('desa_id') : null);
     }
 
-    /** Daftar wilayah untuk nagari konteks (untuk Select alamat warga). */
+    /** Daftar wilayah untuk desa konteks (untuk Select alamat warga). */
     protected static function wilayahOptions(Get $get): array
     {
-        $nagariId = static::resolveNagariId($get);
+        $desaId = static::resolveDesaId($get);
 
-        if (! $nagariId) {
+        if (! $desaId) {
             return [];
         }
 
-        return Wilayah::where('nagari_id', $nagariId)
+        return Wilayah::where('desa_id', $desaId)
             ->orderBy('nama')
             ->pluck('nama', 'id')
             ->all();
     }
 
-    /** Label field mengikuti sebutan wilayah nagari (Jorong/Dusun/…). */
+    /** Label field mengikuti sebutan wilayah desa (Jorong/Dusun/…). */
     protected static function wilayahLabel(Get $get): string
     {
-        $nagariId = static::resolveNagariId($get);
+        $desaId = static::resolveDesaId($get);
 
-        return $nagariId
-            ? (Nagari::find($nagariId)?->wilayah_label ?: 'Sub-Unit Wilayah')
+        return $desaId
+            ? (Desa::find($desaId)?->wilayah_label ?: 'Sub-Unit Wilayah')
             : 'Sub-Unit Wilayah';
     }
 
     /**
-     * super_admin boleh menetapkan semua peran; nagari_admin hanya boleh
+     * super_admin boleh menetapkan semua peran; desa_admin hanya boleh
      * membuat akun warga (tidak boleh membuat admin). Akses UMKM diberikan
      * terpisah lewat aksi tabel, bukan saat memilih peran.
      *
@@ -188,7 +188,7 @@ class UserForm
      */
     protected static function roleOptions(): array
     {
-        if (auth()->user()?->isNagariAdmin()) {
+        if (auth()->user()?->isDesaAdmin()) {
             return [
                 'warga' => 'Warga',
             ];
@@ -196,7 +196,7 @@ class UserForm
 
         return [
             'super_admin' => 'Super Admin',
-            'nagari_admin' => 'Admin Nagari',
+            'desa_admin' => 'Admin Desa',
             'warga' => 'Warga',
         ];
     }

@@ -11,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Nagari extends Model implements HasMedia
+class Desa extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
@@ -27,7 +27,7 @@ class Nagari extends Model implements HasMedia
      * @var list<string>
      */
     public const JENIS = [
-        'Desa', 'Kelurahan', 'Nagari', 'Gampong', 'Kampung', 'Kalurahan',
+        'Desa', 'Kelurahan', 'Desa', 'Gampong', 'Kampung', 'Kalurahan',
         'Lembang', 'Pekon', 'Tiyuh', 'Negeri', 'Nagori', 'Huta',
     ];
 
@@ -53,13 +53,13 @@ class Nagari extends Model implements HasMedia
         return array_combine(self::SUB_UNIT, self::SUB_UNIT);
     }
 
-    /** Nama lengkap dengan penyebutan administratif, mis. "Nagari Koto Tuo". */
+    /** Nama lengkap dengan penyebutan administratif, mis. "Desa Koto Tuo". */
     public function getNamaLengkapAttribute(): string
     {
         return trim(($this->jenis ? $this->jenis.' ' : '').$this->nama);
     }
 
-    /** Sebutan sub-unit nagari ini; fallback umum bila belum diatur admin nagari. */
+    /** Sebutan sub-unit desa ini; fallback umum bila belum diatur admin desa. */
     public function subUnitLabel(): string
     {
         return $this->wilayah_label ?: 'Sub-Unit Wilayah';
@@ -71,10 +71,10 @@ class Nagari extends Model implements HasMedia
             ->logOnly(['nama', 'jenis', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('nagari');
+            ->useLogName('desa');
     }
 
-    /** Logo nagari (opsional) + logo kabupaten/kota induk. */
+    /** Logo desa (opsional) + logo kabupaten/kota induk. */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')->singleFile()

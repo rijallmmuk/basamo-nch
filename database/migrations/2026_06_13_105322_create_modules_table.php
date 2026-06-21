@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('nagari_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('desa_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('nagari_id');
+            $table->index('desa_id');
             $table->index('status');
             $table->index('sort_order');
         });

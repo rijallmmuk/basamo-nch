@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -13,10 +13,10 @@ uses(RefreshDatabase::class);
 
 function umkmOwnerUser(): User
 {
-    $nagari = Nagari::factory()->create();
+    $desa = Desa::factory()->create();
 
     return User::factory()->umkmOwner()->create([
-        'nagari_id' => $nagari->id,
+        'desa_id' => $desa->id,
         'must_change_password' => false,
     ]);
 }
@@ -29,15 +29,15 @@ it('umkm_owner bisa membuka menu Produk Saya', function () {
 });
 
 it('warga biasa tidak bisa membuka menu UMKM', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'must_change_password' => false]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
 
     $this->actingAs($warga)
         ->get(route('portal.umkm.index'))
         ->assertRedirect(route('portal.home'));
 });
 
-it('pemilik membuat profil usaha (nagari ikut pemilik)', function () {
+it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
     $owner = umkmOwnerUser();
 
     $this->actingAs($owner)
@@ -50,13 +50,13 @@ it('pemilik membuat profil usaha (nagari ikut pemilik)', function () {
 
     $profile = $owner->fresh()->umkmProfile;
     expect($profile->nama_usaha)->toBe('Keripik Sanjai')
-        ->and($profile->nagari_id)->toBe($owner->nagari_id);
+        ->and($profile->desa_id)->toBe($owner->desa_id);
 });
 
 it('pemilik menambah produk berstatus pending dengan foto', function () {
     Storage::fake('public');
     $owner = umkmOwnerUser();
-    UmkmProfile::factory()->create(['nagari_id' => $owner->nagari_id, 'user_id' => $owner->id]);
+    UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
 
     $this->actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
@@ -74,7 +74,7 @@ it('pemilik menambah produk berstatus pending dengan foto', function () {
 it('membatasi foto produk maksimal 5', function () {
     Storage::fake('public');
     $owner = umkmOwnerUser();
-    UmkmProfile::factory()->create(['nagari_id' => $owner->nagari_id, 'user_id' => $owner->id]);
+    UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
 
     $photos = collect(range(1, 6))->map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg"))->all();
 
@@ -88,7 +88,7 @@ it('membatasi foto produk maksimal 5', function () {
 
 it('mengubah produk mengembalikan status ke pending', function () {
     $owner = umkmOwnerUser();
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $owner->nagari_id, 'user_id' => $owner->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id]);
 
     $this->actingAs($owner)
@@ -106,7 +106,7 @@ it('mengubah produk mengembalikan status ke pending', function () {
 it('pemilik tidak bisa mengubah produk milik orang lain', function () {
     $owner = umkmOwnerUser();
     $lain = umkmOwnerUser();
-    $profileLain = UmkmProfile::factory()->create(['nagari_id' => $lain->nagari_id, 'user_id' => $lain->id]);
+    $profileLain = UmkmProfile::factory()->create(['desa_id' => $lain->desa_id, 'user_id' => $lain->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profileLain->id]);
 
     $this->actingAs($owner)
@@ -116,7 +116,7 @@ it('pemilik tidak bisa mengubah produk milik orang lain', function () {
 
 it('pemilik menghapus produknya sendiri', function () {
     $owner = umkmOwnerUser();
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $owner->nagari_id, 'user_id' => $owner->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id]);
 
     $this->actingAs($owner)

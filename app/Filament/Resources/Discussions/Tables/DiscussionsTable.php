@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Discussions\Tables;
 
+use App\Models\Desa;
 use App\Models\Discussion;
-use App\Models\Nagari;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -44,14 +44,14 @@ class DiscussionsTable
             TrashedFilter::make(),
         ];
 
-        // Filter nagari hanya untuk super_admin (nagari_admin sudah ter-scope).
+        // Filter desa hanya untuk super_admin (desa_admin sudah ter-scope).
         if ($isSuperAdmin) {
             array_splice($filters, 2, 0, [
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->options(fn () => Nagari::orderBy('nama')->pluck('nama', 'id'))
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->options(fn () => Desa::orderBy('nama')->pluck('nama', 'id'))
                     ->query(fn ($query, array $data) => filled($data['value'] ?? null)
-                        ? $query->whereHas('user', fn ($q) => $q->where('nagari_id', $data['value']))
+                        ? $query->whereHas('user', fn ($q) => $q->where('desa_id', $data['value']))
                         : $query),
             ]);
         }
@@ -74,8 +74,8 @@ class DiscussionsTable
                     ->label('Penulis')
                     ->searchable(),
 
-                TextColumn::make('user.nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('user.desa.nama')
+                    ->label('Desa')
                     ->badge()
                     ->color('gray')
                     ->visible($isSuperAdmin),

@@ -8,20 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Unit wilayah dalam nagari (1 tingkat). Sebutannya (Jorong/Dusun/Korong/…)
-        // diatur per nagari via nagaris.wilayah_label.
+        // Unit wilayah dalam desa (1 tingkat). Sebutannya (Jorong/Dusun/Korong/…)
+        // diatur per desa via desas.wilayah_label.
         Schema::create('wilayahs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('nagari_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('desa_id')->constrained()->cascadeOnDelete();
             $table->string('nama');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('nagari_id');
-            $table->unique(['nagari_id', 'nama']); // nama unik dalam satu nagari
+            $table->index('desa_id');
+            $table->unique(['desa_id', 'nama']); // nama unik dalam satu desa
         });
 
-        // Alamat warga: unit wilayah dalam nagarinya (opsional).
+        // Alamat warga: unit wilayah dalam desanya (opsional).
         Schema::table('users', function (Blueprint $table) {
             $table->foreign('wilayah_id')->references('id')->on('wilayahs')->nullOnDelete();
         });

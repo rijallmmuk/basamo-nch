@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Nagaris;
+namespace App\Filament\Resources\Desas;
 
-use App\Filament\Resources\Nagaris\Pages\CreateNagari;
-use App\Filament\Resources\Nagaris\Pages\EditNagari;
-use App\Filament\Resources\Nagaris\Pages\ListNagaris;
-use App\Filament\Resources\Nagaris\Schemas\NagariForm;
-use App\Filament\Resources\Nagaris\Tables\NagarisTable;
-use App\Models\Nagari;
+use App\Filament\Resources\Desas\Pages\CreateDesa;
+use App\Filament\Resources\Desas\Pages\EditDesa;
+use App\Filament\Resources\Desas\Pages\ListDesas;
+use App\Filament\Resources\Desas\Schemas\DesaForm;
+use App\Filament\Resources\Desas\Tables\DesasTable;
+use App\Models\Desa;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -18,9 +18,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class NagariResource extends Resource
+class DesaResource extends Resource
 {
-    protected static ?string $model = Nagari::class;
+    protected static ?string $model = Desa::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
@@ -33,22 +33,22 @@ class NagariResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Nagari';
+        return 'Desa';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Nagari';
+        return 'Desa';
     }
 
     public static function form(Schema $schema): Schema
     {
-        return NagariForm::configure($schema);
+        return DesaForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return NagarisTable::configure($table);
+        return DesasTable::configure($table);
     }
 
     public static function getEloquentQuery(): Builder
@@ -65,11 +65,11 @@ class NagariResource extends Resource
     }
 
     /**
-     * Cegah orphan: nagari yang masih memiliki pengguna/modul tidak boleh dihapus.
+     * Cegah orphan: desa yang masih memiliki pengguna/modul tidak boleh dihapus.
      * `$includeTrashed` dipakai untuk force delete (hard) yang akan men-null-kan FK
      * bahkan untuk pengguna/modul yang sudah di-soft-delete.
      */
-    public static function guardAgainstDependents(Nagari $record, Action $action, bool $includeTrashed = false): void
+    public static function guardAgainstDependents(Desa $record, Action $action, bool $includeTrashed = false): void
     {
         $users = $record->users();
         $modules = $record->modules();
@@ -81,8 +81,8 @@ class NagariResource extends Resource
 
         if ($users->exists() || $modules->exists()) {
             Notification::make()
-                ->title('Nagari tidak bisa dihapus')
-                ->body('Masih ada pengguna atau modul yang terhubung. Pindahkan atau hapus terlebih dahulu, atau ubah status nagari menjadi Nonaktif.')
+                ->title('Desa tidak bisa dihapus')
+                ->body('Masih ada pengguna atau modul yang terhubung. Pindahkan atau hapus terlebih dahulu, atau ubah status desa menjadi Nonaktif.')
                 ->danger()
                 ->send();
 
@@ -98,9 +98,9 @@ class NagariResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListNagaris::route('/'),
-            'create' => CreateNagari::route('/create'),
-            'edit' => EditNagari::route('/{record}/edit'),
+            'index' => ListDesas::route('/'),
+            'create' => CreateDesa::route('/create'),
+            'edit' => EditDesa::route('/{record}/edit'),
         ];
     }
 }

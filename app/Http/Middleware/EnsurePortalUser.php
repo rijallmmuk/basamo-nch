@@ -31,7 +31,7 @@ class EnsurePortalUser
             auth()->logout();
 
             return redirect()->route('portal.login')
-                ->with('error', 'Akun Anda nonaktif. Hubungi Admin Nagari.');
+                ->with('error', 'Akun Anda nonaktif. Hubungi Admin Desa.');
         }
 
         // Login pertama dengan OTP: wajib ganti sandi sebelum mengakses portal.

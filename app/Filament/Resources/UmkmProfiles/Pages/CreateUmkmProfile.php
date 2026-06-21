@@ -11,14 +11,14 @@ class CreateUmkmProfile extends CreateRecord
     protected static string $resource = UmkmProfileResource::class;
 
     /**
-     * Nagari mengikuti nagari pemilik — tidak diisi manual.
+     * Desa mengikuti desa pemilik — tidak diisi manual.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['nagari_id'] = User::whereKey($data['user_id'])->value('nagari_id');
+        $data['desa_id'] = User::whereKey($data['user_id'])->value('desa_id');
 
         return $data;
     }

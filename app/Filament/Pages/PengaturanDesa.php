@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -14,22 +14,22 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * Self-service admin nagari atas detail lokal desanya sendiri: sebutan sub-unit,
+ * Self-service admin desa atas detail lokal desanya sendiri: sebutan sub-unit,
  * logo desa, kontak, koordinat. Identitas & atribut resmi (nama/jenis/wilayah
- * induk/logo kabupaten) tetap ranah super_admin via NagariResource.
+ * induk/logo kabupaten) tetap ranah super_admin via DesaResource.
  */
-class PengaturanNagari extends Page
+class PengaturanDesa extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static ?int $navigationSort = 90;
 
-    protected string $view = 'filament.pages.pengaturan-nagari';
+    protected string $view = 'filament.pages.pengaturan-desa';
 
     /** @var array<string, mixed>|null */
     public ?array $data = [];
 
-    public ?Nagari $nagari = null;
+    public ?Desa $desa = null;
 
     public static function getNavigationGroup(): ?string
     {
@@ -38,28 +38,28 @@ class PengaturanNagari extends Page
 
     public static function getNavigationLabel(): string
     {
-        return 'Pengaturan Nagari';
+        return 'Pengaturan Desa';
     }
 
     public function getTitle(): string
     {
-        return 'Pengaturan '.($this->nagari?->nama_lengkap ?? 'Nagari');
+        return 'Pengaturan '.($this->desa?->nama_lengkap ?? 'Desa');
     }
 
-    /** Hanya admin nagari; super_admin mengelola via NagariResource. */
+    /** Hanya admin desa; super_admin mengelola via DesaResource. */
     public static function canAccess(): bool
     {
-        return auth()->user()?->isNagariAdmin() ?? false;
+        return auth()->user()?->isDesaAdmin() ?? false;
     }
 
     public function mount(): void
     {
         abort_unless(static::canAccess(), 403);
 
-        $this->nagari = auth()->user()->nagari;
-        abort_unless($this->nagari, 403);
+        $this->desa = auth()->user()->desa;
+        abort_unless($this->desa, 403);
 
-        $this->form->fill($this->nagari->attributesToArray());
+        $this->form->fill($this->desa->attributesToArray());
     }
 
     public function form(Schema $schema): Schema
@@ -71,13 +71,13 @@ class PengaturanNagari extends Page
                     ->schema([
                         Select::make('wilayah_label')
                             ->label('Sebutan sub-unit')
-                            ->options(Nagari::subUnitOptions())
+                            ->options(Desa::subUnitOptions())
                             ->searchable()
                             ->native(false)
                             ->helperText('Sebutan bagian dalam desa ini — mis. Jorong / Dusun / Lingkungan. Dipakai di seluruh aplikasi.'),
 
                         SpatieMediaLibraryFileUpload::make('logo')
-                            ->label('Logo '.($this->nagari?->jenis ?? 'desa'))
+                            ->label('Logo '.($this->desa?->jenis ?? 'desa'))
                             ->collection('logo')
                             ->image()
                             ->maxSize(2048)
@@ -106,18 +106,18 @@ class PengaturanNagari extends Page
                     ]),
             ])
             ->statePath('data')
-            ->model($this->nagari);
+            ->model($this->desa);
     }
 
     public function save(): void
     {
         $data = $this->form->getState();
 
-        $this->nagari->update($data);
-        $this->form->model($this->nagari)->saveRelationships();
+        $this->desa->update($data);
+        $this->form->model($this->desa)->saveRelationships();
 
         Notification::make()
-            ->title('Pengaturan nagari tersimpan.')
+            ->title('Pengaturan desa tersimpan.')
             ->success()
             ->send();
     }

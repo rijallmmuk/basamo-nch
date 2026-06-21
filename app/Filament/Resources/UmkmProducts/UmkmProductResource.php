@@ -12,8 +12,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Antrian verifikasi produk lintas usaha (global). nagari_admin hanya melihat
- * produk di nagarinya; super_admin melihat semua. Hanya daftar + aksi
+ * Antrian verifikasi produk lintas usaha (global). desa_admin hanya melihat
+ * produk di desanya; super_admin melihat semua. Hanya daftar + aksi
  * setujui/tolak — produk dibuat pemilik di portal.
  */
 class UmkmProductResource extends Resource
@@ -60,17 +60,17 @@ class UmkmProductResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return static::scopeToActor(
-            parent::getEloquentQuery()->with(['umkmProfile.nagari', 'umkmProfile.owner'])
+            parent::getEloquentQuery()->with(['umkmProfile.desa', 'umkmProfile.owner'])
         );
     }
 
-    /** nagari_admin hanya produk di nagarinya; super_admin melihat semua. */
+    /** desa_admin hanya produk di desanya; super_admin melihat semua. */
     protected static function scopeToActor(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->whereHas('umkmProfile', fn (Builder $q) => $q->where('nagari_id', $user->nagari_id));
+        if ($user?->isDesaAdmin()) {
+            $query->whereHas('umkmProfile', fn (Builder $q) => $q->where('desa_id', $user->desa_id));
         }
 
         return $query;

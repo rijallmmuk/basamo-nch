@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -16,24 +16,24 @@ class PlatformStatsWidget extends StatsOverviewWidget
     protected function getStats(): array
     {
         $user = auth()->user();
-        $nagariId = $user?->isNagariAdmin() ? $user->nagari_id : null;
+        $desaId = $user?->isDesaAdmin() ? $user->desa_id : null;
 
         $wargaQuery = User::where('role', 'warga')
-            ->when($nagariId, fn ($q) => $q->where('nagari_id', $nagariId));
+            ->when($desaId, fn ($q) => $q->where('desa_id', $desaId));
 
         $umkmQuery = UmkmProfile::query()
-            ->when($nagariId, fn ($q) => $q->where('nagari_id', $nagariId));
+            ->when($desaId, fn ($q) => $q->where('desa_id', $desaId));
 
         $pendingProducts = UmkmProduct::where('status', 'pending')
-            ->when($nagariId, fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('nagari_id', $nagariId)))
+            ->when($desaId, fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $desaId)))
             ->count();
 
         $stats = [];
 
-        // Total nagari hanya relevan untuk super_admin (lihat semua).
-        if (! $nagariId) {
-            $stats[] = Stat::make('Nagari', Nagari::count())
-                ->description('Total nagari terdaftar')
+        // Total desa hanya relevan untuk super_admin (lihat semua).
+        if (! $desaId) {
+            $stats[] = Stat::make('Desa', Desa::count())
+                ->description('Total desa terdaftar')
                 ->descriptionIcon('heroicon-m-map-pin')
                 ->color('primary');
         }

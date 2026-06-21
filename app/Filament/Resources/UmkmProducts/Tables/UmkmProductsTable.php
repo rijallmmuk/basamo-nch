@@ -25,8 +25,8 @@ class UmkmProductsTable
                     ->label('Usaha')
                     ->searchable(),
 
-                TextColumn::make('umkmProfile.nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('umkmProfile.desa.nama')
+                    ->label('Desa')
                     ->visible(fn () => auth()->user()?->isSuperAdmin()),
 
                 TextColumn::make('harga')

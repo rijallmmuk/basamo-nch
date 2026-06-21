@@ -9,7 +9,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * super_admin dilewatkan via Gate::before (akses penuh).
- * Policy ini mengatur nagari_admin: hanya kelola warga di nagarinya.
+ * Policy ini mengatur desa_admin: hanya kelola warga di desanya.
  */
 class UserPolicy
 {
@@ -22,39 +22,39 @@ class UserPolicy
 
     public function viewAny(User $actor): bool
     {
-        return $actor->isNagariAdmin();
+        return $actor->isDesaAdmin();
     }
 
     public function view(User $actor, User $target): bool
     {
-        return $this->managesInNagari($actor, $target);
+        return $this->managesInDesa($actor, $target);
     }
 
     public function create(User $actor): bool
     {
-        return $actor->isNagariAdmin();
+        return $actor->isDesaAdmin();
     }
 
     public function update(User $actor, User $target): bool
     {
-        return $this->managesInNagari($actor, $target);
+        return $this->managesInDesa($actor, $target);
     }
 
     public function delete(User $actor, User $target): bool
     {
         return $actor->getKey() !== $target->getKey()
-            && $this->managesInNagari($actor, $target);
+            && $this->managesInDesa($actor, $target);
     }
 
     public function restore(User $actor, User $target): bool
     {
-        return $this->managesInNagari($actor, $target);
+        return $this->managesInDesa($actor, $target);
     }
 
     public function forceDelete(User $actor, User $target): bool
     {
         return $actor->getKey() !== $target->getKey()
-            && $this->managesInNagari($actor, $target);
+            && $this->managesInDesa($actor, $target);
     }
 
     public function deleteAny(User $actor): bool
@@ -73,13 +73,13 @@ class UserPolicy
     }
 
     /**
-     * nagari_admin hanya boleh mengelola warga di nagarinya sendiri.
+     * desa_admin hanya boleh mengelola warga di desanya sendiri.
      */
-    private function managesInNagari(User $actor, User $target): bool
+    private function managesInDesa(User $actor, User $target): bool
     {
-        return $actor->isNagariAdmin()
-            && $actor->nagari_id !== null
-            && $target->nagari_id === $actor->nagari_id
+        return $actor->isDesaAdmin()
+            && $actor->desa_id !== null
+            && $target->desa_id === $actor->desa_id
             && in_array($target->role, self::MANAGEABLE_ROLES, true);
     }
 }

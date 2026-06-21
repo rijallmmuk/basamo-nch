@@ -19,8 +19,8 @@ class ModuleController extends Controller
 
         $modules = Module::where('status', 'published')
             ->where(function ($q) use ($user) {
-                $q->whereNull('nagari_id')
-                    ->orWhere('nagari_id', $user->nagari_id);
+                $q->whereNull('desa_id')
+                    ->orWhere('desa_id', $user->desa_id);
             })
             ->with([
                 'progress' => fn ($q) => $q->where('user_id', $user->id),
@@ -48,9 +48,9 @@ class ModuleController extends Controller
     {
         $user = auth()->user();
 
-        // Pastikan modul published dan milik nagari user (atau global)
+        // Pastikan modul published dan milik desa user (atau global)
         if ($module->status !== 'published' ||
-            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+            ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }
 

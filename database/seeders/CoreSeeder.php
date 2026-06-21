@@ -15,7 +15,7 @@ class CoreSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['super_admin', 'nagari_admin', 'warga'] as $role) {
+        foreach (['super_admin', 'desa_admin', 'warga'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 

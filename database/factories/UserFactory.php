@@ -50,9 +50,9 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => ['role' => 'super_admin', 'status' => 'active']);
     }
 
-    public function nagariAdmin(): static
+    public function desaAdmin(): static
     {
-        return $this->state(fn (array $attributes) => ['role' => 'nagari_admin', 'status' => 'active']);
+        return $this->state(fn (array $attributes) => ['role' => 'desa_admin', 'status' => 'active']);
     }
 
     public function warga(): static

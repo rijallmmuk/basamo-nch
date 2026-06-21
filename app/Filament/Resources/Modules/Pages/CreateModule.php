@@ -10,14 +10,14 @@ class CreateModule extends CreateRecord
     protected static string $resource = ModuleResource::class;
 
     /**
-     * nagari_admin tidak melihat field nagari — paksa ke nagarinya sendiri.
+     * desa_admin tidak melihat field desa — paksa ke desanya sendiri.
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $user = auth()->user();
 
-        if ($user->isNagariAdmin()) {
-            $data['nagari_id'] = $user->nagari_id;
+        if ($user->isDesaAdmin()) {
+            $data['desa_id'] = $user->desa_id;
         }
 
         return $data;

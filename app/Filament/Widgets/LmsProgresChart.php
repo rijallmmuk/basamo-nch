@@ -10,7 +10,7 @@ class LmsProgresChart extends ApexChartWidget
 {
     protected static ?string $chartId = 'lmsProgresChart';
 
-    protected static ?string $heading = 'Penyelesaian Modul per Nagari';
+    protected static ?string $heading = 'Penyelesaian Modul per Desa';
 
     protected static ?int $sort = 2;
 
@@ -21,11 +21,11 @@ class LmsProgresChart extends ApexChartWidget
         $rows = UserModuleProgress::query()
             ->where('user_module_progress.status', 'completed')
             ->join('users', 'users.id', '=', 'user_module_progress.user_id')
-            ->join('nagaris', 'nagaris.id', '=', 'users.nagari_id')
-            ->when($user?->isNagariAdmin(), fn ($q) => $q->where('users.nagari_id', $user->nagari_id))
-            ->groupBy('nagaris.id', 'nagaris.nama')
-            ->orderBy('nagaris.nama')
-            ->select('nagaris.nama', DB::raw('COUNT(*) as total'))
+            ->join('desas', 'desas.id', '=', 'users.desa_id')
+            ->when($user?->isDesaAdmin(), fn ($q) => $q->where('users.desa_id', $user->desa_id))
+            ->groupBy('desas.id', 'desas.nama')
+            ->orderBy('desas.nama')
+            ->select('desas.nama', DB::raw('COUNT(*) as total'))
             ->pluck('total', 'nama');
 
         return [

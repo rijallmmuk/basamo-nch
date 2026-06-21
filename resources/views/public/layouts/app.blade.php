@@ -19,7 +19,7 @@
     </main>
 
     <footer class="mt-12 border-t border-gray-200 py-6 text-center text-xs text-gray-400">
-        Basamo NCH — Platform Nagari
+        Basamo NCH — Platform Desa
     </footer>
 </body>
 </html>
