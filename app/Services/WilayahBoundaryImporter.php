@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
  * regex), lalu ubah kolom `path` (JSON nested `[lat,lng]`, kedalaman 2–4 tak
  * konsisten) menjadi geometri MariaDB via WKT MULTIPOLYGON + ST_GeomFromText.
  * Sekaligus hasilkan `geom_simplified` (Douglas–Peucker) untuk render peta ringan.
+ *
+ * Geometri disimpan SRID 0 (kartesian): point-in-polygon planar pada koordinat
+ * derajat sudah tepat untuk skala ini, dan menghindari bug urutan-sumbu R-tree
+ * MariaDB pada SRID 4326 (ST_Contains via spatial index bisa salah/kosong).
  */
 class WilayahBoundaryImporter
 {
@@ -395,8 +399,8 @@ class WilayahBoundaryImporter
         $bindings = [];
 
         foreach ($records as $record) {
-            $placeholders[] = '(?,?,?,?,?,?,ST_GeomFromText(?,4326),'
-                .($record['wkt_simplified'] === null ? 'NULL' : 'ST_GeomFromText(?,4326)').')';
+            $placeholders[] = '(?,?,?,?,?,?,ST_GeomFromText(?),'
+                .($record['wkt_simplified'] === null ? 'NULL' : 'ST_GeomFromText(?)').')';
 
             $bindings[] = $record['kode'];
             $bindings[] = $record['level'];

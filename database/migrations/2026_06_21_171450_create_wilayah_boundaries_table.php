@@ -23,7 +23,7 @@ return new class extends Migration
             $table->double('lat')->nullable();               // titik tengah (label/marker)
             $table->double('lng')->nullable();
 
-            $table->geometry('geom');                        // MULTIPOLYGON penuh (SRID 4326 saat insert)
+            $table->geometry('geom');                        // MULTIPOLYGON penuh (SRID 0 kartesian)
             $table->geometry('geom_simplified')->nullable(); // versi ringan untuk render
 
             $table->index('level');

@@ -3,26 +3,8 @@
 use App\Models\Desa;
 use App\Models\RefWilayah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
-
-/** Lewati uji geometri bila driver tak punya fungsi spasial (mis. SQLite). */
-function skipUnlessSpatial(): void
-{
-    if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
-        test()->markTestSkipped('Butuh MySQL/MariaDB (ST_AsGeoJSON/ST_GeomFromText).');
-    }
-}
-
-function seedBoundary(string $kode, int $level, string $nama, string $wkt, ?string $parent = null): void
-{
-    DB::insert(
-        'INSERT INTO wilayah_boundaries (kode, level, parent_kode, nama, geom, geom_simplified) '
-        .'VALUES (?,?,?,?,ST_GeomFromText(?,4326),ST_GeomFromText(?,4326))',
-        [$kode, $level, $parent, $nama, $wkt, $wkt]
-    );
-}
 
 it('halaman peta publik bisa dibuka tanpa login', function () {
     $this->get(route('public.peta'))
