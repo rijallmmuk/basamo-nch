@@ -8,6 +8,7 @@ use App\Models\Desa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -36,6 +37,13 @@ class DesasTable
                     ->color('gray')
                     ->searchable()
                     ->sortable(),
+
+                ImageColumn::make('kabupatenLogo')
+                    ->label('Logo Kab')
+                    ->getStateUsing(fn (Desa $record): ?string => $record->kabupatenLogoUrl())
+                    ->height(28)
+                    ->extraImgAttributes(['class' => 'object-contain'])
+                    ->toggleable(),
 
                 TextColumn::make('kabupaten')
                     ->label('Kabupaten/Kota')

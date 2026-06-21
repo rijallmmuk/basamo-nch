@@ -39,7 +39,12 @@
 
             <div class="mt-6 rounded-xl border border-gray-200 bg-white p-4">
                 <p class="text-sm font-semibold">{{ $profile->nama_usaha }}</p>
-                <p class="text-xs text-gray-500">{{ $profile->desa?->nama_lengkap }}@if($profile->alamat) · {{ $profile->alamat }}@endif</p>
+                <div class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+                    @if($profile->desa?->kabupatenLogoUrl())
+                        <img src="{{ $profile->desa->kabupatenLogoUrl() }}" alt="Logo kabupaten" class="h-4 w-4 shrink-0 object-contain">
+                    @endif
+                    <span>{{ $profile->desa?->nama_lengkap }}@if($profile->alamat) · {{ $profile->alamat }}@endif</span>
+                </div>
 
                 <a href="{{ $profile->whatsappUrl($waText) }}" target="_blank" rel="noopener"
                     class="mt-3 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700">
