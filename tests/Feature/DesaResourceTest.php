@@ -62,6 +62,25 @@ it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', 
         ->and($admin->initial_otp)->not->toBeNull();
 });
 
+it('membuat desa tanpa akun admin (opsional)', function () {
+    actingAs(User::factory()->superAdmin()->create());
+
+    $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+
+    Livewire::test(CreateDesa::class)
+        ->fillForm([
+            'wilayah_kode' => '13.06.01.2001',
+            'jenis_desa_id' => $jenis->id,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $desa = Desa::where('wilayah_kode', '13.06.01.2001')->first();
+    expect($desa)->not->toBeNull()
+        ->and($desa->desaAdmin()->exists())->toBeFalse();
+});
+
 it('form edit desa memuat data akun admin yang ada', function () {
     actingAs(User::factory()->superAdmin()->create());
 

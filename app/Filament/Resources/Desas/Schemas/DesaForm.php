@@ -91,7 +91,7 @@ class DesaForm
                     ]),
 
                 Section::make('Akun admin desa')
-                    ->description('Akun untuk mengelola desa ini di panel admin. Login pakai username + kode OTP; wajib ganti sandi saat login pertama.')
+                    ->description('Opsional. Isi username untuk membuat akun admin sekarang, atau lewati dan tambahkan nanti via Edit Desa / menu Pengguna. Login pakai username + kode OTP; wajib ganti sandi saat login pertama.')
                     ->columns(2)
                     ->schema([
                         TextInput::make('admin_name')
@@ -102,12 +102,11 @@ class DesaForm
 
                         TextInput::make('admin_username')
                             ->label('Username admin')
-                            ->required()
                             ->maxLength(255)
                             ->rules(['alpha_dash'])
                             ->dehydrated(false)
                             ->rule(fn (?Model $record) => Rule::unique('users', 'username')->ignore(self::adminId($record)))
-                            ->helperText('Tanpa spasi. Dipakai untuk login ke panel admin.'),
+                            ->helperText('Opsional. Tanpa spasi. Kosongkan bila belum ingin membuat akun admin.'),
 
                         TextInput::make('admin_kontak')
                             ->label('Kontak admin')
