@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\Desa;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -24,7 +25,7 @@ class PlatformStatsWidget extends StatsOverviewWidget
         $umkmQuery = UmkmProfile::query()
             ->when($desaId, fn ($q) => $q->where('desa_id', $desaId));
 
-        $pendingProducts = UmkmProduct::where('status', 'pending')
+        $pendingProducts = UmkmProduct::where('status', UmkmProductStatus::Pending)
             ->when($desaId, fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $desaId)))
             ->count();
 

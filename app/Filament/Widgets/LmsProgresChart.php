@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\ModuleProgressStatus;
 use App\Models\UserModuleProgress;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
@@ -19,7 +20,7 @@ class LmsProgresChart extends ApexChartWidget
         $user = auth()->user();
 
         $rows = UserModuleProgress::query()
-            ->where('user_module_progress.status', 'completed')
+            ->where('user_module_progress.status', ModuleProgressStatus::Completed)
             ->join('users', 'users.id', '=', 'user_module_progress.user_id')
             ->join('desas', 'desas.id', '=', 'users.desa_id')
             ->when($user?->isDesaAdmin(), fn ($q) => $q->where('users.desa_id', $user->desa_id))

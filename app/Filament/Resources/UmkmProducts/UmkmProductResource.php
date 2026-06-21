@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProducts;
 
+use App\Enums\UmkmProductStatus;
 use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
 use App\Filament\Resources\UmkmProducts\Tables\UmkmProductsTable;
 use App\Models\UmkmProduct;
@@ -42,7 +43,7 @@ class UmkmProductResource extends Resource
     /** Badge navigasi = jumlah produk menunggu verifikasi (ter-scope aktor). */
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getEloquentQuery()->where('status', 'pending')->count();
+        $count = static::getEloquentQuery()->where('status', UmkmProductStatus::Pending)->count();
 
         return $count > 0 ? (string) $count : null;
     }

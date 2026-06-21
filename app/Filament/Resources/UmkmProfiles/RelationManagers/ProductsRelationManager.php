@@ -59,7 +59,7 @@ class ProductsRelationManager extends RelationManager
                     ->color('success')
                     ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
                     ->requiresConfirmation()
-                    ->action(fn (UmkmProduct $record) => $this->setStatus($record, 'approved')),
+                    ->action(fn (UmkmProduct $record) => $this->setStatus($record, UmkmProductStatus::Approved)),
 
                 Action::make('reject')
                     ->label('Tolak')
@@ -72,7 +72,7 @@ class ProductsRelationManager extends RelationManager
                             ->required()
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
-                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, 'rejected', $data['rejection_reason'])),
+                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, UmkmProductStatus::Rejected, $data['rejection_reason'])),
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -83,7 +83,7 @@ class ProductsRelationManager extends RelationManager
         return $schema->components([]);
     }
 
-    protected function setStatus(UmkmProduct $product, string $status, ?string $reason = null): void
+    protected function setStatus(UmkmProduct $product, UmkmProductStatus $status, ?string $reason = null): void
     {
         app(UmkmService::class)->verifyProduct($product, $status, Auth::id(), $reason);
     }

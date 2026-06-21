@@ -2,6 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\ModuleProgressStatus;
+use App\Enums\QuizAttemptStatus;
 use App\Models\QuizAttempt;
 use App\Models\UserModuleProgress;
 use Illuminate\Support\Carbon;
@@ -32,7 +34,7 @@ class AktivitasBelajarChart extends ApexChartWidget
 
         $modul = $this->countByDay(
             UserModuleProgress::query()
-                ->where('user_module_progress.status', 'completed')
+                ->where('user_module_progress.status', ModuleProgressStatus::Completed)
                 ->whereNotNull('completed_at')
                 ->where('completed_at', '>=', $since)
                 ->when($desaId, fn ($q) => $q
@@ -44,7 +46,7 @@ class AktivitasBelajarChart extends ApexChartWidget
 
         $kuis = $this->countByDay(
             QuizAttempt::query()
-                ->where('quiz_attempts.status', 'passed')
+                ->where('quiz_attempts.status', QuizAttemptStatus::Passed)
                 ->whereNotNull('submitted_at')
                 ->where('submitted_at', '>=', $since)
                 ->when($desaId, fn ($q) => $q

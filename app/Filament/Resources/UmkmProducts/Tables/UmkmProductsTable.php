@@ -57,7 +57,7 @@ class UmkmProductsTable
                     ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
                     ->requiresConfirmation()
                     ->action(fn (UmkmProduct $record) => app(UmkmService::class)
-                        ->verifyProduct($record, 'approved', Auth::id())),
+                        ->verifyProduct($record, UmkmProductStatus::Approved, Auth::id())),
 
                 Action::make('reject')
                     ->label('Tolak')
@@ -71,7 +71,7 @@ class UmkmProductsTable
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
                     ->action(fn (UmkmProduct $record, array $data) => app(UmkmService::class)
-                        ->verifyProduct($record, 'rejected', Auth::id(), $data['rejection_reason'])),
+                        ->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['rejection_reason'])),
             ])
             ->defaultSort('created_at', 'asc');
     }

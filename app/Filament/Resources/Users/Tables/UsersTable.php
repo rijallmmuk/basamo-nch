@@ -175,7 +175,7 @@ class UsersTable
                         $record->update(['umkm_access_granted_at' => null]);
 
                         // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
-                        $record->umkmProfile?->update(['status' => 'inactive']);
+                        $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
 
                         Notification::make()
                             ->title('Akses UMKM dicabut')
