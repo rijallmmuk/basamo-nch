@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Desas\Tables;
 
+use App\Enums\ActiveStatus;
 use App\Filament\Resources\Desas\DesaResource;
 use App\Models\Desa;
 use Filament\Actions\DeleteAction;
@@ -62,8 +63,6 @@ class DesasTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Aktif' : 'Nonaktif')
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
 
                 TextColumn::make('created_at')
@@ -75,7 +74,7 @@ class DesasTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
+                    ->options(ActiveStatus::class),
 
                 TrashedFilter::make(),
             ])

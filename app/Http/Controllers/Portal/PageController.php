@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\ModulePage;
@@ -19,7 +20,7 @@ class PageController extends Controller
         $user = auth()->user();
 
         // Pastikan modul published dan milik desa user (atau global)
-        if ($module->status !== 'published' ||
+        if ($module->status !== ModuleStatus::Published ||
             ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }

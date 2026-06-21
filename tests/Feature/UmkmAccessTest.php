@@ -41,5 +41,5 @@ it('admin desa mencabut akses UMKM dan menonaktifkan lapaknya', function () {
     expect($owner->role)->toBe('warga')
         ->and($owner->hasUmkmAccess())->toBeFalse()
         // Lapak keluar dari katalog publik (U3).
-        ->and($profile->refresh()->status)->toBe('inactive');
+        ->and($profile->refresh()->status->value)->toBe('inactive');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Enums\ActiveStatus;
 use App\Models\Desa;
 use App\Models\User;
 use App\Models\Wilayah;
@@ -87,7 +88,7 @@ class UserForm
 
                         Select::make('status')
                             ->label('Status')
-                            ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif'])
+                            ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
                             ->native(false),

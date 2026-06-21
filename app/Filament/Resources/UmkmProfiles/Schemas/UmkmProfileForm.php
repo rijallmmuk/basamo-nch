@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Schemas;
 
+use App\Enums\ActiveStatus;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -55,7 +56,7 @@ class UmkmProfileForm
 
                         Select::make('status')
                             ->label('Status')
-                            ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif'])
+                            ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
                             ->native(false),

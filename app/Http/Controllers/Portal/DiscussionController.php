@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Module;
@@ -113,7 +114,7 @@ class DiscussionController extends Controller
     {
         $user = auth()->user();
 
-        if ($module->status !== 'published' ||
+        if ($module->status !== ModuleStatus::Published ||
             ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }

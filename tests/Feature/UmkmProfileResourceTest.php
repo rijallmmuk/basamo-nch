@@ -73,7 +73,7 @@ it('admin menyetujui produk UMKM dan memberi tahu pemilik', function () {
         ->callTableAction('approve', $product);
 
     $product->refresh();
-    expect($product->status)->toBe('approved')
+    expect($product->status->value)->toBe('approved')
         ->and($product->approved_by)->toBe($admin->id);
 
     Notification::assertSentTo($owner, UmkmProductVerified::class);
@@ -94,7 +94,7 @@ it('admin menolak produk UMKM dengan alasan', function () {
         ->callTableAction('reject', $product, data: ['rejection_reason' => 'Foto kurang jelas']);
 
     $product->refresh();
-    expect($product->status)->toBe('rejected')
+    expect($product->status->value)->toBe('rejected')
         ->and($product->rejection_reason)->toBe('Foto kurang jelas');
 });
 

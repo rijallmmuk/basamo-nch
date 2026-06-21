@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\ActiveStatus;
+use App\Enums\UmkmProductStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Desa;
 use App\Models\UmkmCategory;
@@ -76,7 +78,7 @@ class UmkmCatalogController extends Controller
     public function show(Request $request, UmkmProduct $product): View
     {
         abort_unless(
-            $product->status === 'approved' && $product->umkmProfile?->status === 'active',
+            $product->status === UmkmProductStatus::Approved && $product->umkmProfile?->status === ActiveStatus::Active,
             404
         );
 

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('koordinat_lat', 10, 8)->nullable();
             $table->decimal('koordinat_lng', 11, 8)->nullable();
             $table->string('kontak', 20)->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Desas\Schemas;
 
+use App\Enums\ActiveStatus;
 use App\Models\Desa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -99,7 +100,7 @@ class DesaForm
 
                         Select::make('status')
                             ->label('Status')
-                            ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif'])
+                            ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
                             ->native(false),

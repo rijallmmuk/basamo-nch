@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -87,7 +88,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->status === 'active'
+        return $this->status === ActiveStatus::Active
             && in_array($this->role, ['super_admin', 'desa_admin'], true);
     }
 
@@ -154,6 +155,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     protected function casts(): array
     {
         return [
+            'status' => ActiveStatus::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'must_change_password' => 'boolean',

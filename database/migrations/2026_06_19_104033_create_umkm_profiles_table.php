@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->text('alamat')->nullable();
             $table->string('whatsapp', 20);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
             $table->timestamps();
             $table->softDeletes();
 

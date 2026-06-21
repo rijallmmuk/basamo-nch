@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModuleStatus;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Notifications\NewQuizPublished;
@@ -14,7 +15,7 @@ class QuizObserver
         $module = $quiz->module;
 
         // Hanya beri tahu bila modulnya sudah published (warga bisa mengaksesnya).
-        if (! $module || $module->status !== 'published') {
+        if (! $module || $module->status !== ModuleStatus::Published) {
             return;
         }
 

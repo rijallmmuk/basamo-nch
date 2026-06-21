@@ -137,7 +137,7 @@
                                             {{ $p->title }}
                                         </span>
                                     </span>
-                                    <x-portal.content-badge :type="$p->type" class="hidden shrink-0 sm:inline-flex" />
+                                    <x-portal.content-badge :type="$p->type->value" class="hidden shrink-0 sm:inline-flex" />
                                 </a>
                             </li>
                         @endforeach

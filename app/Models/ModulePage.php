@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModulePageType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -16,6 +17,14 @@ class ModulePage extends Model
         'module_id', 'title', 'type', 'content',
         'video_url', 'file_path', 'sort_order',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'type' => ModulePageType::class,
+        ];
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -38,9 +47,9 @@ class ModulePage extends Model
         // Bersihkan kolom yang tak relevan dengan tipe (cegah data basi saat ganti tipe).
         static::saving(function (ModulePage $page) {
             match ($page->type) {
-                'text' => [$page->video_url = null, $page->file_path = null],
-                'video' => [$page->content = null, $page->file_path = null],
-                'pdf' => [$page->content = null, $page->video_url = null],
+                ModulePageType::Text => [$page->video_url = null, $page->file_path = null],
+                ModulePageType::Video => [$page->content = null, $page->file_path = null],
+                ModulePageType::Pdf => [$page->content = null, $page->video_url = null],
                 default => null,
             };
         });

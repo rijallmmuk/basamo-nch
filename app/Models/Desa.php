@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,14 @@ class Desa extends Model implements HasMedia
         'nama', 'jenis', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'status' => ActiveStatus::class,
+        ];
+    }
 
     /**
      * Penyebutan wilayah administratif setingkat desa di Indonesia (skala nasional).

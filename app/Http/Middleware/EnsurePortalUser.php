@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\ActiveStatus;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ class EnsurePortalUser
         }
 
         // Nonaktif di tengah sesi (admin menonaktifkan) → keluarkan langsung.
-        if (auth()->user()->status !== 'active') {
+        if (auth()->user()->status !== ActiveStatus::Active) {
             auth()->logout();
 
             return redirect()->route('portal.login')

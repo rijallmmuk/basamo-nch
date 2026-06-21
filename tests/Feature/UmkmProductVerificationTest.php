@@ -44,7 +44,7 @@ it('menyetujui produk menyetel jejak verifikasi dan memberi tahu pemilik', funct
         ->callTableAction('approve', $product);
 
     $product->refresh();
-    expect($product->status)->toBe('approved')
+    expect($product->status->value)->toBe('approved')
         ->and($product->approved_by)->toBe($admin->id)
         ->and($product->approved_at)->not->toBeNull();
 
@@ -63,7 +63,7 @@ it('menolak produk menyimpan alasan dan mengembalikan status', function () {
         ->callTableAction('reject', $product, data: ['rejection_reason' => 'Foto kurang jelas']);
 
     $product->refresh();
-    expect($product->status)->toBe('rejected')
+    expect($product->status->value)->toBe('rejected')
         ->and($product->rejection_reason)->toBe('Foto kurang jelas')
         ->and($product->approved_by)->toBeNull()
         ->and($product->approved_at)->toBeNull();

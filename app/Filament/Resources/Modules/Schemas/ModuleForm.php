@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Modules\Schemas;
 
+use App\Enums\ModuleStatus;
 use App\Models\Module;
 use Closure;
 use Filament\Forms\Components\Hidden;
@@ -56,10 +57,7 @@ class ModuleForm
 
                 Select::make('status')
                     ->label('Status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ])
+                    ->options(ModuleStatus::class)
                     ->default('draft')
                     ->required()
                     ->helperText('Publish hanya bisa setelah modul memiliki minimal satu materi.')

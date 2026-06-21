@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->string('title');
-            $table->enum('type', ['text', 'pdf', 'video']);
+            $table->string('type');
             $table->longText('content')->nullable();
             $table->string('video_url', 500)->nullable();
             $table->string('file_path', 500)->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Modules\Tables;
 
+use App\Enums\ModuleStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -43,12 +44,7 @@ class ModulesTable
 
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'published' => 'success',
-                        'draft' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->badge(),
 
                 TextColumn::make('pages_count')
                     ->label('Materi')
@@ -83,10 +79,7 @@ class ModulesTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ]),
+                    ->options(ModuleStatus::class),
 
                 SelectFilter::make('desa')
                     ->label('Desa')

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\ActiveStatus;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
@@ -93,8 +94,6 @@ class UsersTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Aktif' : 'Nonaktif')
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
 
                 TextColumn::make('total_xp')
@@ -122,7 +121,7 @@ class UsersTable
 
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
+                    ->options(ActiveStatus::class),
 
                 TrashedFilter::make(),
             ])

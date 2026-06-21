@@ -84,15 +84,15 @@
                         <p class="text-xs font-medium text-gray-400">Materi {{ $currentIdx }} dari {{ $totalPages }}</p>
                         <h1 class="mt-0.5 text-lg font-bold leading-snug text-gray-900">{{ $page->title }}</h1>
                     </div>
-                    <x-portal.content-badge :type="$page->type" class="shrink-0" />
+                    <x-portal.content-badge :type="$page->type->value" class="shrink-0" />
                 </div>
 
                 <div class="p-5 sm:p-6 lg:p-8">
-                    @if($page->type === 'text')
+                    @if($page->type->value === 'text')
                         <div class="prose prose-sm max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
                             {!! str($page->content)->sanitizeHtml() !!}
                         </div>
-                    @elseif($page->type === 'video')
+                    @elseif($page->type->value === 'video')
                         @php
                             $videoId = null;
                             $driveId = null;
@@ -124,7 +124,7 @@
                                 </a>
                             </div>
                         @endif
-                    @elseif($page->type === 'pdf' && $page->file_path)
+                    @elseif($page->type->value === 'pdf' && $page->file_path)
                         @php $pdfUrl = Storage::disk(config('media-library.disk_name'))->url($page->file_path); @endphp
                         <div class="overflow-hidden rounded-xl border border-gray-200">
                             <embed src="{{ $pdfUrl }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">

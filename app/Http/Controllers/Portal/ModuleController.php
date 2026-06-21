@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ModuleProgressStatus;
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\UserModuleProgress;
@@ -49,7 +51,7 @@ class ModuleController extends Controller
         $user = auth()->user();
 
         // Pastikan modul published dan milik desa user (atau global)
-        if ($module->status !== 'published' ||
+        if ($module->status !== ModuleStatus::Published ||
             ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }
@@ -62,7 +64,7 @@ class ModuleController extends Controller
         $pages = $module->pages;
         $progress = $this->progressService->getProgress($user, $module);
         $pagesCompleted = $progress?->pages_completed ?? [];
-        $isCompleted = $progress?->status === 'completed';
+        $isCompleted = $progress?->status === ModuleProgressStatus::Completed;
 
         return view('portal.modules.show', compact('module', 'pages', 'progress', 'pagesCompleted', 'isCompleted'));
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Database\Factories\UmkmProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,14 @@ class UmkmProfile extends Model
         'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
         'deskripsi', 'alamat', 'whatsapp', 'status',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'status' => ActiveStatus::class,
+        ];
+    }
 
     public function getSlugOptions(): SlugOptions
     {

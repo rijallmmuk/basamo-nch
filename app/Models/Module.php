@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModuleStatus;
 use App\Observers\ModuleObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,7 @@ class Module extends Model implements HasMedia
     protected function casts(): array
     {
         return [
+            'status' => ModuleStatus::class,
             'sort_order' => 'integer',
             'estimated_minutes' => 'integer',
         ];

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModuleProgressStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +16,7 @@ class UserModuleProgress extends Model
     protected function casts(): array
     {
         return [
+            'status' => ModuleProgressStatus::class,
             'pages_completed' => 'array',
             'completed_at' => 'datetime',
         ];

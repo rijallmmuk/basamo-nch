@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModuleStatus;
 use App\Models\Module;
 use App\Models\User;
 use App\Notifications\NewModulePublished;
@@ -30,7 +31,7 @@ class ModuleObserver
 
     public function created(Module $module): void
     {
-        if ($module->status === 'published') {
+        if ($module->status === ModuleStatus::Published) {
             $this->notifyWarga($module);
         }
     }
@@ -38,7 +39,7 @@ class ModuleObserver
     public function updated(Module $module): void
     {
         // Hanya saat status berubah menjadi published.
-        if ($module->wasChanged('status') && $module->status === 'published') {
+        if ($module->wasChanged('status') && $module->status === ModuleStatus::Published) {
             $this->notifyWarga($module);
         }
     }

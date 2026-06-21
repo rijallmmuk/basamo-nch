@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('quiz_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('score')->nullable();
-            $table->enum('status', ['in_progress', 'passed', 'failed']);
+            $table->string('status');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
 

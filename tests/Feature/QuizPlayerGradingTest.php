@@ -61,7 +61,7 @@ it('soal pilihan tunggal: jawaban benar bernilai 100 dan lulus', function () {
 
     $attempt = QuizAttempt::first();
     expect($attempt->score)->toBe(100)
-        ->and($attempt->status)->toBe('passed');
+        ->and($attempt->status->value)->toBe('passed');
 });
 
 it('soal pilihan tunggal: jawaban salah bernilai 0 dan gagal', function () {
@@ -77,7 +77,7 @@ it('soal pilihan tunggal: jawaban salah bernilai 0 dan gagal', function () {
 
     $attempt = QuizAttempt::first();
     expect($attempt->score)->toBe(0)
-        ->and($attempt->status)->toBe('failed');
+        ->and($attempt->status->value)->toBe('failed');
 });
 
 it('soal pilihan jamak: memilih semua jawaban benar bernilai 100', function () {
@@ -148,7 +148,7 @@ it('soal pilihan jamak: mencentang SEMUA opsi bernilai 0 (anti-tebak)', function
 
     $attempt = QuizAttempt::first();
     expect($attempt->score)->toBe(0)
-        ->and($attempt->status)->toBe('failed');
+        ->and($attempt->status->value)->toBe('failed');
 });
 
 it('kuis tanpa soal tidak membuat attempt saat submit', function () {

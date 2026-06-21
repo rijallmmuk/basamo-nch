@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->unsignedSmallInteger('estimated_minutes')->nullable(); // estimasi durasi belajar
             $table->foreignId('prerequisite_module_id')->nullable()->constrained('modules')->nullOnDelete();
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->string('status')->default('draft');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();

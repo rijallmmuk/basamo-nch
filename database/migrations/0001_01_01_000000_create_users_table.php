@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('role', 20)->nullable();                // persona: super_admin|desa_admin|warga
             $table->timestamp('umkm_access_granted_at')->nullable(); // kapabilitas UMKM (bukan role)
             $table->unsignedInteger('total_xp')->default(0);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

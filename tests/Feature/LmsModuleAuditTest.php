@@ -72,7 +72,7 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
     $service->markPageCompleted($warga, $module, $pages[2]);
 
     $progress = UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->first();
-    expect($progress->status)->toBe('in_progress');
+    expect($progress->status->value)->toBe('in_progress');
 
     // Admin menghapus halaman ke-4 (yang belum dibuka).
     $pages[3]->delete();
@@ -81,7 +81,7 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
     $service->markPageCompleted($warga, $module, $pages[0]);
 
     $progress->refresh();
-    expect($progress->status)->toBe('completed')
+    expect($progress->status->value)->toBe('completed')
         ->and($progress->completed_at)->not->toBeNull()
         ->and($warga->refresh()->total_xp)->toBe(50);
 });

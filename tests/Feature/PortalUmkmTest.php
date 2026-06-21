@@ -67,7 +67,7 @@ it('pemilik menambah produk berstatus pending dengan foto', function () {
         ->assertRedirect(route('portal.umkm.index'));
 
     $product = UmkmProduct::first();
-    expect($product->status)->toBe('pending')
+    expect($product->status->value)->toBe('pending')
         ->and($product->getMedia('photos'))->toHaveCount(2);
 });
 
@@ -98,7 +98,7 @@ it('mengubah produk mengembalikan status ke pending', function () {
         ->assertRedirect(route('portal.umkm.index'));
 
     $product->refresh();
-    expect($product->status)->toBe('pending')
+    expect($product->status->value)->toBe('pending')
         ->and($product->nama_produk)->toBe('Nama Baru')
         ->and($product->approved_by)->toBeNull();
 });

@@ -41,5 +41,5 @@ it('bisa publish modul yang sudah punya materi', function () {
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($module->refresh()->status)->toBe('published');
+    expect($module->refresh()->status->value)->toBe('published');
 });
