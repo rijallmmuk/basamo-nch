@@ -24,6 +24,14 @@ Tiga fase, tiap fase di-commit terpisah & suite hijau (138 test):
    (restrictOnDelete), `desas.wilayah_label`→FK `jenis_sub_unit_id`. Relasi `Desa::jenisDesa/jenisSubUnit`;
    `namaLengkap`/`subUnitLabel` via relasi. Const JENIS/SUB_UNIT dihapus.
 
+**Audit penuh pasca-refactor (model→controller→Filament→views), suite 138→141 hijau, 6 commit:**
+- **Model** (24f5ef0): bersih (verifikasi DB live). +cast eksplisit `QuizAttempt::score`, `XpLog::source_id/amount` +relasi `XpLog::desa()`.
+- **Controller/Service** (a6ec65f): **BUG nyata diperbaiki** — `LmsProgressService::getModuleStatus[Using]` mem-`match` `$progress->status` (enum) lawan string → badge status modul di beranda/daftar **selalu "Belum Dimulai"** (lolos 138 test). Kini match enum case. +regresi `LmsProgressStatusTest`.
+- **Konsistensi enum** (4979793, 72fc25d): klausa `where()/whereIn()`/set status di controller/service/Livewire/Filament/widget pakai backed enum (query builder ubah enum→value). `UmkmService::verifyProduct` & `setStatus` jadi `UmkmProductStatus`-typed. **Sengaja string**: `->default()` & rule `$value==='published'` di form (state form Livewire = string); param-boundary; `priorityOrder`/`resultStatus` (status UI, bukan enum DB).
+- **Filament**: tenancy `desa_id` utuh & benar (`scopeToActor`/`scopeToDesa`, `isDesaAdmin`).
+- **Views** (1dfb8dd): bersih (nol "nagari", semua atribut enum via `->value`). **N+1 diperbaiki**: `nama_lengkap` kini baca relasi `jenisDesa` → eager-load `umkmProfile.desa.jenisDesa` (katalog) & `jenisDesa` (DesaResource).
+- Catatan minor pra-refactor (tak diubah): `ActivityLogsTable` filter `log_name` kurang opsi diskusi/produk/umkm/wilayah.
+
 Belum merge ke main.
 
 ---
