@@ -6,6 +6,28 @@
 
 ---
 
+## Sesi 2026-06-21 — Refactor besar: nagari→desa, backed enums, jenis tabel (branch `feat/penyebutan-wilayah-nasional`)
+
+Tiga fase, tiap fase di-commit terpisah & suite hijau (138 test):
+1. **Rename `nagari` → `desa`** (commit 3feaa3d): istilah Sumbar diganti netral nasional sebagai
+   nama internal entitas tenant; tampilan tetap dari `jenis`. Tabel `nagaris`→`desas`, kolom
+   `nagari_id`→`desa_id` (users/modules/umkm_profiles/xp_logs/wilayahs), model `Nagari`→`Desa`,
+   relasi `desa()`. **Role `nagari_admin`→`desa_admin`**, helper `isDesaAdmin()`. Filament
+   Resources/Desas, PengaturanDesa. Bukan Filament Tenancy (scoping manual).
+2. **Kolom status/type → PHP backed enum** (commit ec80d4e): 8 kolom `enum()` DB → `string` + cast
+   ke `app/Enums/` (ModuleStatus, ModuleProgressStatus, QuizAttemptStatus, UmkmProductStatus,
+   ModulePageType, ActiveStatus). Implement HasLabel/HasColor/HasIcon → badge/Select Filament
+   digerakkan enum (closure `fn(string $state)` & map manual dihapus). Tambah nilai tanpa ALTER.
+   Catatan: state **kolom tabel** = objek enum; state **form** Livewire = string value.
+3. **`jenis` & sub-unit → tabel referensi** (commit e2cd6ed): tabel global `jenis_desa` &
+   `jenis_sub_unit` (nama/urutan/aktif), diseed di **CoreSeeder**. `desas.jenis`→FK `jenis_desa_id`
+   (restrictOnDelete), `desas.wilayah_label`→FK `jenis_sub_unit_id`. Relasi `Desa::jenisDesa/jenisSubUnit`;
+   `namaLengkap`/`subUnitLabel` via relasi. Const JENIS/SUB_UNIT dihapus.
+
+Belum merge ke main.
+
+---
+
 ## Status
 
 **Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
