@@ -8,12 +8,18 @@
 
 ## Sesi 2026-06-21 (lanjutan) — Referensi wilayah resmi Sumbar (branch `feat/ref-wilayah-sumbar`, belum merge)
 
-Manfaatkan dump Kepmendagri (`wilayah.sql` + `wilayah_level_1_2.sql`, **tak masuk repo**). Suite 142 hijau.
-- **`ref_wilayah`** (datar: kode/nama/level/parent_kode + geo lat/lng/luas/penduduk/path utk prov & kab). Model `RefWilayah` (scope `level`/`childrenOf`, `logoUrl`). Data **Sumbar saja** (kode `13`): 1 prov + 19 kab + 179 kec + 1.265 desa = 1.464 baris → diekstrak ke `database/data/sumbar_wilayah.csv` + `_geo.json` (20), diimpor `WilayahSumbarSeeder` (dipanggil CoreSeeder, idempotent). Provinsi lain menyusul = tambah berkas + perluas seeder.
+Manfaatkan dump Kepmendagri (`wilayah.sql` + `wilayah_level_1_2.sql`, **tak masuk repo**). Suite **144 hijau**. **Belum merge / belum selesai** (lihat "Lanjut berikutnya").
+- **`ref_wilayah`** (datar: kode/nama/level/parent_kode + geo lat/lng/luas/penduduk/path utk prov & kab). Model `RefWilayah` (scope `level`/`childrenOf`, `logoUrl`). Data **Sumbar saja** (kode `13`): 1 prov + 19 kab + 179 kec + 1.265 desa = 1.464 baris → diekstrak ke `database/data/sumbar_wilayah.csv` + `_geo.json` (20 geo), diimpor `WilayahSumbarSeeder` (dipanggil CoreSeeder, idempotent). Provinsi lain menyusul = sediakan lagi dump + tambah berkas + perluas seeder.
 - **`desas.wilayah_kode`** FK opsional → ref_wilayah. **DesaForm**: dropdown bertingkat Provinsi→Kab→Kec→Desa (helper prov/kab/kec `dehydrated(false)`, hidrasi balik dari wilayah_kode saat edit); auto-isi nama + provinsi/kab/kec (denormalized). **jenis_desa & jenis_sub_unit tetap manual** (bukan dari kode).
-- **Logo kab/kota**: 19 logo Sumbar → `public/images/wilayah/{kode}.png` (+thumbs); `Desa::kabupatenLogoUrl()` diturunkan dari wilayah_kode (media `logo_kabupaten` per-desa **dihapus**).
-- **Peta publik `/peta` SELESAI**: Leaflet (CDN) + polygon kab/kota Sumbar, choropleth jumlah desa terdaftar, popup nama/ibukota/luas/penduduk/logo. Endpoint `public.peta.data` (cache 1 jam). Link di nav + hero beranda. Format `path` tak konsisten → dinormalisasi di JS. Test `PublicMapTest`.
-- TODO lanjut (opsional): kolom kabupaten di DesasTable; logo kab di profil desa publik; peta tingkat desa; provinsi lain.
+- **Logo kab/kota**: 19 logo Sumbar → `public/images/wilayah/{kode}.png` (+thumbs); `Desa::kabupatenLogoUrl()` diturunkan dari wilayah_kode (media `logo_kabupaten` per-desa **dihapus**). Ditampilkan: kolom ImageColumn di DesasTable + di halaman UMKM publik (show) samping nama desa.
+- **Peta publik `/peta` SELESAI + teroptimasi**: Leaflet (CDN). Endpoint `public.peta.data` kini **GeoJSON FeatureCollection** (geometry MultiPolygon, koordinat `[lng,lat]`); normalisasi ring tak-konsisten + tutup ring **sekali di server** (`PublicMapController::toMultiPolygon`). Pisah cache (geometri 1 hari + hitungan desa per request) + `Cache-Control: public, max-age=300`. Klien pakai `L.geoJSON` + status muat/error. Choropleth jumlah desa terdaftar; popup nama/ibukota/luas/penduduk/logo. Link nav + hero. Test `PublicMapTest`.
+
+**⚠️ Batas data peta (penting):** boundaries **hanya s/d kab/kota**. `wilayah_level_1_2.sql` = polygon level 1–2 saja; `wilayah.sql` = kode+nama semua level **tanpa koordinat/polygon**. Di DB: hanya level 1 (1) & 2 (19) punya `path`; kecamatan (179) & desa (1.265) **tak punya** geometri/koordinat.
+
+**Lanjut berikutnya (belum dikerjakan, menunggu keputusan):** peta level desa —
+- **Opsi A** (bisa langsung): tandai desa terdaftar sebagai **marker titik** pakai `desas.koordinat_lat/lng` (diisi admin; demo masih kosong).
+- **Opsi B** (butuh data): impor **GeoJSON batas desa** Sumbar (1.265 poligon) dari sumber ke-3 (BPS/Ina-Geoportal/OSM) — file belum ada.
+Opsional lain: provinsi selain Sumbar (butuh dump lagi); halaman profil desa publik tersendiri.
 
 ---
 
