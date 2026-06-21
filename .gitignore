@@ -26,3 +26,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /.claude/settings.local.json
+
+# Dump wilayah nasional mentah (pakai database/data/sumbar_* hasil ekstrak)
+/wilayah*.sql

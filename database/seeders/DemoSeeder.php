@@ -9,6 +9,7 @@ use App\Models\JenisSubUnit;
 use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\RefWilayah;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -41,12 +42,12 @@ class DemoSeeder extends Seeder
         $globalModules = $this->seedGlobalModules($superAdmin);
 
         $desaData = [
-            ['NCH-001', 'Nagari', 'Contoh Harapan', 'Jorong', 'Kabupaten Agam', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']],
-            ['NCH-002', 'Nagari', 'Sungai Lansek', 'Korong', 'Kabupaten Padang Pariaman', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']],
+            ['NCH-001', 'Nagari', 'Contoh Harapan', 'Jorong', '13.06', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']], // Kab. Agam
+            ['NCH-002', 'Nagari', 'Sungai Lansek', 'Korong', '13.05', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']], // Kab. Padang Pariaman
         ];
 
-        foreach ($desaData as [$kode, $jenis, $nama, $sebutan, $kabupaten, $unitNames]) {
-            $desa = $this->seedDesa($kode, $jenis, $nama, $sebutan, $kabupaten);
+        foreach ($desaData as [$kode, $jenis, $nama, $sebutan, $kabKode, $unitNames]) {
+            $desa = $this->seedDesa($kode, $jenis, $nama, $sebutan, $kabKode);
             $wilayah = $this->seedWilayah($desa, $unitNames);
             $this->seedDesaAdmin($desa);
 
@@ -62,11 +63,25 @@ class DemoSeeder extends Seeder
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
     }
 
-    private function seedDesa(string $kode, string $jenis, string $nama, string $sebutan, string $kabupaten): Desa
+    private function seedDesa(string $kode, string $jenis, string $nama, string $sebutan, string $kabKode): Desa
     {
+        // Tautkan ke wilayah resmi: ambil satu desa/kelurahan nyata di kabupaten ini.
+        $ref = RefWilayah::level(RefWilayah::LEVEL_DESA)->where('kode', 'like', $kabKode.'.%')->orderBy('kode')->first();
+        $kab = RefWilayah::find($kabKode);
+        $kec = $ref ? RefWilayah::find(substr($ref->kode, 0, (int) strrpos($ref->kode, '.'))) : null;
+
         $desa = Desa::firstOrCreate(
             ['kode' => $kode],
-            ['nama' => $nama, 'jenis_desa_id' => JenisDesa::where('nama', $jenis)->value('id'), 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
+            [
+                'nama' => $nama,
+                'jenis_desa_id' => JenisDesa::where('nama', $jenis)->value('id'),
+                'wilayah_kode' => $ref?->kode,
+                'provinsi' => 'Sumatera Barat',
+                'kabupaten' => $kab?->nama,
+                'kecamatan' => $kec?->nama,
+                'kontak' => '08123456789',
+                'status' => 'active',
+            ],
         );
 
         $desa->update(['jenis_sub_unit_id' => JenisSubUnit::where('nama', $sebutan)->value('id')]);

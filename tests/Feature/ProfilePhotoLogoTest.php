@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Desa;
+use App\Models\RefWilayah;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -69,13 +70,17 @@ it('menolak file non-gambar sebagai foto profil', function () {
         ->assertSessionHasErrors('avatar');
 });
 
-it('desa menyimpan logo desa & logo kabupaten', function () {
+it('desa menyimpan logo sendiri & menurunkan logo kabupaten dari data wilayah', function () {
     Storage::fake(config('media-library.disk_name'));
-    $desa = Desa::factory()->create();
 
+    // Referensi minimal: kab/kota Kota Padang (berkas logo nyata di public/images/wilayah/13.71.png)
+    // + satu desa/kel (dibutuhkan FK desas.wilayah_kode).
+    RefWilayah::create(['kode' => '13.71', 'nama' => 'Kota Padang', 'level' => 2, 'parent_kode' => '13']);
+    RefWilayah::create(['kode' => '13.71.01.1001', 'nama' => 'Pasar Gadang', 'level' => 4, 'parent_kode' => '13.71.01']);
+
+    $desa = Desa::factory()->create(['wilayah_kode' => '13.71.01.1001']);
     $desa->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('logo');
-    $desa->addMedia(UploadedFile::fake()->image('kabupaten.png'))->toMediaCollection('logo_kabupaten');
 
     expect($desa->logoUrl())->not->toBeNull()
-        ->and($desa->kabupatenLogoUrl())->not->toBeNull();
+        ->and($desa->kabupatenLogoUrl())->toBe(asset('images/wilayah/13.71.png'));
 });

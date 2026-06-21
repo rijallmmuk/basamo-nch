@@ -18,7 +18,7 @@ class Desa extends Model implements HasMedia
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'jenis_desa_id', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
+        'nama', 'jenis_desa_id', 'kode', 'wilayah_kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
 
@@ -53,12 +53,10 @@ class Desa extends Model implements HasMedia
             ->useLogName('desa');
     }
 
-    /** Logo desa (opsional) + logo kabupaten/kota induk. */
+    /** Logo desa (opsional). Logo kabupaten/kota diturunkan dari data wilayah. */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
-        $this->addMediaCollection('logo_kabupaten')->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
     }
 
@@ -69,11 +67,20 @@ class Desa extends Model implements HasMedia
         return $media ? $media->getUrl() : null;
     }
 
+    /** Logo kab/kota induk, dari referensi wilayah (via kode wilayah desa). */
     public function kabupatenLogoUrl(): ?string
     {
-        $media = $this->getFirstMedia('logo_kabupaten');
+        if (! $this->wilayah_kode) {
+            return null;
+        }
 
-        return $media ? $media->getUrl() : null;
+        $parts = explode('.', $this->wilayah_kode);
+
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        return RefWilayah::find($parts[0].'.'.$parts[1])?->logoUrl();
     }
 
     public function jenisDesa(): BelongsTo
@@ -84,6 +91,11 @@ class Desa extends Model implements HasMedia
     public function jenisSubUnit(): BelongsTo
     {
         return $this->belongsTo(JenisSubUnit::class);
+    }
+
+    public function refWilayah(): BelongsTo
+    {
+        return $this->belongsTo(RefWilayah::class, 'wilayah_kode', 'kode');
     }
 
     public function users(): HasMany
