@@ -53,7 +53,7 @@ class WilayahSumbarSeeder extends Seeder
         fclose($handle);
     }
 
-    /** Koordinat/luas/penduduk/polygon untuk prov & kab/kota. */
+    /** Koordinat/luas/penduduk untuk prov & kab/kota (geometri batas: WilayahBoundarySeeder). */
     private function seedGeo(): void
     {
         $path = database_path('data/sumbar_wilayah_geo.json');
@@ -73,7 +73,6 @@ class WilayahSumbarSeeder extends Seeder
                 'tz' => $r['tz'] ?? null,
                 'luas' => $r['luas'] ?? null,
                 'penduduk' => $r['penduduk'] ?? null,
-                'path' => $r['path'] ?? null,
             ]);
         }
     }

@@ -38,8 +38,9 @@ class CoreSeeder extends Seeder
             JenisSubUnit::firstOrCreate(['nama' => $nama], ['urutan' => $urutan]);
         }
 
-        // Referensi wilayah administratif resmi (Sumbar dulu).
+        // Referensi wilayah administratif resmi (Sumbar dulu) + geometri batas peta.
         $this->call(WilayahSumbarSeeder::class);
+        $this->call(WilayahBoundarySeeder::class);
 
         User::firstOrCreate(
             ['email' => 'admin@basamo.nch'],

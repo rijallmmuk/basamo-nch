@@ -152,6 +152,16 @@ DomPDF (`barryvdh/laravel-dompdf`) untuk laporan LMS/SDGs; Maatwebsite Excel unt
 
 ---
 
+## Data wilayah & peta
+
+### Geometri batas → tabel spasial terpisah `wilayah_boundaries`
+**Keputusan**: simpan batas wilayah sebagai tipe `GEOMETRY` (SRID 4326) di tabel terpisah (`geom` penuh + `geom_simplified`), bukan teks JSON di `ref_wilayah.path` (kolom itu dihapus). · **Alasan**: `ref_wilayah` sering di-query (cascading select/join) harus tetap ringan; tipe spasial → `ST_AsGeoJSON` merakit GeoJSON langsung di DB (urutan `[lng,lat]` benar, hapus parser manual) + `ST_Contains` utk point-in-polygon (auto-deteksi desa dari koordinat UMKM) + spatial index. · **Ditolak**: simpan JSON `path` (rapuh, tak bisa query spasial); panggil API eksternal saat render (statis, latensi, mati bila sumber down — API hanya utk impor).
+
+### Simplifikasi Douglas–Peucker saat impor + drill-down lazy-load
+**Keputusan**: `geom_simplified` dihitung DP per-level di importer (`WilayahBoundaryImporter`); peta muat kab/kota dulu, desa di-fetch per-kab saat diklik. · **Alasan**: MariaDB 10.11 **tak punya `ST_Simplify`** (fungsi MySQL) → simplifikasi tak bisa query-time; 1.159 poligon desa terlalu berat bila dimuat sekaligus. · Sumber data: cahyadsn/wilayah_boundaries (MIT) di `database/data/boundaries/`; impor via `wilayah:import-boundaries`/`WilayahBoundarySeeder`. 106 desa tak punya geometri di sumber (diterima).
+
+---
+
 ## Fitur ditunda / batas lingkup
 - **Onboarding nagari** manual oleh super_admin (self-service di Fase 3).
 - **Squash migrasi** jadi baseline bersih = langkah pra-deploy **terakhir** (jangan saat masih ada perubahan skema). 42 migrasi terbukti jalan di MySQL+SQLite.

@@ -6,6 +6,16 @@
 
 ---
 
+## Sesi 2026-06-22 — Geometri batas wilayah spasial + peta drill-down (branch `feat/ref-wilayah-sumbar`)
+
+**Opsi B SELESAI** (batas desa). Sumber: dump cahyadsn/wilayah_boundaries (22 berkas `.sql`, prov/kab/kec/desa) → dipindah ke `database/data/boundaries/`. Suite **145** (143 lulus, 2 skip di SQLite; ketiga test peta diverifikasi lulus di MariaDB via DB test terpisah).
+- **Tabel spasial `wilayah_boundaries`** (migrasi baru): `kode` PK, level, parent_kode, nama, lat/lng, **`geom` GEOMETRY NOT NULL + SPATIAL INDEX**, `geom_simplified` (nullable). Dipisah dari `ref_wilayah` agar tabel referensi tetap ringan → **`ref_wilayah.path` DIHAPUS** (migrasi drop; sumber tunggal geometri kini tabel ini). Spatial index di-guard hanya MySQL/MariaDB (SQLite test tak dukung).
+- **DB = MariaDB 10.11**: `ST_AsGeoJSON` & `ST_Contains` ADA (point-in-polygon siap utk auto-deteksi desa dari koordinat UMKM nanti); **`ST_Simplify` TIDAK ada** → simplifikasi via Douglas–Peucker di importer (saat impor).
+- **ETL** `app/Services/WilayahBoundaryImporter.php` (+command `wilayah:import-boundaries` +`WilayahBoundarySeeder`, dipanggil CoreSeeder): muat `.sql` ke staging (engine DB yg parse, bukan regex—regex lolos 106 baris), `path` JSON `[lat,lng]` (kedalaman 2–4 tak konsisten) → WKT MULTIPOLYGON `[lng,lat]` → `ST_GeomFromText(.,4326)` + `geom_simplified` (DP per-level). **1.358 tersimpan, 0 gagal**. Selisih dari 1.464: **106 desa memang tak ada di dataset cahyadsn** (kekosongan sumber, bukan bug) → level: prov 1, kab 19, kec 179, desa 1.159.
+- **Peta drill-down**: `PublicMapController` refactor → query `ST_AsGeoJSON(COALESCE(geom_simplified,geom),5)` (presisi ~1 m), parser manual `toMultiPolygon` DIHAPUS. Endpoint: tanpa param → kab/kota (78KB); `?kab=13.01` → desa dalam kab (mis. Padang 104 desa ~99KB). Front-end `peta.blade.php`: klik kab → muat desa (lazy per-kab) + tombol "kembali" + tooltip kab/popup desa; desa terdaftar ditandai hijau.
+
+---
+
 ## Sesi 2026-06-21 (lanjutan) — Referensi wilayah resmi Sumbar (branch `feat/ref-wilayah-sumbar`, belum merge)
 
 Manfaatkan dump Kepmendagri (`wilayah.sql` + `wilayah_level_1_2.sql`, **tak masuk repo**). Suite **144 hijau**. **Belum merge / belum selesai** (lihat "Lanjut berikutnya").

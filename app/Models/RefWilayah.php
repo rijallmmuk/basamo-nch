@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Referensi wilayah administratif resmi (Kepmendagri). Tabel datar; hierarki
- * lewat `parent_kode`. Geo (lat/lng/luas/penduduk/path) hanya prov & kab/kota.
+ * lewat `parent_kode`. Metadata geo (lat/lng/luas/penduduk) hanya prov & kab/kota;
+ * geometri batas peta ada di tabel terpisah `wilayah_boundaries` (join via `kode`).
  */
 class RefWilayah extends Model
 {
@@ -33,7 +34,7 @@ class RefWilayah extends Model
 
     protected $fillable = [
         'kode', 'nama', 'level', 'parent_kode', 'ibukota',
-        'lat', 'lng', 'elv', 'tz', 'luas', 'penduduk', 'path',
+        'lat', 'lng', 'elv', 'tz', 'luas', 'penduduk',
     ];
 
     protected function casts(): array
