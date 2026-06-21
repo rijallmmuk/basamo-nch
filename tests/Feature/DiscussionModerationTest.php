@@ -1,9 +1,9 @@
 <?php
 
 use App\Filament\Resources\Discussions\Pages\ListDiscussions;
+use App\Models\Desa;
 use App\Models\Discussion;
 use App\Models\Module;
-use App\Models\Nagari;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -29,12 +29,12 @@ function makeThread(Module $module, User $author, array $overrides = []): Discus
     ], $overrides));
 }
 
-it('nagari_admin hanya melihat diskusi nagarinya', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagariA->id]);
-    $wargaA = User::factory()->warga()->create(['nagari_id' => $nagariA->id]);
-    $wargaB = User::factory()->warga()->create(['nagari_id' => $nagariB->id]);
+it('desa_admin hanya melihat diskusi desanya', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
     $module = makeDiscussionModule();
 
     $threadA = makeThread($module, $wargaA);
@@ -47,12 +47,12 @@ it('nagari_admin hanya melihat diskusi nagarinya', function () {
         ->assertCanNotSeeTableRecords([$threadB]);
 });
 
-it('super_admin melihat diskusi semua nagari', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
+it('super_admin melihat diskusi semua desa', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
     $super = User::factory()->superAdmin()->create();
-    $wargaA = User::factory()->warga()->create(['nagari_id' => $nagariA->id]);
-    $wargaB = User::factory()->warga()->create(['nagari_id' => $nagariB->id]);
+    $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
     $module = makeDiscussionModule();
 
     $threadA = makeThread($module, $wargaA);
@@ -65,9 +65,9 @@ it('super_admin melihat diskusi semua nagari', function () {
 });
 
 it('admin menyematkan dan melepas sematan diskusi', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $thread = makeThread(makeDiscussionModule(), $warga);
 
     $this->actingAs($admin);
@@ -80,9 +80,9 @@ it('admin menyematkan dan melepas sematan diskusi', function () {
 });
 
 it('admin menghapus lalu memulihkan diskusi', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $thread = makeThread(makeDiscussionModule(), $warga);
 
     $this->actingAs($admin);
@@ -94,21 +94,21 @@ it('admin menghapus lalu memulihkan diskusi', function () {
     $this->assertNotSoftDeleted($thread);
 });
 
-it('nagari_admin tak boleh memoderasi diskusi nagari lain (policy)', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagariA->id]);
-    $wargaB = User::factory()->warga()->create(['nagari_id' => $nagariB->id]);
+it('desa_admin tak boleh memoderasi diskusi desa lain (policy)', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
     $threadB = makeThread(makeDiscussionModule(), $wargaB);
 
     expect($admin->can('delete', $threadB))->toBeFalse()
         ->and($admin->can('update', $threadB))->toBeFalse();
 });
 
-it('super_admin boleh memoderasi diskusi nagari mana pun (policy)', function () {
-    $nagari = Nagari::factory()->create();
+it('super_admin boleh memoderasi diskusi desa mana pun (policy)', function () {
+    $desa = Desa::factory()->create();
     $super = User::factory()->superAdmin()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $thread = makeThread(makeDiscussionModule(), $warga);
 
     expect($super->can('delete', $thread))->toBeTrue()
@@ -116,9 +116,9 @@ it('super_admin boleh memoderasi diskusi nagari mana pun (policy)', function () 
 });
 
 it('diskusi yang dihapus admin tidak tampil di portal warga', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeDiscussionModule();
     $thread = makeThread($module, $warga, ['body' => 'Konten dimoderasi unik']);
 

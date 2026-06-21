@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Modules\Schemas;
 
+use App\Enums\ModuleStatus;
 use App\Models\Module;
 use Closure;
 use Filament\Forms\Components\Hidden;
@@ -40,26 +41,23 @@ class ModuleForm
                     ->dehydrated()
                     ->columnSpan(1),
 
-                Select::make('nagari_id')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
-                    ->placeholder('— Global (semua nagari) —')
+                Select::make('desa_id')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
+                    ->placeholder('— Global (semua desa) —')
                     ->nullable()
                     ->searchable()
                     ->preload()
-                    // Ubah nagari → segarkan opsi prasyarat (harus global/senagari).
+                    // Ubah desa → segarkan opsi prasyarat (harus global/sedesa).
                     ->live()
-                    // Hanya super_admin yang menentukan nagari/global.
-                    // nagari_admin: nagari_id diisi otomatis (lihat CreateModule).
+                    // Hanya super_admin yang menentukan desa/global.
+                    // desa_admin: desa_id diisi otomatis (lihat CreateModule).
                     ->visible(fn () => auth()->user()?->isSuperAdmin())
                     ->columnSpan(1),
 
                 Select::make('status')
                     ->label('Status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ])
+                    ->options(ModuleStatus::class)
                     ->default('draft')
                     ->required()
                     ->helperText('Publish hanya bisa setelah modul memiliki minimal satu materi.')
@@ -92,15 +90,15 @@ class ModuleForm
                                 $query->whereKeyNot($record->getKey());
                             }
 
-                            // Prasyarat hanya boleh modul GLOBAL atau SENAGARI dengan modul ini.
+                            // Prasyarat hanya boleh modul GLOBAL atau SEDESA dengan modul ini.
                             // Mencegah modul terkunci permanen bagi warga yang tak punya akses
-                            // ke prasyarat lintas-nagari.
-                            $nagariId = self::moduleNagariId($get);
+                            // ke prasyarat lintas-desa.
+                            $desaId = self::moduleDesaId($get);
 
-                            $query->where(function ($q) use ($nagariId) {
-                                $q->whereNull('nagari_id');
-                                if ($nagariId) {
-                                    $q->orWhere('nagari_id', $nagariId);
+                            $query->where(function ($q) use ($desaId) {
+                                $q->whereNull('desa_id');
+                                if ($desaId) {
+                                    $q->orWhere('desa_id', $desaId);
                                 }
                             });
                         },
@@ -109,7 +107,7 @@ class ModuleForm
                     ->nullable()
                     ->searchable()
                     ->preload()
-                    // Guard server-side (otoritatif): tolak prasyarat lintas-nagari
+                    // Guard server-side (otoritatif): tolak prasyarat lintas-desa
                     // walau opsi dipaksa lewat request.
                     ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                         if (! $value) {
@@ -118,9 +116,9 @@ class ModuleForm
 
                         $prerequisite = Module::find($value);
 
-                        if ($prerequisite && $prerequisite->nagari_id !== null
-                            && $prerequisite->nagari_id != self::moduleNagariId($get)) {
-                            $fail('Prasyarat harus modul global atau dari nagari yang sama.');
+                        if ($prerequisite && $prerequisite->desa_id !== null
+                            && $prerequisite->desa_id != self::moduleDesaId($get)) {
+                            $fail('Prasyarat harus modul global atau dari desa yang sama.');
                         }
                     })
                     ->columnSpan(1),
@@ -147,18 +145,18 @@ class ModuleForm
     }
 
     /**
-     * Nagari efektif modul yang sedang disunting. nagari_admin: selalu nagarinya
-     * (field nagari_id disembunyikan). super_admin: dari pilihan form (null = global).
+     * Desa efektif modul yang sedang disunting. desa_admin: selalu desanya
+     * (field desa_id disembunyikan). super_admin: dari pilihan form (null = global).
      */
-    protected static function moduleNagariId(Get $get): ?int
+    protected static function moduleDesaId(Get $get): ?int
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            return $user->nagari_id;
+        if ($user?->isDesaAdmin()) {
+            return $user->desa_id;
         }
 
-        $value = $get('nagari_id');
+        $value = $get('desa_id');
 
         return $value ? (int) $value : null;
     }

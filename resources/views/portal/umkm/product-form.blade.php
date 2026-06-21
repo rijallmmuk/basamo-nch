@@ -19,7 +19,7 @@
 
     <div class="mb-5">
         <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ $product ? 'Ubah Produk' : 'Tambah Produk' }}</h1>
-        <p class="mt-1 text-sm text-gray-500">Produk akan ditinjau Admin Nagari sebelum tampil di katalog.</p>
+        <p class="mt-1 text-sm text-gray-500">Produk akan ditinjau Admin Desa sebelum tampil di katalog.</p>
     </div>
 
     <x-portal.card>

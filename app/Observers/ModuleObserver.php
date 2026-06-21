@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModuleStatus;
 use App\Models\Module;
 use App\Models\User;
 use App\Notifications\NewModulePublished;
@@ -30,7 +31,7 @@ class ModuleObserver
 
     public function created(Module $module): void
     {
-        if ($module->status === 'published') {
+        if ($module->status === ModuleStatus::Published) {
             $this->notifyWarga($module);
         }
     }
@@ -38,14 +39,14 @@ class ModuleObserver
     public function updated(Module $module): void
     {
         // Hanya saat status berubah menjadi published.
-        if ($module->wasChanged('status') && $module->status === 'published') {
+        if ($module->wasChanged('status') && $module->status === ModuleStatus::Published) {
             $this->notifyWarga($module);
         }
     }
 
     /**
      * Kirim notifikasi ke warga terkait: modul global → semua warga,
-     * modul lokal → warga nagari tsb saja.
+     * modul lokal → warga desa tsb saja.
      */
     private function notifyWarga(Module $module): void
     {
@@ -53,8 +54,8 @@ class ModuleObserver
             ->where('role', 'warga')
             ->where('status', 'active');
 
-        if ($module->nagari_id !== null) {
-            $query->where('nagari_id', $module->nagari_id);
+        if ($module->desa_id !== null) {
+            $query->where('desa_id', $module->desa_id);
         }
 
         // Kirim bertahap (notifikasi sudah ShouldQueue): modul global bisa

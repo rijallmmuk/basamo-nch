@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModuleStatus;
 use App\Observers\ModuleObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
@@ -26,20 +27,21 @@ class Module extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['title', 'status', 'nagari_id', 'sort_order', 'estimated_minutes', 'prerequisite_module_id'])
+            ->logOnly(['title', 'status', 'desa_id', 'sort_order', 'estimated_minutes', 'prerequisite_module_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('modul');
     }
 
     protected $fillable = [
-        'nagari_id', 'title', 'slug', 'description',
+        'desa_id', 'title', 'slug', 'description',
         'sort_order', 'estimated_minutes', 'prerequisite_module_id', 'status', 'created_by',
     ];
 
     protected function casts(): array
     {
         return [
+            'status' => ModuleStatus::class,
             'sort_order' => 'integer',
             'estimated_minutes' => 'integer',
         ];
@@ -83,9 +85,9 @@ class Module extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function nagari(): BelongsTo
+    public function desa(): BelongsTo
     {
-        return $this->belongsTo(Nagari::class);
+        return $this->belongsTo(Desa::class);
     }
 
     public function creator(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\ActiveStatus;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
@@ -23,13 +24,13 @@ class UsersTable
 {
     private const ROLE_LABELS = [
         'super_admin' => 'Super Admin',
-        'nagari_admin' => 'Admin Nagari',
+        'desa_admin' => 'Admin Desa',
         'warga' => 'Warga',
     ];
 
     private const ROLE_COLORS = [
         'super_admin' => 'danger',
-        'nagari_admin' => 'warning',
+        'desa_admin' => 'warning',
         'warga' => 'info',
     ];
 
@@ -77,8 +78,8 @@ class UsersTable
                     ->icon('heroicon-o-building-storefront')
                     ->toggleable(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->default('Global')
                     ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->badge()
@@ -93,8 +94,6 @@ class UsersTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Aktif' : 'Nonaktif')
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
 
                 TextColumn::make('total_xp')
@@ -114,15 +113,15 @@ class UsersTable
                     ->label('Peran')
                     ->options(self::ROLE_LABELS),
 
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->searchable()
                     ->preload(),
 
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
+                    ->options(ActiveStatus::class),
 
                 TrashedFilter::make(),
             ])
@@ -176,7 +175,7 @@ class UsersTable
                         $record->update(['umkm_access_granted_at' => null]);
 
                         // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
-                        $record->umkmProfile?->update(['status' => 'inactive']);
+                        $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
 
                         Notification::make()
                             ->title('Akses UMKM dicabut')

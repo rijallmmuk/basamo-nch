@@ -13,7 +13,7 @@ use Spatie\Activitylog\Models\Activity;
 
 /**
  * Viewer read-only audit trail (Spatie Activity Log). Hanya super_admin.
- * Pencatatan via trait LogsActivity di model (modul, kuis, materi, nagari, pengguna).
+ * Pencatatan via trait LogsActivity di model (modul, kuis, materi, desa, pengguna).
  */
 class ActivityLogResource extends Resource
 {

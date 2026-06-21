@@ -6,6 +6,36 @@
 
 ---
 
+## Sesi 2026-06-21 — Refactor besar: nagari→desa, backed enums, jenis tabel (branch `feat/penyebutan-wilayah-nasional`)
+
+Tiga fase, tiap fase di-commit terpisah & suite hijau (138 test):
+1. **Rename `nagari` → `desa`** (commit 3feaa3d): istilah Sumbar diganti netral nasional sebagai
+   nama internal entitas tenant; tampilan tetap dari `jenis`. Tabel `nagaris`→`desas`, kolom
+   `nagari_id`→`desa_id` (users/modules/umkm_profiles/xp_logs/wilayahs), model `Nagari`→`Desa`,
+   relasi `desa()`. **Role `nagari_admin`→`desa_admin`**, helper `isDesaAdmin()`. Filament
+   Resources/Desas, PengaturanDesa. Bukan Filament Tenancy (scoping manual).
+2. **Kolom status/type → PHP backed enum** (commit ec80d4e): 8 kolom `enum()` DB → `string` + cast
+   ke `app/Enums/` (ModuleStatus, ModuleProgressStatus, QuizAttemptStatus, UmkmProductStatus,
+   ModulePageType, ActiveStatus). Implement HasLabel/HasColor/HasIcon → badge/Select Filament
+   digerakkan enum (closure `fn(string $state)` & map manual dihapus). Tambah nilai tanpa ALTER.
+   Catatan: state **kolom tabel** = objek enum; state **form** Livewire = string value.
+3. **`jenis` & sub-unit → tabel referensi** (commit e2cd6ed): tabel global `jenis_desa` &
+   `jenis_sub_unit` (nama/urutan/aktif), diseed di **CoreSeeder**. `desas.jenis`→FK `jenis_desa_id`
+   (restrictOnDelete), `desas.wilayah_label`→FK `jenis_sub_unit_id`. Relasi `Desa::jenisDesa/jenisSubUnit`;
+   `namaLengkap`/`subUnitLabel` via relasi. Const JENIS/SUB_UNIT dihapus.
+
+**Audit penuh pasca-refactor (model→controller→Filament→views), suite 138→141 hijau, 6 commit:**
+- **Model** (24f5ef0): bersih (verifikasi DB live). +cast eksplisit `QuizAttempt::score`, `XpLog::source_id/amount` +relasi `XpLog::desa()`.
+- **Controller/Service** (a6ec65f): **BUG nyata diperbaiki** — `LmsProgressService::getModuleStatus[Using]` mem-`match` `$progress->status` (enum) lawan string → badge status modul di beranda/daftar **selalu "Belum Dimulai"** (lolos 138 test). Kini match enum case. +regresi `LmsProgressStatusTest`.
+- **Konsistensi enum** (4979793, 72fc25d): klausa `where()/whereIn()`/set status di controller/service/Livewire/Filament/widget pakai backed enum (query builder ubah enum→value). `UmkmService::verifyProduct` & `setStatus` jadi `UmkmProductStatus`-typed. **Sengaja string**: `->default()` & rule `$value==='published'` di form (state form Livewire = string); param-boundary; `priorityOrder`/`resultStatus` (status UI, bukan enum DB).
+- **Filament**: tenancy `desa_id` utuh & benar (`scopeToActor`/`scopeToDesa`, `isDesaAdmin`).
+- **Views** (1dfb8dd): bersih (nol "nagari", semua atribut enum via `->value`). **N+1 diperbaiki**: `nama_lengkap` kini baca relasi `jenisDesa` → eager-load `umkmProfile.desa.jenisDesa` (katalog) & `jenisDesa` (DesaResource).
+- Catatan minor pra-refactor (tak diubah): `ActivityLogsTable` filter `log_name` kurang opsi diskusi/produk/umkm/wilayah.
+
+Belum merge ke main.
+
+---
+
 ## Status
 
 **Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
@@ -424,6 +454,20 @@ ke create-nya). Diverifikasi via `mysqldump --no-data` sebelum/sesudah: skema
   menampilkan dashboard basi dari riwayat browser (akses server sudah aman sebelumnya).
 - Test: `PublicHomeTest` (landing tampil, header no-store di portal, publik tanpa no-store);
   `ExampleTest` diselaraskan (root → landing). Suite **hijau (133)**. `npm run build` dijalankan.
+
+## Penyebutan wilayah administratif nasional (2026-06-20) — branch `feat/penyebutan-wilayah-nasional`
+Dukungan multi-istilah administratif Indonesia (skala nasional). Suite **hijau (138)**.
+- **`nagaris.jenis`** (baru, wajib): penyebutan setingkat desa (Desa/Kelurahan/Nagari/Gampong/
+  Kampung/Kalurahan/Lembang/Pekon/Tiyuh/Negeri/Nagori/Huta) — string+dropdown, dipilih super_admin
+  & melekat. `wilayah_label` jadi **nullable** (sebutan sub-unit, diatur admin nagari).
+- Accessor `Nagari::namaLengkap` → "{jenis} {nama}" dipakai di landing/katalog/portal/tabel admin.
+  `subUnitLabel()` fallback **"Sub-Unit Wilayah"**. Daftar pilihan = konstanta `Nagari::JENIS`/`SUB_UNIT`.
+- **NagariForm (super_admin):** Select `jenis` wajib + `wilayah_label` opsional. NagarisTable +kolom jenis.
+- **Halaman baru "Pengaturan Nagari" (admin nagari, grup Pengaturan):** self-service sebutan sub-unit,
+  logo desa, kontak, koordinat — terikat nagarinya sendiri. super_admin tetap punya kendali penuh via
+  NagariResource. `nama` demo/factory tak lagi berawalan "Nagari" (jenis terpisah).
+- Validasi istilah via riset web (UU Desa / ragam sebutan desa). Test: `NagariPenyebutanTest`.
+- Migrasi diedit langsung di file konsolidasi `create_nagaris` (bukan alter baru) → `migrate:fresh`.
 
 ## Keputusan teknis aktif (detail di DECISIONS.md)
 - Kuis MC-only; nilai angka 0–100 (bukan %); tanpa bobot poin per soal.

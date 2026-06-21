@@ -1,8 +1,8 @@
 <?php
 
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
+use App\Models\Desa;
 use App\Models\Module;
-use App\Models\Nagari;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,9 +24,9 @@ it('super_admin dapat mengakses Log Aktivitas', function () {
         ->assertSuccessful();
 });
 
-it('nagari_admin tidak dapat mengakses Log Aktivitas', function () {
-    $nagari = Nagari::factory()->create();
-    $user = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
+it('desa_admin tidak dapat mengakses Log Aktivitas', function () {
+    $desa = Desa::factory()->create();
+    $user = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
 
     $this->actingAs($user)
         ->get(ActivityLogResource::getUrl('index'))

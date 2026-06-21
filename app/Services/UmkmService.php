@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -15,7 +16,7 @@ class UmkmService
     public const MAX_PHOTOS = 5;
 
     /**
-     * Buat atau perbarui profil usaha milik pemilik. Nagari mengikuti pemilik.
+     * Buat atau perbarui profil usaha milik pemilik. Desa mengikuti pemilik.
      *
      * @param  array<string, mixed>  $data
      */
@@ -31,13 +32,13 @@ class UmkmService
 
         return $owner->umkmProfile()->create([
             ...$data,
-            'nagari_id' => $owner->nagari_id,
+            'desa_id' => $owner->desa_id,
         ]);
     }
 
     /**
      * Tambah produk baru milik profil. Selalu mulai berstatus pending (menunggu
-     * verifikasi Admin Nagari).
+     * verifikasi Admin Desa).
      *
      * @param  array<string, mixed>  $data
      * @param  array<int, UploadedFile>  $photos
@@ -46,7 +47,7 @@ class UmkmService
     {
         $product = $profile->products()->create([
             ...$data,
-            'status' => 'pending',
+            'status' => UmkmProductStatus::Pending,
         ]);
 
         $this->attachPhotos($product, $photos);
@@ -66,7 +67,7 @@ class UmkmService
     {
         $product->update([
             ...$data,
-            'status' => 'pending',
+            'status' => UmkmProductStatus::Pending,
             'rejection_reason' => null,
             'approved_by' => null,
             'approved_at' => null,
@@ -85,13 +86,13 @@ class UmkmService
      * Verifikasi produk oleh admin (setujui/tolak). Menyetel jejak verifikasi lalu
      * memberi tahu pemilik. Dipakai antrian verifikasi global & relation manager.
      */
-    public function verifyProduct(UmkmProduct $product, string $status, ?int $approverId = null, ?string $reason = null): UmkmProduct
+    public function verifyProduct(UmkmProduct $product, UmkmProductStatus $status, ?int $approverId = null, ?string $reason = null): UmkmProduct
     {
         $product->update([
             'status' => $status,
-            'rejection_reason' => $status === 'rejected' ? $reason : null,
-            'approved_by' => $status === 'approved' ? $approverId : null,
-            'approved_at' => $status === 'approved' ? now() : null,
+            'rejection_reason' => $status === UmkmProductStatus::Rejected ? $reason : null,
+            'approved_by' => $status === UmkmProductStatus::Approved ? $approverId : null,
+            'approved_at' => $status === UmkmProductStatus::Approved ? now() : null,
         ]);
 
         $product->umkmProfile->owner?->notify(new UmkmProductVerified($product));

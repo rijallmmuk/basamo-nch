@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -23,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'nagari_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'desa_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser, HasMedia
 {
@@ -34,7 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'nagari_id', 'status'])
+            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'desa_id', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('pengguna');
@@ -87,8 +88,8 @@ class User extends Authenticatable implements FilamentUser, HasMedia
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->status === 'active'
-            && in_array($this->role, ['super_admin', 'nagari_admin'], true);
+        return $this->status === ActiveStatus::Active
+            && in_array($this->role, ['super_admin', 'desa_admin'], true);
     }
 
     public function isSuperAdmin(): bool
@@ -96,9 +97,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         return $this->role === 'super_admin';
     }
 
-    public function isNagariAdmin(): bool
+    public function isDesaAdmin(): bool
     {
-        return $this->role === 'nagari_admin';
+        return $this->role === 'desa_admin';
     }
 
     /** Akun portal (warga) yang disediakan admin via NIK + OTP. */
@@ -108,7 +109,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     }
 
     /**
-     * Kapabilitas UMKM: warga yang diberi akses "Produk Saya" oleh Admin Nagari.
+     * Kapabilitas UMKM: warga yang diberi akses "Produk Saya" oleh Admin Desa.
      * Ini kemampuan tambahan di atas peran warga, BUKAN peran terpisah.
      */
     public function hasUmkmAccess(): bool
@@ -154,6 +155,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     protected function casts(): array
     {
         return [
+            'status' => ActiveStatus::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'must_change_password' => 'boolean',
@@ -163,9 +165,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         ];
     }
 
-    public function nagari(): BelongsTo
+    public function desa(): BelongsTo
     {
-        return $this->belongsTo(Nagari::class);
+        return $this->belongsTo(Desa::class);
     }
 
     public function wilayah(): BelongsTo

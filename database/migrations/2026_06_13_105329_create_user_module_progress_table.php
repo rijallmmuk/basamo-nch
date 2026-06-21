@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->json('pages_completed')->nullable();
-            $table->enum('status', ['not_started', 'in_progress', 'completed'])->default('not_started');
+            $table->string('status')->default('not_started');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 

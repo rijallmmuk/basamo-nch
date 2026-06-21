@@ -1,9 +1,9 @@
 <?php
 
 use App\Filament\Resources\Modules\Pages\CreateModule;
+use App\Models\Desa;
 use App\Models\Module;
 use App\Models\ModulePage;
-use App\Models\Nagari;
 use App\Models\User;
 use App\Models\UserModuleProgress;
 use App\Services\LmsProgressService;
@@ -14,14 +14,14 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 /** Modul published + N halaman teks. */
-function makeModuleWithPages(int $pageCount, ?int $nagariId = null): Module
+function makeModuleWithPages(int $pageCount, ?int $desaId = null): Module
 {
     $module = Module::create([
         'title' => 'Modul '.uniqid(),
         'slug' => 'modul-'.uniqid(),
         'status' => 'published',
         'sort_order' => 1,
-        'nagari_id' => $nagariId,
+        'desa_id' => $desaId,
     ]);
 
     for ($i = 1; $i <= $pageCount; $i++) {
@@ -39,8 +39,8 @@ function makeModuleWithPages(int $pageCount, ?int $nagariId = null): Module
 
 // ── #1 Keamanan: XSS pada konten materi ──────────────────────────────
 it('konten materi disanitasi dari script saat ditampilkan ke warga', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
 
     $module = Module::create([
         'title' => 'Modul XSS', 'slug' => 'modul-xss', 'status' => 'published', 'sort_order' => 1,
@@ -59,8 +59,8 @@ it('konten materi disanitasi dari script saat ditampilkan ke warga', function ()
 
 // ── #3/#4 Penyelesaian: rekonsiliasi setelah halaman dihapus ──────────
 it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman dihapus', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeModuleWithPages(4);
     $pages = $module->pages()->orderBy('sort_order')->get();
 
@@ -72,7 +72,7 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
     $service->markPageCompleted($warga, $module, $pages[2]);
 
     $progress = UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->first();
-    expect($progress->status)->toBe('in_progress');
+    expect($progress->status->value)->toBe('in_progress');
 
     // Admin menghapus halaman ke-4 (yang belum dibuka).
     $pages[3]->delete();
@@ -81,14 +81,14 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
     $service->markPageCompleted($warga, $module, $pages[0]);
 
     $progress->refresh();
-    expect($progress->status)->toBe('completed')
+    expect($progress->status->value)->toBe('completed')
         ->and($progress->completed_at)->not->toBeNull()
         ->and($warga->refresh()->total_xp)->toBe(50);
 });
 
 it('membuang ID halaman hantu dari pages_completed', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeModuleWithPages(3);
     $pages = $module->pages()->orderBy('sort_order')->get();
     $service = app(LmsProgressService::class);
@@ -110,8 +110,8 @@ it('membuang ID halaman hantu dari pages_completed', function () {
 
 // ── #11 Prasyarat yang dihapus tidak mengunci ────────────────────────
 it('prasyarat aktif yang belum diselesaikan tetap mengunci modul', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $prereq = makeModuleWithPages(1);
     $module = makeModuleWithPages(1);
     $module->update(['prerequisite_module_id' => $prereq->id]);
@@ -120,8 +120,8 @@ it('prasyarat aktif yang belum diselesaikan tetap mengunci modul', function () {
 });
 
 it('prasyarat yang sudah dihapus tidak mengunci modul', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $prereq = makeModuleWithPages(1);
     $module = makeModuleWithPages(1);
     $module->update(['prerequisite_module_id' => $prereq->id]);
@@ -131,17 +131,17 @@ it('prasyarat yang sudah dihapus tidak mengunci modul', function () {
     expect(app(LmsProgressService::class)->isModuleAccessible($warga->refresh(), $module->refresh()))->toBeTrue();
 });
 
-// ── #2 Prasyarat lintas-nagari ditolak ───────────────────────────────
-it('menolak prasyarat lintas-nagari untuk modul global', function () {
+// ── #2 Prasyarat lintas-desa ditolak ───────────────────────────────
+it('menolak prasyarat lintas-desa untuk modul global', function () {
     $this->actingAs(User::factory()->superAdmin()->create());
-    $nagari = Nagari::factory()->create();
-    $lokal = makeModuleWithPages(1, $nagari->id);
+    $desa = Desa::factory()->create();
+    $lokal = makeModuleWithPages(1, $desa->id);
 
     Livewire::test(CreateModule::class)
         ->fillForm([
             'title' => 'Modul Global',
             'status' => 'draft',
-            'nagari_id' => null,
+            'desa_id' => null,
             'prerequisite_module_id' => $lokal->id,
         ])
         ->call('create')
@@ -156,7 +156,7 @@ it('mengizinkan prasyarat global untuk modul global', function () {
         ->fillForm([
             'title' => 'Modul Global 2',
             'status' => 'draft',
-            'nagari_id' => null,
+            'desa_id' => null,
             'prerequisite_module_id' => $global->id,
         ])
         ->call('create')

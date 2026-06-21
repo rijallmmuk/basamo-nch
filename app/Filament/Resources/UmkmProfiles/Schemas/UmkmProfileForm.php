@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Schemas;
 
+use App\Enums\ActiveStatus;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -17,7 +18,7 @@ class UmkmProfileForm
         return $schema
             ->components([
                 Section::make('Pemilik')
-                    ->description('UMKM ditautkan ke akun Pemilik UMKM. Nagari mengikuti nagari pemilik.')
+                    ->description('UMKM ditautkan ke akun Pemilik UMKM. Desa mengikuti desa pemilik.')
                     ->schema([
                         Select::make('user_id')
                             ->label('Pemilik UMKM')
@@ -55,7 +56,7 @@ class UmkmProfileForm
 
                         Select::make('status')
                             ->label('Status')
-                            ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif'])
+                            ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
                             ->native(false),
@@ -74,7 +75,7 @@ class UmkmProfileForm
     }
 
     /**
-     * Opsi pemilik = warga yang sudah diberi akses UMKM. nagari_admin hanya nagarinya.
+     * Opsi pemilik = warga yang sudah diberi akses UMKM. desa_admin hanya desanya.
      *
      * @return array<int, string>
      */
@@ -85,7 +86,7 @@ class UmkmProfileForm
         return User::query()
             ->where('role', 'warga')
             ->whereNotNull('umkm_access_granted_at')
-            ->when($actor?->isNagariAdmin(), fn ($q) => $q->where('nagari_id', $actor->nagari_id))
+            ->when($actor?->isDesaAdmin(), fn ($q) => $q->where('desa_id', $actor->desa_id))
             ->orderBy('name')
             ->pluck('name', 'id')
             ->all();

@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Desa;
 use App\Models\Discussion;
+use App\Models\JenisDesa;
+use App\Models\JenisSubUnit;
 use App\Models\Module;
-use App\Models\Nagari;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\UmkmCategory;
@@ -18,7 +20,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Data demo agar /admin & portal terlihat hidup: 2 nagari (sebutan wilayah
+ * Data demo agar /admin & portal terlihat hidup: 2 desa (sebutan wilayah
  * berbeda), wilayah, warga (login NIK), modul global + lokal dengan materi &
  * kuis (termasuk soal pilihan jamak), lalu progres + XP untuk leaderboard.
  *
@@ -38,68 +40,68 @@ class DemoSeeder extends Seeder
 
         $globalModules = $this->seedGlobalModules($superAdmin);
 
-        $nagariData = [
-            ['NCH-001', 'Nagari Contoh Harapan', 'Jorong', 'Kabupaten Agam', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']],
-            ['NCH-002', 'Nagari Sungai Lansek', 'Korong', 'Kabupaten Padang Pariaman', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']],
+        $desaData = [
+            ['NCH-001', 'Nagari', 'Contoh Harapan', 'Jorong', 'Kabupaten Agam', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']],
+            ['NCH-002', 'Nagari', 'Sungai Lansek', 'Korong', 'Kabupaten Padang Pariaman', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']],
         ];
 
-        foreach ($nagariData as [$kode, $nama, $sebutan, $kabupaten, $unitNames]) {
-            $nagari = $this->seedNagari($kode, $nama, $sebutan, $kabupaten);
-            $wilayah = $this->seedWilayah($nagari, $unitNames);
-            $this->seedNagariAdmin($nagari);
+        foreach ($desaData as [$kode, $jenis, $nama, $sebutan, $kabupaten, $unitNames]) {
+            $desa = $this->seedDesa($kode, $jenis, $nama, $sebutan, $kabupaten);
+            $wilayah = $this->seedWilayah($desa, $unitNames);
+            $this->seedDesaAdmin($desa);
 
-            $localModule = $this->seedLocalModule($nagari, $superAdmin);
+            $localModule = $this->seedLocalModule($desa, $superAdmin);
             $modules = [...$globalModules, $localModule];
 
-            $warga = $this->seedWarga($nagari, $wilayah);
+            $warga = $this->seedWarga($desa, $wilayah);
             $this->seedProgress($warga, $modules);
             $this->seedDiscussions($warga, $globalModules[0]);
-            $this->seedUmkm($nagari, $warga, $superAdmin);
+            $this->seedUmkm($desa, $warga, $superAdmin);
         }
 
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
     }
 
-    private function seedNagari(string $kode, string $nama, string $sebutan, string $kabupaten): Nagari
+    private function seedDesa(string $kode, string $jenis, string $nama, string $sebutan, string $kabupaten): Desa
     {
-        $nagari = Nagari::firstOrCreate(
+        $desa = Desa::firstOrCreate(
             ['kode' => $kode],
-            ['nama' => $nama, 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
+            ['nama' => $nama, 'jenis_desa_id' => JenisDesa::where('nama', $jenis)->value('id'), 'provinsi' => 'Sumatera Barat', 'kabupaten' => $kabupaten, 'kecamatan' => 'Kecamatan Demo', 'kontak' => '08123456789', 'status' => 'active'],
         );
 
-        $nagari->update(['wilayah_label' => $sebutan]);
+        $desa->update(['jenis_sub_unit_id' => JenisSubUnit::where('nama', $sebutan)->value('id')]);
 
-        return $nagari;
+        return $desa;
     }
 
     /** @return array<int, Wilayah> */
-    private function seedWilayah(Nagari $nagari, array $names): array
+    private function seedWilayah(Desa $desa, array $names): array
     {
         return collect($names)
-            ->map(fn (string $nama) => Wilayah::firstOrCreate(['nagari_id' => $nagari->id, 'nama' => $nama]))
+            ->map(fn (string $nama) => Wilayah::firstOrCreate(['desa_id' => $desa->id, 'nama' => $nama]))
             ->all();
     }
 
-    private function seedNagariAdmin(Nagari $nagari): User
+    private function seedDesaAdmin(Desa $desa): User
     {
-        // Pakai admin nagari yang sudah ada (mis. dari UserSeeder) bila tersedia.
-        $existing = User::where('nagari_id', $nagari->id)->where('role', 'nagari_admin')->first();
+        // Pakai admin desa yang sudah ada (mis. dari UserSeeder) bila tersedia.
+        $existing = User::where('desa_id', $desa->id)->where('role', 'desa_admin')->first();
         if ($existing) {
             return $existing;
         }
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin.'.strtolower($nagari->kode).'@basamo.nch'],
+            ['email' => 'admin.'.strtolower($desa->kode).'@basamo.nch'],
             [
-                'name' => 'Admin '.$nagari->nama,
-                'username' => 'admin_'.strtolower(str_replace('-', '', $nagari->kode)),
+                'name' => 'Admin '.$desa->nama,
+                'username' => 'admin_'.strtolower(str_replace('-', '', $desa->kode)),
                 'password' => Hash::make('password'),
-                'nagari_id' => $nagari->id,
-                'role' => 'nagari_admin',
+                'desa_id' => $desa->id,
+                'role' => 'desa_admin',
                 'status' => 'active',
             ],
         );
-        $admin->assignRole('nagari_admin');
+        $admin->assignRole('desa_admin');
 
         return $admin;
     }
@@ -120,22 +122,22 @@ class DemoSeeder extends Seeder
             ->all();
     }
 
-    private function seedLocalModule(Nagari $nagari, User $author): Module
+    private function seedLocalModule(Desa $desa, User $author): Module
     {
         return $this->makeModule(
-            'Potensi & Produk Unggulan '.$nagari->nama,
+            'Potensi & Produk Unggulan '.$desa->nama,
             15,
-            'Modul lokal khusus warga '.$nagari->nama.' tentang potensi nagari.',
-            $nagari->id,
+            'Modul lokal khusus warga '.$desa->nama.' tentang potensi desa.',
+            $desa->id,
             $author,
             10,
         );
     }
 
-    private function makeModule(string $title, int $minutes, string $desc, ?int $nagariId, User $author, int $order): Module
+    private function makeModule(string $title, int $minutes, string $desc, ?int $desaId, User $author, int $order): Module
     {
         $module = Module::firstOrCreate(
-            ['title' => $title, 'nagari_id' => $nagariId],
+            ['title' => $title, 'desa_id' => $desaId],
             [
                 'description' => '<p>'.$desc.'</p>',
                 'estimated_minutes' => $minutes,
@@ -188,20 +190,20 @@ class DemoSeeder extends Seeder
     }
 
     /** @return array<int, User> */
-    private function seedWarga(Nagari $nagari, array $wilayah): array
+    private function seedWarga(Desa $desa, array $wilayah): array
     {
         $names = ['Budi Santoso', 'Siti Aminah', 'Andi Pratama', 'Dewi Lestari', 'Rudi Hartono', 'Nurul Hidayah', 'Fajar Nugraha', 'Maya Sari'];
-        $seq = $nagari->id;
+        $seq = $desa->id;
 
-        return collect($names)->map(function (string $nama, int $i) use ($nagari, $wilayah, $seq) {
-            // NIK demo 16 digit: 32 (SumBar) + 2 digit nagari + 12 digit urut.
+        return collect($names)->map(function (string $nama, int $i) use ($desa, $wilayah, $seq) {
+            // NIK demo 16 digit: 32 (SumBar) + 2 digit desa + 12 digit urut.
             $nik = sprintf('32%02d%012d', $seq, ($seq * 100) + $i + 1);
 
             $warga = User::firstOrCreate(
                 ['username' => $nik],
                 [
                     'name' => $nama,
-                    'nagari_id' => $nagari->id,
+                    'desa_id' => $desa->id,
                     'wilayah_id' => $wilayah[$i % count($wilayah)]->id,
                     'phone' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'password' => Hash::make('password'),
@@ -256,7 +258,7 @@ class DemoSeeder extends Seeder
      *
      * @param  array<int, User>  $wargaList
      */
-    private function seedUmkm(Nagari $nagari, array $wargaList, User $verifier): void
+    private function seedUmkm(Desa $desa, array $wargaList, User $verifier): void
     {
         // Cetak biru usaha: [nama, kategori, [produk...]].
         $blueprints = [
@@ -276,12 +278,12 @@ class DemoSeeder extends Seeder
             $categoryId = UmkmCategory::where('slug', strtolower($kategori))->value('id');
 
             $profile = UmkmProfile::firstOrCreate(
-                ['nagari_id' => $nagari->id, 'user_id' => $owner->id],
+                ['desa_id' => $desa->id, 'user_id' => $owner->id],
                 [
-                    'nama_usaha' => $namaUsaha.' ('.$nagari->kode.')',
+                    'nama_usaha' => $namaUsaha.' ('.$desa->kode.')',
                     'umkm_category_id' => $categoryId,
-                    'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$nagari->nama.'.',
-                    'alamat' => 'Pasar '.$nagari->nama,
+                    'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$desa->nama.'.',
+                    'alamat' => 'Pasar '.$desa->nama,
                     'whatsapp' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'status' => 'active',
                 ],

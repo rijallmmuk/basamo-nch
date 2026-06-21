@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 /**
  * Moderasi diskusi (read-only + aksi pin/hapus/pulihkan). Tanpa create/edit isi.
- * super_admin: semua nagari. nagari_admin: hanya diskusi warga nagarinya (scope query + Policy).
+ * super_admin: semua desa. desa_admin: hanya diskusi warga desanya (scope query + Policy).
  */
 class DiscussionResource extends Resource
 {
@@ -47,15 +47,15 @@ class DiscussionResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
-            ->with(['user.nagari', 'module'])
+            ->with(['user.desa', 'module'])
             ->withCount('replies')
             ->withoutGlobalScopes([SoftDeletingScope::class]);
 
         $user = auth()->user();
 
-        // nagari_admin hanya melihat diskusi yang ditulis warga nagarinya.
-        if ($user?->isNagariAdmin()) {
-            $query->whereHas('user', fn ($q) => $q->where('nagari_id', $user->nagari_id));
+        // desa_admin hanya melihat diskusi yang ditulis warga desanya.
+        if ($user?->isDesaAdmin()) {
+            $query->whereHas('user', fn ($q) => $q->where('desa_id', $user->desa_id));
         }
 
         return $query;

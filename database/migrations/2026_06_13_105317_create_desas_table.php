@@ -8,36 +8,39 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('nagaris', function (Blueprint $table) {
+        Schema::create('desas', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
+            // Penyebutan wilayah administratif setingkat desa (Desa/Kelurahan/Nagari/…),
+            // dipilih super_admin & melekat ke entitas. Referensi global jenis_desa.
+            $table->foreignId('jenis_desa_id')->constrained('jenis_desa')->restrictOnDelete();
             $table->string('kode', 50)->unique();
             $table->string('provinsi', 100)->nullable();
             $table->string('kabupaten', 100)->nullable();
             $table->string('kecamatan', 100)->nullable();
-            // Sebutan unit wilayah khas nagari (Jorong/Dusun/Korong/Kampuang/…).
-            $table->string('wilayah_label', 30)->default('Jorong');
+            // Sebutan sub-unit (Jorong/Dusun/Korong/…), diatur admin desa. Boleh kosong.
+            $table->foreignId('jenis_sub_unit_id')->nullable()->constrained('jenis_sub_unit')->nullOnDelete();
             $table->decimal('koordinat_lat', 10, 8)->nullable();
             $table->decimal('koordinat_lng', 11, 8)->nullable();
             $table->string('kontak', 20)->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
             $table->timestamps();
             $table->softDeletes();
         });
 
-        // FK users.nagari_id (users dibuat lebih dulu). Index FK dipenuhi komposit
-        // users_nagari_role_status_xp_idx (prefix kiri).
+        // FK users.desa_id (users dibuat lebih dulu). Index FK dipenuhi komposit
+        // users_desa_role_status_xp_idx (prefix kiri).
         Schema::table('users', function (Blueprint $table) {
-            $table->foreign('nagari_id')->references('id')->on('nagaris')->nullOnDelete();
+            $table->foreign('desa_id')->references('id')->on('desas')->nullOnDelete();
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['nagari_id']);
+            $table->dropForeign(['desa_id']);
         });
 
-        Schema::dropIfExists('nagaris');
+        Schema::dropIfExists('desas');
     }
 };

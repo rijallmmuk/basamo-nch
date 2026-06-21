@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            // FK → nagaris/wilayahs ditambah di migrasi tabel terkait (dibuat setelah users).
-            $table->unsignedBigInteger('nagari_id')->nullable();   // nullable untuk super_admin
+            // FK → desas/wilayahs ditambah di migrasi tabel terkait (dibuat setelah users).
+            $table->unsignedBigInteger('desa_id')->nullable();   // nullable untuk super_admin
             $table->unsignedBigInteger('wilayah_id')->nullable();  // unit wilayah warga (opsional)
             $table->string('name');
             $table->string('username')->nullable()->unique();
@@ -22,18 +22,18 @@ return new class extends Migration
             $table->boolean('must_change_password')->default(false);
             $table->string('initial_otp', 12)->nullable();         // OTP awal (kredensial sementara)
             $table->timestamp('otp_expires_at')->nullable();
-            $table->string('role', 20)->nullable();                // persona: super_admin|nagari_admin|warga
+            $table->string('role', 20)->nullable();                // persona: super_admin|desa_admin|warga
             $table->timestamp('umkm_access_granted_at')->nullable(); // kapabilitas UMKM (bukan role)
             $table->unsignedInteger('total_xp')->default(0);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('role');
-            // Leaderboard: WHERE nagari,role,status ORDER BY total_xp (filter + sort 1 index).
-            // Komposit ini juga jadi index FK untuk nagari_id (prefix kiri).
-            $table->index(['nagari_id', 'role', 'status', 'total_xp'], 'users_nagari_role_status_xp_idx');
+            // Leaderboard: WHERE desa,role,status ORDER BY total_xp (filter + sort 1 index).
+            // Komposit ini juga jadi index FK untuk desa_id (prefix kiri).
+            $table->index(['desa_id', 'role', 'status', 'total_xp'], 'users_desa_role_status_xp_idx');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

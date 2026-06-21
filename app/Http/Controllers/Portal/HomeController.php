@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ActiveStatus;
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\User;
@@ -16,10 +18,10 @@ class HomeController extends Controller
     {
         $user = auth()->user();
 
-        $modules = Module::where('status', 'published')
+        $modules = Module::where('status', ModuleStatus::Published)
             ->where(function ($q) use ($user) {
-                $q->whereNull('nagari_id')
-                    ->orWhere('nagari_id', $user->nagari_id);
+                $q->whereNull('desa_id')
+                    ->orWhere('desa_id', $user->desa_id);
             })
             ->with(['progress' => fn ($q) => $q->where('user_id', $user->id)])
             ->withCount('pages')
@@ -44,10 +46,10 @@ class HomeController extends Controller
         $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->pages_completed ?? []));
         $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
 
-        // Peringkat XP se-nagari (Top 5 + posisi user) — hanya warga aktif.
+        // Peringkat XP se-desa (Top 5 + posisi user) — hanya warga aktif.
         $wargaQuery = fn () => User::where('role', 'warga')
-            ->where('status', 'active')
-            ->where('nagari_id', $user->nagari_id);
+            ->where('status', ActiveStatus::Active)
+            ->where('desa_id', $user->desa_id);
 
         $topUsers = $wargaQuery()
             ->orderByDesc('total_xp')

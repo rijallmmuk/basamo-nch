@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('deskripsi')->nullable();
             $table->unsignedBigInteger('harga')->nullable(); // rupiah integer (tanpa pecahan)
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('status')->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();

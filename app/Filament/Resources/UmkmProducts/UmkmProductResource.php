@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProducts;
 
+use App\Enums\UmkmProductStatus;
 use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
 use App\Filament\Resources\UmkmProducts\Tables\UmkmProductsTable;
 use App\Models\UmkmProduct;
@@ -12,8 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Antrian verifikasi produk lintas usaha (global). nagari_admin hanya melihat
- * produk di nagarinya; super_admin melihat semua. Hanya daftar + aksi
+ * Antrian verifikasi produk lintas usaha (global). desa_admin hanya melihat
+ * produk di desanya; super_admin melihat semua. Hanya daftar + aksi
  * setujui/tolak — produk dibuat pemilik di portal.
  */
 class UmkmProductResource extends Resource
@@ -42,7 +43,7 @@ class UmkmProductResource extends Resource
     /** Badge navigasi = jumlah produk menunggu verifikasi (ter-scope aktor). */
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getEloquentQuery()->where('status', 'pending')->count();
+        $count = static::getEloquentQuery()->where('status', UmkmProductStatus::Pending)->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -60,17 +61,17 @@ class UmkmProductResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return static::scopeToActor(
-            parent::getEloquentQuery()->with(['umkmProfile.nagari', 'umkmProfile.owner'])
+            parent::getEloquentQuery()->with(['umkmProfile.desa', 'umkmProfile.owner'])
         );
     }
 
-    /** nagari_admin hanya produk di nagarinya; super_admin melihat semua. */
+    /** desa_admin hanya produk di desanya; super_admin melihat semua. */
     protected static function scopeToActor(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->whereHas('umkmProfile', fn (Builder $q) => $q->where('nagari_id', $user->nagari_id));
+        if ($user?->isDesaAdmin()) {
+            $query->whereHas('umkmProfile', fn (Builder $q) => $q->where('desa_id', $user->desa_id));
         }
 
         return $query;

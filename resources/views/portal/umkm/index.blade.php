@@ -75,7 +75,7 @@
         @else
             <div class="grid gap-4 sm:grid-cols-2">
                 @foreach($profile->products as $product)
-                    @php $s = $statusMap[$product->status] ?? $statusMap['pending']; @endphp
+                    @php $s = $statusMap[$product->status->value] ?? $statusMap['pending']; @endphp
                     <x-portal.card :padded="false">
                         <div class="flex gap-4 p-4">
                             <img src="{{ $product->coverUrl() }}" alt="{{ $product->nama_produk }}"
@@ -90,7 +90,7 @@
                                 <p class="mt-0.5 text-sm font-bold text-indigo-600">
                                     {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Harga tidak dicantumkan' }}
                                 </p>
-                                @if($product->status === 'rejected' && $product->rejection_reason)
+                                @if($product->status->value === 'rejected' && $product->rejection_reason)
                                     <p class="mt-1.5 rounded-lg bg-red-50 px-2 py-1 text-xs text-red-600">{{ $product->rejection_reason }}</p>
                                 @endif
                                 <div class="mt-2 flex items-center gap-3 text-sm">

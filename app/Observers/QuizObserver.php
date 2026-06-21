@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModuleStatus;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Notifications\NewQuizPublished;
@@ -14,7 +15,7 @@ class QuizObserver
         $module = $quiz->module;
 
         // Hanya beri tahu bila modulnya sudah published (warga bisa mengaksesnya).
-        if (! $module || $module->status !== 'published') {
+        if (! $module || $module->status !== ModuleStatus::Published) {
             return;
         }
 
@@ -22,8 +23,8 @@ class QuizObserver
             ->where('role', 'warga')
             ->where('status', 'active');
 
-        if ($module->nagari_id !== null) {
-            $query->where('nagari_id', $module->nagari_id);
+        if ($module->desa_id !== null) {
+            $query->where('desa_id', $module->desa_id);
         }
 
         // Kirim bertahap (notifikasi sudah ShouldQueue) agar tak memuat seluruh

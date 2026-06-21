@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UmkmProductStatus;
 use Database\Factories\UmkmProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,7 @@ class UmkmProduct extends Model implements HasMedia
     protected function casts(): array
     {
         return [
+            'status' => UmkmProductStatus::class,
             'harga' => 'integer',
             'approved_at' => 'datetime',
             'view_count' => 'integer',

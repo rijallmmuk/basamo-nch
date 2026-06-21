@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Modules\RelationManagers;
 
+use App\Enums\ModulePageType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -34,11 +35,7 @@ class PagesRelationManager extends RelationManager
 
                 Select::make('type')
                     ->label('Tipe Konten')
-                    ->options([
-                        'text' => 'Teks',
-                        'video' => 'Video',
-                        'pdf' => 'PDF',
-                    ])
+                    ->options(ModulePageType::class)
                     ->required()
                     ->default('text')
                     ->live()
@@ -93,25 +90,7 @@ class PagesRelationManager extends RelationManager
 
                 TextColumn::make('type')
                     ->label('Tipe')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'text' => 'Teks',
-                        'video' => 'Video',
-                        'pdf' => 'PDF',
-                        default => $state,
-                    })
-                    ->icon(fn (string $state): string => match ($state) {
-                        'text' => 'heroicon-o-document-text',
-                        'video' => 'heroicon-o-play-circle',
-                        'pdf' => 'heroicon-o-document',
-                        default => 'heroicon-o-document',
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'text' => 'info',
-                        'video' => 'success',
-                        'pdf' => 'warning',
-                        default => 'gray',
-                    }),
+                    ->badge(),
             ])
             ->filters([])
             ->headerActions([

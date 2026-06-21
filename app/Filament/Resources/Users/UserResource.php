@@ -53,7 +53,7 @@ class UserResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
-                ->with(['nagari', 'wilayah'])
+                ->with(['desa', 'wilayah'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
@@ -67,15 +67,15 @@ class UserResource extends Resource
     }
 
     /**
-     * nagari_admin hanya mengakses pengguna di nagarinya sendiri.
+     * desa_admin hanya mengakses pengguna di desanya sendiri.
      * super_admin melihat semua. Dipakai listing & route-model binding (edit/URL).
      */
     protected static function scopeToActor(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->where('nagari_id', $user->nagari_id);
+        if ($user?->isDesaAdmin()) {
+            $query->where('desa_id', $user->desa_id);
         }
 
         return $query;

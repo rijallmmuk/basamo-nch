@@ -25,7 +25,7 @@ Route::prefix('umkm')->name('public.umkm.')->group(function () {
 });
 
 Route::prefix('portal')->name('portal.')->group(function () {
-    // Guest only — akun warga dibuat Admin Nagari (tanpa self-register).
+    // Guest only — akun warga dibuat Admin Desa (tanpa self-register).
     Route::middleware('guest')->group(function () {
         Route::get('login', [AuthController::class, 'showLogin'])->name('login');
         Route::post('login', [AuthController::class, 'login']);

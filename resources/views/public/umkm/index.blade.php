@@ -4,16 +4,16 @@
 
 @section('content')
     <h1 class="text-2xl font-bold">Katalog UMKM</h1>
-    <p class="mt-1 text-sm text-gray-500">Produk dari pelaku UMKM nagari. Hubungi penjual langsung via WhatsApp.</p>
+    <p class="mt-1 text-sm text-gray-500">Produk dari pelaku UMKM desa. Hubungi penjual langsung via WhatsApp.</p>
 
     {{-- Filter --}}
     <form method="GET" class="mt-5 grid gap-3 sm:grid-cols-4">
         <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari produk…"
             class="rounded-lg border-gray-300 text-sm sm:col-span-2">
-        <select name="nagari" class="rounded-lg border-gray-300 text-sm">
-            <option value="">Semua nagari</option>
-            @foreach($nagariList as $id => $nama)
-                <option value="{{ $id }}" @selected(($filters['nagari'] ?? null) == $id)>{{ $nama }}</option>
+        <select name="desa" class="rounded-lg border-gray-300 text-sm">
+            <option value="">Semua desa</option>
+            @foreach($desaList as $id => $nama)
+                <option value="{{ $id }}" @selected(($filters['desa'] ?? null) == $id)>{{ $nama }}</option>
             @endforeach
         </select>
         <select name="kategori" class="rounded-lg border-gray-300 text-sm">
@@ -44,7 +44,7 @@
                             {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Hubungi penjual' }}
                         </p>
                         <p class="mt-1 truncate text-xs text-gray-400">
-                            {{ $product->umkmProfile->category?->nama }} · {{ $product->umkmProfile->nagari?->nama }}
+                            {{ $product->umkmProfile->category?->nama }} · {{ $product->umkmProfile->desa?->nama_lengkap }}
                         </p>
                     </div>
                 </a>

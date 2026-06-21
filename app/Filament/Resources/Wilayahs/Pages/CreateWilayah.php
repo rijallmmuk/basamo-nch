@@ -10,7 +10,7 @@ class CreateWilayah extends CreateRecord
     protected static string $resource = WilayahResource::class;
 
     /**
-     * nagari_admin tidak melihat field nagari — wilayah dipaksa ke nagarinya.
+     * desa_admin tidak melihat field desa — wilayah dipaksa ke desanya.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -19,8 +19,8 @@ class CreateWilayah extends CreateRecord
     {
         $actor = auth()->user();
 
-        if ($actor->isNagariAdmin()) {
-            $data['nagari_id'] = $actor->nagari_id;
+        if ($actor->isDesaAdmin()) {
+            $data['desa_id'] = $actor->desa_id;
         }
 
         return $data;

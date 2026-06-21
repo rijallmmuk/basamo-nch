@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
@@ -11,25 +13,47 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Nagari extends Model implements HasMedia
+class Desa extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'wilayah_label',
+        'nama', 'jenis_desa_id', 'kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'status' => ActiveStatus::class,
+        ];
+    }
+
+    /** Nama lengkap dengan penyebutan administratif, mis. "Nagari Koto Tuo". */
+    public function getNamaLengkapAttribute(): string
+    {
+        $jenis = $this->jenisDesa?->nama;
+
+        return trim(($jenis ? $jenis.' ' : '').$this->nama);
+    }
+
+    /** Sebutan sub-unit desa ini; fallback umum bila belum diatur admin desa. */
+    public function subUnitLabel(): string
+    {
+        return $this->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah';
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'kode', 'status', 'kabupaten', 'kecamatan', 'wilayah_label'])
+            ->logOnly(['nama', 'jenis_desa_id', 'kode', 'status', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('nagari');
+            ->useLogName('desa');
     }
 
-    /** Logo nagari (opsional) + logo kabupaten/kota induk. */
+    /** Logo desa (opsional) + logo kabupaten/kota induk. */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')->singleFile()
@@ -50,6 +74,16 @@ class Nagari extends Model implements HasMedia
         $media = $this->getFirstMedia('logo_kabupaten');
 
         return $media ? $media->getUrl() : null;
+    }
+
+    public function jenisDesa(): BelongsTo
+    {
+        return $this->belongsTo(JenisDesa::class);
+    }
+
+    public function jenisSubUnit(): BelongsTo
+    {
+        return $this->belongsTo(JenisSubUnit::class);
     }
 
     public function users(): HasMany

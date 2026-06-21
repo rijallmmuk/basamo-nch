@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ActiveStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -11,7 +12,7 @@ use Illuminate\View\View;
 class LeaderboardController extends Controller
 {
     /**
-     * Peringkat XP warga se-nagari (urut total_xp). Hanya warga aktif.
+     * Peringkat XP warga se-desa (urut total_xp). Hanya warga aktif.
      */
     public function index(): View
     {
@@ -30,13 +31,13 @@ class LeaderboardController extends Controller
         ]);
     }
 
-    /** Kandidat peringkat: warga aktif se-nagari. */
+    /** Kandidat peringkat: warga aktif se-desa. */
     private function wargaQuery(User $user): Builder
     {
         return User::query()
             ->where('role', 'warga')
-            ->where('status', 'active')
-            ->where('nagari_id', $user->nagari_id);
+            ->where('status', ActiveStatus::Active)
+            ->where('desa_id', $user->desa_id);
     }
 
     /**
@@ -76,7 +77,7 @@ class LeaderboardController extends Controller
     }
 
     /**
-     * Peringkat user = jumlah warga aktif senagari dengan XP lebih tinggi + 1.
+     * Peringkat user = jumlah warga aktif sedesa dengan XP lebih tinggi + 1.
      */
     private function rankOf(User $user): int
     {

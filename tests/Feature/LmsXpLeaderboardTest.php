@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Desa;
 use App\Models\Module;
-use App\Models\Nagari;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Models\XpLog;
@@ -22,8 +22,8 @@ function makeXpModule(): Module
 
 // ── Idempotensi & sumber XP ──────────────────────────────────────────
 it('XP modul hanya diberi sekali walau dipanggil berkali-kali', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeXpModule();
     $svc = app(LmsPointService::class);
 
@@ -36,8 +36,8 @@ it('XP modul hanya diberi sekali walau dipanggil berkali-kali', function () {
 });
 
 it('sumber XP berbeda tidak bertabrakan walau source_id sama', function () {
-    $nagari = Nagari::factory()->create();
-    $warga = User::factory()->warga()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeXpModule();
     $quiz = Quiz::create(['module_id' => $module->id, 'passing_score' => 50, 'max_attempts' => 3]);
     $svc = app(LmsPointService::class);
@@ -50,28 +50,28 @@ it('sumber XP berbeda tidak bertabrakan walau source_id sama', function () {
         ->and($warga->refresh()->total_xp)->toBe(50 + 100 + 20);
 });
 
-// ── L1: leaderboard hanya warga aktif, ter-scope nagari ──────────────
-it('leaderboard hanya menampilkan warga aktif se-nagari', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
-    $me = User::factory()->warga()->create(['nagari_id' => $nagariA->id, 'name' => 'Saya Sendiri', 'total_xp' => 30]);
-    User::factory()->warga()->create(['nagari_id' => $nagariA->id, 'name' => 'Teman Aktif', 'total_xp' => 50]);
-    User::factory()->warga()->create(['nagari_id' => $nagariA->id, 'name' => 'Teman Nonaktif', 'total_xp' => 999, 'status' => 'inactive']);
-    User::factory()->warga()->create(['nagari_id' => $nagariB->id, 'name' => 'Warga Nagari Lain', 'total_xp' => 100]);
+// ── L1: leaderboard hanya warga aktif, ter-scope desa ──────────────
+it('leaderboard hanya menampilkan warga aktif se-desa', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $me = User::factory()->warga()->create(['desa_id' => $desaA->id, 'name' => 'Saya Sendiri', 'total_xp' => 30]);
+    User::factory()->warga()->create(['desa_id' => $desaA->id, 'name' => 'Teman Aktif', 'total_xp' => 50]);
+    User::factory()->warga()->create(['desa_id' => $desaA->id, 'name' => 'Teman Nonaktif', 'total_xp' => 999, 'status' => 'inactive']);
+    User::factory()->warga()->create(['desa_id' => $desaB->id, 'name' => 'Warga Desa Lain', 'total_xp' => 100]);
 
     $this->actingAs($me)
         ->get(route('portal.leaderboard'))
         ->assertOk()
         ->assertSee('Teman Aktif')
         ->assertDontSee('Teman Nonaktif')
-        ->assertDontSee('Warga Nagari Lain');
+        ->assertDontSee('Warga Desa Lain');
 });
 
 // ── L1: warga nonaktif tidak memengaruhi peringkat/jumlah ────────────
 it('peringkat & total mengabaikan warga nonaktif', function () {
-    $nagari = Nagari::factory()->create();
-    $me = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'total_xp' => 100]);
-    User::factory()->warga()->create(['nagari_id' => $nagari->id, 'total_xp' => 999, 'status' => 'inactive']);
+    $desa = Desa::factory()->create();
+    $me = User::factory()->warga()->create(['desa_id' => $desa->id, 'total_xp' => 100]);
+    User::factory()->warga()->create(['desa_id' => $desa->id, 'total_xp' => 999, 'status' => 'inactive']);
 
     $resp = $this->actingAs($me)->get(route('portal.leaderboard'))->assertOk();
 
@@ -81,10 +81,10 @@ it('peringkat & total mengabaikan warga nonaktif', function () {
 
 // ── L2: peringkat kompetisi konsisten (seri = peringkat sama) ────────
 it('peringkat daftar konsisten dengan badge saat ada seri', function () {
-    $nagari = Nagari::factory()->create();
-    $a = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'name' => 'Andi', 'total_xp' => 100]);
-    $b = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'name' => 'Budi', 'total_xp' => 100]);
-    $c = User::factory()->warga()->create(['nagari_id' => $nagari->id, 'name' => 'Cici', 'total_xp' => 50]);
+    $desa = Desa::factory()->create();
+    $a = User::factory()->warga()->create(['desa_id' => $desa->id, 'name' => 'Andi', 'total_xp' => 100]);
+    $b = User::factory()->warga()->create(['desa_id' => $desa->id, 'name' => 'Budi', 'total_xp' => 100]);
+    $c = User::factory()->warga()->create(['desa_id' => $desa->id, 'name' => 'Cici', 'total_xp' => 50]);
 
     $resp = $this->actingAs($a)->get(route('portal.leaderboard'))->assertOk();
     $ranks = $resp->viewData('ranks');

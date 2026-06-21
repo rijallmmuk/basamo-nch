@@ -10,22 +10,22 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Otorisasi produk di portal: pemilik hanya boleh mengelola produk usahanya
- * sendiri. nagari_admin mengelola verifikasi via Resource (bukan policy ini).
+ * sendiri. desa_admin mengelola verifikasi via Resource (bukan policy ini).
  * super_admin dilewatkan via Gate::before.
  */
 class UmkmProductPolicy
 {
     use HandlesAuthorization;
 
-    /** Antrian verifikasi admin: nagari_admin (super_admin via Gate::before). */
+    /** Antrian verifikasi admin: desa_admin (super_admin via Gate::before). */
     public function viewAny(User $user): bool
     {
-        return $user->isNagariAdmin();
+        return $user->isDesaAdmin();
     }
 
     public function view(User $user, UmkmProduct $product): bool
     {
-        return $user->isNagariAdmin();
+        return $user->isDesaAdmin();
     }
 
     public function update(User $user, UmkmProduct $product): bool

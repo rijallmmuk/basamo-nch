@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use Illuminate\Notifications\Notification;
 
@@ -22,7 +23,7 @@ class UmkmProductVerified extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $approved = $this->product->status === 'approved';
+        $approved = $this->product->status === UmkmProductStatus::Approved;
 
         return [
             'type' => 'umkm_product_verified',

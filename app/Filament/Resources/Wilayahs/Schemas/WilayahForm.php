@@ -14,10 +14,10 @@ class WilayahForm
     {
         return $schema
             ->components([
-                // Hanya super_admin memilih nagari; nagari_admin dipaksa ke nagarinya (CreateWilayah).
-                Select::make('nagari_id')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                // Hanya super_admin memilih desa; desa_admin dipaksa ke desanya (CreateWilayah).
+                Select::make('desa_id')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->searchable()
                     ->preload()
                     ->required()
@@ -32,11 +32,11 @@ class WilayahForm
                     ->unique(
                         ignoreRecord: true,
                         modifyRuleUsing: function (Unique $rule, Get $get): Unique {
-                            $nagariId = auth()->user()?->isNagariAdmin()
-                                ? auth()->user()->nagari_id
-                                : $get('nagari_id');
+                            $desaId = auth()->user()?->isDesaAdmin()
+                                ? auth()->user()->desa_id
+                                : $get('desa_id');
 
-                            return $rule->where('nagari_id', $nagariId);
+                            return $rule->where('desa_id', $desaId);
                         },
                     )
                     ->columnSpanFull(),

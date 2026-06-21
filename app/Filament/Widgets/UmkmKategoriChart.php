@@ -18,7 +18,7 @@ class UmkmKategoriChart extends ApexChartWidget
         $user = auth()->user();
 
         $data = UmkmProfile::query()
-            ->when($user?->isNagariAdmin(), fn ($q) => $q->where('umkm_profiles.nagari_id', $user->nagari_id))
+            ->when($user?->isDesaAdmin(), fn ($q) => $q->where('umkm_profiles.desa_id', $user->desa_id))
             ->join('umkm_categories', 'umkm_categories.id', '=', 'umkm_profiles.umkm_category_id')
             ->selectRaw('umkm_categories.nama as kategori, COUNT(*) as total')
             ->groupBy('umkm_categories.nama')

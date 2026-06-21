@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ModuleStatus;
+use App\Enums\QuizAttemptStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\QuizAttempt;
@@ -17,9 +19,9 @@ class QuizController extends Controller
     {
         $user = auth()->user();
 
-        // Pastikan modul published dan milik nagari user (atau global)
-        if ($module->status !== 'published' ||
-            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+        // Pastikan modul published dan milik desa user (atau global)
+        if ($module->status !== ModuleStatus::Published ||
+            ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }
 
@@ -46,7 +48,7 @@ class QuizController extends Controller
         }
 
         // Sudah lulus
-        if (QuizAttempt::where('user_id', $user->id)->where('quiz_id', $quiz->id)->where('status', 'passed')->exists()) {
+        if (QuizAttempt::where('user_id', $user->id)->where('quiz_id', $quiz->id)->where('status', QuizAttemptStatus::Passed)->exists()) {
             return redirect()->route('portal.modules.show', $module)
                 ->with('info', 'Anda sudah lulus kuis ini.');
         }
@@ -55,7 +57,7 @@ class QuizController extends Controller
         if ($quiz->max_attempts > 0) {
             $attemptCount = QuizAttempt::where('user_id', $user->id)
                 ->where('quiz_id', $quiz->id)
-                ->whereIn('status', ['passed', 'failed'])
+                ->whereIn('status', [QuizAttemptStatus::Passed, QuizAttemptStatus::Failed])
                 ->count();
 
             if ($attemptCount >= $quiz->max_attempts) {

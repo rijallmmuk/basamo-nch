@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Tables;
 
+use App\Enums\ActiveStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -32,8 +33,8 @@ class UmkmProfilesTable
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->sortable()
                     ->visible(fn () => auth()->user()?->isSuperAdmin()),
 
@@ -48,9 +49,7 @@ class UmkmProfilesTable
                     ->toggleable(),
 
                 TextColumn::make('status')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Aktif' : 'Nonaktif')
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray'),
+                    ->badge(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -63,7 +62,7 @@ class UmkmProfilesTable
                     ->label('Kategori')
                     ->relationship('category', 'nama'),
                 SelectFilter::make('status')
-                    ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
+                    ->options(ActiveStatus::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([

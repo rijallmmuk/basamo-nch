@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ActiveStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -55,11 +56,11 @@ class AuthController extends Controller
         }
 
         // Akun nonaktif diblokir: menonaktifkan warga = cabut akses portal.
-        if (Auth::user()->status !== 'active') {
+        if (Auth::user()->status !== ActiveStatus::Active) {
             Auth::logout();
 
             return back()
-                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Nagari.'])
+                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Desa.'])
                 ->withInput();
         }
 
@@ -68,7 +69,7 @@ class AuthController extends Controller
             Auth::logout();
 
             return back()
-                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Nagari untuk reset OTP.'])
+                ->withErrors(['login' => 'Kode OTP awal sudah kedaluwarsa. Hubungi Admin Desa untuk reset OTP.'])
                 ->withInput();
         }
 

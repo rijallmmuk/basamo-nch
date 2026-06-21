@@ -45,7 +45,7 @@ class LmsPointService
         DB::transaction(function () use ($user, $source, $sourceId, $amount) {
             $log = XpLog::firstOrCreate(
                 ['user_id' => $user->id, 'source' => $source, 'source_id' => $sourceId],
-                ['nagari_id' => $user->nagari_id, 'amount' => $amount],
+                ['desa_id' => $user->desa_id, 'amount' => $amount],
             );
 
             if ($log->wasRecentlyCreated) {

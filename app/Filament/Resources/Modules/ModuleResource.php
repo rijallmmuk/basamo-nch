@@ -53,26 +53,26 @@ class ModuleResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
-            ->with(['nagari', 'creator', 'media'])
+            ->with(['desa', 'creator', 'media'])
             ->withCount('pages')
             ->withExists('quiz')
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
 
-        return static::scopeToNagari($query);
+        return static::scopeToDesa($query);
     }
 
     /**
-     * nagari_admin hanya boleh mengakses modul nagarinya sendiri.
+     * desa_admin hanya boleh mengakses modul desanya sendiri.
      * super_admin melihat semua (termasuk modul global).
      */
-    protected static function scopeToNagari(Builder $query): Builder
+    protected static function scopeToDesa(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->where('nagari_id', $user->nagari_id);
+        if ($user?->isDesaAdmin()) {
+            $query->where('desa_id', $user->desa_id);
         }
 
         return $query;
@@ -96,7 +96,7 @@ class ModuleResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return static::scopeToNagari(
+        return static::scopeToDesa(
             parent::getRecordRouteBindingEloquentQuery()
                 ->withoutGlobalScopes([
                     SoftDeletingScope::class,

@@ -12,8 +12,8 @@ class CreateUser extends CreateRecord
     protected static string $resource = UserResource::class;
 
     /**
-     * nagari_admin tidak melihat field nagari — akun yang dibuat dipaksa
-     * ke nagarinya sendiri (warga). Akun portal (warga) memakai sandi awal
+     * desa_admin tidak melihat field desa — akun yang dibuat dipaksa
+     * ke desanya sendiri (warga). Akun portal (warga) memakai sandi awal
      * OTP otomatis (wajib diganti saat login pertama).
      *
      * @param  array<string, mixed>  $data
@@ -23,16 +23,16 @@ class CreateUser extends CreateRecord
     {
         $actor = auth()->user();
 
-        if ($actor->isNagariAdmin()) {
-            $data['nagari_id'] = $actor->nagari_id;
+        if ($actor->isDesaAdmin()) {
+            $data['desa_id'] = $actor->desa_id;
             // Guard server-side (tak bergantung enforcement opsi Select):
-            // nagari_admin hanya boleh membuat warga, bukan admin.
+            // desa_admin hanya boleh membuat warga, bukan admin.
             $data['role'] = 'warga';
         }
 
-        // super_admin (global) tidak terikat nagari.
+        // super_admin (global) tidak terikat desa.
         if (($data['role'] ?? null) === 'super_admin') {
-            $data['nagari_id'] = null;
+            $data['desa_id'] = null;
         }
 
         // Akun portal: sandi awal = OTP (di-hash via cast), wajib diganti.

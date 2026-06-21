@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\Nagaris\Tables;
+namespace App\Filament\Resources\Desas\Tables;
 
-use App\Filament\Resources\Nagaris\NagariResource;
-use App\Models\Nagari;
+use App\Enums\ActiveStatus;
+use App\Filament\Resources\Desas\DesaResource;
+use App\Models\Desa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreBulkAction;
@@ -12,12 +13,18 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class NagarisTable
+class DesasTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('jenisDesa.nama')
+                    ->label('Jenis')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
@@ -56,8 +63,6 @@ class NagarisTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Aktif' : 'Nonaktif')
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
 
                 TextColumn::make('created_at')
@@ -69,17 +74,17 @@ class NagarisTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif']),
+                    ->options(ActiveStatus::class),
 
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->before(fn (Nagari $record, DeleteAction $action) => NagariResource::guardAgainstDependents($record, $action)),
+                    ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action)),
             ])
             ->toolbarActions([
-                // Tanpa hapus massal: penghapusan nagari harus per-record agar guard
+                // Tanpa hapus massal: penghapusan desa harus per-record agar guard
                 // anti-orphan (warga/modul) berjalan. Restore massal tetap aman.
                 RestoreBulkAction::make(),
             ])

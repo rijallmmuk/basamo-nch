@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
 use Database\Factories\UmkmProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,9 +20,17 @@ class UmkmProfile extends Model
     use HasFactory, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nagari_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
+        'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
         'deskripsi', 'alamat', 'whatsapp', 'status',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'status' => ActiveStatus::class,
+        ];
+    }
 
     public function getSlugOptions(): SlugOptions
     {
@@ -34,7 +43,7 @@ class UmkmProfile extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_usaha', 'umkm_category_id', 'whatsapp', 'status', 'nagari_id', 'user_id'])
+            ->logOnly(['nama_usaha', 'umkm_category_id', 'whatsapp', 'status', 'desa_id', 'user_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('umkm');
@@ -59,9 +68,9 @@ class UmkmProfile extends Model
         return 'https://wa.me/'.$this->normalizedWhatsapp().($message ? '?text='.rawurlencode($message) : '');
     }
 
-    public function nagari(): BelongsTo
+    public function desa(): BelongsTo
     {
-        return $this->belongsTo(Nagari::class);
+        return $this->belongsTo(Desa::class);
     }
 
     public function category(): BelongsTo

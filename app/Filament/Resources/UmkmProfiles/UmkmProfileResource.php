@@ -54,7 +54,7 @@ class UmkmProfileResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
-                ->with(['nagari', 'owner', 'category'])
+                ->with(['desa', 'owner', 'category'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
@@ -67,13 +67,13 @@ class UmkmProfileResource extends Resource
         );
     }
 
-    /** nagari_admin hanya UMKM di nagarinya; super_admin melihat semua. */
+    /** desa_admin hanya UMKM di desanya; super_admin melihat semua. */
     protected static function scopeToActor(Builder $query): Builder
     {
         $user = auth()->user();
 
-        if ($user?->isNagariAdmin()) {
-            $query->where('nagari_id', $user->nagari_id);
+        if ($user?->isDesaAdmin()) {
+            $query->where('desa_id', $user->desa_id);
         }
 
         return $query;

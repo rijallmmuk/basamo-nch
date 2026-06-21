@@ -5,7 +5,7 @@ use App\Filament\Resources\UmkmProfiles\Pages\EditUmkmProfile;
 use App\Filament\Resources\UmkmProfiles\Pages\ListUmkmProfiles;
 use App\Filament\Resources\UmkmProfiles\RelationManagers\ProductsRelationManager;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
-use App\Models\Nagari;
+use App\Models\Desa;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -18,13 +18,13 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('nagari_admin hanya melihat profil UMKM nagarinya', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
+it('desa_admin hanya melihat profil UMKM desanya', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
 
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagariA->id]);
-    $milik = UmkmProfile::factory()->create(['nagari_id' => $nagariA->id]);
-    $lain = UmkmProfile::factory()->create(['nagari_id' => $nagariB->id]);
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    $milik = UmkmProfile::factory()->create(['desa_id' => $desaA->id]);
+    $lain = UmkmProfile::factory()->create(['desa_id' => $desaB->id]);
 
     $this->actingAs($admin);
 
@@ -33,10 +33,10 @@ it('nagari_admin hanya melihat profil UMKM nagarinya', function () {
         ->assertCanNotSeeTableRecords([$lain]);
 });
 
-it('membuat profil UMKM mewarisi nagari dari pemiliknya', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $owner = User::factory()->umkmOwner()->create(['nagari_id' => $nagari->id]);
+it('membuat profil UMKM mewarisi desa dari pemiliknya', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
 
     $this->actingAs($admin);
 
@@ -51,17 +51,17 @@ it('membuat profil UMKM mewarisi nagari dari pemiliknya', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(UmkmProfile::where('nama_usaha', 'Keripik Uji')->first()->nagari_id)
-        ->toBe($nagari->id);
+    expect(UmkmProfile::where('nama_usaha', 'Keripik Uji')->first()->desa_id)
+        ->toBe($desa->id);
 });
 
 it('admin menyetujui produk UMKM dan memberi tahu pemilik', function () {
     Notification::fake();
 
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $owner = User::factory()->umkmOwner()->create(['nagari_id' => $nagari->id]);
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id, 'user_id' => $owner->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->actingAs($admin);
@@ -73,16 +73,16 @@ it('admin menyetujui produk UMKM dan memberi tahu pemilik', function () {
         ->callTableAction('approve', $product);
 
     $product->refresh();
-    expect($product->status)->toBe('approved')
+    expect($product->status->value)->toBe('approved')
         ->and($product->approved_by)->toBe($admin->id);
 
     Notification::assertSentTo($owner, UmkmProductVerified::class);
 });
 
 it('admin menolak produk UMKM dengan alasan', function () {
-    $nagari = Nagari::factory()->create();
-    $admin = User::factory()->nagariAdmin()->create(['nagari_id' => $nagari->id]);
-    $profile = UmkmProfile::factory()->create(['nagari_id' => $nagari->id]);
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id]);
     $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
 
     $this->actingAs($admin);
@@ -94,16 +94,16 @@ it('admin menolak produk UMKM dengan alasan', function () {
         ->callTableAction('reject', $product, data: ['rejection_reason' => 'Foto kurang jelas']);
 
     $product->refresh();
-    expect($product->status)->toBe('rejected')
+    expect($product->status->value)->toBe('rejected')
         ->and($product->rejection_reason)->toBe('Foto kurang jelas');
 });
 
-it('nagari_admin lain tidak bisa mengakses profil di luar nagarinya', function () {
-    $nagariA = Nagari::factory()->create();
-    $nagariB = Nagari::factory()->create();
+it('desa_admin lain tidak bisa mengakses profil di luar desanya', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
 
-    $adminB = User::factory()->nagariAdmin()->create(['nagari_id' => $nagariB->id]);
-    $milikA = UmkmProfile::factory()->create(['nagari_id' => $nagariA->id]);
+    $adminB = User::factory()->desaAdmin()->create(['desa_id' => $desaB->id]);
+    $milikA = UmkmProfile::factory()->create(['desa_id' => $desaA->id]);
 
     $this->actingAs($adminB);
 

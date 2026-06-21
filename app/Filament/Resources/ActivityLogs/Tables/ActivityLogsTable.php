@@ -64,7 +64,7 @@ class ActivityLogsTable
                         'modul' => 'Modul',
                         'kuis' => 'Kuis',
                         'materi' => 'Materi',
-                        'nagari' => 'Nagari',
+                        'desa' => 'Desa',
                         'pengguna' => 'Pengguna',
                     ]),
 

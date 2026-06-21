@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\ModuleProgressStatus;
+use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\UserModuleProgress;
@@ -17,10 +19,10 @@ class ModuleController extends Controller
     {
         $user = auth()->user();
 
-        $modules = Module::where('status', 'published')
+        $modules = Module::where('status', ModuleStatus::Published)
             ->where(function ($q) use ($user) {
-                $q->whereNull('nagari_id')
-                    ->orWhere('nagari_id', $user->nagari_id);
+                $q->whereNull('desa_id')
+                    ->orWhere('desa_id', $user->desa_id);
             })
             ->with([
                 'progress' => fn ($q) => $q->where('user_id', $user->id),
@@ -33,7 +35,7 @@ class ModuleController extends Controller
         // Ambil sekali: modul yang sudah diselesaikan user → hitung status in-memory
         // (hindari N+1: tanpa ini setiap modul memicu 2 query progres).
         $completedModuleIds = UserModuleProgress::where('user_id', $user->id)
-            ->where('status', 'completed')
+            ->where('status', ModuleProgressStatus::Completed)
             ->pluck('module_id')
             ->all();
 
@@ -48,9 +50,9 @@ class ModuleController extends Controller
     {
         $user = auth()->user();
 
-        // Pastikan modul published dan milik nagari user (atau global)
-        if ($module->status !== 'published' ||
-            ($module->nagari_id !== null && $module->nagari_id !== $user->nagari_id)) {
+        // Pastikan modul published dan milik desa user (atau global)
+        if ($module->status !== ModuleStatus::Published ||
+            ($module->desa_id !== null && $module->desa_id !== $user->desa_id)) {
             abort(404);
         }
 
@@ -62,7 +64,7 @@ class ModuleController extends Controller
         $pages = $module->pages;
         $progress = $this->progressService->getProgress($user, $module);
         $pagesCompleted = $progress?->pages_completed ?? [];
-        $isCompleted = $progress?->status === 'completed';
+        $isCompleted = $progress?->status === ModuleProgressStatus::Completed;
 
         return view('portal.modules.show', compact('module', 'pages', 'progress', 'pagesCompleted', 'isCompleted'));
     }

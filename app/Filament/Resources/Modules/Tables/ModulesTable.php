@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Modules\Tables;
 
+use App\Enums\ModuleStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -33,8 +34,8 @@ class ModulesTable
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('nagari.nama')
-                    ->label('Nagari')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->default('Global')
                     ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->sortable()
@@ -43,12 +44,7 @@ class ModulesTable
 
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'published' => 'success',
-                        'draft' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->badge(),
 
                 TextColumn::make('pages_count')
                     ->label('Materi')
@@ -83,14 +79,11 @@ class ModulesTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ]),
+                    ->options(ModuleStatus::class),
 
-                SelectFilter::make('nagari')
-                    ->label('Nagari')
-                    ->relationship('nagari', 'nama')
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
                     ->placeholder('Semua (termasuk global)'),
 
                 TrashedFilter::make(),

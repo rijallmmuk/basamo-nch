@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\Nagaris\Schemas;
+namespace App\Filament\Resources\Desas\Schemas;
 
-use App\Models\Nagari;
+use App\Enums\ActiveStatus;
+use App\Models\Desa;
+use App\Models\JenisDesa;
+use App\Models\JenisSubUnit;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -10,7 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
-class NagariForm
+class DesaForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -19,27 +22,35 @@ class NagariForm
                 Section::make('Identitas')
                     ->columns(2)
                     ->schema([
-                        TextInput::make('nama')
-                            ->label('Nama nagari')
+                        Select::make('jenis_desa_id')
+                            ->label('Penyebutan wilayah')
+                            ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
                             ->required()
-                            ->maxLength(255),
+                            ->searchable()
+                            ->native(false)
+                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
+
+                        TextInput::make('nama')
+                            ->label('Nama')
+                            ->required()
+                            ->maxLength(255)
+                            ->helperText('Tanpa awalan jenis. Ditampilkan sebagai "{jenis} {nama}".'),
 
                         TextInput::make('kode')
                             ->label('Kode')
                             ->required()
                             ->maxLength(50)
-                            ->unique(Nagari::class, 'kode', ignoreRecord: true)
+                            ->unique(Desa::class, 'kode', ignoreRecord: true)
                             ->placeholder('NCH-001')
-                            ->helperText('Kode unik nagari, mis. NCH-001.')
+                            ->helperText('Kode unik, mis. NCH-001 atau kode wilayah resmi.')
                             ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
 
-                        TextInput::make('wilayah_label')
-                            ->label('Sebutan unit wilayah')
-                            ->default('Jorong')
-                            ->required()
-                            ->maxLength(30)
-                            ->datalist(['Jorong', 'Korong', 'Kampuang', 'Dusun'])
-                            ->helperText('Sebutan bagian dalam nagari ini — mis. Jorong / Korong / Dusun.'),
+                        Select::make('jenis_sub_unit_id')
+                            ->label('Sebutan sub-unit (opsional)')
+                            ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
+                            ->searchable()
+                            ->native(false)
+                            ->helperText('Boleh dikosongkan — admin desa dapat mengaturnya sendiri.'),
                     ]),
 
                 Section::make('Wilayah')
@@ -66,7 +77,7 @@ class NagariForm
                     ->columns(2)
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('logo')
-                            ->label('Logo nagari')
+                            ->label('Logo desa')
                             ->collection('logo')
                             ->image()
                             ->maxSize(2048)
@@ -77,7 +88,7 @@ class NagariForm
                             ->collection('logo_kabupaten')
                             ->image()
                             ->maxSize(2048)
-                            ->helperText('Logo kabupaten/kota induk nagari ini.'),
+                            ->helperText('Logo kabupaten/kota induk desa ini.'),
                     ]),
 
                 Section::make('Kontak & Status')
@@ -90,7 +101,7 @@ class NagariForm
 
                         Select::make('status')
                             ->label('Status')
-                            ->options(['active' => 'Aktif', 'inactive' => 'Nonaktif'])
+                            ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
                             ->native(false),

@@ -34,7 +34,7 @@ class UmkmProductController extends Controller
         $this->umkm->createProduct($profile, $data, $photos);
 
         return redirect()->route('portal.umkm.index')
-            ->with('success', 'Produk diajukan dan menunggu verifikasi Admin Nagari.');
+            ->with('success', 'Produk diajukan dan menunggu verifikasi Admin Desa.');
     }
 
     public function edit(UmkmProduct $product): View

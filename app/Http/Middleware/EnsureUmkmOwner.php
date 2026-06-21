@@ -19,7 +19,7 @@ class EnsureUmkmOwner
     {
         if (! auth()->user()?->hasUmkmAccess()) {
             return redirect()->route('portal.home')
-                ->with('info', 'Menu UMKM hanya untuk Pemilik UMKM. Hubungi Admin Nagari untuk mendapatkan akses.');
+                ->with('info', 'Menu UMKM hanya untuk Pemilik UMKM. Hubungi Admin Desa untuk mendapatkan akses.');
         }
 
         return $next($request);

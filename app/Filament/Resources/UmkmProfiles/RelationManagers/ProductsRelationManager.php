@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UmkmProfiles\RelationManagers;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use App\Services\UmkmService;
 use Filament\Actions\Action;
@@ -35,17 +36,7 @@ class ProductsRelationManager extends RelationManager
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
-                        default => 'Menunggu',
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'approved' => 'success',
-                        'rejected' => 'danger',
-                        default => 'warning',
-                    }),
+                    ->badge(),
 
                 TextColumn::make('view_count')
                     ->label('Dilihat')
@@ -59,33 +50,29 @@ class ProductsRelationManager extends RelationManager
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Menunggu',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
-                    ]),
+                    ->options(UmkmProductStatus::class),
             ])
             ->recordActions([
                 Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== 'approved')
+                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
                     ->requiresConfirmation()
-                    ->action(fn (UmkmProduct $record) => $this->setStatus($record, 'approved')),
+                    ->action(fn (UmkmProduct $record) => $this->setStatus($record, UmkmProductStatus::Approved)),
 
                 Action::make('reject')
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== 'rejected')
+                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
                     ->schema([
                         Textarea::make('rejection_reason')
                             ->label('Alasan penolakan')
                             ->required()
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
-                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, 'rejected', $data['rejection_reason'])),
+                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, UmkmProductStatus::Rejected, $data['rejection_reason'])),
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -96,7 +83,7 @@ class ProductsRelationManager extends RelationManager
         return $schema->components([]);
     }
 
-    protected function setStatus(UmkmProduct $product, string $status, ?string $reason = null): void
+    protected function setStatus(UmkmProduct $product, UmkmProductStatus $status, ?string $reason = null): void
     {
         app(UmkmService::class)->verifyProduct($product, $status, Auth::id(), $reason);
     }
