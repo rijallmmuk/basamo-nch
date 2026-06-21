@@ -27,6 +27,8 @@ it('endpoint data peta mengembalikan kab/kota + jumlah desa terdaftar', function
 
     $this->get(route('public.peta.data'))
         ->assertOk()
+        ->assertJsonPath('type', 'FeatureCollection')
+        ->assertJsonPath('features.0.geometry.type', 'MultiPolygon')
         ->assertJsonFragment(['kode' => '13.06', 'desa_terdaftar' => 1])
         ->assertJsonFragment(['kode' => '13.05', 'desa_terdaftar' => 0]);
 });

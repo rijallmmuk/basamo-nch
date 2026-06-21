@@ -22,6 +22,11 @@
     <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div id="peta"></div>
 
+        {{-- Status muat --}}
+        <div id="peta-status" class="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center text-sm text-gray-500">
+            Memuat peta…
+        </div>
+
         {{-- Legenda --}}
         <div class="pointer-events-none absolute bottom-3 right-3 z-[1000] rounded-lg border border-gray-200 bg-white/95 p-3 text-xs shadow">
             <p class="mb-1.5 font-semibold text-gray-700">Desa terdaftar</p>
@@ -45,47 +50,49 @@
                 attribution: '&copy; OpenStreetMap',
             }).addTo(map);
 
-            const layer = L.featureGroup().addTo(map);
+            const status = document.getElementById('peta-status');
             const colorFor = (n) => n >= 6 ? '#15803d' : n >= 3 ? '#22c55e' : n >= 1 ? '#86efac' : '#e5e7eb';
             const fmt = (v) => v == null ? '—' : Number(v).toLocaleString('id-ID');
 
-            // Path Kepmendagri tak konsisten: bisa satu ring [[lat,lng],…] atau banyak ring.
-            const toRings = (p) => {
-                if (!Array.isArray(p) || !p.length) return [];
-                return typeof p[0][0] === 'number' ? [p] : p;
-            };
+            const styleFor = (feature) => ({
+                color: '#166534',
+                weight: 1,
+                fillColor: colorFor(feature.properties.desa_terdaftar),
+                fillOpacity: 0.55,
+            });
 
-            const popupHtml = (f) => `
+            const popupHtml = (p) => `
                 <div class="text-sm">
                     <div class="flex items-center gap-2">
-                        ${f.logo ? `<img src="${f.logo}" alt="" class="h-8 w-8 object-contain">` : ''}
-                        <strong>${f.nama}</strong>
+                        ${p.logo ? `<img src="${p.logo}" alt="" class="h-8 w-8 object-contain">` : ''}
+                        <strong>${p.nama}</strong>
                     </div>
                     <dl class="mt-1.5 text-xs text-gray-600">
-                        <div>Ibu kota: ${f.ibukota ?? '—'}</div>
-                        <div>Luas: ${fmt(f.luas)} km²</div>
-                        <div>Penduduk: ${fmt(f.penduduk)} jiwa</div>
-                        <div class="mt-1 font-semibold text-emerald-700">Desa terdaftar: ${f.desa_terdaftar}</div>
+                        <div>Ibu kota: ${p.ibukota ?? '—'}</div>
+                        <div>Luas: ${fmt(p.luas)} km²</div>
+                        <div>Penduduk: ${fmt(p.penduduk)} jiwa</div>
+                        <div class="mt-1 font-semibold text-emerald-700">Desa terdaftar: ${p.desa_terdaftar}</div>
                     </dl>
                 </div>`;
 
             fetch(@json(route('public.peta.data')))
-                .then((r) => r.json())
-                .then((items) => {
-                    items.forEach((f) => {
-                        const base = { color: '#166534', weight: 1, fillColor: colorFor(f.desa_terdaftar), fillOpacity: 0.55 };
-                        toRings(f.path).forEach((ring) => {
-                            if (ring.length < 3) return;
-                            const poly = L.polygon(ring, base).addTo(layer);
-                            poly.bindPopup(popupHtml(f));
-                            poly.on('mouseover', () => poly.setStyle({ weight: 2, fillOpacity: 0.75 }));
-                            poly.on('mouseout', () => poly.setStyle(base));
-                        });
-                    });
-                    if (layer.getLayers().length) {
+                .then((r) => { if (! r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then((geojson) => {
+                    const layer = L.geoJSON(geojson, {
+                        style: styleFor,
+                        onEachFeature: (feature, lyr) => {
+                            lyr.bindPopup(popupHtml(feature.properties));
+                            lyr.on('mouseover', () => lyr.setStyle({ weight: 2, fillOpacity: 0.75 }));
+                            lyr.on('mouseout', () => layer.resetStyle(lyr));
+                        },
+                    }).addTo(map);
+
+                    if (geojson.features.length) {
                         map.fitBounds(layer.getBounds(), { padding: [20, 20] });
                     }
-                });
+                    status.remove();
+                })
+                .catch(() => { status.textContent = 'Gagal memuat peta. Coba muat ulang halaman.'; });
         })();
     </script>
 @endpush
