@@ -130,6 +130,18 @@ it('desa kosong bisa diarsipkan (soft delete)', function () {
     expect($desa->fresh()->trashed())->toBeTrue();
 });
 
+it('desa dengan hanya akun admin bisa diarsipkan, dan admin ikut diarsipkan', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+
+    Livewire::test(ListDesas::class)
+        ->callTableAction('delete', $desa);
+
+    expect($desa->fresh()->trashed())->toBeTrue()
+        ->and($admin->fresh()->trashed())->toBeTrue();
+});
+
 it('desa_admin tidak boleh mengelola desa', function () {
     $admin = User::factory()->desaAdmin()->create();
 

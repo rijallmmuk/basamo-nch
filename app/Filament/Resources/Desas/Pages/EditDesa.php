@@ -50,10 +50,13 @@ class EditDesa extends EditRecord
     {
         return [
             DeleteAction::make()
-                ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action)),
+                ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
+                ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
             ForceDeleteAction::make()
-                ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
-            RestoreAction::make(),
+                ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true))
+                ->after(fn (Desa $record) => DesaResource::forceDeleteAdmin($record)),
+            RestoreAction::make()
+                ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
         ];
     }
 }

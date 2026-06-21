@@ -73,23 +73,43 @@ class DesaResource extends Resource
      */
     public static function guardAgainstDependents(Desa $record, Action $action, bool $includeTrashed = false): void
     {
-        $users = $record->users();
+        // Akun admin desa dikecualikan — boleh diarsipkan bila hanya admin yang tersisa
+        // (admin ikut diarsipkan otomatis). Yang memblokir: warga atau modul.
+        $dependents = $record->users()->where('role', '!=', 'desa_admin');
         $modules = $record->modules();
 
         if ($includeTrashed) {
-            $users->withTrashed();
+            $dependents->withTrashed();
             $modules->withTrashed();
         }
 
-        if ($users->exists() || $modules->exists()) {
+        if ($dependents->exists() || $modules->exists()) {
             Notification::make()
-                ->title('Desa tidak bisa dihapus')
-                ->body('Masih ada pengguna atau modul yang terhubung. Pindahkan atau hapus terlebih dahulu, atau ubah status desa menjadi Nonaktif.')
+                ->title('Desa tidak bisa diarsipkan')
+                ->body('Masih ada warga atau modul yang terhubung. Pindahkan/hapus dulu, atau cukup nonaktifkan status desa. Akun admin desa akan ikut diarsipkan otomatis.')
                 ->danger()
                 ->send();
 
             $action->halt();
         }
+    }
+
+    /** Arsipkan (soft delete) akun admin saat desanya diarsipkan. */
+    public static function archiveAdmin(Desa $record): void
+    {
+        $record->desaAdmin()->first()?->delete();
+    }
+
+    /** Pulihkan akun admin saat desanya dipulihkan. */
+    public static function restoreAdmin(Desa $record): void
+    {
+        $record->desaAdmin()->onlyTrashed()->first()?->restore();
+    }
+
+    /** Hapus permanen akun admin saat desanya dihapus permanen. */
+    public static function forceDeleteAdmin(Desa $record): void
+    {
+        $record->desaAdmin()->withTrashed()->first()?->forceDelete();
     }
 
     /**
