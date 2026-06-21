@@ -79,23 +79,30 @@ it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
     ])->assertRedirect(route('portal.home'));
 
     $warga->refresh();
+    // OTP awal terhapus otomatis begitu sandi diganti (tanpa kedaluwarsa).
     expect($warga->must_change_password)->toBeFalse()
-        ->and($warga->initial_otp)->toBeNull()
-        ->and($warga->otp_expires_at)->toBeNull();
+        ->and($warga->initial_otp)->toBeNull();
 
     // Portal kini bisa diakses.
     $this->get(route('portal.home'))->assertSuccessful();
 });
 
-it('OTP awal punya masa berlaku saat diterbitkan', function () {
+it('OTP awal bisa diisi manual atau otomatis, dan tanpa kedaluwarsa', function () {
     $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
-    $warga->issueOtp();
 
-    expect($warga->otp_expires_at)->not->toBeNull()
-        ->and($warga->otp_expires_at->isFuture())->toBeTrue();
+    // Manual: kode yang diisi dipakai apa adanya.
+    $manual = $warga->issueOtp('789012');
+    expect($manual)->toBe('789012')
+        ->and($warga->initial_otp)->toBe('789012')
+        ->and($warga->must_change_password)->toBeTrue();
+
+    // Otomatis: 6 digit.
+    $auto = $warga->issueOtp();
+    expect($auto)->toMatch('/^\d{6}$/')
+        ->and($warga->initial_otp)->toBe($auto);
 });
 
-it('login ditolak bila OTP awal sudah kedaluwarsa', function () {
+it('login warga tetap diterima walau OTP lama (tanpa kedaluwarsa)', function () {
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create([
         'desa_id' => $desa->id,
@@ -103,13 +110,11 @@ it('login ditolak bila OTP awal sudah kedaluwarsa', function () {
     ]);
     $otp = $warga->issueOtp();
 
-    // Mundurkan masa berlaku ke masa lalu.
-    $warga->forceFill(['otp_expires_at' => now()->subDay()])->save();
+    // Walau OTP diterbitkan jauh di masa lalu, tetap berlaku.
+    $this->travel(60)->days();
 
     $this->post(route('portal.login'), ['login' => '3201010101010010', 'password' => $otp])
-        ->assertSessionHasErrors('login');
-
-    $this->assertGuest();
+        ->assertRedirect(route('portal.home'));
 });
 
 it('admin tidak bisa login ke portal warga', function () {

@@ -32,12 +32,8 @@ class PasswordController extends Controller
 
         $data = $request->validate($rules);
 
-        $user->forceFill([
-            'password' => $data['password'],   // di-hash via cast
-            'must_change_password' => false,
-            'initial_otp' => null,             // OTP plaintext dihapus setelah diganti
-            'otp_expires_at' => null,
-        ])->save();
+        // Hook `User::saving` otomatis hapus OTP awal & lepas flag wajib-ganti saat sandi berubah.
+        $user->forceFill(['password' => $data['password']])->save();
 
         return redirect()->route('portal.home')
             ->with('info', 'Kata sandi berhasil diperbarui.');

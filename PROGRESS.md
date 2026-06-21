@@ -6,6 +6,16 @@
 
 ---
 
+## Sesi 2026-06-22 (lanjutan) — Form Desa diringkas (pilih desa) + akun admin + OTP tanpa expired
+
+**Form Desa (Filament) dirombak.** Suite **145** (143 lulus, 2 skip spasial; verifikasi MariaDB terpisah).
+- **Pilih desa, bukan ketik manual**: satu Select cari `wilayah_kode` (getSearchResultsUsing, label "Nama · Kec, Kab") → otomatis isi `nama`, `kode` (= **kode wilayah resmi**, mis. 13.71.01.1001), provinsi/kab/kec, **koordinat** (dari `wilayah_boundaries.lat/lng`). Dropdown bertingkat prov→kab→kec **dihapus**. **Dihapus** juga: input Kode internal, input koordinat manual, kontak desa. Tetap: Penyebutan wilayah (wajib), Sub-unit (opsional), Logo, Status. Validasi unik `wilayah_kode` (cegah desa dobel).
+- **Akun admin desa di form Desa** (create & edit): field `admin_name` (opsional → fallback "Admin {desa}"), `admin_username` (wajib, unik, alpha_dash), `admin_kontak` (→ `users.phone`), `admin_otp` (opsional). Logika di `DesaResource::syncAdmin()`; Create = transaksi desa+admin (`handleRecordCreation`), Edit = `mutateFormDataBeforeFill`/`afterSave`. Relasi `Desa::desaAdmin()` (hasOne role=desa_admin). OTP ditampilkan via notifikasi persisten.
+- **OTP dirombak (admin & warga)**: bisa **otomatis atau manual** (`issueOtp(?string $code)`), **tanpa kedaluwarsa** (kolom `otp_expires_at` di-drop; `OTP_TTL_DAYS`/`otpExpired()` dihapus; cek expired di `AuthController` dihapus). **Terhapus otomatis saat sandi diganti** via hook `User::saving` (kondisi: record lama + password dirty + bukan penerbitan OTP + `must_change_password` tak di-set eksplisit) → berlaku di portal & admin. `UserForm`/`CreateUser` warga kini OTP opsional (kosong=auto).
+- Dihapus (redundan): `WilayahLookup` + test + tombol ST_Contains di form (alur baru tak perlu — koordinat dari pilihan desa). Spatial index `wilayah_boundaries.geom` dibiarkan (infra, potensi guna).
+
+---
+
 ## Sesi 2026-06-22 — Geometri batas wilayah spasial + peta drill-down (branch `feat/ref-wilayah-sumbar`)
 
 **Opsi B SELESAI** (batas desa). Sumber: dump cahyadsn/wilayah_boundaries (22 berkas `.sql`, prov/kab/kec/desa) → dipindah ke `database/data/boundaries/`. Suite **145** (143 lulus, 2 skip di SQLite; ketiga test peta diverifikasi lulus di MariaDB via DB test terpisah).

@@ -8,6 +8,7 @@ use App\Filament\Resources\Desas\Pages\ListDesas;
 use App\Filament\Resources\Desas\Schemas\DesaForm;
 use App\Filament\Resources\Desas\Tables\DesasTable;
 use App\Models\Desa;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -89,6 +90,51 @@ class DesaResource extends Resource
 
             $action->halt();
         }
+    }
+
+    /**
+     * Buat/perbarui akun admin desa dari data form (field `admin_*`, tak dehidrasi).
+     * Mengembalikan OTP plain bila baru diterbitkan (untuk ditampilkan), atau null.
+     *
+     * @param  array<string, mixed>  $formState
+     */
+    public static function syncAdmin(Desa $desa, array $formState): ?string
+    {
+        $username = $formState['admin_username'] ?? null;
+
+        if (blank($username)) {
+            return null;
+        }
+
+        $name = filled($formState['admin_name'] ?? null)
+            ? $formState['admin_name']
+            : 'Admin '.$desa->nama;
+        $phone = $formState['admin_kontak'] ?? null;
+        $otpInput = $formState['admin_otp'] ?? null;
+
+        $admin = $desa->desaAdmin()->first();
+
+        if (! $admin) {
+            $otp = filled($otpInput) ? $otpInput : User::generateOtp();
+
+            $desa->users()->create([
+                'name' => $name,
+                'username' => $username,
+                'phone' => $phone,
+                'role' => 'desa_admin',
+                'status' => 'active',
+                'password' => $otp,          // di-hash via cast
+                'initial_otp' => $otp,       // tersimpan & terlihat sampai sandi diganti
+                'must_change_password' => true,
+            ]);
+
+            return $otp;
+        }
+
+        $admin->forceFill(['name' => $name, 'username' => $username, 'phone' => $phone])->save();
+
+        // OTP diisi → terbitkan ulang (reset sandi admin). Kosong → biarkan sandi lama.
+        return filled($otpInput) ? $admin->issueOtp($otpInput) : null;
     }
 
     public static function getRelations(): array

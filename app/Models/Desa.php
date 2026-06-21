@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -101,6 +102,12 @@ class Desa extends Model implements HasMedia
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /** Akun admin utama desa (satu per desa, dikelola dari form Desa). */
+    public function desaAdmin(): HasOne
+    {
+        return $this->hasOne(User::class)->where('role', 'desa_admin');
     }
 
     public function modules(): HasMany

@@ -35,12 +35,12 @@ class CreateUser extends CreateRecord
             $data['desa_id'] = null;
         }
 
-        // Akun portal: sandi awal = OTP (di-hash via cast), wajib diganti.
+        // Akun portal: sandi awal = OTP (di-hash via cast), wajib diganti. OTP boleh
+        // diisi manual; kosong → otomatis. Tanpa kedaluwarsa; terhapus saat sandi diganti.
         if (($data['role'] ?? null) === 'warga') {
-            $otp = User::generateOtp();
+            $otp = filled($data['initial_otp'] ?? null) ? $data['initial_otp'] : User::generateOtp();
             $data['password'] = $otp;
             $data['initial_otp'] = $otp;
-            $data['otp_expires_at'] = now()->addDays(User::OTP_TTL_DAYS);
             $data['must_change_password'] = true;
         }
 

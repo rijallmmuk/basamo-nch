@@ -7,11 +7,44 @@ use App\Models\Desa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditDesa extends EditRecord
 {
     protected static string $resource = DesaResource::class;
+
+    /**
+     * Isi field admin (`admin_*`, tak dehidrasi) dari akun admin yang ada.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $admin = $this->record->desaAdmin()->first();
+
+        $data['admin_name'] = $admin?->name;
+        $data['admin_username'] = $admin?->username;
+        $data['admin_kontak'] = $admin?->phone;
+        $data['admin_otp'] = null;
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $otp = DesaResource::syncAdmin($this->record, $this->data);
+
+        if (filled($otp)) {
+            Notification::make()
+                ->title('OTP admin diperbarui')
+                ->body("Username: {$this->record->desaAdmin()->first()->username} · OTP: {$otp}. Sampaikan ke admin desa.")
+                ->success()
+                ->persistent()
+                ->send();
+        }
+    }
 
     protected function getHeaderActions(): array
     {

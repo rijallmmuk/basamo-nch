@@ -7,7 +7,6 @@ use App\Models\Desa;
 use App\Models\User;
 use App\Models\Wilayah;
 use Closure;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -109,10 +108,13 @@ class UserForm
                             ->columnSpanFull(),
                     ]),
 
-                Placeholder::make('otp_info')
-                    ->label('Sandi awal (OTP)')
-                    ->content('Sistem membuat kode OTP otomatis sebagai sandi awal. Kode ditampilkan setelah akun dibuat — sampaikan ke warga. Warga wajib menggantinya saat login pertama. Untuk menerbitkan ulang, pakai aksi "Reset OTP".')
-                    ->visible(fn (Get $get): bool => static::isPortalRole($get)),
+                TextInput::make('initial_otp')
+                    ->label('Kode OTP awal')
+                    ->maxLength(12)
+                    ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation === 'create')
+                    ->helperText('Sandi awal warga — kosongkan untuk OTP otomatis. Ditampilkan setelah akun dibuat; wajib diganti saat login pertama, lalu terhapus. Saat edit, pakai aksi "Reset OTP".'),
 
                 Section::make('Keamanan')
                     ->columns(2)

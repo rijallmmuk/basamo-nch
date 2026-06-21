@@ -25,12 +25,11 @@ beforeEach(function () {
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 });
 
-it('super_admin dapat membuat desa dan kode dinormalkan huruf besar', function () {
+it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', function () {
     actingAs(User::factory()->superAdmin()->create());
 
     $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
 
-    // Rantai wilayah minimal untuk dropdown bertingkat.
     RefWilayah::create(['kode' => '13', 'nama' => 'Sumatera Barat', 'level' => 1]);
     RefWilayah::create(['kode' => '13.06', 'nama' => 'Kabupaten Agam', 'level' => 2, 'parent_kode' => '13']);
     RefWilayah::create(['kode' => '13.06.01', 'nama' => 'Tanjung Mutiara', 'level' => 3, 'parent_kode' => '13.06']);
@@ -38,37 +37,47 @@ it('super_admin dapat membuat desa dan kode dinormalkan huruf besar', function (
 
     Livewire::test(CreateDesa::class)
         ->fillForm([
-            'prov_kode' => '13',
-            'kab_kode' => '13.06',
-            'kec_kode' => '13.06.01',
             'wilayah_kode' => '13.06.01.2001',
-            'nama' => 'Desa Baru',
             'jenis_desa_id' => $jenis->id,
-            'kode' => 'nch-099',
-            'status' => 'active',
+            'admin_name' => 'Budi',
+            'admin_username' => 'admin_tiku',
+            'admin_kontak' => '081234567890',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Desa::where('kode', 'NCH-099')->exists())->toBeTrue();
+    $desa = Desa::where('wilayah_kode', '13.06.01.2001')->first();
+    expect($desa)->not->toBeNull()
+        ->and($desa->kode)->toBe('13.06.01.2001')      // kode internal = kode resmi
+        ->and($desa->nama)->toBe('Tiku Selatan')
+        ->and($desa->kabupaten)->toBe('Kabupaten Agam');
+
+    $admin = $desa->desaAdmin()->first();
+    expect($admin)->not->toBeNull()
+        ->and($admin->username)->toBe('admin_tiku')
+        ->and($admin->name)->toBe('Budi')
+        ->and($admin->phone)->toBe('081234567890')
+        ->and($admin->role)->toBe('desa_admin')
+        ->and($admin->must_change_password)->toBeTrue()
+        ->and($admin->initial_otp)->not->toBeNull();
 });
 
-it('form edit memetakan wilayah_kode ke pilihan bertingkat', function () {
+it('form edit desa memuat data akun admin yang ada', function () {
     actingAs(User::factory()->superAdmin()->create());
 
-    RefWilayah::create(['kode' => '13', 'nama' => 'Sumatera Barat', 'level' => 1]);
-    RefWilayah::create(['kode' => '13.06', 'nama' => 'Kabupaten Agam', 'level' => 2, 'parent_kode' => '13']);
-    RefWilayah::create(['kode' => '13.06.01', 'nama' => 'Tanjung Mutiara', 'level' => 3, 'parent_kode' => '13.06']);
     RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
-
     $desa = Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
+    User::factory()->desaAdmin()->create([
+        'desa_id' => $desa->id,
+        'username' => 'admin_tiku',
+        'name' => 'Budi',
+    ]);
 
     Livewire::test(EditDesa::class, ['record' => $desa->getRouteKey()])
         ->assertFormSet([
-            'prov_kode' => '13',
-            'kab_kode' => '13.06',
-            'kec_kode' => '13.06.01',
             'wilayah_kode' => '13.06.01.2001',
+            'admin_username' => 'admin_tiku',
+            'admin_name' => 'Budi',
         ]);
 });
 

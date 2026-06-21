@@ -7,15 +7,17 @@ use App\Models\Desa;
 use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use App\Models\RefWilayah;
+use App\Models\User;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class DesaForm
 {
@@ -23,76 +25,23 @@ class DesaForm
     {
         return $schema
             ->components([
-                Section::make('Wilayah administratif')
-                    ->description('Dipilih dari data resmi Kepmendagri (Sumatera Barat).')
+                Section::make('Data desa')
+                    ->description('Ketik nama desa/kelurahan, lalu pilih dari daftar resmi (Kepmendagri). Kode wilayah, wilayah administratif, dan koordinat terisi otomatis.')
                     ->columns(2)
                     ->schema([
-                        // prov/kab/kec hanya bantu navigasi (tidak disimpan); wilayah_kode yang disimpan.
-                        Select::make('prov_kode')
-                            ->label('Provinsi')
-                            ->options(fn () => RefWilayah::level(RefWilayah::LEVEL_PROVINSI)->orderBy('nama')->pluck('nama', 'kode'))
-                            ->default('13')
-                            ->required()
-                            ->live()
-                            ->dehydrated(false)
-                            ->afterStateHydrated(fn (Set $set, Get $get) => $set('prov_kode', self::ancestor($get('wilayah_kode'), 1) ?? '13'))
-                            ->afterStateUpdated(fn (Set $set) => self::resetBelow($set, 'prov')),
-
-                        Select::make('kab_kode')
-                            ->label('Kabupaten/Kota')
-                            ->options(fn (Get $get) => RefWilayah::childrenOf($get('prov_kode'))->orderBy('nama')->pluck('nama', 'kode'))
-                            ->required()
-                            ->searchable()
-                            ->native(false)
-                            ->live()
-                            ->dehydrated(false)
-                            ->afterStateHydrated(fn (Set $set, Get $get) => $set('kab_kode', self::ancestor($get('wilayah_kode'), 2)))
-                            ->afterStateUpdated(fn (Set $set) => self::resetBelow($set, 'kab')),
-
-                        Select::make('kec_kode')
-                            ->label('Kecamatan')
-                            ->options(fn (Get $get) => RefWilayah::childrenOf($get('kab_kode'))->orderBy('nama')->pluck('nama', 'kode'))
-                            ->required()
-                            ->searchable()
-                            ->native(false)
-                            ->live()
-                            ->dehydrated(false)
-                            ->afterStateHydrated(fn (Set $set, Get $get) => $set('kec_kode', self::ancestor($get('wilayah_kode'), 3)))
-                            ->afterStateUpdated(fn (Set $set) => self::resetBelow($set, 'kec')),
-
                         Select::make('wilayah_kode')
-                            ->label('Desa/Kelurahan')
-                            ->options(fn (Get $get) => RefWilayah::childrenOf($get('kec_kode'))->orderBy('nama')->pluck('nama', 'kode'))
+                            ->label('Nama desa/kelurahan')
                             ->required()
                             ->searchable()
                             ->native(false)
                             ->live()
-                            // Pilih desa/kel → isi otomatis nama + nama wilayah (disimpan denormalized).
-                            ->afterStateUpdated(function (Set $set, ?string $state): void {
-                                $set('nama', $state ? RefWilayah::find($state)?->nama : null);
-                                $set('provinsi', RefWilayah::find(self::ancestor($state, 1))?->nama);
-                                $set('kabupaten', RefWilayah::find(self::ancestor($state, 2))?->nama);
-                                $set('kecamatan', RefWilayah::find(self::ancestor($state, 3))?->nama);
-                            }),
-                    ]),
-
-                Section::make('Identitas')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('nama')
-                            ->label('Nama')
-                            ->required()
-                            ->maxLength(255)
-                            ->helperText('Terisi otomatis dari pilihan wilayah; boleh disesuaikan.'),
-
-                        TextInput::make('kode')
-                            ->label('Kode')
-                            ->required()
-                            ->maxLength(50)
-                            ->unique(Desa::class, 'kode', ignoreRecord: true)
-                            ->placeholder('NCH-001')
-                            ->helperText('Kode unik internal, mis. NCH-001.')
-                            ->dehydrateStateUsing(fn (?string $state): string => Str::upper(trim((string) $state))),
+                            ->getSearchResultsUsing(fn (string $search): array => self::searchDesa($search))
+                            ->getOptionLabelUsing(fn (?string $value): ?string => self::desaLabel($value))
+                            ->unique(Desa::class, 'wilayah_kode', ignoreRecord: true)
+                            ->helperText('Mulai ketik nama desa untuk mencari.')
+                            ->columnSpanFull()
+                            // Pilih desa → isi otomatis nama, kode internal, wilayah, koordinat.
+                            ->afterStateUpdated(fn (Set $set, ?string $state) => self::applyWilayah($set, $state)),
 
                         Select::make('jenis_desa_id')
                             ->label('Penyebutan wilayah')
@@ -109,26 +58,14 @@ class DesaForm
                             ->native(false)
                             ->helperText('Boleh dikosongkan — admin desa dapat mengaturnya sendiri.'),
 
-                        // Nama wilayah disimpan denormalized untuk display cepat (diisi dari pilihan di atas).
+                        // Diisi otomatis dari pilihan desa (disimpan denormalized untuk display cepat).
+                        Hidden::make('nama'),
+                        Hidden::make('kode'),
                         Hidden::make('provinsi'),
                         Hidden::make('kabupaten'),
                         Hidden::make('kecamatan'),
-                    ]),
-
-                Section::make('Koordinat')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('koordinat_lat')
-                            ->label('Lintang (lat)')
-                            ->numeric()
-                            ->minValue(-90)
-                            ->maxValue(90),
-
-                        TextInput::make('koordinat_lng')
-                            ->label('Bujur (lng)')
-                            ->numeric()
-                            ->minValue(-180)
-                            ->maxValue(180),
+                        Hidden::make('koordinat_lat'),
+                        Hidden::make('koordinat_lng'),
                     ]),
 
                 Section::make('Logo')
@@ -141,22 +78,120 @@ class DesaForm
                             ->helperText('Opsional. Logo kabupaten/kota otomatis dari data wilayah.'),
                     ]),
 
-                Section::make('Kontak & Status')
-                    ->columns(2)
+                Section::make('Status')
                     ->schema([
-                        TextInput::make('kontak')
-                            ->label('Kontak')
-                            ->tel()
-                            ->maxLength(20),
-
                         Select::make('status')
                             ->label('Status')
                             ->options(ActiveStatus::class)
                             ->default('active')
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->helperText('Nonaktifkan untuk menyembunyikan desa tanpa menghapus.'),
+                    ]),
+
+                Section::make('Akun admin desa')
+                    ->description('Akun untuk mengelola desa ini di panel admin. Login pakai username + kode OTP; wajib ganti sandi saat login pertama.')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('admin_name')
+                            ->label('Nama admin')
+                            ->maxLength(255)
+                            ->dehydrated(false)
+                            ->helperText('Boleh dikosongkan — otomatis "Admin {nama desa}".'),
+
+                        TextInput::make('admin_username')
+                            ->label('Username admin')
+                            ->required()
+                            ->maxLength(255)
+                            ->rules(['alpha_dash'])
+                            ->dehydrated(false)
+                            ->rule(fn (?Model $record) => Rule::unique('users', 'username')->ignore(self::adminId($record)))
+                            ->helperText('Tanpa spasi. Dipakai untuk login ke panel admin.'),
+
+                        TextInput::make('admin_kontak')
+                            ->label('Kontak admin')
+                            ->tel()
+                            ->maxLength(20)
+                            ->dehydrated(false)
+                            ->helperText('No. WhatsApp/HP admin (opsional).'),
+
+                        TextInput::make('admin_otp')
+                            ->label('Kode OTP')
+                            ->maxLength(12)
+                            ->dehydrated(false)
+                            ->helperText(fn (?Model $record): string => $record
+                                ? 'Isi untuk menerbitkan OTP baru (reset sandi admin). Kosongkan bila tak ingin mengubah.'
+                                : 'Kosongkan untuk OTP otomatis, atau isi kode sendiri.'),
                     ]),
             ]);
+    }
+
+    /**
+     * Hasil pencarian desa: "Nama · Kecamatan, Kabupaten" agar tak ambigu.
+     *
+     * @return array<string, string>
+     */
+    protected static function searchDesa(string $search): array
+    {
+        return DB::table('ref_wilayah as d')
+            ->where('d.level', RefWilayah::LEVEL_DESA)
+            ->where('d.nama', 'like', "%{$search}%")
+            ->leftJoin('ref_wilayah as kec', 'kec.kode', '=', 'd.parent_kode')
+            ->leftJoin('ref_wilayah as kab', 'kab.kode', '=', DB::raw("SUBSTRING_INDEX(d.kode, '.', 2)"))
+            ->orderBy('d.nama')
+            ->limit(50)
+            ->get(['d.kode', 'd.nama', 'kec.nama as kec_nama', 'kab.nama as kab_nama'])
+            ->mapWithKeys(fn (object $r): array => [
+                $r->kode => "{$r->nama} · {$r->kec_nama}, {$r->kab_nama}",
+            ])
+            ->all();
+    }
+
+    /** Label desa terpilih (untuk hidrasi saat edit). */
+    protected static function desaLabel(?string $kode): ?string
+    {
+        if (! $kode) {
+            return null;
+        }
+
+        $desa = RefWilayah::find($kode);
+
+        if (! $desa) {
+            return null;
+        }
+
+        $kec = RefWilayah::find(self::ancestor($kode, 3))?->nama;
+        $kab = RefWilayah::find(self::ancestor($kode, 2))?->nama;
+
+        return "{$desa->nama} · {$kec}, {$kab}";
+    }
+
+    /** Isi field tersembunyi dari desa terpilih: nama, kode resmi, wilayah, koordinat. */
+    protected static function applyWilayah(Set $set, ?string $kode): void
+    {
+        if (! $kode) {
+            return;
+        }
+
+        $set('nama', RefWilayah::find($kode)?->nama);
+        $set('kode', $kode); // kode internal = kode wilayah resmi
+        $set('provinsi', RefWilayah::find(self::ancestor($kode, 1))?->nama);
+        $set('kabupaten', RefWilayah::find(self::ancestor($kode, 2))?->nama);
+        $set('kecamatan', RefWilayah::find(self::ancestor($kode, 3))?->nama);
+
+        $geo = DB::table('wilayah_boundaries')->where('kode', $kode)->first(['lat', 'lng']);
+        $set('koordinat_lat', $geo->lat ?? null);
+        $set('koordinat_lng', $geo->lng ?? null);
+    }
+
+    /** ID akun admin desa saat ini (untuk pengecualian unique username), bila ada. */
+    protected static function adminId(?Model $record): ?int
+    {
+        if (! $record instanceof Desa) {
+            return null;
+        }
+
+        return User::where('desa_id', $record->id)->where('role', 'desa_admin')->value('id');
     }
 
     /** Kode leluhur pada `n` segmen pertama (1=prov, 2=kab, 3=kec). */
@@ -169,19 +204,5 @@ class DesaForm
         $parts = explode('.', $kode);
 
         return count($parts) >= $segments ? implode('.', array_slice($parts, 0, $segments)) : null;
-    }
-
-    /** Kosongkan pilihan di bawah level yang berubah agar tak inkonsisten. */
-    protected static function resetBelow(Set $set, string $level): void
-    {
-        if ($level === 'prov') {
-            $set('kab_kode', null);
-        }
-
-        if (in_array($level, ['prov', 'kab'], true)) {
-            $set('kec_kode', null);
-        }
-
-        $set('wilayah_kode', null);
     }
 }

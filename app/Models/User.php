@@ -24,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'otp_expires_at', 'desa_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser, HasMedia
 {
@@ -43,6 +43,21 @@ class User extends Authenticatable implements FilamentUser, HasMedia
 
     protected static function booted(): void
     {
+        // User mengganti sandi sendiri → hapus OTP awal & lepas flag wajib-ganti.
+        // Dikecualikan: pembuatan akun baru, penerbitan OTP (set `initial_otp`),
+        // dan set eksplisit `must_change_password` (hormati niat pemanggil).
+        static::saving(function (self $user): void {
+            if (
+                $user->exists
+                && $user->isDirty('password')
+                && ! $user->isDirty('initial_otp')
+                && ! $user->isDirty('must_change_password')
+            ) {
+                $user->initial_otp = null;
+                $user->must_change_password = false;
+            }
+        });
+
         // Kolom `role` adalah sumber kebenaran. Saat role berubah, samakan Spatie role
         // agar Shield & cek hasRole() tetap konsisten (tak ada "admin hantu").
         static::saved(function (self $user): void {
@@ -117,9 +132,6 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         return $this->umkm_access_granted_at !== null;
     }
 
-    /** Masa berlaku OTP awal (hari) sebelum dianggap kedaluwarsa. */
-    public const OTP_TTL_DAYS = 7;
-
     /** Kode OTP 6 digit (sandi sementara awal). */
     public static function generateOtp(): string
     {
@@ -127,29 +139,21 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     }
 
     /**
-     * Terbitkan OTP baru sebagai sandi sementara; login berikutnya wajib ganti.
-     * Mengembalikan kode plain agar admin bisa menyampaikannya ke warga.
+     * Terbitkan OTP sebagai sandi sementara; login berikutnya wajib ganti. OTP
+     * tersimpan (plain) & terlihat tanpa kedaluwarsa hingga sandi diganti — saat
+     * itu dihapus otomatis (lihat hook `saving`). Tanpa `$code` → OTP otomatis.
      */
-    public function issueOtp(): string
+    public function issueOtp(?string $code = null): string
     {
-        $otp = static::generateOtp();
+        $otp = filled($code) ? $code : static::generateOtp();
 
         $this->forceFill([
             'password' => $otp,            // di-hash via cast saat save
             'initial_otp' => $otp,         // disimpan agar admin bisa relay
-            'otp_expires_at' => now()->addDays(self::OTP_TTL_DAYS),
             'must_change_password' => true,
         ])->save();
 
         return $otp;
-    }
-
-    /** OTP awal sudah lewat masa berlaku (perlu di-reset admin). */
-    public function otpExpired(): bool
-    {
-        return $this->must_change_password
-            && $this->otp_expires_at !== null
-            && $this->otp_expires_at->isPast();
     }
 
     protected function casts(): array
@@ -159,7 +163,6 @@ class User extends Authenticatable implements FilamentUser, HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'must_change_password' => 'boolean',
-            'otp_expires_at' => 'datetime',
             'umkm_access_granted_at' => 'datetime',
             'total_xp' => 'integer',
         ];
