@@ -100,6 +100,15 @@ it('form edit desa memuat data akun admin yang ada', function () {
         ]);
 });
 
+it('hitungan warga tidak menyertakan akun admin desa', function () {
+    $desa = Desa::factory()->create();
+    User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    User::factory()->warga()->count(2)->create(['desa_id' => $desa->id]);
+
+    expect($desa->warga()->count())->toBe(2)        // hanya warga
+        ->and($desa->users()->count())->toBe(3);    // admin + 2 warga
+});
+
 it('desa yang masih punya warga tidak bisa dihapus', function () {
     actingAs(User::factory()->superAdmin()->create());
     $desa = Desa::factory()->create();

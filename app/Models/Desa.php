@@ -104,6 +104,12 @@ class Desa extends Model implements HasMedia
         return $this->hasMany(User::class);
     }
 
+    /** Warga desa (penduduk; tak termasuk admin). UMKM owner = warga + flag akses. */
+    public function warga(): HasMany
+    {
+        return $this->hasMany(User::class)->where('role', 'warga');
+    }
+
     /** Akun admin utama desa (satu per desa, dikelola dari form Desa). */
     public function desaAdmin(): HasOne
     {

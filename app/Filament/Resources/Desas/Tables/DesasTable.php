@@ -41,9 +41,9 @@ class DesasTable
                     ->label('Provinsi')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('users_count')
+                TextColumn::make('warga_count')
                     ->label('Warga')
-                    ->counts('users')
+                    ->counts('warga')
                     ->badge()
                     ->color('info')
                     ->sortable(),
