@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Wilayahs;
+namespace App\Filament\Resources\DesaUnits;
 
-use App\Filament\Resources\Wilayahs\Pages\CreateWilayah;
-use App\Filament\Resources\Wilayahs\Pages\EditWilayah;
-use App\Filament\Resources\Wilayahs\Pages\ListWilayahs;
-use App\Filament\Resources\Wilayahs\Schemas\WilayahForm;
-use App\Filament\Resources\Wilayahs\Tables\WilayahsTable;
-use App\Models\Wilayah;
+use App\Filament\Resources\DesaUnits\Pages\CreateDesaUnit;
+use App\Filament\Resources\DesaUnits\Pages\EditDesaUnit;
+use App\Filament\Resources\DesaUnits\Pages\ListDesaUnits;
+use App\Filament\Resources\DesaUnits\Schemas\DesaUnitForm;
+use App\Filament\Resources\DesaUnits\Tables\DesaUnitsTable;
+use App\Models\DesaUnit;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,9 +15,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class WilayahResource extends Resource
+class DesaUnitResource extends Resource
 {
-    protected static ?string $model = Wilayah::class;
+    protected static ?string $model = DesaUnit::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
 
@@ -40,12 +40,12 @@ class WilayahResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return WilayahForm::configure($schema);
+        return DesaUnitForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return WilayahsTable::configure($table);
+        return DesaUnitsTable::configure($table);
     }
 
     public static function getEloquentQuery(): Builder
@@ -71,7 +71,7 @@ class WilayahResource extends Resource
         $user = auth()->user();
 
         if ($user?->isDesaAdmin()) {
-            $query->where('desa_id', $user->desa_id);
+            $query->forDesa($user->desa_id);
         }
 
         return $query;
@@ -80,9 +80,9 @@ class WilayahResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListWilayahs::route('/'),
-            'create' => CreateWilayah::route('/create'),
-            'edit' => EditWilayah::route('/{record}/edit'),
+            'index' => ListDesaUnits::route('/'),
+            'create' => CreateDesaUnit::route('/create'),
+            'edit' => EditDesaUnit::route('/{record}/edit'),
         ];
     }
 }

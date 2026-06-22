@@ -48,7 +48,7 @@ it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', 
 
     $desa = Desa::where('wilayah_kode', '13.06.01.2001')->first();
     expect($desa)->not->toBeNull()
-        ->and($desa->kode)->toBe('13.06.01.2001')      // kode internal = kode resmi
+        ->and($desa->wilayah_kode)->toBe('13.06.01.2001')
         ->and($desa->nama)->toBe('Tiku Selatan')
         ->and($desa->kabupaten)->toBe('Kabupaten Agam');
 

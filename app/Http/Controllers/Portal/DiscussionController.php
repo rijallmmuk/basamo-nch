@@ -62,12 +62,12 @@ class DiscussionController extends Controller
         $user = $this->guardModule($module);
 
         $data = $request->validate([
-            'body' => ['required', 'string', 'min:5', 'max:2000'],
+            'isi' => ['required', 'string', 'min:5', 'max:2000'],
         ]);
 
         $thread = $module->discussions()->create([
             'user_id' => $user->id,
-            'body' => $data['body'],
+            'isi' => $data['isi'],
         ]);
 
         // XP partisipasi diskusi (idempotent — sekali per modul, posting pertama).
@@ -90,13 +90,13 @@ class DiscussionController extends Controller
         }
 
         $data = $request->validate([
-            'body' => ['required', 'string', 'min:2', 'max:2000'],
+            'isi' => ['required', 'string', 'min:2', 'max:2000'],
         ]);
 
         $module->discussions()->create([
             'user_id' => $user->id,
             'parent_id' => $discussion->id,
-            'body' => $data['body'],
+            'isi' => $data['isi'],
         ]);
 
         // XP partisipasi diskusi (idempotent — sekali per modul, posting pertama).

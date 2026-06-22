@@ -29,7 +29,7 @@ class NewModulePublished extends Notification implements ShouldQueue
         return [
             'type' => 'new_module',
             'title' => 'Modul baru tersedia',
-            'body' => $this->module->title,
+            'body' => $this->module->judul,
             'icon' => 'heroicon-s-book-open',
             'url' => route('portal.modules.show', $this->module),
         ];

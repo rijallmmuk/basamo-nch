@@ -72,7 +72,7 @@ class ModuleResource extends Resource
         $user = auth()->user();
 
         if ($user?->isDesaAdmin()) {
-            $query->where('desa_id', $user->desa_id);
+            $query->forDesa($user->desa_id);
         }
 
         return $query;

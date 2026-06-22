@@ -36,7 +36,7 @@ class LmsPointService
     }
 
     /**
-     * Catat XP sekali saja (idempotent via UNIQUE(user, source, source_id))
+     * Catat XP sekali saja (idempotent via UNIQUE(user, sumber, sumber_id))
      * lalu tambahkan ke total_xp hanya bila baris baru benar-benar dibuat.
      */
     private function award(User $user, string $source, int $sourceId, int $amount): void
@@ -44,8 +44,8 @@ class LmsPointService
         // Satu transaksi: ledger & total_xp tak boleh drift bila gagal di tengah.
         DB::transaction(function () use ($user, $source, $sourceId, $amount) {
             $log = XpLog::firstOrCreate(
-                ['user_id' => $user->id, 'source' => $source, 'source_id' => $sourceId],
-                ['desa_id' => $user->desa_id, 'amount' => $amount],
+                ['user_id' => $user->id, 'sumber' => $source, 'sumber_id' => $sourceId],
+                ['desa_id' => $user->desa_id, 'jumlah' => $amount],
             );
 
             if ($log->wasRecentlyCreated) {

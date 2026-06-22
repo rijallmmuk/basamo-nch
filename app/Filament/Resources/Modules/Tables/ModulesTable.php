@@ -28,7 +28,7 @@ class ModulesTable
                     ->height(36)
                     ->defaultImageUrl(asset('images/default-module-cover.svg')),
 
-                TextColumn::make('title')
+                TextColumn::make('judul')
                     ->label('Judul')
                     ->searchable()
                     ->sortable()
@@ -55,12 +55,12 @@ class ModulesTable
                     ->label('Kuis')
                     ->boolean(),
 
-                TextColumn::make('estimated_minutes')
+                TextColumn::make('estimasi_menit')
                     ->label('Durasi')
                     ->formatStateUsing(fn (?int $state): string => $state ? $state.' mnt' : '—')
                     ->toggleable(),
 
-                TextColumn::make('sort_order')
+                TextColumn::make('urutan')
                     ->label('Urutan')
                     ->numeric()
                     ->sortable()
@@ -98,7 +98,7 @@ class ModulesTable
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->reorderable('sort_order')
-            ->defaultSort('sort_order', 'asc');
+            ->reorderable('urutan')
+            ->defaultSort('urutan', 'asc');
     }
 }

@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\ActiveStatus;
 use App\Models\Desa;
+use App\Models\DesaUnit;
 use App\Models\User;
-use App\Models\Wilayah;
 use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -53,7 +53,7 @@ class UserForm
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->columnSpanFull(),
 
-                        Select::make('wilayah_id')
+                        Select::make('desa_unit_id')
                             ->label(fn (Get $get): string => static::wilayahLabel($get))
                             ->options(fn (Get $get): array => static::wilayahOptions($get))
                             ->searchable()
@@ -68,7 +68,7 @@ class UserForm
 
                                 $desaId = static::resolveDesaId($get);
 
-                                if (! Wilayah::whereKey($value)->where('desa_id', $desaId)->exists()) {
+                                if (! DesaUnit::whereKey($value)->where('desa_id', $desaId)->exists()) {
                                     $fail('Wilayah tidak sesuai dengan desa.');
                                 }
                             })
@@ -101,7 +101,7 @@ class UserForm
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->afterStateUpdated(fn (Get $get, callable $set) => $set('wilayah_id', null))
+                            ->afterStateUpdated(fn (Get $get, callable $set) => $set('desa_unit_id', null))
                             ->placeholder('— Pilih desa —')
                             ->visible(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
                             ->required(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
@@ -166,7 +166,7 @@ class UserForm
             return [];
         }
 
-        return Wilayah::where('desa_id', $desaId)
+        return DesaUnit::where('desa_id', $desaId)
             ->orderBy('nama')
             ->pluck('nama', 'id')
             ->all();

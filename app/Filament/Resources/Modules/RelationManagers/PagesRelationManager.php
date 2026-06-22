@@ -27,13 +27,13 @@ class PagesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('title')
+                TextInput::make('judul')
                     ->label('Judul Halaman')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
 
-                Select::make('type')
+                Select::make('tipe')
                     ->label('Tipe Konten')
                     ->options(ModulePageType::class)
                     ->required()
@@ -41,31 +41,31 @@ class PagesRelationManager extends RelationManager
                     ->live()
                     ->columnSpanFull(),
 
-                RichEditor::make('content')
+                RichEditor::make('konten')
                     ->label('Konten')
-                    ->visible(fn ($get) => $get('type') === 'text')
-                    ->required(fn ($get) => $get('type') === 'text')
+                    ->visible(fn ($get) => $get('tipe') === 'text')
+                    ->required(fn ($get) => $get('tipe') === 'text')
                     ->columnSpanFull(),
 
-                TextInput::make('video_url')
+                TextInput::make('url_video')
                     ->label('URL Video')
                     ->url()
                     ->placeholder('https://www.youtube.com/watch?v=...')
                     ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
-                    ->visible(fn ($get) => $get('type') === 'video')
-                    ->required(fn ($get) => $get('type') === 'video')
+                    ->visible(fn ($get) => $get('tipe') === 'video')
+                    ->required(fn ($get) => $get('tipe') === 'video')
                     ->maxLength(500)
                     ->columnSpanFull(),
 
-                FileUpload::make('file_path')
+                FileUpload::make('path_file')
                     ->label('File PDF')
                     ->acceptedFileTypes(['application/pdf'])
                     // Disk unggahan publik (MEDIA_DISK) — portabel ke R2 di produksi.
                     ->disk(config('media-library.disk_name'))
                     ->directory('modules/pages/pdf')
                     ->visibility('public')
-                    ->visible(fn ($get) => $get('type') === 'pdf')
-                    ->required(fn ($get) => $get('type') === 'pdf')
+                    ->visible(fn ($get) => $get('tipe') === 'pdf')
+                    ->required(fn ($get) => $get('tipe') === 'pdf')
                     ->maxSize(10240) // 10 MB
                     ->helperText('Maksimal 10 MB, format PDF.')
                     ->columnSpanFull(),
@@ -75,20 +75,20 @@ class PagesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('title')
-            ->reorderable('sort_order')
-            ->defaultSort('sort_order', 'asc')
+            ->recordTitleAttribute('judul')
+            ->reorderable('urutan')
+            ->defaultSort('urutan', 'asc')
             ->columns([
-                TextColumn::make('sort_order')
+                TextColumn::make('urutan')
                     ->label('#')
                     ->width('50px'),
 
-                TextColumn::make('title')
+                TextColumn::make('judul')
                     ->label('Judul')
                     ->searchable()
                     ->wrap(),
 
-                TextColumn::make('type')
+                TextColumn::make('tipe')
                     ->label('Tipe')
                     ->badge(),
             ])

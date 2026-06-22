@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class QuizAttempt extends Model
 {
     protected $fillable = [
-        'user_id', 'quiz_id', 'score', 'status', 'submitted_at',
+        'user_id', 'quiz_id', 'nilai', 'status', 'submitted_at',
     ];
 
     protected function casts(): array
     {
         return [
             'status' => QuizAttemptStatus::class,
-            'score' => 'integer',
+            'nilai' => 'integer',
             'submitted_at' => 'datetime',
         ];
     }

@@ -53,7 +53,7 @@ class UserResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
-                ->with(['desa', 'wilayah'])
+                ->with(['desa', 'desaUnit'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
@@ -75,7 +75,7 @@ class UserResource extends Resource
         $user = auth()->user();
 
         if ($user?->isDesaAdmin()) {
-            $query->where('desa_id', $user->desa_id);
+            $query->forDesa($user->desa_id);
         }
 
         return $query;

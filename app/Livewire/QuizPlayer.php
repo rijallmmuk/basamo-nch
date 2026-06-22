@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Enums\QuizAttemptStatus;
 use App\Models\Module;
 use App\Models\Quiz;
-use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
 use App\Notifications\QuizCompleted;
 use App\Services\LmsPointService;
@@ -58,13 +57,13 @@ class QuizPlayer extends Component
             return false;
         }
 
-        if ($this->quiz->max_attempts > 0) {
+        if ($this->quiz->maks_percobaan > 0) {
             $finishedAttempts = QuizAttempt::where('user_id', $userId)
                 ->where('quiz_id', $this->quiz->id)
                 ->whereIn('status', [QuizAttemptStatus::Passed, QuizAttemptStatus::Failed])
                 ->count();
 
-            if ($finishedAttempts >= $this->quiz->max_attempts) {
+            if ($finishedAttempts >= $this->quiz->maks_percobaan) {
                 return false;
             }
         }
@@ -98,7 +97,7 @@ class QuizPlayer extends Component
 
         foreach ($this->questions as $question) {
             if (empty($this->answers[$question->id])) {
-                $this->quizErrors[] = "Soal #{$question->sort_order} belum dijawab.";
+                $this->quizErrors[] = "Soal #{$question->urutan} belum dijawab.";
             }
         }
 
@@ -106,15 +105,9 @@ class QuizPlayer extends Component
             return;
         }
 
-        $attempt = QuizAttempt::create([
-            'user_id' => auth()->id(),
-            'quiz_id' => $this->quiz->id,
-            'status' => QuizAttemptStatus::InProgress,
-            'submitted_at' => now(),
-        ]);
-
         $scoreSum = 0.0;
         $totalQuestions = 0;
+        $answerRows = [];
 
         foreach ($this->questions as $question) {
             $totalQuestions++;
@@ -141,25 +134,30 @@ class QuizPlayer extends Component
 
             $scoreSum += $fraction;
 
-            // Simpan satu baris per opsi yang dipilih warga.
+            // Satu baris per opsi yang dipilih warga (disimpan setelah attempt dibuat).
             foreach ($selectedIds as $optionId) {
-                QuizAnswer::create([
-                    'attempt_id' => $attempt->id,
+                $answerRows[] = [
                     'question_id' => $question->id,
                     'selected_option_id' => $optionId,
                     'is_correct' => $correctIds->contains($optionId),
-                ]);
+                ];
             }
         }
 
         // Nilai dinormalisasi 0–100 dari total fraksi soal benar.
         $percentage = $totalQuestions > 0 ? (int) round(($scoreSum / $totalQuestions) * 100) : 0;
-        $passed = $percentage >= $this->quiz->passing_score;
+        $passed = $percentage >= $this->quiz->nilai_lulus;
 
-        $attempt->update([
-            'score' => $percentage,
+        // Auto-grade sinkron: simpan attempt langsung berstatus final (tanpa state transien).
+        $attempt = QuizAttempt::create([
+            'user_id' => auth()->id(),
+            'quiz_id' => $this->quiz->id,
+            'nilai' => $percentage,
             'status' => $passed ? QuizAttemptStatus::Passed : QuizAttemptStatus::Failed,
+            'submitted_at' => now(),
         ]);
+
+        $attempt->answers()->createMany($answerRows);
 
         $this->resultStatus = $passed ? 'passed' : 'failed';
         $this->resultScore = $percentage;

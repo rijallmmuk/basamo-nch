@@ -14,7 +14,7 @@ class Discussion extends Model
     use LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'module_id', 'user_id', 'parent_id', 'body', 'is_pinned',
+        'module_id', 'user_id', 'parent_id', 'isi', 'is_pinned',
     ];
 
     protected function casts(): array

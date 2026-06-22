@@ -68,7 +68,7 @@ class UmkmService
         $product->update([
             ...$data,
             'status' => UmkmProductStatus::Pending,
-            'rejection_reason' => null,
+            'alasan_penolakan' => null,
             'approved_by' => null,
             'approved_at' => null,
         ]);
@@ -90,7 +90,7 @@ class UmkmService
     {
         $product->update([
             'status' => $status,
-            'rejection_reason' => $status === UmkmProductStatus::Rejected ? $reason : null,
+            'alasan_penolakan' => $status === UmkmProductStatus::Rejected ? $reason : null,
             'approved_by' => $status === UmkmProductStatus::Approved ? $approverId : null,
             'approved_at' => $status === UmkmProductStatus::Approved ? now() : null,
         ]);

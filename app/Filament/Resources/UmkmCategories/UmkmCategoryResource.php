@@ -51,7 +51,7 @@ class UmkmCategoryResource extends Resource
                 ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
                 ->maxLength(60),
 
-            TextInput::make('sort_order')
+            TextInput::make('urutan')
                 ->label('Urutan')
                 ->numeric()
                 ->default(0)
@@ -84,11 +84,11 @@ class UmkmCategoryResource extends Resource
                     ->badge()
                     ->color('gray'),
 
-                TextColumn::make('sort_order')
+                TextColumn::make('urutan')
                     ->label('Urutan')
                     ->sortable(),
             ])
-            ->defaultSort('sort_order')
+            ->defaultSort('urutan')
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),

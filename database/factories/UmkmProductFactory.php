@@ -24,7 +24,7 @@ class UmkmProductFactory extends Factory
             'deskripsi' => fake()->sentence(10),
             'harga' => fake()->numberBetween(5, 500) * 1000,
             'status' => 'pending',
-            'view_count' => fake()->numberBetween(0, 200),
+            'jumlah_dilihat' => fake()->numberBetween(0, 200),
         ];
     }
 
@@ -40,7 +40,7 @@ class UmkmProductFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'rejected',
-            'rejection_reason' => fake()->sentence(8),
+            'alasan_penolakan' => fake()->sentence(8),
         ]);
     }
 }

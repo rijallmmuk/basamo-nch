@@ -90,8 +90,8 @@
                                 <p class="mt-0.5 text-sm font-bold text-indigo-600">
                                     {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Harga tidak dicantumkan' }}
                                 </p>
-                                @if($product->status->value === 'rejected' && $product->rejection_reason)
-                                    <p class="mt-1.5 rounded-lg bg-red-50 px-2 py-1 text-xs text-red-600">{{ $product->rejection_reason }}</p>
+                                @if($product->status->value === 'rejected' && $product->alasan_penolakan)
+                                    <p class="mt-1.5 rounded-lg bg-red-50 px-2 py-1 text-xs text-red-600">{{ $product->alasan_penolakan }}</p>
                                 @endif
                                 <div class="mt-2 flex items-center gap-3 text-sm">
                                     <a href="{{ route('portal.umkm.products.edit', $product) }}" class="font-semibold text-indigo-600 hover:text-indigo-700">Ubah</a>

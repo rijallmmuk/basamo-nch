@@ -18,7 +18,7 @@
 
             <p class="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">Nilai kamu</p>
             <p class="text-4xl font-bold {{ $r['fg'] }}">{{ $resultScore }}</p>
-            <p class="mt-1 text-sm text-gray-400">Nilai minimum lulus: {{ $quiz->passing_score }}</p>
+            <p class="mt-1 text-sm text-gray-400">Nilai minimum lulus: {{ $quiz->nilai_lulus }}</p>
             @if($resultStatus === 'failed')
                 <p class="mt-2 text-sm text-gray-500">Pelajari kembali materi lalu coba lagi.</p>
             @endif
@@ -46,11 +46,11 @@
                     <x-heroicon-o-clipboard-document-list class="h-4 w-4" /> {{ $totalQ }} soal
                 </span>
                 <span class="inline-flex items-center gap-1.5">
-                    <x-heroicon-o-check-badge class="h-4 w-4" /> Nilai lulus {{ $quiz->passing_score }}
+                    <x-heroicon-o-check-badge class="h-4 w-4" /> Nilai lulus {{ $quiz->nilai_lulus }}
                 </span>
-                @if($quiz->max_attempts > 0)
+                @if($quiz->maks_percobaan > 0)
                     <span class="inline-flex items-center gap-1.5">
-                        <x-heroicon-o-arrow-path class="h-4 w-4" /> Maks. {{ $quiz->max_attempts }}x
+                        <x-heroicon-o-arrow-path class="h-4 w-4" /> Maks. {{ $quiz->maks_percobaan }}x
                     </span>
                 @endif
             </div>
@@ -97,7 +97,7 @@
                             {{ $loop->iteration }}
                         </span>
                         <div class="flex-1">
-                            <p class="text-[15px] font-semibold leading-relaxed text-gray-900">{{ $question->question }}</p>
+                            <p class="text-[15px] font-semibold leading-relaxed text-gray-900">{{ $question->pertanyaan }}</p>
                             @if($isMulti)
                                 <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
                                     <x-heroicon-o-check-circle class="h-3.5 w-3.5" />
@@ -121,7 +121,7 @@
                                     {{ $isSelected ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
                                     <input type="{{ $isMulti ? 'checkbox' : 'radio' }}" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
                                         class="h-5 w-5 shrink-0 accent-indigo-600 {{ $isMulti ? 'rounded' : '' }}">
-                                    <span class="text-sm leading-relaxed text-gray-800">{{ $option->option_text }}</span>
+                                    <span class="text-sm leading-relaxed text-gray-800">{{ $option->teks_opsi }}</span>
                                 </label>
                             @endforeach
                         </div>

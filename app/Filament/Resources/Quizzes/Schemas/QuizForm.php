@@ -20,7 +20,7 @@ class QuizForm
                     ->label('Modul')
                     ->relationship(
                         name: 'module',
-                        titleAttribute: 'title',
+                        titleAttribute: 'judul',
                         // Hanya tampilkan modul yang BELUM punya kuis (1 modul = 1 kuis).
                         // Saat edit, tetap sertakan modul kuis ini sendiri.
                         modifyQueryUsing: function (Builder $query, ?Model $record) {
@@ -57,7 +57,7 @@ class QuizForm
                     })
                     ->columnSpanFull(),
 
-                TextInput::make('passing_score')
+                TextInput::make('nilai_lulus')
                     ->label('Nilai Kelulusan')
                     ->helperText('Nilai minimum untuk lulus (skala 0–100).')
                     ->numeric()
@@ -67,7 +67,7 @@ class QuizForm
                     ->required()
                     ->columnSpan(1),
 
-                TextInput::make('max_attempts')
+                TextInput::make('maks_percobaan')
                     ->label('Maks. Percobaan')
                     ->numeric()
                     ->default(3)

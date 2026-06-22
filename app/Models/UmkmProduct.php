@@ -24,7 +24,7 @@ class UmkmProduct extends Model implements HasMedia
 
     protected $fillable = [
         'umkm_profile_id', 'nama_produk', 'slug', 'deskripsi', 'harga',
-        'status', 'rejection_reason', 'approved_by', 'approved_at', 'view_count',
+        'status', 'alasan_penolakan', 'approved_by', 'approved_at', 'jumlah_dilihat',
     ];
 
     protected function casts(): array
@@ -33,7 +33,7 @@ class UmkmProduct extends Model implements HasMedia
             'status' => UmkmProductStatus::class,
             'harga' => 'integer',
             'approved_at' => 'datetime',
-            'view_count' => 'integer',
+            'jumlah_dilihat' => 'integer',
         ];
     }
 
@@ -48,7 +48,7 @@ class UmkmProduct extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_produk', 'harga', 'status', 'rejection_reason', 'umkm_profile_id'])
+            ->logOnly(['nama_produk', 'harga', 'status', 'alasan_penolakan', 'umkm_profile_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('produk');

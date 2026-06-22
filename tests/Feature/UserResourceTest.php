@@ -24,7 +24,7 @@ beforeEach(function () {
 
 it('super_admin dapat membuat admin desa, password ter-hash & role tersinkron', function () {
     actingAs(User::factory()->superAdmin()->create());
-    $desa = Desa::factory()->create(['nama' => 'Desa Uji', 'kode' => 'NCH-TEST']);
+    $desa = Desa::factory()->create(['nama' => 'Desa Uji']);
 
     Livewire::test(CreateUser::class)
         ->fillForm([
@@ -49,8 +49,8 @@ it('super_admin dapat membuat admin desa, password ter-hash & role tersinkron', 
 });
 
 it('desa_admin hanya melihat pengguna di desanya sendiri', function () {
-    $desaA = Desa::factory()->create(['nama' => 'Desa A', 'kode' => 'A1']);
-    $desaB = Desa::factory()->create(['nama' => 'Desa B', 'kode' => 'B1']);
+    $desaA = Desa::factory()->create(['nama' => 'Desa A']);
+    $desaB = Desa::factory()->create(['nama' => 'Desa B']);
 
     actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]));
     $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
@@ -62,7 +62,7 @@ it('desa_admin hanya melihat pengguna di desanya sendiri', function () {
 });
 
 it('desa_admin tidak bisa membuat akun berperan admin', function () {
-    $desa = Desa::factory()->create(['nama' => 'Desa A', 'kode' => 'A1']);
+    $desa = Desa::factory()->create(['nama' => 'Desa A']);
     actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     Livewire::test(CreateUser::class)

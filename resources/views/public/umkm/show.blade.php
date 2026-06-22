@@ -52,7 +52,7 @@
                 </a>
             </div>
 
-            <p class="mt-3 text-xs text-gray-400">{{ number_format($product->view_count) }}× dilihat</p>
+            <p class="mt-3 text-xs text-gray-400">{{ number_format($product->jumlah_dilihat) }}× dilihat</p>
         </div>
     </div>
 @endsection

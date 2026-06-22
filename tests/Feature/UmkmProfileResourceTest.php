@@ -91,11 +91,11 @@ it('admin menolak produk UMKM dengan alasan', function () {
         'ownerRecord' => $profile,
         'pageClass' => EditUmkmProfile::class,
     ])
-        ->callTableAction('reject', $product, data: ['rejection_reason' => 'Foto kurang jelas']);
+        ->callTableAction('reject', $product, data: ['alasan_penolakan' => 'Foto kurang jelas']);
 
     $product->refresh();
     expect($product->status->value)->toBe('rejected')
-        ->and($product->rejection_reason)->toBe('Foto kurang jelas');
+        ->and($product->alasan_penolakan)->toBe('Foto kurang jelas');
 });
 
 it('desa_admin lain tidak bisa mengakses profil di luar desanya', function () {

@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            // FK → desas/wilayahs ditambah di migrasi tabel terkait (dibuat setelah users).
-            $table->unsignedBigInteger('desa_id')->nullable();   // nullable untuk super_admin
-            $table->unsignedBigInteger('wilayah_id')->nullable();  // unit wilayah warga (opsional)
+            // FK → desas/desa_units ditambah di migrasi tabel terkait (dibuat setelah users).
+            $table->unsignedBigInteger('desa_id')->nullable();      // nullable untuk super_admin
+            $table->unsignedBigInteger('desa_unit_id')->nullable(); // sub-unit wilayah warga (opsional)
             $table->string('name');
             $table->string('username')->nullable()->unique();
             $table->string('email')->nullable()->unique();         // opsional: NIK identitas utama
@@ -20,8 +20,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('must_change_password')->default(false);
+            // OTP awal tanpa kedaluwarsa: tersimpan & terlihat hingga sandi diganti, lalu dihapus.
             $table->string('initial_otp', 12)->nullable();         // OTP awal (kredensial sementara)
-            $table->timestamp('otp_expires_at')->nullable();
             $table->string('role', 20)->nullable();                // persona: super_admin|desa_admin|warga
             $table->timestamp('umkm_access_granted_at')->nullable(); // kapabilitas UMKM (bukan role)
             $table->unsignedInteger('total_xp')->default(0);

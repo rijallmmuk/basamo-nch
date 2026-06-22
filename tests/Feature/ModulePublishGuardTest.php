@@ -16,24 +16,24 @@ beforeEach(function () {
 
 it('tidak bisa langsung publish modul tanpa materi', function () {
     Livewire::test(CreateModule::class)
-        ->fillForm(['title' => 'Modul Tanpa Materi', 'status' => 'published'])
+        ->fillForm(['judul' => 'Modul Tanpa Materi', 'status' => 'published'])
         ->call('create')
         ->assertHasFormErrors(['status']);
 });
 
 it('bisa publish modul yang sudah punya materi', function () {
     $module = Module::create([
-        'title' => 'Modul Siap',
+        'judul' => 'Modul Siap',
         'slug' => 'modul-siap-'.uniqid(),
         'status' => 'draft',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
     ModulePage::create([
         'module_id' => $module->id,
-        'title' => 'Materi 1',
-        'type' => 'text',
-        'content' => 'Isi materi.',
-        'sort_order' => 1,
+        'judul' => 'Materi 1',
+        'tipe' => 'text',
+        'konten' => 'Isi materi.',
+        'urutan' => 1,
     ]);
 
     Livewire::test(EditModule::class, ['record' => $module->getRouteKey()])

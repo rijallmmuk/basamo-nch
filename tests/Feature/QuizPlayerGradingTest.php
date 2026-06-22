@@ -17,25 +17,25 @@ uses(RefreshDatabase::class);
 function makeSingleQuestionQuiz(array $options, int $passingScore = 50): QuizQuestion
 {
     $module = Module::create([
-        'title' => 'Modul Uji '.uniqid(),
+        'judul' => 'Modul Uji '.uniqid(),
         'slug' => 'modul-uji-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 
     $quiz = Quiz::create([
         'module_id' => $module->id,
-        'passing_score' => $passingScore,
-        'max_attempts' => 3,
+        'nilai_lulus' => $passingScore,
+        'maks_percobaan' => 3,
     ]);
 
-    $question = $quiz->questions()->create(['question' => 'Soal uji?']);
+    $question = $quiz->questions()->create(['pertanyaan' => 'Soal uji?']);
 
     foreach ($options as $i => $opt) {
         $question->options()->create([
-            'option_text' => $opt['text'],
+            'teks_opsi' => $opt['text'],
             'is_correct' => $opt['correct'],
-            'sort_order' => $i + 1,
+            'urutan' => $i + 1,
         ]);
     }
 
@@ -60,7 +60,7 @@ it('soal pilihan tunggal: jawaban benar bernilai 100 dan lulus', function () {
         ->call('submit');
 
     $attempt = QuizAttempt::first();
-    expect($attempt->score)->toBe(100)
+    expect($attempt->nilai)->toBe(100)
         ->and($attempt->status->value)->toBe('passed');
 });
 
@@ -76,7 +76,7 @@ it('soal pilihan tunggal: jawaban salah bernilai 0 dan gagal', function () {
         ->call('submit');
 
     $attempt = QuizAttempt::first();
-    expect($attempt->score)->toBe(0)
+    expect($attempt->nilai)->toBe(0)
         ->and($attempt->status->value)->toBe('failed');
 });
 
@@ -92,7 +92,7 @@ it('soal pilihan jamak: memilih semua jawaban benar bernilai 100', function () {
         ->set('answers', [$q->id => $correctIds])
         ->call('submit');
 
-    expect(QuizAttempt::first()->score)->toBe(100);
+    expect(QuizAttempt::first()->nilai)->toBe(100);
 });
 
 it('soal pilihan jamak: memilih sebagian benar mendapat partial credit', function () {
@@ -108,7 +108,7 @@ it('soal pilihan jamak: memilih sebagian benar mendapat partial credit', functio
         ->set('answers', [$q->id => [$oneCorrect]])
         ->call('submit');
 
-    expect(QuizAttempt::first()->score)->toBe(50);
+    expect(QuizAttempt::first()->nilai)->toBe(50);
 });
 
 it('soal pilihan jamak: memilih opsi salah kena penalti', function () {
@@ -127,7 +127,7 @@ it('soal pilihan jamak: memilih opsi salah kena penalti', function () {
         ->call('submit');
 
     $attempt = QuizAttempt::first();
-    expect($attempt->score)->toBe(50)
+    expect($attempt->nilai)->toBe(50)
         // Satu baris jawaban per opsi yang dipilih (3 opsi).
         ->and(QuizAnswer::where('attempt_id', $attempt->id)->count())->toBe(3);
 });
@@ -147,18 +147,18 @@ it('soal pilihan jamak: mencentang SEMUA opsi bernilai 0 (anti-tebak)', function
         ->call('submit');
 
     $attempt = QuizAttempt::first();
-    expect($attempt->score)->toBe(0)
+    expect($attempt->nilai)->toBe(0)
         ->and($attempt->status->value)->toBe('failed');
 });
 
 it('kuis tanpa soal tidak membuat attempt saat submit', function () {
     $module = Module::create([
-        'title' => 'Modul Kosong '.uniqid(),
+        'judul' => 'Modul Kosong '.uniqid(),
         'slug' => 'modul-kosong-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
-    $quiz = Quiz::create(['module_id' => $module->id, 'passing_score' => 50, 'max_attempts' => 3]);
+    $quiz = Quiz::create(['module_id' => $module->id, 'nilai_lulus' => 50, 'maks_percobaan' => 3]);
 
     Livewire::test(QuizPlayer::class, ['quiz' => $quiz])
         ->call('submit')
@@ -187,13 +187,13 @@ it('menolak submit bila batas percobaan sudah habis', function () {
         ['text' => 'Benar', 'correct' => true],
         ['text' => 'Salah', 'correct' => false],
     ], passingScore: 50);
-    $q->quiz->update(['max_attempts' => 1]);
+    $q->quiz->update(['maks_percobaan' => 1]);
     $correctId = $q->options->firstWhere('is_correct', true)->id;
 
     // Sudah ada 1 attempt gagal → kuota habis.
     QuizAttempt::create([
         'user_id' => $this->warga->id, 'quiz_id' => $q->quiz->id,
-        'status' => 'failed', 'score' => 0, 'submitted_at' => now(),
+        'status' => 'failed', 'nilai' => 0, 'submitted_at' => now(),
     ]);
 
     Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
@@ -210,12 +210,12 @@ it('menolak submit bila user sudah lulus', function () {
         ['text' => 'Benar', 'correct' => true],
         ['text' => 'Salah', 'correct' => false],
     ], passingScore: 50);
-    $q->quiz->update(['max_attempts' => 0]); // tak terbatas
+    $q->quiz->update(['maks_percobaan' => 0]); // tak terbatas
     $correctId = $q->options->firstWhere('is_correct', true)->id;
 
     QuizAttempt::create([
         'user_id' => $this->warga->id, 'quiz_id' => $q->quiz->id,
-        'status' => 'passed', 'score' => 100, 'submitted_at' => now(),
+        'status' => 'passed', 'nilai' => 100, 'submitted_at' => now(),
     ]);
 
     Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
@@ -231,7 +231,7 @@ it('submit ganda dalam satu sesi hanya membuat satu attempt', function () {
         ['text' => 'Benar', 'correct' => true],
         ['text' => 'Salah', 'correct' => false],
     ], passingScore: 50);
-    $q->quiz->update(['max_attempts' => 0]);
+    $q->quiz->update(['maks_percobaan' => 0]);
     $correctId = $q->options->firstWhere('is_correct', true)->id;
 
     Livewire::test(QuizPlayer::class, ['quiz' => $q->quiz])
@@ -256,6 +256,6 @@ it('mengabaikan ID opsi asing tanpa error dan tanpa baris jawaban', function () 
         ->assertSet('submitted', true);
 
     $attempt = QuizAttempt::first();
-    expect($attempt->score)->toBe(0)
+    expect($attempt->nilai)->toBe(0)
         ->and(QuizAnswer::where('attempt_id', $attempt->id)->count())->toBe(0);
 });

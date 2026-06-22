@@ -30,7 +30,7 @@ class UmkmProductVerified extends Notification
             'title' => $approved ? 'Produk disetujui' : 'Produk ditolak',
             'body' => $approved
                 ? $this->product->nama_produk.' kini tampil di katalog.'
-                : $this->product->nama_produk.' ditolak: '.$this->product->rejection_reason,
+                : $this->product->nama_produk.' ditolak: '.$this->product->alasan_penolakan,
             'icon' => $approved ? 'heroicon-s-check-badge' : 'heroicon-s-x-circle',
             'url' => route('portal.umkm.index'),
         ];

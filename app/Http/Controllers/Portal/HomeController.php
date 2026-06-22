@@ -25,7 +25,7 @@ class HomeController extends Controller
             })
             ->with(['progress' => fn ($q) => $q->where('user_id', $user->id)])
             ->withCount('pages')
-            ->orderBy('sort_order')
+            ->orderBy('urutan')
             ->orderBy('id')
             ->get();
 
@@ -38,12 +38,12 @@ class HomeController extends Controller
         $featured = $modules->sortBy(function ($m) use ($statusMap, $priorityOrder) {
             $priority = $priorityOrder[$statusMap[$m->id] ?? 'available'] ?? 4;
 
-            return [$priority, $m->sort_order];
+            return [$priority, $m->urutan];
         })->take(4)->values();
 
         // Progres keseluruhan (berbasis halaman materi yang selesai)
         $totalPages = $modules->sum('pages_count');
-        $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->pages_completed ?? []));
+        $donePages = $modules->sum(fn ($m) => count($m->progress->first()?->halaman_selesai ?? []));
         $overallPct = $totalPages > 0 ? (int) round($donePages / $totalPages * 100) : 0;
 
         // Peringkat XP se-desa (Top 5 + posisi user) — hanya warga aktif.

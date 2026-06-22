@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ActiveStatus;
+use App\Models\Concerns\BelongsToDesa;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -24,12 +25,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'wilayah_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'desa_unit_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser, HasMedia
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
+    use BelongsToDesa, HasFactory, HasRoles, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
 
     /** Audit akun: jangan pernah log password/OTP. */
     public function getActivitylogOptions(): LogOptions
@@ -168,14 +169,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         ];
     }
 
-    public function desa(): BelongsTo
+    public function desaUnit(): BelongsTo
     {
-        return $this->belongsTo(Desa::class);
-    }
-
-    public function wilayah(): BelongsTo
-    {
-        return $this->belongsTo(Wilayah::class);
+        return $this->belongsTo(DesaUnit::class);
     }
 
     public function umkmProfile(): HasOne

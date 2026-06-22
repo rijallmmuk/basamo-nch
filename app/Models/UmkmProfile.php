@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ActiveStatus;
+use App\Models\Concerns\BelongsToDesa;
 use Database\Factories\UmkmProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,7 @@ use Spatie\Sluggable\SlugOptions;
 class UmkmProfile extends Model
 {
     /** @use HasFactory<UmkmProfileFactory> */
-    use HasFactory, HasSlug, LogsActivity, SoftDeletes;
+    use BelongsToDesa, HasFactory, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
@@ -66,11 +67,6 @@ class UmkmProfile extends Model
     public function whatsappUrl(?string $message = null): string
     {
         return 'https://wa.me/'.$this->normalizedWhatsapp().($message ? '?text='.rawurlencode($message) : '');
-    }
-
-    public function desa(): BelongsTo
-    {
-        return $this->belongsTo(Desa::class);
     }
 
     public function category(): BelongsTo

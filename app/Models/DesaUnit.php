@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToDesa;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Wilayah extends Model
+/**
+ * Sub-unit di dalam desa (Jorong/Dusun/Korong/…), 1 tingkat. Tabel `desa_units`.
+ * Sebutannya diatur per desa via `desas.jenis_sub_unit_id`.
+ */
+class DesaUnit extends Model
 {
-    use LogsActivity, SoftDeletes;
+    use BelongsToDesa, LogsActivity, SoftDeletes;
 
     protected $fillable = ['desa_id', 'nama'];
 
@@ -22,11 +26,6 @@ class Wilayah extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('wilayah');
-    }
-
-    public function desa(): BelongsTo
-    {
-        return $this->belongsTo(Desa::class);
     }
 
     public function users(): HasMany

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Wilayahs\Pages;
+namespace App\Filament\Resources\DesaUnits\Pages;
 
-use App\Filament\Resources\Wilayahs\WilayahResource;
+use App\Filament\Resources\DesaUnits\DesaUnitResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateWilayah extends CreateRecord
+class CreateDesaUnit extends CreateRecord
 {
-    protected static string $resource = WilayahResource::class;
+    protected static string $resource = DesaUnitResource::class;
 
     /**
      * desa_admin tidak melihat field desa — wilayah dipaksa ke desanya.

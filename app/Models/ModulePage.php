@@ -14,22 +14,22 @@ class ModulePage extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'module_id', 'title', 'type', 'content',
-        'video_url', 'file_path', 'sort_order',
+        'module_id', 'judul', 'tipe', 'konten',
+        'url_video', 'path_file', 'urutan',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
-            'type' => ModulePageType::class,
+            'tipe' => ModulePageType::class,
         ];
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['title', 'type', 'module_id', 'sort_order'])
+            ->logOnly(['judul', 'tipe', 'module_id', 'urutan'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('materi');
@@ -39,33 +39,33 @@ class ModulePage extends Model
     {
         // Auto-urut: halaman baru ditaruh di urutan terakhir modulnya.
         static::creating(function (ModulePage $page) {
-            if (empty($page->sort_order)) {
-                $page->sort_order = (static::where('module_id', $page->module_id)->max('sort_order') ?? 0) + 1;
+            if (empty($page->urutan)) {
+                $page->urutan = (static::where('module_id', $page->module_id)->max('urutan') ?? 0) + 1;
             }
         });
 
         // Bersihkan kolom yang tak relevan dengan tipe (cegah data basi saat ganti tipe).
         static::saving(function (ModulePage $page) {
-            match ($page->type) {
-                ModulePageType::Text => [$page->video_url = null, $page->file_path = null],
-                ModulePageType::Video => [$page->content = null, $page->file_path = null],
-                ModulePageType::Pdf => [$page->content = null, $page->video_url = null],
+            match ($page->tipe) {
+                ModulePageType::Text => [$page->url_video = null, $page->path_file = null],
+                ModulePageType::Video => [$page->konten = null, $page->path_file = null],
+                ModulePageType::Pdf => [$page->konten = null, $page->url_video = null],
                 default => null,
             };
         });
 
         // Hapus file PDF lama saat diganti/dikosongkan agar tidak yatim di disk.
         static::updating(function (ModulePage $page) {
-            $original = $page->getOriginal('file_path');
-            if ($original && $page->file_path !== $original) {
+            $original = $page->getOriginal('path_file');
+            if ($original && $page->path_file !== $original) {
                 Storage::disk(config('media-library.disk_name'))->delete($original);
             }
         });
 
         // Hapus file PDF saat halaman dihapus.
         static::deleted(function (ModulePage $page) {
-            if ($page->file_path) {
-                Storage::disk(config('media-library.disk_name'))->delete($page->file_path);
+            if ($page->path_file) {
+                Storage::disk(config('media-library.disk_name'))->delete($page->path_file);
             }
         });
     }

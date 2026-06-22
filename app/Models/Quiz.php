@@ -17,13 +17,13 @@ class Quiz extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'module_id', 'passing_score', 'max_attempts',
+        'module_id', 'nilai_lulus', 'maks_percobaan',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['module_id', 'passing_score', 'max_attempts'])
+            ->logOnly(['module_id', 'nilai_lulus', 'maks_percobaan'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('kuis');
@@ -32,8 +32,8 @@ class Quiz extends Model
     protected function casts(): array
     {
         return [
-            'passing_score' => 'integer',
-            'max_attempts' => 'integer',
+            'nilai_lulus' => 'integer',
+            'maks_percobaan' => 'integer',
         ];
     }
 
@@ -42,7 +42,7 @@ class Quiz extends Model
      */
     protected function title(): Attribute
     {
-        return Attribute::get(fn (): string => 'Kuis: '.($this->module?->title ?? ''));
+        return Attribute::get(fn (): string => 'Kuis: '.($this->module?->judul ?? ''));
     }
 
     public function module(): BelongsTo
@@ -52,7 +52,7 @@ class Quiz extends Model
 
     public function questions(): HasMany
     {
-        return $this->hasMany(QuizQuestion::class)->orderBy('sort_order')->orderBy('id');
+        return $this->hasMany(QuizQuestion::class)->orderBy('urutan')->orderBy('id');
     }
 
     public function attempts(): HasMany

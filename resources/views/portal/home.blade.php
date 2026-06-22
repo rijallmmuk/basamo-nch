@@ -103,7 +103,7 @@
                             @php
                                 $status = $statusMap[$module->id] ?? 'available';
                                 $progress = $module->progress->first();
-                                $pagesDone = count($progress?->pages_completed ?? []);
+                                $pagesDone = count($progress?->halaman_selesai ?? []);
                                 $pct = $module->pages_count > 0 ? (int) ($pagesDone / $module->pages_count * 100) : 0;
                                 $locked = $status === 'locked';
                             @endphp
@@ -123,7 +123,7 @@
                                     @endif
                                 </span>
                                 <div class="min-w-0 flex-1">
-                                    <p class="truncate text-[15px] font-semibold {{ $locked ? 'text-gray-500' : 'text-gray-900' }}">{{ $module->title }}</p>
+                                    <p class="truncate text-[15px] font-semibold {{ $locked ? 'text-gray-500' : 'text-gray-900' }}">{{ $module->judul }}</p>
                                     @if($status === 'in_progress' && $module->pages_count > 0)
                                         <div class="mt-2 flex items-center gap-2">
                                             <div class="h-1.5 w-28 overflow-hidden rounded-full bg-gray-100">

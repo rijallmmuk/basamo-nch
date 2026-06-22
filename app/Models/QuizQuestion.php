@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class QuizQuestion extends Model
 {
     protected $fillable = [
-        'quiz_id', 'question', 'sort_order',
+        'quiz_id', 'pertanyaan', 'urutan',
     ];
 
     protected static function booted(): void
     {
         // Auto-urut: soal baru ditaruh di urutan terakhir kuisnya.
         static::creating(function (QuizQuestion $question) {
-            if (empty($question->sort_order)) {
-                $question->sort_order = (static::where('quiz_id', $question->quiz_id)->max('sort_order') ?? 0) + 1;
+            if (empty($question->urutan)) {
+                $question->urutan = (static::where('quiz_id', $question->quiz_id)->max('urutan') ?? 0) + 1;
             }
         });
     }
@@ -29,7 +29,7 @@ class QuizQuestion extends Model
 
     public function options(): HasMany
     {
-        return $this->hasMany(QuizOption::class, 'question_id')->orderBy('sort_order')->orderBy('id');
+        return $this->hasMany(QuizOption::class, 'question_id')->orderBy('urutan')->orderBy('id');
     }
 
     public function answers(): HasMany

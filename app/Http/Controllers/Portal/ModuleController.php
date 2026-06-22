@@ -29,7 +29,7 @@ class ModuleController extends Controller
                 'prerequisite',
             ])
             ->withCount('pages')
-            ->orderBy('sort_order')
+            ->orderBy('urutan')
             ->get();
 
         // Ambil sekali: modul yang sudah diselesaikan user → hitung status in-memory
@@ -63,7 +63,7 @@ class ModuleController extends Controller
 
         $pages = $module->pages;
         $progress = $this->progressService->getProgress($user, $module);
-        $pagesCompleted = $progress?->pages_completed ?? [];
+        $pagesCompleted = $progress?->halaman_selesai ?? [];
         $isCompleted = $progress?->status === ModuleProgressStatus::Completed;
 
         return view('portal.modules.show', compact('module', 'pages', 'progress', 'pagesCompleted', 'isCompleted'));

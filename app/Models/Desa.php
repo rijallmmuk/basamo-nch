@@ -19,7 +19,7 @@ class Desa extends Model implements HasMedia
     use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'jenis_desa_id', 'kode', 'wilayah_kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
+        'nama', 'jenis_desa_id', 'wilayah_kode', 'provinsi', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id',
         'koordinat_lat', 'koordinat_lng', 'kontak', 'status',
     ];
 
@@ -48,7 +48,7 @@ class Desa extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'jenis_desa_id', 'kode', 'status', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id'])
+            ->logOnly(['nama', 'jenis_desa_id', 'wilayah_kode', 'status', 'kabupaten', 'kecamatan', 'jenis_sub_unit_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('desa');
@@ -121,9 +121,9 @@ class Desa extends Model implements HasMedia
         return $this->hasMany(Module::class);
     }
 
-    public function wilayah(): HasMany
+    public function desaUnits(): HasMany
     {
-        return $this->hasMany(Wilayah::class);
+        return $this->hasMany(DesaUnit::class);
     }
 
     public function umkmProfiles(): HasMany

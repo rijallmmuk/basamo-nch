@@ -17,20 +17,20 @@ uses(RefreshDatabase::class);
 function makeModuleWithPages(int $pageCount, ?int $desaId = null): Module
 {
     $module = Module::create([
-        'title' => 'Modul '.uniqid(),
+        'judul' => 'Modul '.uniqid(),
         'slug' => 'modul-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
         'desa_id' => $desaId,
     ]);
 
     for ($i = 1; $i <= $pageCount; $i++) {
         ModulePage::create([
             'module_id' => $module->id,
-            'title' => "Materi $i",
-            'type' => 'text',
-            'content' => "Isi materi $i.",
-            'sort_order' => $i,
+            'judul' => "Materi $i",
+            'tipe' => 'text',
+            'konten' => "Isi materi $i.",
+            'urutan' => $i,
         ]);
     }
 
@@ -43,11 +43,11 @@ it('konten materi disanitasi dari script saat ditampilkan ke warga', function ()
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
 
     $module = Module::create([
-        'title' => 'Modul XSS', 'slug' => 'modul-xss', 'status' => 'published', 'sort_order' => 1,
+        'judul' => 'Modul XSS', 'slug' => 'modul-xss', 'status' => 'published', 'urutan' => 1,
     ]);
     $page = ModulePage::create([
-        'module_id' => $module->id, 'title' => 'Materi', 'type' => 'text',
-        'content' => '<script>alert(1)</script><p>Konten aman</p>', 'sort_order' => 1,
+        'module_id' => $module->id, 'judul' => 'Materi', 'tipe' => 'text',
+        'konten' => '<script>alert(1)</script><p>Konten aman</p>', 'urutan' => 1,
     ]);
 
     $this->actingAs($warga)
@@ -62,7 +62,7 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeModuleWithPages(4);
-    $pages = $module->pages()->orderBy('sort_order')->get();
+    $pages = $module->pages()->orderBy('urutan')->get();
 
     $service = app(LmsProgressService::class);
 
@@ -86,11 +86,11 @@ it('menyelesaikan modul setelah halaman tersisa dibuka semua, walau ada halaman 
         ->and($warga->refresh()->total_xp)->toBe(50);
 });
 
-it('membuang ID halaman hantu dari pages_completed', function () {
+it('membuang ID halaman hantu dari halaman_selesai', function () {
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeModuleWithPages(3);
-    $pages = $module->pages()->orderBy('sort_order')->get();
+    $pages = $module->pages()->orderBy('urutan')->get();
     $service = app(LmsProgressService::class);
 
     $service->markPageCompleted($warga, $module, $pages[0]);
@@ -104,8 +104,8 @@ it('membuang ID halaman hantu dari pages_completed', function () {
     $service->markPageCompleted($warga, $module, $pages[1]);
 
     $progress = UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->first();
-    expect($progress->pages_completed)->not->toContain($deletedId)
-        ->and($progress->pages_completed)->toContain($pages[1]->id);
+    expect($progress->halaman_selesai)->not->toContain($deletedId)
+        ->and($progress->halaman_selesai)->toContain($pages[1]->id);
 });
 
 // ── #11 Prasyarat yang dihapus tidak mengunci ────────────────────────
@@ -114,7 +114,7 @@ it('prasyarat aktif yang belum diselesaikan tetap mengunci modul', function () {
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $prereq = makeModuleWithPages(1);
     $module = makeModuleWithPages(1);
-    $module->update(['prerequisite_module_id' => $prereq->id]);
+    $module->update(['prasyarat_module_id' => $prereq->id]);
 
     expect(app(LmsProgressService::class)->isModuleAccessible($warga, $module))->toBeFalse();
 });
@@ -124,7 +124,7 @@ it('prasyarat yang sudah dihapus tidak mengunci modul', function () {
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $prereq = makeModuleWithPages(1);
     $module = makeModuleWithPages(1);
-    $module->update(['prerequisite_module_id' => $prereq->id]);
+    $module->update(['prasyarat_module_id' => $prereq->id]);
 
     $prereq->delete(); // soft delete
 
@@ -139,13 +139,13 @@ it('menolak prasyarat lintas-desa untuk modul global', function () {
 
     Livewire::test(CreateModule::class)
         ->fillForm([
-            'title' => 'Modul Global',
+            'judul' => 'Modul Global',
             'status' => 'draft',
             'desa_id' => null,
-            'prerequisite_module_id' => $lokal->id,
+            'prasyarat_module_id' => $lokal->id,
         ])
         ->call('create')
-        ->assertHasFormErrors(['prerequisite_module_id']);
+        ->assertHasFormErrors(['prasyarat_module_id']);
 });
 
 it('mengizinkan prasyarat global untuk modul global', function () {
@@ -154,10 +154,10 @@ it('mengizinkan prasyarat global untuk modul global', function () {
 
     Livewire::test(CreateModule::class)
         ->fillForm([
-            'title' => 'Modul Global 2',
+            'judul' => 'Modul Global 2',
             'status' => 'draft',
             'desa_id' => null,
-            'prerequisite_module_id' => $global->id,
+            'prasyarat_module_id' => $global->id,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -169,15 +169,15 @@ it('mengosongkan kolom tak relevan saat tipe halaman berubah', function () {
     $module = makeModuleWithPages(1);
 
     $page = ModulePage::create([
-        'module_id' => $module->id, 'title' => 'PDF', 'type' => 'pdf',
-        'file_path' => 'modules/pages/pdf/a.pdf', 'sort_order' => 5,
+        'module_id' => $module->id, 'judul' => 'PDF', 'tipe' => 'pdf',
+        'path_file' => 'modules/pages/pdf/a.pdf', 'urutan' => 5,
     ]);
 
-    $page->update(['type' => 'text', 'content' => 'Sekarang teks']);
+    $page->update(['tipe' => 'text', 'konten' => 'Sekarang teks']);
 
-    expect($page->refresh()->file_path)->toBeNull()
-        ->and($page->video_url)->toBeNull()
-        ->and($page->content)->toBe('Sekarang teks');
+    expect($page->refresh()->path_file)->toBeNull()
+        ->and($page->url_video)->toBeNull()
+        ->and($page->konten)->toBe('Sekarang teks');
 });
 
 it('menghapus file PDF dari disk saat halaman dihapus', function () {
@@ -186,8 +186,8 @@ it('menghapus file PDF dari disk saat halaman dihapus', function () {
     $module = makeModuleWithPages(1);
 
     $page = ModulePage::create([
-        'module_id' => $module->id, 'title' => 'PDF', 'type' => 'pdf',
-        'file_path' => 'modules/pages/pdf/b.pdf', 'sort_order' => 5,
+        'module_id' => $module->id, 'judul' => 'PDF', 'tipe' => 'pdf',
+        'path_file' => 'modules/pages/pdf/b.pdf', 'urutan' => 5,
     ]);
 
     $page->delete();

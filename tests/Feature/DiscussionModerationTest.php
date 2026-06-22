@@ -13,10 +13,10 @@ uses(RefreshDatabase::class);
 function makeDiscussionModule(): Module
 {
     return Module::create([
-        'title' => 'Modul Diskusi '.uniqid(),
+        'judul' => 'Modul Diskusi '.uniqid(),
         'slug' => 'modul-diskusi-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 }
 
@@ -25,7 +25,7 @@ function makeThread(Module $module, User $author, array $overrides = []): Discus
     return Discussion::create(array_merge([
         'module_id' => $module->id,
         'user_id' => $author->id,
-        'body' => 'Pertanyaan uji',
+        'isi' => 'Pertanyaan uji',
     ], $overrides));
 }
 
@@ -120,7 +120,7 @@ it('diskusi yang dihapus admin tidak tampil di portal warga', function () {
     $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeDiscussionModule();
-    $thread = makeThread($module, $warga, ['body' => 'Konten dimoderasi unik']);
+    $thread = makeThread($module, $warga, ['isi' => 'Konten dimoderasi unik']);
 
     // Admin menghapus (soft delete) lewat resource.
     $this->actingAs($admin);

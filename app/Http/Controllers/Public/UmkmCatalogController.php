@@ -42,7 +42,7 @@ class UmkmCatalogController extends Controller
             'kategoriList' => Cache::remember(
                 'umkm.catalog.kategori_list',
                 now()->addHour(),
-                fn () => UmkmCategory::orderBy('sort_order')->pluck('nama', 'id'),
+                fn () => UmkmCategory::orderBy('urutan')->pluck('nama', 'id'),
             ),
             'filters' => $request->only(['q', 'desa', 'kategori']),
         ]);
@@ -89,7 +89,7 @@ class UmkmCatalogController extends Controller
 
         if (Cache::add($seenKey, true, now()->addHours(6))) {
             $product->newQuery()->whereKey($product->getKey())
-                ->update(['view_count' => DB::raw('view_count + 1')]);
+                ->update(['jumlah_dilihat' => DB::raw('jumlah_dilihat + 1')]);
         }
 
         $product->load(['umkmProfile.desa.jenisDesa', 'umkmProfile.category', 'media']);

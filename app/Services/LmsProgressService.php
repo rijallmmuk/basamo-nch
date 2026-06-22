@@ -15,7 +15,7 @@ class LmsProgressService
 
     public function isModuleAccessible(User $user, Module $module): bool
     {
-        if (! $module->prerequisite_module_id) {
+        if (! $module->prasyarat_module_id) {
             return true;
         }
 
@@ -25,7 +25,7 @@ class LmsProgressService
         }
 
         return UserModuleProgress::where('user_id', $user->id)
-            ->where('module_id', $module->prerequisite_module_id)
+            ->where('module_id', $module->prasyarat_module_id)
             ->where('status', ModuleProgressStatus::Completed)
             ->exists();
     }
@@ -39,9 +39,9 @@ class LmsProgressService
     public function getModuleStatusUsing(Module $module, ?UserModuleProgress $progress, array $completedModuleIds): string
     {
         // `$module->prerequisite` null bila prasyarat sudah dihapus → tidak mengunci.
-        if ($module->prerequisite_module_id
+        if ($module->prasyarat_module_id
             && $module->prerequisite
-            && ! in_array($module->prerequisite_module_id, $completedModuleIds, true)) {
+            && ! in_array($module->prasyarat_module_id, $completedModuleIds, true)) {
             return 'locked';
         }
 
@@ -86,7 +86,7 @@ class LmsProgressService
     {
         UserModuleProgress::firstOrCreate(
             ['user_id' => $user->id, 'module_id' => $module->id],
-            ['status' => ModuleProgressStatus::InProgress, 'pages_completed' => []]
+            ['status' => ModuleProgressStatus::InProgress, 'halaman_selesai' => []]
         );
 
         // ID halaman yang masih ada — dipakai untuk rekonsiliasi (buang ID hantu
@@ -101,14 +101,14 @@ class LmsProgressService
                 ->first();
 
             $pagesCompleted = array_values(array_intersect(
-                array_unique([...($progress->pages_completed ?? []), $page->id]),
+                array_unique([...($progress->halaman_selesai ?? []), $page->id]),
                 $validPageIds
             ));
 
             $allDone = count($validPageIds) > 0 && count($pagesCompleted) === count($validPageIds);
 
             $progress->update([
-                'pages_completed' => $pagesCompleted,
+                'halaman_selesai' => $pagesCompleted,
                 'status' => $allDone ? ModuleProgressStatus::Completed : ModuleProgressStatus::InProgress,
                 // Pertahankan waktu selesai pertama; jangan di-bump ulang.
                 'completed_at' => $allDone ? ($progress->completed_at ?? now()) : null,

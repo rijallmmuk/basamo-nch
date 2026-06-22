@@ -34,7 +34,7 @@ class DiscussionsTable
 
             SelectFilter::make('module')
                 ->label('Modul')
-                ->relationship('module', 'title')
+                ->relationship('module', 'judul')
                 ->searchable()
                 ->preload(),
 
@@ -64,7 +64,7 @@ class DiscussionsTable
                     ->formatStateUsing(fn ($state): string => $state ? 'Balasan' : 'Pertanyaan')
                     ->color(fn ($state): string => $state ? 'gray' : 'info'),
 
-                TextColumn::make('module.title')
+                TextColumn::make('module.judul')
                     ->label('Modul')
                     ->limit(30)
                     ->wrap()
@@ -80,7 +80,7 @@ class DiscussionsTable
                     ->color('gray')
                     ->visible($isSuperAdmin),
 
-                TextColumn::make('body')
+                TextColumn::make('isi')
                     ->label('Isi')
                     ->limit(60)
                     ->wrap()

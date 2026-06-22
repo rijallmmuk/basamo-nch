@@ -1,372 +1,350 @@
-# DATABASE.md — Smart Learning Center Basamo NCH
+# DATABASE.md — Basamo NCH
 
-> Referensi skema database lengkap. Baca sebelum membuat migration baru.
-> Semua tabel wajib punya `nagari_id` kecuali tabel global yang ditandai 🌐
+> Referensi skema database **aktual** (cerminan migrasi di `database/migrations`).
+> Baca sebelum membuat/mengubah migrasi. Multi-tenancy: tabel milik desa punya
+> `desa_id` (atau diturunkan via relasi). Migrasi dikelompokkan per-domain.
+
+---
+
+## Konvensi penamaan
+
+- **Kolom**: bahasa Indonesia, kecuali yang standar Inggris → `id`, `*_id` (FK),
+  `*_at` (timestamp), `slug`, `status`, `is_*` (boolean), `created_by`/`approved_by`,
+  dan kolom domain auth pada `users` (`name`, `username`, `email`, `password`, `role`).
+- **Nama tabel & model**: tetap Inggris (idiom Laravel), mis. `modules` → `Module`.
+- **Soft delete** pada data penting; **slug** via `spatie/laravel-sluggable`;
+  **media** (cover modul, foto produk, logo desa) via `spatie/laravel-medialibrary`
+  (tidak ada tabel foto manual).
 
 ---
 
 ## Diagram relasi ringkas
 
 ```
-nagaris
-  └─< users (nagari_id)
-  └─< modules (nagari_id nullable = global 🌐)
-  └─< sdgs_activities (nagari_id)
-  └─< umkm_profiles (nagari_id)
-  └─< iot_sensors (nagari_id)
-  └─< news_feeds (nagari_id nullable = global 🌐)
+ref_wilayah (kode) ─< desas.wilayah_kode
+ref_wilayah ─1:1─ wilayah_boundaries (kode, geometri peta)
 
-users
-  └─< user_module_progress (user_id)
-  └─< quiz_attempts (user_id)
-  └─< discussions (user_id)
-  └─< umkm_profiles (user_id) ← pemilik UMKM
-  └─< sdgs_activities (created_by)
+desas
+  ├─ jenis_desa_id      → jenis_desa
+  ├─ jenis_sub_unit_id  → jenis_sub_unit
+  └─< desa_units (desa_id) ─< users.desa_unit_id
 
-modules
-  └─< module_pages (module_id)
-  └─< quizzes (module_id)
-  └─< discussions (module_id)
-  └─< user_module_progress (module_id)
+users (desa_id, desa_unit_id)
+  └─< user_module_progress · quiz_attempts · discussions · xp_logs
+  └─1:1 umkm_profiles (pemilik)
 
-quizzes
-  └─< quiz_questions (quiz_id)
-      └─< quiz_options (question_id)
-  └─< quiz_attempts (quiz_id)
-      └─< quiz_answers (attempt_id, question_id)
+modules (desa_id nullable = global)
+  ├─< module_pages
+  ├─1:1 quizzes ─< quiz_questions ─< quiz_options
+  │                 quizzes ─< quiz_attempts ─< quiz_answers
+  ├─< discussions (threaded via parent_id)
+  └─< user_module_progress
 
-umkm_profiles
-  └─< umkm_products (umkm_profile_id)
-      └─< umkm_product_photos (product_id)
-
-sdgs_activities
-  └─< sdgs_documents (activity_id)
-
-iot_sensors
-  └─< iot_readings (sensor_id)
+umkm_categories ─< umkm_profiles ─< umkm_products
 ```
 
 ---
 
-## Tabel detail
+## 1. Referensi wilayah — `create_wilayah_reference_tables`
 
-### `nagaris` — Master data nagari
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nama                VARCHAR(255) NOT NULL
-kode                VARCHAR(50)  UNIQUE NOT NULL
-provinsi            VARCHAR(100)
-kabupaten           VARCHAR(100)
-kecamatan           VARCHAR(100)
-wilayah_label       VARCHAR(30) DEFAULT 'Jorong'  -- sebutan unit wilayah nagari ini (Jorong/Dusun/Korong/…)
-koordinat_lat       DECIMAL(10,8) NULLABLE
-koordinat_lng       DECIMAL(11,8) NULLABLE
-kontak              VARCHAR(20) NULLABLE   -- nomor WA admin
-status              ENUM('active','inactive') DEFAULT 'active'
-created_at, updated_at, deleted_at
+### `ref_wilayah` 🌐 — referensi wilayah administratif (Kepmendagri)
+```
+kode         VARCHAR(13) PK          -- dotted, mis. 13.06.01.2001
+nama         VARCHAR(100)
+level        TINYINT UNSIGNED        -- 1=prov, 2=kab/kota, 3=kec, 4=desa/kel
+parent_kode  VARCHAR(13) NULL
+ibukota      VARCHAR(100) NULL
+lat, lng     DOUBLE NULL             -- prov & kab/kota saja
+elv          FLOAT NULL              -- elevasi (m)
+tz           TINYINT NULL            -- zona waktu (jam)
+luas         DOUBLE NULL             -- km²
+penduduk     BIGINT UNSIGNED NULL
+INDEX(level), INDEX(parent_kode)
 ```
 
-### `wilayah` — Unit wilayah dalam nagari (1 tingkat)
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris CASCADE DELETE
-nama                VARCHAR(255) NOT NULL
-created_at, updated_at, deleted_at
-
-INDEX(nagari_id), UNIQUE(nagari_id, nama)
+### `wilayah_boundaries` 🌐 — geometri batas (sumber peta)
 ```
-> Sebutan unit (Jorong/Dusun/Korong/…) diatur per nagari via `nagaris.wilayah_label`.
-> Dikelola di `WilayahResource` (nagari_admin: nagarinya; super_admin: semua). Warga memilih
-> wilayahnya via `users.wilayah_id` (opsional).
-
-### `users` 🌐 — Semua pengguna sistem
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris (NULLABLE untuk super_admin)
-wilayah_id          BIGINT UNSIGNED FK → wilayah NULLABLE (nullOnDelete)  -- alamat warga (jorong/dusun)
-name                VARCHAR(255) NOT NULL
-username            VARCHAR(255) UNIQUE NULLABLE  -- admin: username; warga/umkm: NIK 16 digit (login)
-email               VARCHAR(255) UNIQUE NULLABLE  -- opsional untuk warga (banyak NULL diizinkan)
-phone               VARCHAR(20) NULLABLE          -- No. WhatsApp/HP warga
-email_verified_at   TIMESTAMP NULLABLE
-password            VARCHAR(255) NOT NULL
-must_change_password BOOLEAN DEFAULT FALSE        -- paksa ganti sandi di login pertama (OTP)
-initial_otp         VARCHAR(12) NULLABLE          -- OTP awal (sementara), dikosongkan setelah ganti sandi
-role                ENUM('super_admin','nagari_admin','warga','umkm_owner')
-avatar              VARCHAR(255) NULLABLE
-total_xp            INT UNSIGNED DEFAULT 0   -- XP LMS leaderboard (idempotent via xp_logs)
-status              ENUM('active','inactive') DEFAULT 'active'
-remember_token      VARCHAR(100) NULLABLE
-created_at, updated_at, deleted_at
-
-INDEX(nagari_id), INDEX(role)
+kode             VARCHAR(13) PK      -- join ke ref_wilayah.kode
+level            TINYINT UNSIGNED
+parent_kode      VARCHAR(13) NULL
+nama             VARCHAR(150)
+lat, lng         DOUBLE NULL         -- titik tengah (marker)
+geom             GEOMETRY            -- MULTIPOLYGON penuh (ST_Contains)
+geom_simplified  GEOMETRY NULL       -- versi ringan (render)
+INDEX(level), INDEX(parent_kode), SPATIAL(geom)  -- spatial hanya MySQL/MariaDB
 ```
-> **Provisioning warga:** akun dibuat Admin Nagari (tanpa self-register). Warga login dengan
-> **NIK (username) + OTP** (sandi awal). OTP `initial_otp` ditampilkan ke admin untuk disampaikan;
-> login pertama memaksa ganti sandi (`must_change_password`). Login portal terima NIK atau email
-> (+ rate-limit). `password`/`initial_otp` tak pernah dilog/diserialisasi.
+> Dipisah dari `ref_wilayah` agar tabel referensi ringan. MariaDB tak punya
+> `ST_Simplify` → `geom_simplified` dihasilkan saat impor (Douglas–Peucker).
 
-### `modules` — Modul LMS
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris NULLABLE  -- NULL = modul global
-title               VARCHAR(255) NOT NULL
-slug                VARCHAR(255) UNIQUE NOT NULL
-description         TEXT NULLABLE
-sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`, kata kunci SQL)
-estimated_minutes   SMALLINT UNSIGNED NULLABLE    -- estimasi durasi belajar (menit)
-prerequisite_module_id  BIGINT UNSIGNED FK → modules NULLABLE
-status              ENUM('draft','published') DEFAULT 'draft'
-created_by          BIGINT UNSIGNED FK → users NULLABLE (nullOnDelete)
-created_at, updated_at, deleted_at
+---
 
-INDEX(nagari_id), INDEX(status), INDEX(sort_order)
--- Cover modul: via Spatie Media Library (koleksi `cover`, singleFile, konversi
---   `card` webp 800×450). Fallback global: public/images/default-module-cover.svg.
+## 2. Jenis penyebutan — `create_jenis_wilayah_tables`
+
+### `jenis_desa` 🌐 / `jenis_sub_unit` 🌐 — di-seed di migrasi
+```
+id      BIGINT UNSIGNED PK
+nama    VARCHAR(50) UNIQUE   -- jenis_desa: Desa/Kelurahan/Nagari/… ; sub_unit: Jorong/Dusun/…
+urutan  SMALLINT UNSIGNED
+aktif   BOOLEAN DEFAULT TRUE
 ```
 
-### `module_pages` — Halaman materi per modul
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
-title               VARCHAR(255) NOT NULL
-type                ENUM('text','pdf','video') NOT NULL
-content             LONGTEXT NULLABLE        -- konten RichEditor Filament (HTML)
-video_url           VARCHAR(500) NULLABLE    -- YouTube / Google Drive embed URL
-file_path           VARCHAR(500) NULLABLE    -- path PDF
-sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`)
-created_at, updated_at
+---
 
-INDEX(module_id), INDEX(sort_order)
+## 3. Desa & sub-unit — `create_desa_tables`
+
+### `desas` — desa/nagari tenant
+```
+id                 BIGINT UNSIGNED PK
+nama               VARCHAR(255)
+wilayah_kode       VARCHAR(13) NULL FK → ref_wilayah.kode (nullOnDelete)
+jenis_desa_id      BIGINT UNSIGNED FK → jenis_desa (restrictOnDelete)
+provinsi           VARCHAR(100) NULL   -- denormalized utk display cepat
+kabupaten          VARCHAR(100) NULL
+kecamatan          VARCHAR(100) NULL
+jenis_sub_unit_id  BIGINT UNSIGNED NULL FK → jenis_sub_unit (nullOnDelete)
+koordinat_lat      DECIMAL(10,8) NULL
+koordinat_lng      DECIMAL(11,8) NULL
+kontak             VARCHAR(20) NULL
+status             VARCHAR (ActiveStatus) DEFAULT 'active'
++ timestamps, softDeletes
+INDEX(wilayah_kode)
 ```
 
-### `user_module_progress` — Progress belajar warga
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-user_id             BIGINT UNSIGNED FK → users CASCADE DELETE
-module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
-pages_completed     JSON NULLABLE            -- array page_id yang sudah selesai
-status              ENUM('not_started','in_progress','completed')
-completed_at        TIMESTAMP NULLABLE
-created_at, updated_at
+### `desa_units` — sub-unit dalam desa (Jorong/Dusun/Korong/…)
+```
+id       BIGINT UNSIGNED PK
+desa_id  BIGINT UNSIGNED FK → desas (cascadeOnDelete)
+nama     VARCHAR(255)
++ timestamps, softDeletes
+INDEX(desa_id), UNIQUE(desa_id, nama)
+```
+> Model `DesaUnit`. Sebutannya (Jorong/Dusun/…) diturunkan dari `desas.jenis_sub_unit_id`.
 
-UNIQUE(user_id, module_id)
-INDEX(user_id), INDEX(module_id), INDEX(status)
+---
+
+## 4. Pengguna — `create_users_table`
+
+### `users` 🌐
+```
+id                     BIGINT UNSIGNED PK
+desa_id                BIGINT UNSIGNED NULL FK → desas (nullOnDelete; null = super_admin)
+desa_unit_id           BIGINT UNSIGNED NULL FK → desa_units (nullOnDelete; alamat warga)
+name                   VARCHAR(255)
+username               VARCHAR(255) UNIQUE NULL   -- admin: username; warga: NIK 16 digit (login)
+email                  VARCHAR(255) UNIQUE NULL
+phone                  VARCHAR(20) NULL
+email_verified_at      TIMESTAMP NULL
+password               VARCHAR(255)
+must_change_password   BOOLEAN DEFAULT FALSE      -- paksa ganti sandi saat login pertama (OTP)
+initial_otp            VARCHAR(12) NULL           -- OTP awal; dihapus setelah sandi diganti
+role                   VARCHAR(20) NULL           -- super_admin | desa_admin | warga
+umkm_access_granted_at TIMESTAMP NULL             -- kapabilitas UMKM (bukan role)
+total_xp               INT UNSIGNED DEFAULT 0
+status                 VARCHAR DEFAULT 'active'
++ rememberToken, timestamps, softDeletes
+INDEX(role), INDEX(desa_id, role, status, total_xp)  -- komposit leaderboard
+```
+> Warga di-provisioning Admin Desa (tanpa self-register), login **NIK + OTP**;
+> `password`/`initial_otp` tak pernah dilog/diserialisasi. Akses UMKM = warga +
+> `umkm_access_granted_at` terisi (bukan role terpisah).
+
+---
+
+## 5. LMS modul — `create_lms_module_tables`
+
+### `modules`
+```
+id                   BIGINT UNSIGNED PK
+desa_id              BIGINT UNSIGNED NULL FK → desas (null = modul global 🌐)
+judul                VARCHAR(255)
+slug                 VARCHAR(255) UNIQUE
+deskripsi            TEXT NULL
+urutan               SMALLINT UNSIGNED DEFAULT 0
+estimasi_menit       SMALLINT UNSIGNED NULL
+prasyarat_module_id  BIGINT UNSIGNED NULL FK → modules (nullOnDelete)
+status               VARCHAR (ModuleStatus) DEFAULT 'draft'   -- draft | published
+created_by           BIGINT UNSIGNED NULL FK → users (nullOnDelete)
++ timestamps, softDeletes
+INDEX(desa_id), INDEX(status), INDEX(urutan)
+```
+> Cover via Media Library (koleksi `cover`, konversi `card` webp 800×450).
+
+### `module_pages`
+```
+id         BIGINT UNSIGNED PK
+module_id  BIGINT UNSIGNED FK → modules (cascadeOnDelete)
+judul      VARCHAR(255)
+tipe       VARCHAR (ModulePageType)   -- text | video | pdf
+konten     LONGTEXT NULL              -- HTML RichEditor (tipe text)
+url_video  VARCHAR(500) NULL          -- YouTube/Drive embed (tipe video)
+path_file  VARCHAR(500) NULL          -- path PDF (tipe pdf)
+urutan     SMALLINT UNSIGNED DEFAULT 0
+INDEX(module_id), INDEX(urutan)
 ```
 
-### `quizzes` — Kuis per modul
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
--- tanpa kolom `title`: label diturunkan dari modul → "Kuis: {judul modul}"
---   (accessor Quiz::title). 1 modul = 1 kuis, judul redundan.
-passing_score       TINYINT UNSIGNED DEFAULT 70   -- nilai minimum lulus (skala 0–100)
-max_attempts        TINYINT UNSIGNED DEFAULT 3
-created_at, updated_at
-
-UNIQUE(module_id)
+### `user_module_progress`
+```
+id               BIGINT UNSIGNED PK
+user_id          BIGINT UNSIGNED FK → users (cascadeOnDelete)
+module_id        BIGINT UNSIGNED FK → modules (cascadeOnDelete)
+halaman_selesai  JSON NULL                  -- array page_id selesai
+status           VARCHAR (ModuleProgressStatus) DEFAULT 'not_started'
+completed_at     TIMESTAMP NULL
+UNIQUE(user_id, module_id), INDEX(module_id), INDEX(status)
 ```
 
-### `quiz_questions` — Soal kuis
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-quiz_id             BIGINT UNSIGNED FK → quizzes CASCADE DELETE
-question            TEXT NOT NULL
-sort_order          SMALLINT UNSIGNED DEFAULT 0   -- (dulu `order`)
-created_at, updated_at
-
-INDEX(quiz_id), INDEX(sort_order)
+### `discussions`
 ```
-> Kuis **hanya pilihan ganda** (MVP). Tidak ada kolom `type`; setiap soal selalu punya `quiz_options`.
-> **Jawaban benar boleh >1** (implisit: bila opsi `is_correct` >1 → soal pilihan jamak/checkbox).
-> **Semua soal setara** (tanpa bobot poin). Nilai = (Σ fraksi soal ÷ jumlah soal) × 100, skala 0–100.
-> Fraksi per soal (partial credit) = max(0, benar_terpilih/total_benar − salah_terpilih/total_salah).
+id         BIGINT UNSIGNED PK
+module_id  BIGINT UNSIGNED FK → modules (cascadeOnDelete)
+user_id    BIGINT UNSIGNED FK → users (cascadeOnDelete)
+parent_id  BIGINT UNSIGNED NULL FK → discussions (cascadeOnDelete; reply)
+isi        TEXT
+is_pinned  BOOLEAN DEFAULT FALSE
++ timestamps, softDeletes
+INDEX(user_id), INDEX(parent_id), INDEX(module_id, parent_id)
+```
 
-### `quiz_options` — Pilihan jawaban (multiple choice)
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-question_id         BIGINT UNSIGNED FK → quiz_questions CASCADE DELETE
-option_text         TEXT NOT NULL
-is_correct          BOOLEAN DEFAULT FALSE   -- boleh >1 benar per soal
-sort_order          TINYINT UNSIGNED DEFAULT 0   -- (dulu `order`)
-created_at, updated_at
+### `xp_logs` — ledger XP gamifikasi
+```
+id         BIGINT UNSIGNED PK
+user_id    BIGINT UNSIGNED FK → users (cascadeOnDelete)
+desa_id    BIGINT UNSIGNED NULL FK → desas (nullOnDelete)
+sumber     VARCHAR(20)              -- module | quiz | discussion
+sumber_id  BIGINT UNSIGNED         -- id sumber XP
+jumlah     SMALLINT UNSIGNED
+UNIQUE(user_id, sumber, sumber_id)  -- XP per pencapaian sekali (idempotent)
+INDEX(desa_id)
+```
 
+---
+
+## 6. LMS kuis — `create_lms_quiz_tables`
+
+### `quizzes`
+```
+id              BIGINT UNSIGNED PK
+module_id       BIGINT UNSIGNED UNIQUE FK → modules (cascadeOnDelete)  -- 1 modul = 1 kuis
+nilai_lulus     TINYINT UNSIGNED DEFAULT 70   -- skala 0–100
+maks_percobaan  TINYINT UNSIGNED DEFAULT 3    -- 0 = tak terbatas
+```
+> Tanpa kolom judul: label diturunkan → "Kuis: {judul modul}" (accessor `Quiz::title`).
+
+### `quiz_questions`
+```
+id          BIGINT UNSIGNED PK
+quiz_id     BIGINT UNSIGNED FK → quizzes (cascadeOnDelete)
+pertanyaan  TEXT
+urutan      SMALLINT UNSIGNED DEFAULT 0
+INDEX(quiz_id), INDEX(urutan)
+```
+
+### `quiz_options`
+```
+id           BIGINT UNSIGNED PK
+question_id  BIGINT UNSIGNED FK → quiz_questions (cascadeOnDelete)
+teks_opsi    TEXT
+is_correct   BOOLEAN DEFAULT FALSE   -- boleh >1 benar → soal pilihan jamak
+urutan       TINYINT UNSIGNED DEFAULT 0
 INDEX(question_id)
 ```
+> Pilihan ganda; nilai = (Σ fraksi soal ÷ jumlah soal) × 100. Fraksi (partial credit)
+> = max(0, benar_terpilih/total_benar − salah_terpilih/total_salah).
 
-### `quiz_attempts` — Percobaan kuis warga
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-user_id             BIGINT UNSIGNED FK → users
-quiz_id             BIGINT UNSIGNED FK → quizzes
-score               TINYINT UNSIGNED NULLABLE    -- 0-100
-status              ENUM('in_progress','passed','failed')   -- auto-grade, tanpa review
-submitted_at        TIMESTAMP NULLABLE
-created_at, updated_at
-
-INDEX(user_id), INDEX(quiz_id), INDEX(status)
+### `quiz_attempts`
+```
+id            BIGINT UNSIGNED PK
+user_id       BIGINT UNSIGNED FK → users (cascadeOnDelete)
+quiz_id       BIGINT UNSIGNED FK → quizzes (cascadeOnDelete)
+nilai         TINYINT UNSIGNED NULL   -- 0–100
+status        VARCHAR (QuizAttemptStatus)  -- passed | failed (auto-grade sinkron)
+submitted_at  TIMESTAMP NULL
+INDEX(quiz_id), INDEX(status), INDEX(user_id, quiz_id, status)
 ```
 
-### `quiz_answers` — Jawaban per soal
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-attempt_id          BIGINT UNSIGNED FK → quiz_attempts CASCADE DELETE
-question_id         BIGINT UNSIGNED FK → quiz_questions
-selected_option_id  BIGINT UNSIGNED FK → quiz_options NULLABLE
-is_correct          BOOLEAN NULLABLE     -- apakah opsi yang dipilih ini termasuk jawaban benar
-created_at, updated_at
-
+### `quiz_answers`
+```
+id                  BIGINT UNSIGNED PK
+attempt_id          BIGINT UNSIGNED FK → quiz_attempts (cascadeOnDelete)
+question_id         BIGINT UNSIGNED FK → quiz_questions (cascadeOnDelete)
+selected_option_id  BIGINT UNSIGNED NULL FK → quiz_options (nullOnDelete)
+is_correct          BOOLEAN NULL
 INDEX(attempt_id), INDEX(question_id)
--- Soal pilihan jamak: SATU baris per opsi yang dipilih (1 soal → beberapa baris).
 ```
-
-### `discussions` — Forum diskusi per modul
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-module_id           BIGINT UNSIGNED FK → modules CASCADE DELETE
-user_id             BIGINT UNSIGNED FK → users
-parent_id           BIGINT UNSIGNED FK → discussions NULLABLE  -- untuk reply
-body                TEXT NOT NULL
-is_pinned           BOOLEAN DEFAULT FALSE
-created_at, updated_at, deleted_at
-
-INDEX(module_id), INDEX(user_id), INDEX(parent_id)
-```
-
-### `sdgs_activities` — Kegiatan per poin SDGs
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris
-sdgs_point          TINYINT UNSIGNED NOT NULL   -- 1-18
-title               VARCHAR(255) NOT NULL
-description         TEXT NULLABLE
-pelaksana           VARCHAR(255) NULLABLE
-tanggal_kegiatan    DATE NULLABLE
-jumlah_peserta      SMALLINT UNSIGNED NULLABLE
-created_by          BIGINT UNSIGNED FK → users
-created_at, updated_at, deleted_at
-
-INDEX(nagari_id), INDEX(sdgs_point)
-```
-
-### `sdgs_documents` — Dokumen bukti kegiatan SDGs
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-activity_id         BIGINT UNSIGNED FK → sdgs_activities CASCADE DELETE
-file_name           VARCHAR(255) NOT NULL
-file_path           VARCHAR(500) NOT NULL
-file_type           VARCHAR(50)                 -- pdf, jpg, png
-file_size           INT UNSIGNED NULLABLE       -- bytes
-created_at, updated_at
-
-INDEX(activity_id)
-```
-
-### `umkm_profiles` — Profil usaha UMKM
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris
-user_id             BIGINT UNSIGNED FK → users   -- pemilik UMKM
-nama_usaha          VARCHAR(255) NOT NULL
-slug                VARCHAR(255) UNIQUE NOT NULL
-kategori            VARCHAR(100) NOT NULL
-deskripsi           TEXT NULLABLE
-alamat              TEXT NULLABLE
-whatsapp            VARCHAR(20) NOT NULL
-status              ENUM('active','inactive') DEFAULT 'active'
-created_at, updated_at, deleted_at
-
-INDEX(nagari_id), INDEX(kategori), INDEX(status)
-```
-
-### `umkm_products` — Produk UMKM
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-umkm_profile_id     BIGINT UNSIGNED FK → umkm_profiles CASCADE DELETE
-nama_produk         VARCHAR(255) NOT NULL
-slug                VARCHAR(255) UNIQUE NOT NULL
-deskripsi           TEXT NULLABLE
-harga               DECIMAL(12,2) NULLABLE
-status              ENUM('pending','approved','rejected') DEFAULT 'pending'
-rejection_reason    TEXT NULLABLE
-approved_by         BIGINT UNSIGNED FK → users NULLABLE
-approved_at         TIMESTAMP NULLABLE
-view_count          INT UNSIGNED DEFAULT 0
-created_at, updated_at, deleted_at
-
-INDEX(umkm_profile_id), INDEX(status)
-```
-
-### `umkm_product_photos` — Foto produk
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-product_id          BIGINT UNSIGNED FK → umkm_products CASCADE DELETE
-file_path           VARCHAR(500) NOT NULL
-order               TINYINT UNSIGNED DEFAULT 0
-created_at, updated_at
-
-INDEX(product_id), INDEX(order)
-```
-
-### `iot_sensors` — Master sensor IoT per nagari
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris
-nama                VARCHAR(255) NOT NULL
-tipe                VARCHAR(100) NOT NULL       -- suhu, kelembaban, air, angin
-lokasi              VARCHAR(255) NULLABLE
-status              ENUM('active','inactive','error') DEFAULT 'active'
-created_at, updated_at
-
-INDEX(nagari_id), INDEX(tipe)
-```
-
-### `iot_readings` — Data pembacaan sensor
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-sensor_id           BIGINT UNSIGNED FK → iot_sensors CASCADE DELETE
-nilai               DECIMAL(8,2) NOT NULL
-satuan              VARCHAR(20) NOT NULL        -- °C, %, cm, km/h
-status              ENUM('normal','waspada','bahaya') NOT NULL
-recorded_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-created_at
-
-INDEX(sensor_id), INDEX(status), INDEX(recorded_at)
--- Data lama otomatis di-prune via scheduled command (simpan 30 hari)
-```
-
-### `notifications` 🌐 — Notifikasi in-app
-```sql
--- Menggunakan tabel bawaan Laravel Notifications
-id                  CHAR(36) PK              -- UUID
-type                VARCHAR(255) NOT NULL
-notifiable_type     VARCHAR(255) NOT NULL
-notifiable_id       BIGINT UNSIGNED NOT NULL
-data                JSON NOT NULL
-read_at             TIMESTAMP NULLABLE
-created_at, updated_at
-
-INDEX(notifiable_type, notifiable_id)
-```
-
-### `news_feeds` — Berita & aktivitas nagari
-```sql
-id                  BIGINT UNSIGNED PK AUTO_INCREMENT
-nagari_id           BIGINT UNSIGNED FK → nagaris NULLABLE  -- NULL = berita global
-title               VARCHAR(255) NOT NULL
-body                TEXT NOT NULL
-type                ENUM('berita','aktivitas','pengumuman') DEFAULT 'berita'
-created_by          BIGINT UNSIGNED FK → users
-created_at, updated_at, deleted_at
-
-INDEX(nagari_id), INDEX(type)
-```
+> Soal pilihan jamak: SATU baris per opsi yang dipilih (1 soal → beberapa baris).
 
 ---
 
-## Catatan penting
+## 7. UMKM — `create_umkm_tables`
 
-- **Soft delete** diaktifkan pada: `users`, `modules`, `discussions`, `sdgs_activities`, `umkm_profiles`, `umkm_products`, `news_feeds`
-- **IoT readings** di-prune otomatis setelah 30 hari via scheduled command
-- **Slug** di-generate otomatis via `spatie/laravel-sluggable` pada: `modules`, `umkm_profiles`, `umkm_products`
-- **Media file** (foto produk, dokumen SDGs) dikelola via `spatie/laravel-medialibrary` — tidak disimpan manual di tabel
+### `umkm_categories` 🌐 — di-seed di migrasi
+```
+id      BIGINT UNSIGNED PK
+nama    VARCHAR(100)
+slug    VARCHAR(100) UNIQUE
+icon    VARCHAR(60) NULL    -- nama Heroicon
+urutan  SMALLINT UNSIGNED DEFAULT 0
+```
+
+### `umkm_profiles` — profil usaha (1 warga = 1 lapak)
+```
+id                BIGINT UNSIGNED PK
+desa_id           BIGINT UNSIGNED FK → desas (cascadeOnDelete)
+user_id           BIGINT UNSIGNED UNIQUE FK → users (cascadeOnDelete)
+umkm_category_id  BIGINT UNSIGNED NULL FK → umkm_categories (nullOnDelete)
+nama_usaha        VARCHAR(255)
+slug              VARCHAR(255) UNIQUE
+deskripsi         TEXT NULL
+alamat            TEXT NULL
+whatsapp          VARCHAR(20)
+status            VARCHAR (ActiveStatus) DEFAULT 'active'
++ timestamps, softDeletes
+INDEX(desa_id), INDEX(status)
+```
+
+### `umkm_products`
+```
+id                BIGINT UNSIGNED PK
+umkm_profile_id   BIGINT UNSIGNED FK → umkm_profiles (cascadeOnDelete)
+nama_produk       VARCHAR(255)
+slug              VARCHAR(255) UNIQUE
+deskripsi         TEXT NULL
+harga             BIGINT UNSIGNED NULL   -- rupiah integer
+status            VARCHAR (UmkmProductStatus) DEFAULT 'pending'  -- pending|approved|rejected
+alasan_penolakan  TEXT NULL
+approved_by       BIGINT UNSIGNED NULL FK → users (nullOnDelete)
+approved_at       TIMESTAMP NULL
+jumlah_dilihat    INT UNSIGNED DEFAULT 0
++ timestamps, softDeletes
+INDEX(umkm_profile_id), INDEX(status, approved_at)
+FULLTEXT(nama_produk, deskripsi)  -- hanya MySQL/MariaDB
+```
+> Foto via Media Library (koleksi `photos`, maks 5).
+
+---
+
+## Tabel framework/paket (tidak dimodifikasi)
+
+`password_reset_tokens`, `sessions`, `cache`, `cache_locks`, `jobs`, `job_batches`,
+`failed_jobs`, `migrations` (Laravel); `media` (Spatie Media Library);
+`permissions`, `roles`, `model_has_permissions`, `model_has_roles`,
+`role_has_permissions` (Spatie Permission / Shield); `activity_log`
+(Spatie Activitylog); `notifications` (Laravel Notifications, in-app portal).
+
+---
+
+## Seeding
+
+- **Migrasi**: enum referensi kecil & fixed → `jenis_desa`, `jenis_sub_unit`, `umkm_categories`.
+- **`CoreSeeder`** (esensial produksi, idempotent): role RBAC + super admin +
+  `WilayahSumbarSeeder` (ref_wilayah) + `WilayahBoundarySeeder` (geometri).
+- **`DemoSeeder`** (dev): memanggil CoreSeeder, lalu 2 desa + sub-unit + warga
+  (login NIK) + modul/kuis + progres/XP + UMKM. Jalankan: `migrate:fresh --seed`.
+
+---
+
+## Roadmap (belum dibangun)
+
+Pilar **SDGs** & **IoT** dan **berita/news** ada di visi produk (lihat `PRD.md`)
+namun **belum** punya tabel/migrasi. Saat dibangun, ikuti konvensi di atas
+(tenant `desa_id`, penamaan Indonesia, soft delete bila perlu).

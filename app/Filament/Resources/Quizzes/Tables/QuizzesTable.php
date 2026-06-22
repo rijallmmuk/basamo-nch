@@ -14,7 +14,7 @@ class QuizzesTable
     {
         return $table
             ->columns([
-                TextColumn::make('module.title')
+                TextColumn::make('module.judul')
                     ->label('Modul')
                     ->searchable()
                     ->sortable()
@@ -25,11 +25,11 @@ class QuizzesTable
                     ->badge()
                     ->color('info'),
 
-                TextColumn::make('passing_score')
+                TextColumn::make('nilai_lulus')
                     ->label('Nilai Lulus')
                     ->sortable(),
 
-                TextColumn::make('max_attempts')
+                TextColumn::make('maks_percobaan')
                     ->label('Maks. Coba')
                     ->sortable()
                     ->formatStateUsing(fn ($state) => $state === 0 ? '∞' : $state),

@@ -13,10 +13,10 @@ uses(RefreshDatabase::class);
 function makeXpModule(): Module
 {
     return Module::create([
-        'title' => 'Modul XP '.uniqid(),
+        'judul' => 'Modul XP '.uniqid(),
         'slug' => 'modul-xp-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 }
 
@@ -35,11 +35,11 @@ it('XP modul hanya diberi sekali walau dipanggil berkali-kali', function () {
         ->and($warga->refresh()->total_xp)->toBe(50);
 });
 
-it('sumber XP berbeda tidak bertabrakan walau source_id sama', function () {
+it('sumber XP berbeda tidak bertabrakan walau sumber_id sama', function () {
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $module = makeXpModule();
-    $quiz = Quiz::create(['module_id' => $module->id, 'passing_score' => 50, 'max_attempts' => 3]);
+    $quiz = Quiz::create(['module_id' => $module->id, 'nilai_lulus' => 50, 'maks_percobaan' => 3]);
     $svc = app(LmsPointService::class);
 
     $svc->awardModuleCompletion($warga, $module);        // module:module_id

@@ -1,10 +1,10 @@
 @extends('portal.layouts.app')
 
-@section('title', 'Diskusi — ' . $module->title)
+@section('title', 'Diskusi — ' . $module->judul)
 
 @section('content')
     <x-portal.breadcrumb :items="[
-        ['label' => $module->title, 'url' => route('portal.modules.show', $module)],
+        ['label' => $module->judul, 'url' => route('portal.modules.show', $module)],
         ['label' => 'Diskusi', 'url' => route('portal.modules.discuss', $module)],
         ['label' => 'Pertanyaan'],
     ]" />
@@ -18,7 +18,7 @@
                     <p class="font-semibold text-gray-900">{{ $discussion->user?->name ?? 'Pengguna' }}</p>
                     <span class="text-xs text-gray-400">{{ $discussion->created_at->diffForHumans() }}</span>
                 </div>
-                <p class="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-800">{{ $discussion->body }}</p>
+                <p class="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-800">{{ $discussion->isi }}</p>
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                                 <p class="text-sm font-semibold text-gray-800">{{ $reply->user?->name ?? 'Pengguna' }}</p>
                                 <span class="text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</span>
                             </div>
-                            <p class="mt-1 whitespace-pre-line text-base leading-relaxed text-gray-700">{{ $reply->body }}</p>
+                            <p class="mt-1 whitespace-pre-line text-base leading-relaxed text-gray-700">{{ $reply->isi }}</p>
                         </div>
                     </div>
                 </div>
@@ -55,11 +55,11 @@
     <form method="POST" action="{{ route('portal.modules.discuss.reply', [$module, $discussion]) }}"
         class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         @csrf
-        <label for="body" class="mb-2 block text-base font-semibold text-gray-800">Tulis balasan</label>
-        <textarea name="body" id="body" rows="3" required
-            class="w-full rounded-xl border-gray-200 text-base focus:border-indigo-500 focus:ring-indigo-500 @error('body') border-red-300 @enderror"
-            placeholder="Tulis balasanmu...">{{ old('body') }}</textarea>
-        @error('body')
+        <label for="isi" class="mb-2 block text-base font-semibold text-gray-800">Tulis balasan</label>
+        <textarea name="isi" id="isi" rows="3" required
+            class="w-full rounded-xl border-gray-200 text-base focus:border-indigo-500 focus:ring-indigo-500 @error('isi') border-red-300 @enderror"
+            placeholder="Tulis balasanmu...">{{ old('isi') }}</textarea>
+        @error('isi')
             <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>
         @enderror
         <div class="mt-3 flex justify-end">

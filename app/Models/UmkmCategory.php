@@ -11,7 +11,7 @@ class UmkmCategory extends Model
 {
     use HasSlug;
 
-    protected $fillable = ['nama', 'slug', 'icon', 'sort_order'];
+    protected $fillable = ['nama', 'slug', 'icon', 'urutan'];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -23,7 +23,7 @@ class UmkmCategory extends Model
     /** @return array<int, string> */
     public static function options(): array
     {
-        return static::orderBy('sort_order')->pluck('nama', 'id')->all();
+        return static::orderBy('urutan')->pluck('nama', 'id')->all();
     }
 
     public function profiles(): HasMany

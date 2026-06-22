@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\Wilayahs\Pages;
+namespace App\Filament\Resources\DesaUnits\Pages;
 
-use App\Filament\Resources\Wilayahs\WilayahResource;
+use App\Filament\Resources\DesaUnits\DesaUnitResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
-class ListWilayahs extends ListRecords
+class ListDesaUnits extends ListRecords
 {
-    protected static string $resource = WilayahResource::class;
+    protected static string $resource = DesaUnitResource::class;
 
     protected function getHeaderActions(): array
     {

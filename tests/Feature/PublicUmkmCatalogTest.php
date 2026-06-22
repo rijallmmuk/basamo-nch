@@ -47,28 +47,28 @@ it('pencarian mempersempit hasil katalog', function () {
         ->assertDontSee('Rendang Daging');
 });
 
-it('detail produk approved tampil dan menambah view_count', function () {
+it('detail produk approved tampil dan menambah jumlah_dilihat', function () {
     $profile = UmkmProfile::factory()->create(['status' => 'active']);
-    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'view_count' => 4]);
+    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'jumlah_dilihat' => 4]);
 
     $this->get(route('public.umkm.show', $product))
         ->assertOk()
         ->assertSee($product->nama_produk)
         ->assertSee('wa.me', false);
 
-    expect($product->refresh()->view_count)->toBe(5);
+    expect($product->refresh()->jumlah_dilihat)->toBe(5);
 });
 
-it('view_count tidak dihitung dua kali untuk pengunjung yang sama dalam jendela throttle', function () {
+it('jumlah_dilihat tidak dihitung dua kali untuk pengunjung yang sama dalam jendela throttle', function () {
     $profile = UmkmProfile::factory()->create(['status' => 'active']);
-    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'view_count' => 0]);
+    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id, 'jumlah_dilihat' => 0]);
 
     // Kunjungan berulang dari IP yang sama (mis. refresh) hanya dihitung sekali.
     $this->get(route('public.umkm.show', $product))->assertOk();
     $this->get(route('public.umkm.show', $product))->assertOk();
     $this->get(route('public.umkm.show', $product))->assertOk();
 
-    expect($product->refresh()->view_count)->toBe(1);
+    expect($product->refresh()->jumlah_dilihat)->toBe(1);
 });
 
 it('produk belum approved mengembalikan 404 di publik', function () {

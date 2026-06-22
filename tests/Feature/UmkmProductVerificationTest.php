@@ -60,11 +60,11 @@ it('menolak produk menyimpan alasan dan mengembalikan status', function () {
     $this->actingAs($admin);
 
     Livewire::test(ListUmkmProducts::class)
-        ->callTableAction('reject', $product, data: ['rejection_reason' => 'Foto kurang jelas']);
+        ->callTableAction('reject', $product, data: ['alasan_penolakan' => 'Foto kurang jelas']);
 
     $product->refresh();
     expect($product->status->value)->toBe('rejected')
-        ->and($product->rejection_reason)->toBe('Foto kurang jelas')
+        ->and($product->alasan_penolakan)->toBe('Foto kurang jelas')
         ->and($product->approved_by)->toBeNull()
         ->and($product->approved_at)->toBeNull();
 });

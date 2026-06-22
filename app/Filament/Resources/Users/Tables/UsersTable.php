@@ -86,7 +86,7 @@ class UsersTable
                     ->color('gray')
                     ->sortable(),
 
-                TextColumn::make('wilayah.nama')
+                TextColumn::make('desaUnit.nama')
                     ->label('Wilayah')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),

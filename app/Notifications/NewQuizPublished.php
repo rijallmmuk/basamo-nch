@@ -29,7 +29,7 @@ class NewQuizPublished extends Notification implements ShouldQueue
         return [
             'type' => 'new_quiz',
             'title' => 'Kuis baru tersedia',
-            'body' => 'Modul: '.$this->quiz->module->title,
+            'body' => 'Modul: '.$this->quiz->module->judul,
             'icon' => 'heroicon-s-clipboard-document-list',
             'url' => route('portal.modules.show', $this->quiz->module),
         ];

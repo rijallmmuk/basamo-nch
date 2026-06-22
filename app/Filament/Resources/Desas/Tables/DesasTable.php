@@ -26,8 +26,8 @@ class DesasTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('kode')
-                    ->label('Kode')
+                TextColumn::make('wilayah_kode')
+                    ->label('Kode Wilayah')
                     ->badge()
                     ->color('gray')
                     ->searchable()

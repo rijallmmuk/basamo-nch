@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\JenisDesa;
-use App\Models\JenisSubUnit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,22 +19,7 @@ class CoreSeeder extends Seeder
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
-        // Referensi penyebutan administratif nasional (setingkat desa + sub-unit).
-        $jenisDesa = [
-            'Desa', 'Kelurahan', 'Nagari', 'Gampong', 'Kampung', 'Kalurahan',
-            'Lembang', 'Pekon', 'Tiyuh', 'Negeri', 'Nagori', 'Huta',
-        ];
-        foreach ($jenisDesa as $urutan => $nama) {
-            JenisDesa::firstOrCreate(['nama' => $nama], ['urutan' => $urutan]);
-        }
-
-        $jenisSubUnit = [
-            'Dusun', 'Lingkungan', 'Jorong', 'Korong', 'Dukuh', 'Padukuhan',
-            'Banjar', 'Kampung', 'Lorong', 'RW',
-        ];
-        foreach ($jenisSubUnit as $urutan => $nama) {
-            JenisSubUnit::firstOrCreate(['nama' => $nama], ['urutan' => $urutan]);
-        }
+        // Penyebutan administratif (jenis_desa & jenis_sub_unit) di-seed di migrasi.
 
         // Referensi wilayah administratif resmi (Sumbar dulu) + geometri batas peta.
         $this->call(WilayahSumbarSeeder::class);

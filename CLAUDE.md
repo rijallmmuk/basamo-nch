@@ -17,7 +17,7 @@
 - **Admin**: Filament v5 (panel `/admin`) — mulai dari sini untuk fondasi data LMS
 - **Portal & Publik**: Blade + Tailwind + Livewire/Alpine — dibangun setelah data LMS ada
 - **Auth**: Filament bawaan untuk admin; auth Laravel standar untuk portal warga. Satu model `User`, pisah akses via `role` + `canAccessPanel()` (admin) dan middleware (portal). TANPA Jetstream
-- **DB**: MySQL — semua tabel punya `nagari_id` untuk multi-tenancy
+- **DB**: MySQL/MariaDB — tabel milik desa punya `desa_id` untuk multi-tenancy
 - **RBAC**: Filament Shield + Spatie Permission
 - **Charts**: `leandrocfe/filament-apex-charts` (dashboard admin)
 - **Editor modul**: RichEditor bawaan Filament — JANGAN Tiptap (tidak support v5)
@@ -37,16 +37,18 @@
 
 | Role | Lapisan | Akses |
 |---|---|---|
-| `super_admin` | Admin (Filament `/admin`) | Semua nagari, kelola modul global, semua fitur |
-| `nagari_admin` | Admin (Filament `/admin`) | Hanya nagari sendiri (scope via Tenancy) |
+| `super_admin` | Admin (Filament `/admin`) | Semua desa, kelola modul global, semua fitur |
+| `desa_admin` | Admin (Filament `/admin`) | Hanya desa sendiri (scope per `desa_id`) |
 | `warga` | Portal (custom Blade) | LMS: belajar, kuis, leaderboard |
-| `umkm_owner` | Portal (custom Blade) | LMS + menu "Produk Saya" (input produk UMKM) |
+| `warga` + akses UMKM | Portal (custom Blade) | LMS + menu "Produk Saya" (input produk UMKM) |
 | (publik) | Frontend (custom Blade) | Lihat katalog UMKM, profil nagari — tanpa login |
 
 - Admin: akses via `canAccessPanel(Panel $panel)` di model User, cek `role`
-- Portal: akses via middleware Laravel cek `role` ∈ (warga, umkm_owner)
-- Menu UMKM di portal hanya tampil jika `role === 'umkm_owner'`
-- Multi-tenancy: admin via Filament Tenancy; portal/frontend scope manual `nagari_id`
+- Portal: akses via middleware Laravel cek `role === 'warga'`
+- Akses UMKM = kapabilitas (warga + `umkm_access_granted_at` terisi), BUKAN role
+  terpisah. Menu/route "Produk Saya" dijaga middleware `umkm.owner`.
+- Multi-tenancy: scope manual `desa_id` (trait `BelongsToDesa` + scope `forDesa()`);
+  super_admin lintas-desa.
 
 ---
 
@@ -108,11 +110,12 @@ class LmsProgressService {
 }
 ```
 
-### Multi-tenancy — selalu scope nagari
+### Multi-tenancy — selalu scope desa
 ```php
 // BENAR
-UmkmProduct::whereHas('umkmProfile', fn($q) => $q->where('nagari_id', auth()->user()->nagari_id))->get();
-// SALAH — expose data nagari lain
+UmkmProduct::whereHas('umkmProfile', fn($q) => $q->where('desa_id', auth()->user()->desa_id))->get();
+// Model ber-trait BelongsToDesa: Module::forDesa($user->desa_id)->get();
+// SALAH — expose data desa lain
 UmkmProduct::all();
 ```
 
@@ -120,10 +123,10 @@ UmkmProduct::all();
 ```php
 Schema::create('nama_tabel', function (Blueprint $table) {
     $table->id();
-    $table->foreignId('nagari_id')->constrained()->cascadeOnDelete(); // WAJIB (kecuali tabel global)
+    $table->foreignId('desa_id')->constrained()->cascadeOnDelete(); // WAJIB (kecuali tabel global)
     $table->timestamps();
     $table->softDeletes();         // untuk data penting
-    $table->index('nagari_id');    // WAJIB
+    $table->index('desa_id');      // WAJIB
 });
 ```
 
@@ -133,7 +136,7 @@ Schema::create('nama_tabel', function (Blueprint $table) {
 
 1. Baca `PROGRESS.md` dan `TASKS.md` di awal sesi sebelum coding
 2. Business logic di `app/Services/` — Controller/Resource hanya delegasi
-3. Setiap tabel baru wajib `nagari_id` kecuali tabel global (modules global, users)
+3. Setiap tabel baru wajib `desa_id` kecuali tabel global (modules global, users, referensi wilayah)
 4. Setiap fitur wajib ada Policy
 5. Jangan install package tanpa catat di `DECISIONS.md`
 6. Jangan pakai Jetstream, Tiptap, Toastr, Bootstrap, atau icon set selain Heroicons

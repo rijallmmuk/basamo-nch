@@ -70,7 +70,6 @@ class DesaForm
 
                                 // Diisi otomatis dari pilihan desa (disimpan denormalized untuk display cepat).
                                 Hidden::make('nama'),
-                                Hidden::make('kode'),
                                 Hidden::make('provinsi'),
                                 Hidden::make('kabupaten'),
                                 Hidden::make('kecamatan'),
@@ -201,7 +200,7 @@ class DesaForm
         return "{$desa->nama} · {$kec}, {$kab}";
     }
 
-    /** Isi field tersembunyi dari desa terpilih: nama, kode resmi, wilayah, koordinat. */
+    /** Isi field tersembunyi dari desa terpilih: nama, wilayah, koordinat. */
     protected static function applyWilayah(Set $set, ?string $kode): void
     {
         if (! $kode) {
@@ -209,7 +208,6 @@ class DesaForm
         }
 
         $set('nama', RefWilayah::find($kode)?->nama);
-        $set('kode', $kode); // kode internal = kode wilayah resmi
         $set('provinsi', RefWilayah::find(self::ancestor($kode, 1))?->nama);
         $set('kabupaten', RefWilayah::find(self::ancestor($kode, 2))?->nama);
         $set('kecamatan', RefWilayah::find(self::ancestor($kode, 3))?->nama);

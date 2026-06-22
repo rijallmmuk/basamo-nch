@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\DesaUnit;
 use App\Models\User;
-use App\Models\Wilayah;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * super_admin dilewatkan via Gate::before (akses penuh).
  * Policy ini mengatur desa_admin; scope per-desa ditegakkan di query Resource.
  */
-class WilayahPolicy
+class DesaUnitPolicy
 {
     use HandlesAuthorization;
 
@@ -21,7 +21,7 @@ class WilayahPolicy
         return $user->isDesaAdmin();
     }
 
-    public function view(User $user, Wilayah $wilayah): bool
+    public function view(User $user, DesaUnit $desaUnit): bool
     {
         return $user->isDesaAdmin();
     }
@@ -31,12 +31,12 @@ class WilayahPolicy
         return $user->isDesaAdmin();
     }
 
-    public function update(User $user, Wilayah $wilayah): bool
+    public function update(User $user, DesaUnit $desaUnit): bool
     {
         return $user->isDesaAdmin();
     }
 
-    public function delete(User $user, Wilayah $wilayah): bool
+    public function delete(User $user, DesaUnit $desaUnit): bool
     {
         return $user->isDesaAdmin();
     }
@@ -46,12 +46,12 @@ class WilayahPolicy
         return $user->isDesaAdmin();
     }
 
-    public function restore(User $user, Wilayah $wilayah): bool
+    public function restore(User $user, DesaUnit $desaUnit): bool
     {
         return $user->isDesaAdmin();
     }
 
-    public function forceDelete(User $user, Wilayah $wilayah): bool
+    public function forceDelete(User $user, DesaUnit $desaUnit): bool
     {
         return $user->isDesaAdmin();
     }

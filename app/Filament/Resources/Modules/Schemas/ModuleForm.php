@@ -20,7 +20,7 @@ class ModuleForm
     {
         return $schema
             ->components([
-                TextInput::make('title')
+                TextInput::make('judul')
                     ->label('Judul Modul')
                     ->required()
                     ->maxLength(255)
@@ -69,7 +69,7 @@ class ModuleForm
                     })
                     ->columnSpan(1),
 
-                TextInput::make('estimated_minutes')
+                TextInput::make('estimasi_menit')
                     ->label('Estimasi Durasi')
                     ->helperText('Perkiraan lama belajar modul ini. Opsional.')
                     ->numeric()
@@ -79,11 +79,11 @@ class ModuleForm
                     ->nullable()
                     ->columnSpan(1),
 
-                Select::make('prerequisite_module_id')
+                Select::make('prasyarat_module_id')
                     ->label('Prasyarat Modul')
                     ->relationship(
                         name: 'prerequisite',
-                        titleAttribute: 'title',
+                        titleAttribute: 'judul',
                         modifyQueryUsing: function ($query, ?Module $record, Get $get) {
                             // Tidak boleh menjadikan modul sebagai prasyarat dirinya sendiri.
                             if ($record) {
@@ -123,7 +123,7 @@ class ModuleForm
                     })
                     ->columnSpan(1),
 
-                RichEditor::make('description')
+                RichEditor::make('deskripsi')
                     ->label('Deskripsi')
                     ->nullable()
                     ->columnSpanFull(),

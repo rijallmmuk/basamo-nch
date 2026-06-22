@@ -54,15 +54,15 @@ class QuizController extends Controller
         }
 
         // Cek batas percobaan
-        if ($quiz->max_attempts > 0) {
+        if ($quiz->maks_percobaan > 0) {
             $attemptCount = QuizAttempt::where('user_id', $user->id)
                 ->where('quiz_id', $quiz->id)
                 ->whereIn('status', [QuizAttemptStatus::Passed, QuizAttemptStatus::Failed])
                 ->count();
 
-            if ($attemptCount >= $quiz->max_attempts) {
+            if ($attemptCount >= $quiz->maks_percobaan) {
                 return redirect()->route('portal.modules.show', $module)
-                    ->with('error', "Batas percobaan ({$quiz->max_attempts}x) telah habis.");
+                    ->with('error', "Batas percobaan ({$quiz->maks_percobaan}x) telah habis.");
             }
         }
 

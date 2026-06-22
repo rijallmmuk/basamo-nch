@@ -1,6 +1,6 @@
 @extends('portal.layouts.app')
 
-@section('title', $module->title)
+@section('title', $module->judul)
 
 @php
     $status = $isCompleted ? 'completed' : ($progress ? 'in_progress' : 'available');
@@ -13,7 +13,7 @@
 @section('content')
     <x-portal.breadcrumb :items="[
         ['label' => 'Modul', 'url' => route('portal.modules.index')],
-        ['label' => $module->title],
+        ['label' => $module->judul],
     ]" />
 
     <div class="grid gap-5 lg:grid-cols-3">
@@ -32,19 +32,19 @@
                         @unless($module->desa_id)
                             <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Modul Global</span>
                         @endunless
-                        @if($module->estimated_minutes)
+                        @if($module->estimasi_menit)
                             <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
                                 <x-heroicon-o-clock class="h-3.5 w-3.5" />
-                                ± {{ $module->estimated_minutes }} menit
+                                ± {{ $module->estimasi_menit }} menit
                             </span>
                         @endif
                     </div>
 
-                    <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ $module->title }}</h1>
+                    <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ $module->judul }}</h1>
 
-                    @if($module->description)
+                    @if($module->deskripsi)
                         <div class="prose prose-sm mt-2 max-w-none leading-relaxed text-gray-600">
-                            {!! str($module->description)->sanitizeHtml() !!}
+                            {!! str($module->deskripsi)->sanitizeHtml() !!}
                         </div>
                     @endif
 
@@ -134,10 +134,10 @@
                                     </span>
                                     <span class="min-w-0 flex-1">
                                         <span class="block truncate text-sm font-medium {{ $pDone ? 'text-gray-400' : 'text-gray-800' }}">
-                                            {{ $p->title }}
+                                            {{ $p->judul }}
                                         </span>
                                     </span>
-                                    <x-portal.content-badge :type="$p->type->value" class="hidden shrink-0 sm:inline-flex" />
+                                    <x-portal.content-badge :type="$p->tipe->value" class="hidden shrink-0 sm:inline-flex" />
                                 </a>
                             </li>
                         @endforeach

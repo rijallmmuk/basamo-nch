@@ -38,7 +38,7 @@ class ProductsRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->badge(),
 
-                TextColumn::make('view_count')
+                TextColumn::make('jumlah_dilihat')
                     ->label('Dilihat')
                     ->sortable()
                     ->toggleable(),
@@ -67,12 +67,12 @@ class ProductsRelationManager extends RelationManager
                     ->color('danger')
                     ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
                     ->schema([
-                        Textarea::make('rejection_reason')
+                        Textarea::make('alasan_penolakan')
                             ->label('Alasan penolakan')
                             ->required()
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
-                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, UmkmProductStatus::Rejected, $data['rejection_reason'])),
+                    ->action(fn (UmkmProduct $record, array $data) => $this->setStatus($record, UmkmProductStatus::Rejected, $data['alasan_penolakan'])),
             ])
             ->defaultSort('created_at', 'desc');
     }

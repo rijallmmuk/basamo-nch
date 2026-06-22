@@ -16,18 +16,18 @@ uses(RefreshDatabase::class);
 function progressModule(): Module
 {
     $module = Module::create([
-        'title' => 'Modul '.uniqid(),
+        'judul' => 'Modul '.uniqid(),
         'slug' => 'modul-'.uniqid(),
         'status' => 'published',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 
     ModulePage::create([
         'module_id' => $module->id,
-        'title' => 'Materi',
-        'type' => 'text',
-        'content' => 'Isi.',
-        'sort_order' => 1,
+        'judul' => 'Materi',
+        'tipe' => 'text',
+        'konten' => 'Isi.',
+        'urutan' => 1,
     ]);
 
     return $module;
@@ -47,13 +47,13 @@ it('getModuleStatus mencerminkan in_progress dan completed', function () {
     $sedang = progressModule();
     UserModuleProgress::create([
         'user_id' => $user->id, 'module_id' => $sedang->id,
-        'status' => 'in_progress', 'pages_completed' => [],
+        'status' => 'in_progress', 'halaman_selesai' => [],
     ]);
 
     $selesai = progressModule();
     UserModuleProgress::create([
         'user_id' => $user->id, 'module_id' => $selesai->id,
-        'status' => 'completed', 'pages_completed' => [], 'completed_at' => now(),
+        'status' => 'completed', 'halaman_selesai' => [], 'completed_at' => now(),
     ]);
 
     expect($service->getModuleStatus($user, $sedang))->toBe('in_progress')
@@ -65,7 +65,7 @@ it('getModuleStatus mengunci modul saat prasyarat belum selesai', function () {
 
     $prasyarat = progressModule();
     $lanjutan = progressModule();
-    $lanjutan->update(['prerequisite_module_id' => $prasyarat->id]);
+    $lanjutan->update(['prasyarat_module_id' => $prasyarat->id]);
 
     expect(app(LmsProgressService::class)->getModuleStatus($user, $lanjutan))->toBe('locked');
 });

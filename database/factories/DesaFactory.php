@@ -6,7 +6,6 @@ use App\Models\Desa;
 use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Desa>
@@ -23,7 +22,6 @@ class DesaFactory extends Factory
         return [
             'nama' => fake()->unique()->city(),
             'jenis_desa_id' => JenisDesa::firstOrCreate(['nama' => 'Nagari'])->id,
-            'kode' => 'NCH-'.Str::upper(Str::random(5)),
             'provinsi' => 'Sumatera Barat',
             'kabupaten' => fake()->city(),
             'kecamatan' => fake()->city(),

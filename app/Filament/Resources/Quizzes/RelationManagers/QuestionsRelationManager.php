@@ -26,7 +26,7 @@ class QuestionsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Textarea::make('question')
+                Textarea::make('pertanyaan')
                     ->label('Soal')
                     ->required()
                     ->rows(3)
@@ -35,10 +35,10 @@ class QuestionsRelationManager extends RelationManager
                 Repeater::make('options')
                     ->label('Pilihan Jawaban')
                     ->helperText('Tandai minimal satu jawaban benar. Bila >1 ditandai, soal menjadi pilihan jamak (warga boleh pilih banyak).')
-                    ->relationship('options', fn ($query) => $query->orderBy('sort_order'))
-                    ->orderColumn('sort_order')
+                    ->relationship('options', fn ($query) => $query->orderBy('urutan'))
+                    ->orderColumn('urutan')
                     ->schema([
-                        TextInput::make('option_text')
+                        TextInput::make('teks_opsi')
                             ->label('Teks Pilihan')
                             ->required()
                             ->columnSpan(5),
@@ -72,15 +72,15 @@ class QuestionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('question')
-            ->reorderable('sort_order')
-            ->defaultSort('sort_order', 'asc')
+            ->recordTitleAttribute('pertanyaan')
+            ->reorderable('urutan')
+            ->defaultSort('urutan', 'asc')
             ->columns([
-                TextColumn::make('sort_order')
+                TextColumn::make('urutan')
                     ->label('#')
                     ->width('40px'),
 
-                TextColumn::make('question')
+                TextColumn::make('pertanyaan')
                     ->label('Soal')
                     ->limit(80)
                     ->wrap()

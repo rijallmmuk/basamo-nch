@@ -1,6 +1,6 @@
 @extends('portal.layouts.app')
 
-@section('title', $page->title)
+@section('title', $page->judul)
 @section('main-class', 'py-6 pb-28')
 
 @php
@@ -61,8 +61,8 @@
 @section('content')
     {{-- Breadcrumb --}}
     <x-portal.breadcrumb :items="[
-        ['label' => $module->title, 'url' => route('portal.modules.show', $module)],
-        ['label' => $page->title],
+        ['label' => $module->judul, 'url' => route('portal.modules.show', $module)],
+        ['label' => $page->judul],
     ]" />
 
     @if($c = session('celebrate'))
@@ -82,24 +82,24 @@
                 <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6">
                     <div class="min-w-0">
                         <p class="text-xs font-medium text-gray-400">Materi {{ $currentIdx }} dari {{ $totalPages }}</p>
-                        <h1 class="mt-0.5 text-lg font-bold leading-snug text-gray-900">{{ $page->title }}</h1>
+                        <h1 class="mt-0.5 text-lg font-bold leading-snug text-gray-900">{{ $page->judul }}</h1>
                     </div>
-                    <x-portal.content-badge :type="$page->type->value" class="shrink-0" />
+                    <x-portal.content-badge :type="$page->tipe->value" class="shrink-0" />
                 </div>
 
                 <div class="p-5 sm:p-6 lg:p-8">
-                    @if($page->type->value === 'text')
+                    @if($page->tipe->value === 'text')
                         <div class="prose prose-sm max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
-                            {!! str($page->content)->sanitizeHtml() !!}
+                            {!! str($page->konten)->sanitizeHtml() !!}
                         </div>
-                    @elseif($page->type->value === 'video')
+                    @elseif($page->tipe->value === 'video')
                         @php
                             $videoId = null;
                             $driveId = null;
-                            if ($page->video_url) {
-                                if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $page->video_url, $vm)) {
+                            if ($page->url_video) {
+                                if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $page->url_video, $vm)) {
                                     $videoId = $vm[1];
-                                } elseif (preg_match('#drive\.google\.com/file/d/([A-Za-z0-9_-]+)#', $page->video_url, $dm)) {
+                                } elseif (preg_match('#drive\.google\.com/file/d/([A-Za-z0-9_-]+)#', $page->url_video, $dm)) {
                                     $driveId = $dm[1];
                                 }
                             }
@@ -115,17 +115,17 @@
                                 <iframe src="https://drive.google.com/file/d/{{ $driveId }}/preview"
                                     allow="autoplay" allowfullscreen class="h-full w-full"></iframe>
                             </div>
-                        @elseif($page->video_url)
+                        @elseif($page->url_video)
                             <div class="flex items-center justify-center rounded-xl bg-gray-50 py-14">
-                                <a href="{{ $page->video_url }}" target="_blank" rel="noopener"
+                                <a href="{{ $page->url_video }}" target="_blank" rel="noopener"
                                     class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
                                     <x-heroicon-s-play-circle class="h-5 w-5" />
                                     Buka Video
                                 </a>
                             </div>
                         @endif
-                    @elseif($page->type->value === 'pdf' && $page->file_path)
-                        @php $pdfUrl = Storage::disk(config('media-library.disk_name'))->url($page->file_path); @endphp
+                    @elseif($page->tipe->value === 'pdf' && $page->path_file)
+                        @php $pdfUrl = Storage::disk(config('media-library.disk_name'))->url($page->path_file); @endphp
                         <div class="overflow-hidden rounded-xl border border-gray-200">
                             <embed src="{{ $pdfUrl }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">
                         </div>
@@ -161,7 +161,7 @@
                                     @endif
                                 </span>
                                 <span class="truncate text-sm font-medium {{ $isCurrent ? 'text-indigo-700' : ($isDone ? 'text-gray-400' : 'text-gray-700') }}">
-                                    {{ $p->title }}
+                                    {{ $p->judul }}
                                 </span>
                             </a>
                         </li>

@@ -7,14 +7,13 @@ use Filament\Support\Contracts\HasLabel;
 
 enum QuizAttemptStatus: string implements HasColor, HasLabel
 {
-    case InProgress = 'in_progress';
+    // Auto-grade sinkron: attempt hanya pernah berstatus final (lulus/gagal).
     case Passed = 'passed';
     case Failed = 'failed';
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::InProgress => 'Sedang Dikerjakan',
             self::Passed => 'Lulus',
             self::Failed => 'Gagal',
         };
@@ -23,7 +22,6 @@ enum QuizAttemptStatus: string implements HasColor, HasLabel
     public function getColor(): string
     {
         return match ($this) {
-            self::InProgress => 'info',
             self::Passed => 'success',
             self::Failed => 'danger',
         };

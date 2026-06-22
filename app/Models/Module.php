@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ModuleStatus;
+use App\Models\Concerns\BelongsToDesa;
 use App\Observers\ModuleObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
@@ -22,28 +23,28 @@ use Spatie\Sluggable\SlugOptions;
 #[ObservedBy([ModuleObserver::class])]
 class Module extends Model implements HasMedia
 {
-    use HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
+    use BelongsToDesa, HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['title', 'status', 'desa_id', 'sort_order', 'estimated_minutes', 'prerequisite_module_id'])
+            ->logOnly(['judul', 'status', 'desa_id', 'urutan', 'estimasi_menit', 'prasyarat_module_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('modul');
     }
 
     protected $fillable = [
-        'desa_id', 'title', 'slug', 'description',
-        'sort_order', 'estimated_minutes', 'prerequisite_module_id', 'status', 'created_by',
+        'desa_id', 'judul', 'slug', 'deskripsi',
+        'urutan', 'estimasi_menit', 'prasyarat_module_id', 'status', 'created_by',
     ];
 
     protected function casts(): array
     {
         return [
             'status' => ModuleStatus::class,
-            'sort_order' => 'integer',
-            'estimated_minutes' => 'integer',
+            'urutan' => 'integer',
+            'estimasi_menit' => 'integer',
         ];
     }
 
@@ -79,15 +80,10 @@ class Module extends Model implements HasMedia
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('title')
+            ->generateSlugsFrom('judul')
             ->saveSlugsTo('slug')
             // Slug stabil: tidak berubah saat judul diedit (URL/bookmark tetap valid).
             ->doNotGenerateSlugsOnUpdate();
-    }
-
-    public function desa(): BelongsTo
-    {
-        return $this->belongsTo(Desa::class);
     }
 
     public function creator(): BelongsTo
@@ -97,12 +93,12 @@ class Module extends Model implements HasMedia
 
     public function prerequisite(): BelongsTo
     {
-        return $this->belongsTo(Module::class, 'prerequisite_module_id');
+        return $this->belongsTo(Module::class, 'prasyarat_module_id');
     }
 
     public function pages(): HasMany
     {
-        return $this->hasMany(ModulePage::class)->orderBy('sort_order')->orderBy('id');
+        return $this->hasMany(ModulePage::class)->orderBy('urutan')->orderBy('id');
     }
 
     public function quiz(): HasOne

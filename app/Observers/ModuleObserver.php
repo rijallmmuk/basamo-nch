@@ -14,8 +14,8 @@ class ModuleObserver
     public function creating(Module $module): void
     {
         // Auto-urut: modul baru ditaruh di urutan terakhir.
-        if (empty($module->sort_order)) {
-            $module->sort_order = (Module::max('sort_order') ?? 0) + 1;
+        if (empty($module->urutan)) {
+            $module->urutan = (Module::max('urutan') ?? 0) + 1;
         }
     }
 
@@ -24,7 +24,7 @@ class ModuleObserver
         // Force-delete men-cascade module_pages di level DB (lewati event Eloquent),
         // jadi bersihkan file PDF-nya di sini sebelum baris terhapus.
         if ($module->isForceDeleting()) {
-            $module->pages()->whereNotNull('file_path')->pluck('file_path')
+            $module->pages()->whereNotNull('path_file')->pluck('path_file')
                 ->each(fn ($path) => Storage::disk('public')->delete($path));
         }
     }

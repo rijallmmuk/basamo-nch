@@ -13,10 +13,10 @@ it('super_admin dapat mengakses Log Aktivitas', function () {
 
     // Pancing satu entri aktivitas agar tabel merender baris.
     Module::create([
-        'title' => 'Modul Log '.uniqid(),
+        'judul' => 'Modul Log '.uniqid(),
         'slug' => 'modul-log-'.uniqid(),
         'status' => 'draft',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 
     $this->actingAs($user)
@@ -35,10 +35,10 @@ it('desa_admin tidak dapat mengakses Log Aktivitas', function () {
 
 it('mencatat aktivitas saat modul dibuat', function () {
     Module::create([
-        'title' => 'Modul Audit '.uniqid(),
+        'judul' => 'Modul Audit '.uniqid(),
         'slug' => 'modul-audit-'.uniqid(),
         'status' => 'draft',
-        'sort_order' => 1,
+        'urutan' => 1,
     ]);
 
     $this->assertDatabaseHas('activity_log', [

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Desa;
+use App\Models\DesaUnit;
 use App\Models\Discussion;
 use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
@@ -15,7 +16,6 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Models\UserModuleProgress;
-use App\Models\Wilayah;
 use App\Services\LmsPointService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -42,28 +42,28 @@ class DemoSeeder extends Seeder
         $globalModules = $this->seedGlobalModules($superAdmin);
 
         $desaData = [
-            ['NCH-001', 'Nagari', 'Contoh Harapan', 'Jorong', '13.06', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']], // Kab. Agam
-            ['NCH-002', 'Nagari', 'Sungai Lansek', 'Korong', '13.05', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']], // Kab. Padang Pariaman
+            ['nch001', 'Nagari', 'Contoh Harapan', 'Jorong', '13.06', ['Koto Tuo', 'Padang Lua', 'Sungai Tanang']], // Kab. Agam
+            ['nch002', 'Nagari', 'Sungai Lansek', 'Korong', '13.05', ['Kampuang Dalam', 'Toboh Gadang', 'Sikabu']], // Kab. Padang Pariaman
         ];
 
-        foreach ($desaData as [$kode, $jenis, $nama, $sebutan, $kabKode, $unitNames]) {
-            $desa = $this->seedDesa($kode, $jenis, $nama, $sebutan, $kabKode);
-            $wilayah = $this->seedWilayah($desa, $unitNames);
-            $this->seedDesaAdmin($desa);
+        foreach ($desaData as [$slug, $jenis, $nama, $sebutan, $kabKode, $unitNames]) {
+            $desa = $this->seedDesa($jenis, $nama, $sebutan, $kabKode);
+            $units = $this->seedDesaUnits($desa, $unitNames);
+            $this->seedDesaAdmin($desa, $slug);
 
             $localModule = $this->seedLocalModule($desa, $superAdmin);
             $modules = [...$globalModules, $localModule];
 
-            $warga = $this->seedWarga($desa, $wilayah);
+            $warga = $this->seedWarga($desa, $units);
             $this->seedProgress($warga, $modules);
             $this->seedDiscussions($warga, $globalModules[0]);
-            $this->seedUmkm($desa, $warga, $superAdmin);
+            $this->seedUmkm($desa, $warga, $superAdmin, $slug);
         }
 
         $this->command?->info('Demo siap. Login warga: NIK (lihat tabel users) + sandi "password".');
     }
 
-    private function seedDesa(string $kode, string $jenis, string $nama, string $sebutan, string $kabKode): Desa
+    private function seedDesa(string $jenis, string $nama, string $sebutan, string $kabKode): Desa
     {
         // Tautkan ke wilayah resmi: ambil satu desa/kelurahan nyata di kabupaten ini.
         $ref = RefWilayah::level(RefWilayah::LEVEL_DESA)->where('kode', 'like', $kabKode.'.%')->orderBy('kode')->first();
@@ -71,9 +71,8 @@ class DemoSeeder extends Seeder
         $kec = $ref ? RefWilayah::find(substr($ref->kode, 0, (int) strrpos($ref->kode, '.'))) : null;
 
         $desa = Desa::firstOrCreate(
-            ['kode' => $kode],
+            ['nama' => $nama],
             [
-                'nama' => $nama,
                 'jenis_desa_id' => JenisDesa::where('nama', $jenis)->value('id'),
                 'wilayah_kode' => $ref?->kode,
                 'provinsi' => 'Sumatera Barat',
@@ -89,15 +88,15 @@ class DemoSeeder extends Seeder
         return $desa;
     }
 
-    /** @return array<int, Wilayah> */
-    private function seedWilayah(Desa $desa, array $names): array
+    /** @return array<int, DesaUnit> */
+    private function seedDesaUnits(Desa $desa, array $names): array
     {
         return collect($names)
-            ->map(fn (string $nama) => Wilayah::firstOrCreate(['desa_id' => $desa->id, 'nama' => $nama]))
+            ->map(fn (string $nama) => DesaUnit::firstOrCreate(['desa_id' => $desa->id, 'nama' => $nama]))
             ->all();
     }
 
-    private function seedDesaAdmin(Desa $desa): User
+    private function seedDesaAdmin(Desa $desa, string $slug): User
     {
         // Pakai admin desa yang sudah ada (mis. dari UserSeeder) bila tersedia.
         $existing = User::where('desa_id', $desa->id)->where('role', 'desa_admin')->first();
@@ -106,10 +105,10 @@ class DemoSeeder extends Seeder
         }
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin.'.strtolower($desa->kode).'@basamo.nch'],
+            ['email' => 'admin.'.$slug.'@basamo.nch'],
             [
                 'name' => 'Admin '.$desa->nama,
-                'username' => 'admin_'.strtolower(str_replace('-', '', $desa->kode)),
+                'username' => 'admin_'.$slug,
                 'password' => Hash::make('password'),
                 'desa_id' => $desa->id,
                 'role' => 'desa_admin',
@@ -152,21 +151,21 @@ class DemoSeeder extends Seeder
     private function makeModule(string $title, int $minutes, string $desc, ?int $desaId, User $author, int $order): Module
     {
         $module = Module::firstOrCreate(
-            ['title' => $title, 'desa_id' => $desaId],
+            ['judul' => $title, 'desa_id' => $desaId],
             [
-                'description' => '<p>'.$desc.'</p>',
-                'estimated_minutes' => $minutes,
+                'deskripsi' => '<p>'.$desc.'</p>',
+                'estimasi_menit' => $minutes,
                 'status' => 'published',
                 'created_by' => $author->id,
-                'sort_order' => $order,
+                'urutan' => $order,
             ],
         );
 
         if ($module->pages()->doesntExist()) {
             $module->pages()->createMany([
-                ['title' => 'Pengantar', 'type' => 'text', 'content' => '<p>Selamat datang di modul <strong>'.$title.'</strong>. Mari kita mulai belajar bersama.</p>'],
-                ['title' => 'Materi Utama', 'type' => 'text', 'content' => '<p>'.$desc.' Pelajari poin-poin penting berikut dengan saksama.</p><ul><li>Poin pertama</li><li>Poin kedua</li><li>Poin ketiga</li></ul>'],
-                ['title' => 'Video Pembelajaran', 'type' => 'video', 'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
+                ['judul' => 'Pengantar', 'tipe' => 'text', 'konten' => '<p>Selamat datang di modul <strong>'.$title.'</strong>. Mari kita mulai belajar bersama.</p>'],
+                ['judul' => 'Materi Utama', 'tipe' => 'text', 'konten' => '<p>'.$desc.' Pelajari poin-poin penting berikut dengan saksama.</p><ul><li>Poin pertama</li><li>Poin kedua</li><li>Poin ketiga</li></ul>'],
+                ['judul' => 'Video Pembelajaran', 'tipe' => 'video', 'url_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
             ]);
         }
 
@@ -179,25 +178,25 @@ class DemoSeeder extends Seeder
     {
         $quiz = Quiz::firstOrCreate(
             ['module_id' => $module->id],
-            ['passing_score' => 70, 'max_attempts' => 3],
+            ['nilai_lulus' => 70, 'maks_percobaan' => 3],
         );
 
         if ($quiz->questions()->doesntExist()) {
             // Soal pilihan tunggal.
-            $q1 = $quiz->questions()->create(['question' => 'Apa langkah pertama yang aman saat menggunakan layanan digital?']);
+            $q1 = $quiz->questions()->create(['pertanyaan' => 'Apa langkah pertama yang aman saat menggunakan layanan digital?']);
             $q1->options()->createMany([
-                ['option_text' => 'Membagikan kata sandi ke teman', 'is_correct' => false, 'sort_order' => 1],
-                ['option_text' => 'Menjaga kerahasiaan kata sandi', 'is_correct' => true, 'sort_order' => 2],
-                ['option_text' => 'Memakai sandi yang sama di mana-mana', 'is_correct' => false, 'sort_order' => 3],
+                ['teks_opsi' => 'Membagikan kata sandi ke teman', 'is_correct' => false, 'urutan' => 1],
+                ['teks_opsi' => 'Menjaga kerahasiaan kata sandi', 'is_correct' => true, 'urutan' => 2],
+                ['teks_opsi' => 'Memakai sandi yang sama di mana-mana', 'is_correct' => false, 'urutan' => 3],
             ]);
 
             // Soal pilihan jamak (>1 benar).
-            $q2 = $quiz->questions()->create(['question' => 'Manakah ciri-ciri informasi hoaks? (boleh pilih lebih dari satu)']);
+            $q2 = $quiz->questions()->create(['pertanyaan' => 'Manakah ciri-ciri informasi hoaks? (boleh pilih lebih dari satu)']);
             $q2->options()->createMany([
-                ['option_text' => 'Judul provokatif & bombastis', 'is_correct' => true, 'sort_order' => 1],
-                ['option_text' => 'Sumber jelas dan kredibel', 'is_correct' => false, 'sort_order' => 2],
-                ['option_text' => 'Meminta disebarkan segera', 'is_correct' => true, 'sort_order' => 3],
-                ['option_text' => 'Mencantumkan tautan resmi', 'is_correct' => false, 'sort_order' => 4],
+                ['teks_opsi' => 'Judul provokatif & bombastis', 'is_correct' => true, 'urutan' => 1],
+                ['teks_opsi' => 'Sumber jelas dan kredibel', 'is_correct' => false, 'urutan' => 2],
+                ['teks_opsi' => 'Meminta disebarkan segera', 'is_correct' => true, 'urutan' => 3],
+                ['teks_opsi' => 'Mencantumkan tautan resmi', 'is_correct' => false, 'urutan' => 4],
             ]);
         }
 
@@ -205,12 +204,12 @@ class DemoSeeder extends Seeder
     }
 
     /** @return array<int, User> */
-    private function seedWarga(Desa $desa, array $wilayah): array
+    private function seedWarga(Desa $desa, array $units): array
     {
         $names = ['Budi Santoso', 'Siti Aminah', 'Andi Pratama', 'Dewi Lestari', 'Rudi Hartono', 'Nurul Hidayah', 'Fajar Nugraha', 'Maya Sari'];
         $seq = $desa->id;
 
-        return collect($names)->map(function (string $nama, int $i) use ($desa, $wilayah, $seq) {
+        return collect($names)->map(function (string $nama, int $i) use ($desa, $units, $seq) {
             // NIK demo 16 digit: 32 (SumBar) + 2 digit desa + 12 digit urut.
             $nik = sprintf('32%02d%012d', $seq, ($seq * 100) + $i + 1);
 
@@ -219,7 +218,7 @@ class DemoSeeder extends Seeder
                 [
                     'name' => $nama,
                     'desa_id' => $desa->id,
-                    'wilayah_id' => $wilayah[$i % count($wilayah)]->id,
+                    'desa_unit_id' => $units[$i % count($units)]->id,
                     'phone' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'password' => Hash::make('password'),
                     'role' => 'warga',
@@ -249,7 +248,7 @@ class DemoSeeder extends Seeder
 
                 UserModuleProgress::firstOrCreate(
                     ['user_id' => $warga->id, 'module_id' => $module->id],
-                    ['status' => 'completed', 'pages_completed' => $pageIds, 'completed_at' => now()->subDays(random_int(1, 20))],
+                    ['status' => 'completed', 'halaman_selesai' => $pageIds, 'completed_at' => now()->subDays(random_int(1, 20))],
                 );
 
                 $this->points->awardModuleCompletion($warga, $module);
@@ -258,7 +257,7 @@ class DemoSeeder extends Seeder
                 if ($module->quiz && random_int(0, 1) === 1) {
                     QuizAttempt::firstOrCreate(
                         ['user_id' => $warga->id, 'quiz_id' => $module->quiz->id, 'status' => 'passed'],
-                        ['score' => random_int(70, 100), 'submitted_at' => now()->subDays(random_int(1, 15))],
+                        ['nilai' => random_int(70, 100), 'submitted_at' => now()->subDays(random_int(1, 15))],
                     );
                     $this->points->awardQuizPass($warga, $module->quiz);
                 }
@@ -273,7 +272,7 @@ class DemoSeeder extends Seeder
      *
      * @param  array<int, User>  $wargaList
      */
-    private function seedUmkm(Desa $desa, array $wargaList, User $verifier): void
+    private function seedUmkm(Desa $desa, array $wargaList, User $verifier, string $slug): void
     {
         // Cetak biru usaha: [nama, kategori, [produk...]].
         $blueprints = [
@@ -295,7 +294,7 @@ class DemoSeeder extends Seeder
             $profile = UmkmProfile::firstOrCreate(
                 ['desa_id' => $desa->id, 'user_id' => $owner->id],
                 [
-                    'nama_usaha' => $namaUsaha.' ('.$desa->kode.')',
+                    'nama_usaha' => $namaUsaha.' ('.$slug.')',
                     'umkm_category_id' => $categoryId,
                     'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$desa->nama.'.',
                     'alamat' => 'Pasar '.$desa->nama,
@@ -318,10 +317,10 @@ class DemoSeeder extends Seeder
                         'deskripsi' => $nama.' produksi '.$namaUsaha.'.',
                         'harga' => random_int(10, 150) * 1000,
                         'status' => $status,
-                        'rejection_reason' => $status === 'rejected' ? 'Foto produk kurang jelas, mohon unggah ulang.' : null,
+                        'alasan_penolakan' => $status === 'rejected' ? 'Foto produk kurang jelas, mohon unggah ulang.' : null,
                         'approved_by' => $status === 'approved' ? $verifier->id : null,
                         'approved_at' => $status === 'approved' ? now()->subDays(random_int(1, 10)) : null,
-                        'view_count' => random_int(0, 350),
+                        'jumlah_dilihat' => random_int(0, 350),
                     ],
                 );
             }
@@ -336,13 +335,13 @@ class DemoSeeder extends Seeder
         $penanya = $wargaList[0];
 
         $thread = Discussion::firstOrCreate(
-            ['module_id' => $module->id, 'user_id' => $penanya->id, 'parent_id' => null, 'body' => 'Bagaimana cara membuat kata sandi yang kuat tapi mudah diingat?'],
+            ['module_id' => $module->id, 'user_id' => $penanya->id, 'parent_id' => null, 'isi' => 'Bagaimana cara membuat kata sandi yang kuat tapi mudah diingat?'],
         );
         $this->points->awardDiscussionParticipation($penanya, $module);
 
         if (isset($wargaList[1])) {
             Discussion::firstOrCreate(
-                ['module_id' => $module->id, 'user_id' => $wargaList[1]->id, 'parent_id' => $thread->id, 'body' => 'Gabungkan beberapa kata + angka, hindari tanggal lahir.'],
+                ['module_id' => $module->id, 'user_id' => $wargaList[1]->id, 'parent_id' => $thread->id, 'isi' => 'Gabungkan beberapa kata + angka, hindari tanggal lahir.'],
             );
             $this->points->awardDiscussionParticipation($wargaList[1], $module);
         }

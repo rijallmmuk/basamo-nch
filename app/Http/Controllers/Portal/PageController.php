@@ -52,7 +52,7 @@ class PageController extends Controller
         }
 
         $progress = $this->progressService->getProgress($user, $module);
-        $pagesCompleted = $progress?->pages_completed ?? [];
+        $pagesCompleted = $progress?->halaman_selesai ?? [];
 
         return view('portal.modules.page', compact(
             'module', 'page', 'pages', 'prevPage', 'nextPage', 'pagesCompleted'

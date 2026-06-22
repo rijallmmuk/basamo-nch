@@ -20,7 +20,7 @@
                 @php
                     $status = $statusMap[$module->id] ?? 'available';
                     $progress = $module->progress->first();
-                    $pagesDone = count($progress?->pages_completed ?? []);
+                    $pagesDone = count($progress?->halaman_selesai ?? []);
                     $pct = $module->pages_count > 0 ? (int) ($pagesDone / $module->pages_count * 100) : 0;
                     $locked = $status === 'locked';
                 @endphp
@@ -33,10 +33,10 @@
 
                     <div class="flex flex-1 flex-col p-5">
 
-                    {{-- Top row: sort_order + status --}}
+                    {{-- Top row: urutan + status --}}
                     <div class="mb-3 flex items-center justify-between gap-3">
                         <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                            <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-gray-500">{{ $module->sort_order }}</span>
+                            <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-gray-500">{{ $module->urutan }}</span>
                             @unless($module->desa_id) Modul Global @endunless
                         </span>
                         <x-portal.status-badge :status="$status" />
@@ -44,16 +44,16 @@
 
                     {{-- Title + desc --}}
                     <h2 class="text-base font-bold leading-snug {{ $locked ? 'text-gray-500' : 'text-gray-900' }}">
-                        {{ $module->title }}
+                        {{ $module->judul }}
                     </h2>
-                    @if($module->description)
-                        <p class="mt-1.5 line-clamp-2 text-sm text-gray-500">{{ strip_tags($module->description) }}</p>
+                    @if($module->deskripsi)
+                        <p class="mt-1.5 line-clamp-2 text-sm text-gray-500">{{ strip_tags($module->deskripsi) }}</p>
                     @endif
 
-                    @if($module->estimated_minutes)
+                    @if($module->estimasi_menit)
                         <p class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-gray-400">
                             <x-heroicon-o-clock class="h-4 w-4" />
-                            ± {{ $module->estimated_minutes }} menit
+                            ± {{ $module->estimasi_menit }} menit
                         </p>
                     @endif
 
@@ -61,7 +61,7 @@
                     @if($locked && $module->prerequisite)
                         <p class="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
                             <x-heroicon-s-lock-closed class="mt-px h-3.5 w-3.5 shrink-0" />
-                            Selesaikan dulu: {{ $module->prerequisite->title }}
+                            Selesaikan dulu: {{ $module->prerequisite->judul }}
                         </p>
                     @endif
 

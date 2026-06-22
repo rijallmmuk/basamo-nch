@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Wilayahs\Tables;
+namespace App\Filament\Resources\DesaUnits\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -12,7 +12,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class WilayahsTable
+class DesaUnitsTable
 {
     public static function configure(Table $table): Table
     {

@@ -6,6 +6,25 @@
 
 ---
 
+## Sesi 2026-06-22 (lanjutan 2) — Audit penamaan, konsolidasi migrasi, rename DesaUnit, 7 rekomendasi
+
+Branch `feat/ref-wilayah-sumbar`. Suite **157 lulus, 2 skip** (159; +9 smoke). Belum merge.
+
+- **Penamaan kolom → Indonesia** (kecuali standar Inggris: `id`/`*_id`/`*_at`/`slug`/`status`/`is_*`/kolom `users`). LMS & UMKM diseragamkan: `title→judul`, `description→deskripsi`, `content→konten`, `type→tipe`, `sort_order→urutan`, `question→pertanyaan`, `option_text→teks_opsi`, `score→nilai`, `passing_score→nilai_lulus`, `max_attempts→maks_percobaan`, `pages_completed→halaman_selesai`, `body→isi`, `source/source_id/amount→sumber/sumber_id/jumlah`, `rejection_reason→alasan_penolakan`, `view_count→jumlah_dilihat`, `video_url→url_video`, `file_path→path_file`, `estimated_minutes→estimasi_menit`, `prerequisite_module_id→prasyarat_module_id`. **Nama tabel/model tetap Inggris.** Memori: [[naming-convention-indonesian]].
+- **Drop `desas.kode`** (redundan; `wilayah_kode` = kunci resmi). Tabel admin tampilkan `wilayah_kode`.
+- **Konsolidasi migrasi 26→13 file** (per-domain): `create_wilayah_reference_tables` (ref_wilayah+boundaries), `create_jenis_wilayah_tables` (+seed jenis), `create_desa_tables` (desas+desa_units+FK users), `create_lms_module_tables`, `create_lms_quiz_tables`, `create_umkm_tables`. Migrasi drop (otp_expires_at, path) dilipat (kolom tak dibuat sejak awal). Lookup kecil (jenis, umkm_categories) di-seed di migrasi; wilayah/boundaries/super-admin di CoreSeeder.
+- **Rename `wilayahs`→`desa_units`** (model `Wilayah`→`DesaUnit`), kolom `users.wilayah_id`→`desa_unit_id`, relasi `User::desaUnit()`/`Desa::desaUnits()`. Hilangkan tabrakan nama dgn `ref_wilayah`/`wilayah_boundaries`. Label UI tetap "Wilayah".
+- **7 rekomendasi (semua dikerjakan):**
+  - **CI** `.github/workflows/ci.yml` (pint --test + pest, PHP 8.4, sqlite) — sebelumnya tak ada CI.
+  - **Trait `BelongsToDesa`** (`app/Models/Concerns`): relasi `desa()` + scope `forDesa()` di Module/UmkmProfile/XpLog/DesaUnit/User. **TANPA global scope** (super_admin lintas-desa).
+  - **Smoke test** `SmokeTest.php` (9 halaman publik+portal warga, HTTP-level; peta/data dilewati — spasial sqlite).
+  - **`quiz_attempts.status`**: hapus `InProgress` (auto-grade sinkron → langsung passed/failed).
+  - **Konsistensi data referensi**: `jenis_desa`/`jenis_sub_unit` di-seed di migrasi (samakan `umkm_categories`), keluar dari CoreSeeder.
+  - **Docs sync**: `docs/DATABASE.md` ditulis ulang akurat; `CLAUDE.md` drift diperbaiki (`nagari_id→desa_id`, role `nagari_admin→desa_admin`, umkm_owner=kapabilitas).
+- **Verifikasi:** `migrate:fresh --seed` bersih (ref 1464, boundaries 1358, 2 desa, 7 modul); `pint --test` lulus.
+
+---
+
 ## Sesi 2026-06-22 (lanjutan) — Form Desa diringkas (pilih desa) + akun admin + OTP tanpa expired
 
 **Form Desa (Filament) dirombak.** Suite **145** (143 lulus, 2 skip spasial; verifikasi MariaDB terpisah).
@@ -84,8 +103,8 @@ ApexCharts, Lapak portal pemilik, **katalog publik `/umkm` (M4.3 SELESAI)**, **+
 **Pilar UMKM kini lengkap** (admin + portal pemilik + katalog publik). Next: SDGs/IoT atau PR ke main.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
-- nagari_admin: `admin.nagari@basamo.nch` (NCH-001) & `admin.nch-002@basamo.nch` (NCH-002) / `password`
-- warga (portal): login **NIK** mis. `3201000000000101` / `password` (16 warga, 2 nagari)
+- desa_admin: `admin.nch001@basamo.nch` & `admin.nch002@basamo.nch` / `password`
+- warga (portal): login **NIK** mis. `3201000000000101` / `password` (16 warga, 2 desa)
 - Catatan: warga demo `must_change_password=false` agar bisa langsung login showcase.
 
 ---

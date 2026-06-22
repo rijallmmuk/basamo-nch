@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UserModuleProgress extends Model
 {
     protected $fillable = [
-        'user_id', 'module_id', 'pages_completed',
+        'user_id', 'module_id', 'halaman_selesai',
         'status', 'completed_at',
     ];
 
@@ -17,7 +17,7 @@ class UserModuleProgress extends Model
     {
         return [
             'status' => ModuleProgressStatus::class,
-            'pages_completed' => 'array',
+            'halaman_selesai' => 'array',
             'completed_at' => 'datetime',
         ];
     }

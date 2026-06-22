@@ -16,7 +16,7 @@ it('super_admin dapat mengelola kategori UMKM', function () {
         ->assertOk()
         ->callAction('create', data: [
             'nama' => 'Otomotif',
-            'sort_order' => 9,
+            'urutan' => 9,
         ]);
 
     $cat = UmkmCategory::where('nama', 'Otomotif')->first();

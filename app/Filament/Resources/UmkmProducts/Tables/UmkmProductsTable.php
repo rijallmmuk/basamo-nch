@@ -65,13 +65,13 @@ class UmkmProductsTable
                     ->color('danger')
                     ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
                     ->schema([
-                        Textarea::make('rejection_reason')
+                        Textarea::make('alasan_penolakan')
                             ->label('Alasan penolakan')
                             ->required()
                             ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
                     ])
                     ->action(fn (UmkmProduct $record, array $data) => app(UmkmService::class)
-                        ->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['rejection_reason'])),
+                        ->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['alasan_penolakan'])),
             ])
             ->defaultSort('created_at', 'asc');
     }
