@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Enums\ActiveStatus;
+use App\Enums\ModuleProgressStatus;
 use App\Enums\ModuleStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\User;
+use App\Models\UserModuleProgress;
 use App\Services\LmsProgressService;
 use Illuminate\View\View;
 
@@ -23,14 +25,21 @@ class HomeController extends Controller
                 $q->whereNull('desa_id')
                     ->orWhere('desa_id', $user->desa_id);
             })
-            ->with(['progress' => fn ($q) => $q->where('user_id', $user->id)])
+            ->with(['progress' => fn ($q) => $q->where('user_id', $user->id), 'prerequisite'])
             ->withCount('pages')
             ->orderBy('urutan')
             ->orderBy('id')
             ->get();
 
+        // Ambil sekali → hitung status in-memory (hindari N+1: tanpa ini tiap modul
+        // memicu query prasyarat + progres). Sejalan dengan ModuleController::index.
+        $completedModuleIds = UserModuleProgress::where('user_id', $user->id)
+            ->where('status', ModuleProgressStatus::Completed)
+            ->pluck('module_id')
+            ->all();
+
         $statusMap = $modules->mapWithKeys(
-            fn ($m) => [$m->id => $this->progressService->getModuleStatus($user, $m)]
+            fn ($m) => [$m->id => $this->progressService->getModuleStatusUsing($m, $m->progress->first(), $completedModuleIds)]
         );
 
         $priorityOrder = ['in_progress' => 0, 'available' => 1, 'completed' => 2, 'locked' => 3];

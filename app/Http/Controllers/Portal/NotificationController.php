@@ -13,8 +13,8 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->latest()->paginate(20);
 
-        // Tandai semua sebagai sudah dibaca saat halaman dibuka.
-        $user->unreadNotifications->markAsRead();
+        // Tandai semua sebagai sudah dibaca saat halaman dibuka (1 query, bukan per-baris).
+        $user->unreadNotifications()->update(['read_at' => now()]);
 
         return view('portal.notifications.index', compact('notifications'));
     }
