@@ -25,7 +25,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'desa_unit_id', 'role', 'umkm_access_granted_at', 'total_xp', 'status'])]
+// `total_xp` sengaja TIDAK fillable — hanya diubah via increment() di LmsPointService.
+#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'desa_unit_id', 'role', 'umkm_access_granted_at', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser, HasMedia
 {

@@ -23,6 +23,7 @@ class ModulePage extends Model
     {
         return [
             'tipe' => ModulePageType::class,
+            'urutan' => 'integer',
         ];
     }
 

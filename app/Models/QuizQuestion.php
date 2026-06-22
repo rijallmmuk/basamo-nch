@@ -12,6 +12,14 @@ class QuizQuestion extends Model
         'quiz_id', 'pertanyaan', 'urutan',
     ];
 
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'urutan' => 'integer',
+        ];
+    }
+
     protected static function booted(): void
     {
         // Auto-urut: soal baru ditaruh di urutan terakhir kuisnya.

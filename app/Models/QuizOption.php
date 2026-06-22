@@ -15,6 +15,7 @@ class QuizOption extends Model
     {
         return [
             'is_correct' => 'boolean',
+            'urutan' => 'integer',
         ];
     }
 

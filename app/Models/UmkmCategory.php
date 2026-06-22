@@ -13,6 +13,14 @@ class UmkmCategory extends Model
 
     protected $fillable = ['nama', 'slug', 'icon', 'urutan'];
 
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'urutan' => 'integer',
+        ];
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

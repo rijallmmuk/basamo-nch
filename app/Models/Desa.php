@@ -28,6 +28,8 @@ class Desa extends Model implements HasMedia
     {
         return [
             'status' => ActiveStatus::class,
+            'koordinat_lat' => 'decimal:8',
+            'koordinat_lng' => 'decimal:8',
         ];
     }
 
