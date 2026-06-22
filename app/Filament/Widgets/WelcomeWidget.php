@@ -33,14 +33,35 @@ class WelcomeWidget extends Widget
             default => 'Selamat malam',
         };
 
+        $name = $user?->name ?? '';
+
         return [
+            'super' => $super,
             'greeting' => $greeting,
-            'name' => $user?->name ?? '',
+            'name' => $name,
+            'initials' => $this->initials($name),
+            'roleBadge' => $super ? 'Super Admin' : 'Admin Desa',
             'roleLabel' => $super
-                ? 'Super Admin · akses seluruh desa'
-                : 'Admin '.($user?->desa?->nama_lengkap ?? 'Desa'),
+                ? 'Akses seluruh desa'
+                : ($user?->desa?->nama_lengkap ?? 'Desa'),
             'dateLabel' => $now->translatedFormat('l, d F Y'),
-            'accent' => $super ? '#6366f1' : '#14b8a6', // indigo-500 / teal-500
+            'timeLabel' => $now->format('H:i').' WIB',
         ];
+    }
+
+    /** Inisial dari nama (maks 2 huruf) untuk avatar. */
+    private function initials(string $name): string
+    {
+        $parts = preg_split('/\s+/', trim($name)) ?: [];
+        $parts = array_filter($parts);
+
+        if ($parts === []) {
+            return '?';
+        }
+
+        $first = mb_substr((string) reset($parts), 0, 1);
+        $last = count($parts) > 1 ? mb_substr((string) end($parts), 0, 1) : '';
+
+        return mb_strtoupper($first.$last);
     }
 }

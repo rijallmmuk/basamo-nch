@@ -166,6 +166,8 @@ DomPDF (`barryvdh/laravel-dompdf`) untuk laporan LMS/SDGs; Maatwebsite Excel unt
 - **Onboarding nagari** manual oleh super_admin (self-service di Fase 3).
 - **Squash migrasi** jadi baseline bersih = langkah pra-deploy **terakhir** (jangan saat masih ada perubahan skema). 42 migrasi terbukti jalan di MySQL+SQLite.
 - SDGs & IoT = pilar lain (programmer lain).
+- **Panel `/admin` Bahasa Indonesia** (locale `id`, fallback `en`) · terjemahan Filament bawaan + `lang/id/*` inti Laravel · tanpa paket i18n.
+- **Custom Filament theme** (`resources/css/filament/admin/theme.css` via `viteTheme`) untuk kartu sambutan banner gradien + utilitas Tailwind penuh di panel · dibuat via `make:filament-theme` (menaikkan minor `tailwindcss`/`@tailwindcss/vite` 4.0→4.3.x, bukan paket baru). Pembeda peran: super_admin aksen Indigo + banner indigo, admin desa Teal.
 
 ```
 ### [YYYY-MM] Judul keputusan
