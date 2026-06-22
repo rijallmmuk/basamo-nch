@@ -21,16 +21,18 @@ trait BelongsToDesa
     }
 
     /**
-     * Batasi query ke satu desa. Abaikan bila $desaId null (mis. super_admin global).
+     * Batasi query ke satu desa (penyaringan tenant). `null` → cocokkan
+     * `desa_id IS NULL` (mis. desa_admin tanpa desa = tak bocor lihat desa lain),
+     * BUKAN "lihat semua". super_admin tak memakai scope ini (lihat semua lewat
+     * tak memanggilnya).
      *
      * @param  Builder<static>  $query
      */
     public function scopeForDesa(Builder $query, Desa|int|string|null $desaId): void
     {
-        if ($desaId === null) {
-            return;
-        }
-
-        $query->where($this->getTable().'.desa_id', $desaId instanceof Desa ? $desaId->getKey() : $desaId);
+        $query->where(
+            $this->getTable().'.desa_id',
+            $desaId instanceof Desa ? $desaId->getKey() : $desaId,
+        );
     }
 }

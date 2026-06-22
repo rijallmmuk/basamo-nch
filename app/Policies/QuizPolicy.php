@@ -10,7 +10,8 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * super_admin dilewatkan via Gate::before (akses penuh).
- * Policy ini mengatur desa_admin; scope per-desa ditegakkan di query Resource.
+ * desa_admin hanya mengelola kuis modul desanya (cek per-record via modul induk,
+ * mandiri — tak bergantung pada scoping query saja).
  */
 class QuizPolicy
 {
@@ -23,7 +24,7 @@ class QuizPolicy
 
     public function view(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function create(User $user): bool
@@ -33,12 +34,12 @@ class QuizPolicy
 
     public function update(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function delete(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function deleteAny(User $user): bool
@@ -48,12 +49,12 @@ class QuizPolicy
 
     public function restore(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function forceDelete(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function forceDeleteAny(User $user): bool
@@ -68,11 +69,19 @@ class QuizPolicy
 
     public function replicate(User $user, Quiz $quiz): bool
     {
-        return $user->isDesaAdmin();
+        return $this->managesInDesa($user, $quiz);
     }
 
     public function reorder(User $user): bool
     {
         return $user->isDesaAdmin();
+    }
+
+    /** desa_admin hanya kuis modul desanya (modul global dikecualikan). */
+    private function managesInDesa(User $user, Quiz $quiz): bool
+    {
+        return $user->isDesaAdmin()
+            && $user->desa_id !== null
+            && $quiz->module?->desa_id === $user->desa_id;
     }
 }
