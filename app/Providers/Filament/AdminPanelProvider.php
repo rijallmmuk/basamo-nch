@@ -13,6 +13,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -32,8 +33,18 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->profile(isSimple: false)
+            ->brandName('Basamo NCH')
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups(['LMS', 'UMKM', 'Pengaturan'])
+            // Palet dasar = Admin Desa (Teal). super_admin di-override ke Indigo via render hook
+            // (lihat superAdminThemeOverride) sebagai pembeda peran.
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Teal,
+                'gray' => Color::Slate,
+                'info' => Color::Sky,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -62,9 +73,37 @@ class AdminPanelProvider extends PanelProvider
                     ->registerNavigation(false),
                 FilamentApexChartsPlugin::make(),
             ])
+            // Chip identitas peran di topbar (super_admin vs admin desa + nama desa).
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn (): string => view('filament.topbar-role-badge')->render(),
+            )
+            // Aksen tema per-peran: super_admin → Indigo (override --primary).
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => static::superAdminThemeOverride(),
+            )
             ->authMiddleware([
                 Authenticate::class,
                 EnsureAdminPasswordChanged::class,
             ]);
+    }
+
+    /**
+     * super_admin memakai aksen Indigo (override variabel --primary) agar berbeda
+     * jelas dari Admin Desa yang memakai Teal. Indigo tetap warna vibran sehingga
+     * tombol solid tetap berteks putih (kontras aman).
+     */
+    protected static function superAdminThemeOverride(): string
+    {
+        if (! auth()->user()?->isSuperAdmin()) {
+            return '';
+        }
+
+        $vars = collect(Color::Indigo)
+            ->map(fn (string $value, int|string $shade): string => "--primary-{$shade}:{$value};")
+            ->implode('');
+
+        return '<style id="super-admin-theme">:root{'.$vars.'}</style>';
     }
 }
