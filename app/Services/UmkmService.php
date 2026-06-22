@@ -95,7 +95,7 @@ class UmkmService
             'approved_at' => $status === UmkmProductStatus::Approved ? now() : null,
         ]);
 
-        $product->umkmProfile->owner?->notify(new UmkmProductVerified($product));
+        $product->umkmProfile?->owner?->notify(new UmkmProductVerified($product));
 
         return $product;
     }

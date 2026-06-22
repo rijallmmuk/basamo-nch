@@ -38,12 +38,16 @@ class LmsPointService
     /**
      * Catat XP sekali saja (idempotent via UNIQUE(user, sumber, sumber_id))
      * lalu tambahkan ke total_xp hanya bila baris baru benar-benar dibuat.
+     *
+     * `createOrFirst` (bukan `firstOrCreate`) → aman di bawah konkurensi: bila dua
+     * award bersamaan untuk kunci sama, pelanggaran UNIQUE ditangkap & baris yang
+     * sudah ada dikembalikan (tanpa 500, tanpa XP ganda).
      */
     private function award(User $user, string $source, int $sourceId, int $amount): void
     {
         // Satu transaksi: ledger & total_xp tak boleh drift bila gagal di tengah.
         DB::transaction(function () use ($user, $source, $sourceId, $amount) {
-            $log = XpLog::firstOrCreate(
+            $log = XpLog::createOrFirst(
                 ['user_id' => $user->id, 'sumber' => $source, 'sumber_id' => $sourceId],
                 ['desa_id' => $user->desa_id, 'jumlah' => $amount],
             );
