@@ -19,6 +19,14 @@ it('halaman publik terbuka tanpa error', function (string $url) {
     'login portal' => '/portal/login',
 ]);
 
+it('dasbor admin terbuka tanpa error (widget sambutan + chart render)', function (string $state) {
+    $user = $state === 'superAdmin'
+        ? User::factory()->superAdmin()->create()
+        : User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id]);
+
+    $this->actingAs($user)->get('/admin')->assertOk();
+})->with(['superAdmin', 'desaAdmin']);
+
 it('halaman portal warga terbuka tanpa error', function (string $name) {
     $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
 
