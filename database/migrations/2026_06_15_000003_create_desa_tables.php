@@ -39,7 +39,8 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('wilayah_kode')->references('kode')->on('ref_wilayah')->nullOnDelete();
-            $table->index('wilayah_kode');
+            // UNIQUE nullable: 1 desa resmi = 1 tenant (banyak NULL tetap diizinkan).
+            $table->unique('wilayah_kode');
         });
 
         Schema::create('desa_units', function (Blueprint $table) {
