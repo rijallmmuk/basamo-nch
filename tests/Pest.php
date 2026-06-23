@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Agama;
+use App\Models\Desa;
+use App\Models\DesaUnit;
+use App\Models\Pekerjaan;
+use App\Models\StatusPerkawinan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -44,6 +49,30 @@ expect()->extend('toBeOne', function () {
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
+
+/**
+ * Payload form pembuatan warga yang lengkap (semua field wajib terisi). Membuat
+ * sub-unit wilayah & memakai referensi yang sudah di-seed migrasi.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function wargaFormData(Desa $desa, string $nik, array $overrides = []): array
+{
+    $unit = DesaUnit::firstOrCreate(['desa_id' => $desa->id, 'nama' => 'Jorong Uji']);
+
+    return array_merge([
+        'name' => 'Warga '.$nik,
+        'nik' => $nik,
+        'tempat_lahir' => 'Bukittinggi',
+        'tanggal_lahir' => '1990-01-01',
+        'jenis_kelamin' => 'L',
+        'agama_id' => Agama::value('id'),
+        'status_perkawinan_id' => StatusPerkawinan::value('id'),
+        'pekerjaan_id' => Pekerjaan::value('id'),
+        'desa_unit_id' => $unit->id,
+    ], $overrides);
+}
 
 /** Lewati uji geometri bila driver tak punya fungsi spasial (mis. SQLite). */
 function skipUnlessSpatial(): void

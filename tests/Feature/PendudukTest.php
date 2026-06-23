@@ -5,6 +5,7 @@ use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\Agama;
 use App\Models\Desa;
+use App\Models\DesaUnit;
 use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\StatusPerkawinan;
@@ -21,18 +22,19 @@ it('membuat warga lewat form ikut membuat penduduk tertaut + demografi', functio
     $agama = Agama::firstOrCreate(['nama' => 'Islam'], ['urutan' => 1]);
     $status = StatusPerkawinan::firstOrCreate(['nama' => 'Belum Kawin'], ['urutan' => 1]);
     $kerja = Pekerjaan::firstOrCreate(['kode' => '01'], ['nama' => 'Petani/Pekebun', 'urutan' => 1]);
+    $unit = DesaUnit::create(['desa_id' => $desa->id, 'nama' => 'Jorong A']);
 
     Livewire::test(CreateUser::class)
         ->fillForm([
             'name' => 'Warga Penduduk',
             'nik' => '3201010101010001',
-            'role' => 'warga',
             'tempat_lahir' => 'Bukittinggi',
             'tanggal_lahir' => '1990-05-17',
             'jenis_kelamin' => 'L',
             'agama_id' => $agama->id,
             'status_perkawinan_id' => $status->id,
             'pekerjaan_id' => $kerja->id,
+            'desa_unit_id' => $unit->id,
         ])
         ->call('create')
         ->assertHasNoFormErrors();

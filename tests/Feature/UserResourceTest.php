@@ -68,11 +68,7 @@ it('desa_admin: form warga tanpa pilihan peran, akun dibuat sebagai warga', func
     // Pilihan peran disembunyikan untuk admin desa (hanya kelola warga).
     Livewire::test(CreateUser::class)
         ->assertFormFieldIsHidden('role')
-        ->fillForm([
-            'name' => 'Warga Baru',
-            'nik' => '3201000000000999',
-            'status' => 'active',
-        ])
+        ->fillForm(wargaFormData($desa, '3201000000000999'))
         ->call('create')
         ->assertHasNoFormErrors();
 

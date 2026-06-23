@@ -34,6 +34,13 @@ UserResource tetap terpadu (upsert penduduk inline).
   Tabel: kolom **Peran & Desa** + filter Peran/Desa tampil **hanya untuk super_admin** (bagi desa_admin
   semua baris = warga senagari → redundan). Infolist View juga sembunyikan Peran/Desa utk non-super.
   Tes `UserResourceTest` "tak bisa buat admin" diubah → `assertFormFieldIsHidden('role')` + dipaksa warga.
+- **Aturan create warga (koreksi user):** (a) **semua field wajib** saat create kecuali email & no. HP
+  (demografi + alamat/`desa_unit_id` `->required(operation create)`; edit tak dipaksa agar record lama
+  bisa disunting); (b) field `phone` di-relabel **"No. HP"** (generik, tak khusus WA — helper sebut
+  HP/WA/Telegram); (c) **OTP tak auto-generate** saat create — bila field OTP kosong, akun dibuat dgn
+  sandi acak tak terpakai + notif "terbitkan OTP via Reset OTP"; bila diisi, jadi sandi awal; (d) menu
+  **Warga dipindah dari grup "Pengaturan" → tingkat atas** (`navigationGroup null`, sort 1).
+  Helper tes `wargaFormData()` di `tests/Pest.php` (payload warga lengkap). Suite 171 (169 lulus, 2 skip).
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

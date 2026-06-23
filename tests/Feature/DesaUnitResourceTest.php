@@ -67,15 +67,15 @@ it('warga bisa diberi wilayah desanya, wilayah desa lain ditolak', function () {
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $a->id]));
 
     Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'W', 'username' => '3201010101019001', 'role' => 'warga', 'desa_unit_id' => $wA->id])
+        ->fillForm(wargaFormData($a, '3201010101019001', ['desa_unit_id' => $wA->id]))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(User::where('username', '3201010101019001')->first()->desa_unit_id)->toBe($wA->id);
+    expect(User::where('nik', '3201010101019001')->first()->desa_unit_id)->toBe($wA->id);
 
     // Wilayah milik desa lain → ditolak.
     Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'W2', 'username' => '3201010101019002', 'role' => 'warga', 'desa_unit_id' => $wB->id])
+        ->fillForm(wargaFormData($a, '3201010101019002', ['desa_unit_id' => $wB->id]))
         ->call('create')
         ->assertHasFormErrors(['desa_unit_id']);
 });

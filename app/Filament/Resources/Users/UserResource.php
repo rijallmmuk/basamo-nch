@@ -24,11 +24,12 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?int $navigationSort = 10;
+    // Menu "Warga" = entitas inti, tampil di tingkat atas navigasi (bukan grup Pengaturan).
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Pengaturan';
+        return null;
     }
 
     public static function getModelLabel(): string

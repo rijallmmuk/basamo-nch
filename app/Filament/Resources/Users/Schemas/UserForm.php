@@ -59,10 +59,10 @@ class UserForm
                             ->columnSpanFull(),
 
                         TextInput::make('phone')
-                            ->label('No. WhatsApp')
+                            ->label('No. HP')
                             ->tel()
                             ->maxLength(20)
-                            ->helperText('Opsional. Untuk komunikasi & menyampaikan kode OTP.')
+                            ->helperText('Opsional. Nomor kontak warga (HP/WhatsApp/Telegram) — juga dipakai menyampaikan kode OTP.')
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->columnSpanFull(),
 
@@ -71,8 +71,9 @@ class UserForm
                             ->options(fn (Get $get): array => static::wilayahOptions($get))
                             ->searchable()
                             ->placeholder('— Pilih —')
-                            ->helperText('Opsional. Atur daftarnya di menu Wilayah.')
+                            ->helperText('Atur daftarnya di menu Wilayah.')
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                            ->required(static::requiredOnCreate())
                             // Pertahanan server-side: wilayah harus milik desa warga.
                             ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                 if (! $value) {
@@ -96,35 +97,41 @@ class UserForm
                     ->schema([
                         TextInput::make('tempat_lahir')
                             ->label('Tempat Lahir')
-                            ->maxLength(100),
+                            ->maxLength(100)
+                            ->required(static::requiredOnCreate()),
 
                         DatePicker::make('tanggal_lahir')
                             ->label('Tanggal Lahir')
                             ->native(false)
                             ->displayFormat('d F Y')
-                            ->maxDate(now()),
+                            ->maxDate(now())
+                            ->required(static::requiredOnCreate()),
 
                         Select::make('jenis_kelamin')
                             ->label('Jenis Kelamin')
                             ->options(JenisKelamin::class)
-                            ->native(false),
+                            ->native(false)
+                            ->required(static::requiredOnCreate()),
 
                         Select::make('agama_id')
                             ->label('Agama')
                             ->options(fn (): array => Agama::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->required(static::requiredOnCreate()),
 
                         Select::make('status_perkawinan_id')
                             ->label('Status Perkawinan')
                             ->options(fn (): array => StatusPerkawinan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
-                            ->native(false),
+                            ->native(false)
+                            ->required(static::requiredOnCreate()),
 
                         Select::make('pekerjaan_id')
                             ->label('Pekerjaan')
                             ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->required(static::requiredOnCreate()),
                     ]),
 
                 Section::make('Akses')
@@ -170,7 +177,7 @@ class UserForm
                     ->visible(fn (Get $get): bool => static::isPortalRole($get))
                     ->disabled(fn (string $operation): bool => $operation === 'edit')
                     ->dehydrated(fn (string $operation): bool => $operation === 'create')
-                    ->helperText('Sandi awal warga — kosongkan untuk OTP otomatis. Ditampilkan setelah akun dibuat; wajib diganti saat login pertama, lalu terhapus. Saat edit, pakai aksi "Reset OTP".'),
+                    ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP" saat warga siap login. Wajib diganti saat login pertama, lalu terhapus.'),
 
                 Section::make('Keamanan')
                     ->columns(2)
@@ -195,6 +202,15 @@ class UserForm
                             ->required(fn (string $operation, Get $get): bool => $operation === 'create' || filled($get('password'))),
                     ]),
             ]);
+    }
+
+    /**
+     * Data warga wajib lengkap saat dibuat (kecuali email & no. HP). Saat edit
+     * tidak dipaksa, agar record lama yang datanya belum lengkap tetap bisa disunting.
+     */
+    protected static function requiredOnCreate(): Closure
+    {
+        return fn (string $operation): bool => $operation === 'create';
     }
 
     /** Peran portal (warga) → login NIK + OTP, tanpa sandi manual. */

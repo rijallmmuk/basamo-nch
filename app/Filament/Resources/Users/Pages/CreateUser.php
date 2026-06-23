@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\Pages\Concerns\InteractsWithPenduduk;
 use App\Filament\Resources\Users\UserResource;
-use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Str;
 
 class CreateUser extends CreateRecord
 {
@@ -38,12 +38,20 @@ class CreateUser extends CreateRecord
             $data['desa_id'] = null;
         }
 
-        // Akun portal: sandi awal = OTP (di-hash via cast), wajib diganti. OTP boleh
-        // diisi manual; kosong → otomatis. Tanpa kedaluwarsa; terhapus saat sandi diganti.
+        // Akun portal: OTP TIDAK di-generate otomatis. Bila admin mengisi OTP manual,
+        // itu jadi sandi awal; bila kosong, akun dibuat tanpa OTP (sandi acak tak terpakai)
+        // dan OTP diterbitkan nanti lewat aksi "Reset OTP" saat warga siap login.
         if (($data['role'] ?? null) === 'warga') {
-            $otp = filled($data['initial_otp'] ?? null) ? $data['initial_otp'] : User::generateOtp();
-            $data['password'] = $otp;
-            $data['initial_otp'] = $otp;
+            $otp = $data['initial_otp'] ?? null;
+
+            if (filled($otp)) {
+                $data['password'] = $otp;
+                $data['initial_otp'] = $otp;
+            } else {
+                $data['password'] = Str::random(40); // tak terpakai sampai OTP diterbitkan
+                $data['initial_otp'] = null;
+            }
+
             $data['must_change_password'] = true;
         }
 
@@ -51,18 +59,31 @@ class CreateUser extends CreateRecord
         return $this->extractPendudukData($data);
     }
 
-    /** Simpan identitas penduduk lalu tampilkan OTP awal ke admin. */
+    /** Simpan identitas penduduk lalu beri tahu admin status OTP-nya. */
     protected function afterCreate(): void
     {
         $this->syncPenduduk();
 
-        if ($this->record->isPortalAccount() && filled($this->record->initial_otp)) {
+        if (! $this->record->isPortalAccount()) {
+            return;
+        }
+
+        if (filled($this->record->initial_otp)) {
             Notification::make()
                 ->title('Akun dibuat — OTP awal')
                 ->body("NIK {$this->record->nik} · OTP: {$this->record->initial_otp}. Sampaikan ke warga; wajib diganti saat login pertama.")
                 ->success()
                 ->persistent()
                 ->send();
+
+            return;
         }
+
+        Notification::make()
+            ->title('Warga dibuat — OTP belum diterbitkan')
+            ->body("NIK {$this->record->nik}. Terbitkan OTP lewat aksi \"Reset OTP\" saat warga siap login.")
+            ->info()
+            ->persistent()
+            ->send();
     }
 }

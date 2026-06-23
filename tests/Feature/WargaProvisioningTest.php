@@ -4,33 +4,39 @@ use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Models\Desa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('admin desa membuat warga → NIK + OTP, wajib ganti sandi', function () {
+it('admin desa membuat warga → data lengkap, tanpa OTP otomatis', function () {
     $desa = Desa::factory()->create();
     $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
     $this->actingAs($admin);
 
     Livewire::test(CreateUser::class)
-        ->fillForm([
-            'name' => 'Warga Uji',
-            'username' => '3201010101010001',
-            'role' => 'warga',
-        ])
+        ->fillForm(wargaFormData($desa, '3201010101010001'))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $warga = User::where('username', '3201010101010001')->first();
+    $warga = User::where('nik', '3201010101010001')->first();
 
     expect($warga)->not->toBeNull()
         ->and($warga->role)->toBe('warga')
         ->and($warga->desa_id)->toBe($desa->id)
         ->and($warga->must_change_password)->toBeTrue()
-        ->and($warga->initial_otp)->not->toBeNull()
-        ->and(Hash::check($warga->initial_otp, $warga->password))->toBeTrue();
+        // OTP tidak digenerate otomatis saat create — diterbitkan nanti via "Reset OTP".
+        ->and($warga->initial_otp)->toBeNull();
+});
+
+it('membuat warga wajib mengisi data demografi (kecuali email & no. HP)', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    // Tanpa tanggal_lahir, agama, pekerjaan, dll → harus gagal validasi.
+    Livewire::test(CreateUser::class)
+        ->fillForm(['name' => 'Tanpa Data', 'nik' => '3201010101019999'])
+        ->call('create')
+        ->assertHasFormErrors(['tanggal_lahir', 'jenis_kelamin', 'agama_id', 'pekerjaan_id', 'desa_unit_id']);
 });
 
 it('NIK harus 16 digit', function () {
@@ -38,30 +44,30 @@ it('NIK harus 16 digit', function () {
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'X', 'username' => '123', 'role' => 'warga'])
+        ->fillForm(['name' => 'X', 'nik' => '123', 'role' => 'warga'])
         ->call('create')
-        ->assertHasFormErrors(['username']);
+        ->assertHasFormErrors(['nik']);
 });
 
-it('beberapa warga tanpa email bisa dibuat (email opsional)', function () {
+it('beberapa warga tanpa email/HP bisa dibuat (keduanya opsional)', function () {
     $desa = Desa::factory()->create();
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     foreach (['3201010101010001', '3201010101010002'] as $nik) {
         Livewire::test(CreateUser::class)
-            ->fillForm(['name' => 'Warga '.$nik, 'username' => $nik, 'role' => 'warga'])
+            ->fillForm(wargaFormData($desa, $nik))
             ->call('create')
             ->assertHasNoFormErrors();
     }
 
-    expect(User::whereIn('username', ['3201010101010001', '3201010101010002'])->count())->toBe(2);
+    expect(User::whereIn('nik', ['3201010101010001', '3201010101010002'])->count())->toBe(2);
 });
 
 it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create([
         'desa_id' => $desa->id,
-        'username' => '3201010101010009',
+        'nik' => '3201010101010009',
     ]);
     $otp = $warga->issueOtp();
 
@@ -106,7 +112,7 @@ it('login warga tetap diterima walau OTP lama (tanpa kedaluwarsa)', function () 
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create([
         'desa_id' => $desa->id,
-        'username' => '3201010101010010',
+        'nik' => '3201010101010010',
     ]);
     $otp = $warga->issueOtp();
 
