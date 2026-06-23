@@ -61,22 +61,25 @@ it('desa_admin hanya melihat pengguna di desanya sendiri', function () {
         ->assertCanNotSeeTableRecords([$wargaB]);
 });
 
-it('desa_admin tidak bisa membuat akun berperan admin', function () {
+it('desa_admin: form warga tanpa pilihan peran, akun dibuat sebagai warga', function () {
     $desa = Desa::factory()->create(['nama' => 'Desa A']);
     actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
+    // Pilihan peran disembunyikan untuk admin desa (hanya kelola warga).
     Livewire::test(CreateUser::class)
+        ->assertFormFieldIsHidden('role')
         ->fillForm([
-            'name' => 'Curang',
-            'username' => 'curang',
-            'email' => 'curang@a.test',
-            'role' => 'super_admin',
+            'name' => 'Warga Baru',
+            'nik' => '3201000000000999',
             'status' => 'active',
-            'password' => 'rahasia123',
-            'password_confirmation' => 'rahasia123',
         ])
         ->call('create')
-        ->assertHasFormErrors(['role']);
+        ->assertHasNoFormErrors();
+
+    // Peran dipaksa warga di server (defense-in-depth) + ter-scope ke desa admin.
+    $warga = User::where('nik', '3201000000000999')->first();
+    expect($warga->role)->toBe('warga')
+        ->and($warga->desa_id)->toBe($desa->id);
 });
 
 it('aksi hapus disembunyikan untuk akun sendiri', function () {

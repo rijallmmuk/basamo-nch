@@ -77,7 +77,8 @@ class UserInfolist
                             ->label('Peran')
                             ->badge()
                             ->formatStateUsing(fn (?string $state): string => self::ROLE_LABELS[$state] ?? ($state ?? '—'))
-                            ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray'),
+                            ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray')
+                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                         TextEntry::make('status')
                             ->label('Status')
                             ->badge(),
@@ -89,7 +90,8 @@ class UserInfolist
                             ->visible(fn (User $record): bool => $record->isPortalAccount()),
                         TextEntry::make('desa.nama')
                             ->label('Desa')
-                            ->placeholder('Global'),
+                            ->placeholder('Global')
+                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                         TextEntry::make('desaUnit.nama')
                             ->label('Wilayah')
                             ->placeholder('—'),

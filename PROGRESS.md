@@ -28,6 +28,12 @@ UserResource tetap terpadu (upsert penduduk inline).
 - **CRUD warga lengkap** di `/admin` (UserResource): + **halaman View** (`ViewUser` + infolist
   `UserInfolist` — Identitas Kependudukan/Akun/Aktivitas, demografi via relasi `penduduk`) +
   `ViewAction` di tabel. Create/Edit/Delete/Restore/Reset OTP/akses UMKM sudah ada. `PendudukTest` (4).
+- **Penyederhanaan UserResource (koreksi user):** label menu/resource → **"Warga"** (bukan "Pengguna").
+  **Admin desa** kini murni mode warga: field **Peran disembunyikan** (super_admin only; peran tetap
+  dipaksa `warga` di server) + default `role=warga`; `isPortalRole()` short-circuit utk desa_admin.
+  Tabel: kolom **Peran & Desa** + filter Peran/Desa tampil **hanya untuk super_admin** (bagi desa_admin
+  semua baris = warga senagari → redundan). Infolist View juga sembunyikan Peran/Desa utk non-super.
+  Tes `UserResourceTest` "tak bisa buat admin" diubah → `assertFormFieldIsHidden('role')` + dipaksa warga.
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

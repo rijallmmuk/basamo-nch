@@ -38,6 +38,9 @@ class UsersTable
 
     public static function configure(Table $table): Table
     {
+        // Admin desa hanya kelola warga di desanya → kolom/filter Peran & Desa tak relevan.
+        $isSuperAdmin = auth()->user()?->isSuperAdmin() ?? false;
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -70,7 +73,8 @@ class UsersTable
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => self::ROLE_LABELS[$state] ?? ($state ?? '—'))
                     ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible($isSuperAdmin),
 
                 TextColumn::make('umkm_access_granted_at')
                     ->label('Akses UMKM')
@@ -87,7 +91,8 @@ class UsersTable
                     ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
                     ->badge()
                     ->color('gray')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible($isSuperAdmin),
 
                 TextColumn::make('desaUnit.nama')
                     ->label('Wilayah')
@@ -111,23 +116,23 @@ class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('role')
+            ->filters(array_values(array_filter([
+                $isSuperAdmin ? SelectFilter::make('role')
                     ->label('Peran')
-                    ->options(self::ROLE_LABELS),
+                    ->options(self::ROLE_LABELS) : null,
 
-                SelectFilter::make('desa')
+                $isSuperAdmin ? SelectFilter::make('desa')
                     ->label('Desa')
                     ->relationship('desa', 'nama')
                     ->searchable()
-                    ->preload(),
+                    ->preload() : null,
 
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options(ActiveStatus::class),
 
                 TrashedFilter::make(),
-            ])
+            ])))
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),

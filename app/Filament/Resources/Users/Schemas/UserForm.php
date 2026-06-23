@@ -130,12 +130,16 @@ class UserForm
                 Section::make('Akses')
                     ->columns(2)
                     ->schema([
+                        // Admin desa hanya mengelola warga → pilihan peran disembunyikan
+                        // (peran dipaksa 'warga' di server). Hanya super_admin yang memilih peran.
                         Select::make('role')
                             ->label('Peran')
                             ->options(fn () => static::roleOptions())
+                            ->default('warga')
                             ->required()
                             ->native(false)
-                            ->live(),
+                            ->live()
+                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
 
                         Select::make('status')
                             ->label('Status')
@@ -196,6 +200,11 @@ class UserForm
     /** Peran portal (warga) → login NIK + OTP, tanpa sandi manual. */
     protected static function isPortalRole(Get $get): bool
     {
+        // Admin desa hanya mengelola warga → selalu mode warga (field peran disembunyikan).
+        if (auth()->user()?->isDesaAdmin()) {
+            return true;
+        }
+
         return $get('role') === 'warga';
     }
 
