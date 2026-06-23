@@ -61,7 +61,9 @@ class UserResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
-                ->with(['desa', 'desaUnit'])
+                // desaUnit + penduduk (dengan lookup) untuk kolom demografi yang bisa di-toggle —
+                // ter-eager-load per halaman (kena paginasi) → aman dari N+1.
+                ->with(['desa', 'desaUnit', 'penduduk.agama', 'penduduk.statusPerkawinan', 'penduduk.pekerjaan'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
@@ -75,11 +77,14 @@ class UserResource extends Resource
     }
 
     /**
-     * desa_admin hanya mengakses pengguna di desanya sendiri.
-     * super_admin melihat semua. Dipakai listing & route-model binding (edit/URL).
+     * Resource khusus WARGA: hanya akun ber-peran `warga` yang tampil/teredit di sini
+     * (akun admin dikelola lewat alur lain). desa_admin dibatasi ke desanya sendiri;
+     * super_admin melihat warga semua desa. Dipakai listing & route-model binding.
      */
     protected static function scopeToActor(Builder $query): Builder
     {
+        $query->where('role', 'warga');
+
         $user = auth()->user();
 
         if ($user?->isDesaAdmin()) {

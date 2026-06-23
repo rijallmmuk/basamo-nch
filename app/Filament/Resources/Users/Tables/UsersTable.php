@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\ActiveStatus;
+use App\Enums\JenisKelamin;
+use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
@@ -14,7 +16,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -24,55 +25,63 @@ use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
-    private const ROLE_LABELS = [
-        'super_admin' => 'Super Admin',
-        'desa_admin' => 'Admin Desa',
-        'warga' => 'Warga',
-    ];
-
-    private const ROLE_COLORS = [
-        'super_admin' => 'danger',
-        'desa_admin' => 'warning',
-        'warga' => 'info',
-    ];
-
     public static function configure(Table $table): Table
     {
-        // Admin desa hanya kelola warga di desanya → kolom/filter Peran & Desa tak relevan.
-        $isSuperAdmin = auth()->user()?->isSuperAdmin() ?? false;
+        $actor = auth()->user();
+        $isSuperAdmin = $actor?->isSuperAdmin() ?? false;
+
+        // Kolom & label "Wilayah" pakai sebutan sub-unit yang diatur per desa (Jorong/
+        // Korong/Dusun). Untuk super_admin (lintas-desa) pakai istilah umum "Wilayah".
+        $wilayahLabel = $isSuperAdmin
+            ? 'Wilayah'
+            : ($actor?->desa?->jenisSubUnit?->nama ?: 'Wilayah');
+
+        // Filter Desa hanya untuk super_admin (warga desa_admin sudah ter-scope).
+        $filters = [
+            SelectFilter::make('status')
+                ->label('Status')
+                ->options(ActiveStatus::class),
+            TrashedFilter::make(),
+        ];
+
+        if ($isSuperAdmin) {
+            array_unshift(
+                $filters,
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nama')
+                    ->searchable()
+                    ->preload(),
+            );
+        }
 
         return $table
+            // Klik baris membuka detail (aksi "Lihat" tak perlu lagi).
+            ->recordUrl(fn (User $record): string => UserResource::getUrl('view', ['record' => $record]))
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('nik')
-                    ->label('NIK / Username')
-                    ->state(fn ($record): ?string => $record->nik ?? $record->username)
-                    ->searchable(['nik', 'username'])
-                    ->toggleable(),
-
-                TextColumn::make('email')
-                    ->label('Email')
+                    ->label('NIK')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->copyable(),
 
-                TextColumn::make('initial_otp')
-                    ->label('OTP awal')
-                    ->badge()
-                    ->color('warning')
-                    ->copyable()
+                TextColumn::make('desaUnit.nama')
+                    ->label($wilayahLabel)
                     ->placeholder('—')
-                    ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
-                    ->toggleable(),
+                    ->sortable(),
 
-                TextColumn::make('role')
-                    ->label('Peran')
+                TextColumn::make('desa.nama')
+                    ->label('Desa')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => self::ROLE_LABELS[$state] ?? ($state ?? '—'))
-                    ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray')
+                    ->color('gray')
                     ->sortable()
                     ->visible($isSuperAdmin),
 
@@ -82,27 +91,63 @@ class UsersTable
                     ->placeholder('—')
                     ->formatStateUsing(fn (): string => 'Pemilik UMKM')
                     ->color('success')
-                    ->icon('heroicon-o-building-storefront')
-                    ->toggleable(),
-
-                TextColumn::make('desa.nama')
-                    ->label('Desa')
-                    ->default('Global')
-                    ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
-                    ->badge()
-                    ->color('gray')
-                    ->sortable()
-                    ->visible($isSuperAdmin),
-
-                TextColumn::make('desaUnit.nama')
-                    ->label('Wilayah')
-                    ->placeholder('—')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->icon('heroicon-o-building-storefront'),
 
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->sortable(),
+
+                // — Kolom tambahan (bisa dimunculkan lewat "Kolom") — default tersembunyi —
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('phone')
+                    ->label('No. HP')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.jenis_kelamin')
+                    ->label('Jenis Kelamin')
+                    ->formatStateUsing(fn ($state): string => $state instanceof JenisKelamin ? $state->getLabel() : ($state ?: '—'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.agama.nama')
+                    ->label('Agama')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.statusPerkawinan.nama')
+                    ->label('Status Perkawinan')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.pekerjaan.nama')
+                    ->label('Pekerjaan')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.tempat_lahir')
+                    ->label('Tempat Lahir')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('penduduk.tanggal_lahir')
+                    ->label('Tanggal Lahir')
+                    ->date('d M Y')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('initial_otp')
+                    ->label('OTP awal')
+                    ->badge()
+                    ->color('warning')
+                    ->copyable()
+                    ->placeholder('—')
+                    ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('total_xp')
                     ->label('XP')
@@ -116,33 +161,15 @@ class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters(array_values(array_filter([
-                $isSuperAdmin ? SelectFilter::make('role')
-                    ->label('Peran')
-                    ->options(self::ROLE_LABELS) : null,
-
-                $isSuperAdmin ? SelectFilter::make('desa')
-                    ->label('Desa')
-                    ->relationship('desa', 'nama')
-                    ->searchable()
-                    ->preload() : null,
-
-                SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(ActiveStatus::class),
-
-                TrashedFilter::make(),
-            ])))
+            ->filters($filters)
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
                     EditAction::make(),
 
                     Action::make('resetOtp')
                         ->label('Reset OTP')
                         ->icon('heroicon-o-key')
                         ->color('warning')
-                        ->visible(fn (User $record): bool => $record->isPortalAccount())
                         ->requiresConfirmation()
                         ->modalHeading('Terbitkan OTP baru')
                         ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
@@ -161,7 +188,7 @@ class UsersTable
                         ->label('Beri akses UMKM')
                         ->icon('heroicon-o-building-storefront')
                         ->color('success')
-                        ->visible(fn (User $record): bool => $record->role === 'warga' && ! $record->hasUmkmAccess())
+                        ->visible(fn (User $record): bool => ! $record->hasUmkmAccess())
                         ->requiresConfirmation()
                         ->modalHeading('Beri akses UMKM')
                         ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
@@ -196,9 +223,7 @@ class UsersTable
                                 ->send();
                         }),
 
-                    DeleteAction::make()
-                        // Tak boleh menghapus akun sendiri (cegah self-lockout).
-                        ->visible(fn (User $record): bool => $record->getKey() !== auth()->id()),
+                    DeleteAction::make(),
                 ])->tooltip('Aksi'),
             ])
             ->toolbarActions([
@@ -214,8 +239,8 @@ class UsersTable
     }
 
     /**
-     * Cegah self-lockout pada aksi massal: batalkan bila akun sendiri ikut terpilih
-     * (DeleteAction baris tunggal sudah menyembunyikan diri sendiri).
+     * Cegah self-lockout pada aksi massal: batalkan bila akun sendiri ikut terpilih.
+     * (Warga bukan akun sendiri, tapi guard dipertahankan sebagai jaring pengaman.)
      */
     private static function guardSelfInBulk(): Closure
     {

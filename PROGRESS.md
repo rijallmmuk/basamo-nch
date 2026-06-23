@@ -58,6 +58,15 @@ UserResource tetap terpadu (upsert penduduk inline).
   +tes: super_admin buat warga, soft-delete sisakan penduduk, reuse penduduk by-NIK. **Suite 175
   (173 lulus, 2 skip).** Semua pekerjaan sesi ini ter-commit; design-system lintas-sesi + referensi
   Stitch ikut di-commit & di-push pada penutupan sesi.
+- **UserResource jadi murni WARGA (koreksi user):** (1) +kolom **No.** (`rowIndex`); (2) aksi **Lihat
+  dihapus** → **klik baris membuka View** (`recordUrl`); (3) daftar di-scope `role=warga` untuk SEMUA
+  (desa_admin: warganya; super_admin: warga semua desa) → akun admin (termasuk diri) tak muncul; admin
+  dikelola lewat **form Desa** (sudah ada); (4) demografi dari `penduduk` tersedia sbg kolom **toggle**
+  ("Kolom") — eager-load per-halaman, aman N+1; (5) kolom default kurasi: No./Nama/NIK/Wilayah/Akses
+  UMKM/Status (+Desa utk super_admin). **Kolom & menu "Wilayah" pakai sebutan sub-unit per desa**
+  (Jorong/Korong/…) via `jenisSubUnit`. Form: **field Peran/username/sandi dibuang** (resource warga-
+  saja), `role` dipaksa `warga` di CreateUser. Tes diselaraskan (hapus jalur admin-create yang pindah
+  ke DesaResource; +tes warga-only list & route-binding). **Suite 173 (171 lulus, 2 skip).**
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

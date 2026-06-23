@@ -15,9 +15,8 @@ class CreateUser extends CreateRecord
     protected static string $resource = UserResource::class;
 
     /**
-     * desa_admin tidak melihat field desa — akun yang dibuat dipaksa
-     * ke desanya sendiri (warga). Akun portal (warga) memakai sandi awal
-     * OTP otomatis (wajib diganti saat login pertama).
+     * Setiap akun di resource ini = warga. desa_admin → warga ke desanya sendiri;
+     * super_admin → desa dipilih di form. OTP tidak otomatis (lihat di bawah).
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -26,34 +25,28 @@ class CreateUser extends CreateRecord
     {
         $actor = auth()->user();
 
+        // Resource khusus warga (akun admin dibuat lewat alur lain).
+        $data['role'] = 'warga';
+
+        // desa_admin: warga dipaksa ke desanya. super_admin: desa dipilih di form.
         if ($actor->isDesaAdmin()) {
             $data['desa_id'] = $actor->desa_id;
-            // Guard server-side (tak bergantung enforcement opsi Select):
-            // desa_admin hanya boleh membuat warga, bukan admin.
-            $data['role'] = 'warga';
         }
 
-        // super_admin (global) tidak terikat desa.
-        if (($data['role'] ?? null) === 'super_admin') {
-            $data['desa_id'] = null;
+        // OTP TIDAK di-generate otomatis. Bila admin mengisi OTP manual, itu jadi sandi
+        // awal; bila kosong, akun dibuat tanpa OTP (sandi acak tak terpakai) — OTP
+        // diterbitkan nanti lewat aksi "Reset OTP" saat warga siap login.
+        $otp = $data['initial_otp'] ?? null;
+
+        if (filled($otp)) {
+            $data['password'] = $otp;
+            $data['initial_otp'] = $otp;
+        } else {
+            $data['password'] = Str::random(40); // tak terpakai sampai OTP diterbitkan
+            $data['initial_otp'] = null;
         }
 
-        // Akun portal: OTP TIDAK di-generate otomatis. Bila admin mengisi OTP manual,
-        // itu jadi sandi awal; bila kosong, akun dibuat tanpa OTP (sandi acak tak terpakai)
-        // dan OTP diterbitkan nanti lewat aksi "Reset OTP" saat warga siap login.
-        if (($data['role'] ?? null) === 'warga') {
-            $otp = $data['initial_otp'] ?? null;
-
-            if (filled($otp)) {
-                $data['password'] = $otp;
-                $data['initial_otp'] = $otp;
-            } else {
-                $data['password'] = Str::random(40); // tak terpakai sampai OTP diterbitkan
-                $data['initial_otp'] = null;
-            }
-
-            $data['must_change_password'] = true;
-        }
+        $data['must_change_password'] = true;
 
         // Pisahkan field identitas → disimpan ke `penduduk` di afterCreate().
         return $this->extractPendudukData($data);

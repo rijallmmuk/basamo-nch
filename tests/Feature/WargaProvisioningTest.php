@@ -56,7 +56,7 @@ it('NIK harus 16 digit', function () {
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
     Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'X', 'nik' => '123', 'role' => 'warga'])
+        ->fillForm(['name' => 'X', 'nik' => '123'])
         ->call('create')
         ->assertHasFormErrors(['nik']);
 });

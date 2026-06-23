@@ -19,6 +19,11 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
+/**
+ * Form khusus WARGA. Akun admin (super_admin/desa_admin) dikelola lewat alur lain —
+ * admin desa via form Desa, super_admin via seeder — BUKAN di resource ini. Maka tak
+ * ada pilihan peran: setiap akun yang dibuat di sini adalah warga (dipaksa di server).
+ */
 class UserForm
 {
     public static function configure(Schema $schema): Schema
@@ -33,28 +38,16 @@ class UserForm
                             ->required()
                             ->maxLength(255),
 
-                        // Warga: NIK (login portal). Admin: username.
                         TextInput::make('nik')
                             ->label('NIK')
-                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
-                            ->required(fn (Get $get): bool => static::isPortalRole($get))
+                            ->required()
                             ->rules(['digits:16'])
                             ->helperText('NIK 16 digit — dipakai warga untuk login portal.')
                             ->unique(User::class, 'nik', ignoreRecord: true),
 
-                        TextInput::make('username')
-                            ->label('Username')
-                            ->visible(fn (Get $get): bool => ! static::isPortalRole($get))
-                            ->required(fn (Get $get): bool => ! static::isPortalRole($get))
-                            ->maxLength(255)
-                            ->rules(['alpha_dash'])
-                            ->helperText('Dipakai admin untuk login panel.')
-                            ->unique(User::class, 'username', ignoreRecord: true),
-
                         TextInput::make('email')
                             ->label('Email')
                             ->email()
-                            ->required(fn (Get $get): bool => ! static::isPortalRole($get))
                             ->maxLength(255)
                             ->unique(User::class, 'email', ignoreRecord: true)
                             ->columnSpanFull(),
@@ -66,7 +59,20 @@ class UserForm
                             ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…')
                             // Normalisasi ke format internasional 62xxxx saat simpan.
                             ->dehydrateStateUsing(fn (?string $state): ?string => PhoneNumber::normalize($state))
-                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                            ->columnSpanFull(),
+
+                        // super_admin memilih desa warga; desa_admin dipaksa ke desanya
+                        // sendiri di halaman Create (field tak tampil untuknya).
+                        Select::make('desa_id')
+                            ->label('Desa')
+                            ->relationship('desa', 'nama')
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, callable $set) => $set('desa_unit_id', null))
+                            ->placeholder('— Pilih desa —')
+                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                            ->required(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
                             ->columnSpanFull(),
 
                         Select::make('desa_unit_id')
@@ -85,7 +91,6 @@ class UserForm
                                     ? '⚠️ Belum ada wilayah untuk desa ini — tambahkan dulu di menu Wilayah sebelum membuat warga.'
                                     : 'Atur daftarnya di menu Wilayah.';
                             })
-                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->required(static::requiredOnCreate())
                             // Pertahanan server-side: wilayah harus milik desa warga.
                             ->rule(fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
@@ -102,11 +107,10 @@ class UserForm
                             ->columnSpanFull(),
                     ]),
 
-                // Data kependudukan warga → disimpan ke tabel `penduduk` (bukan `users`).
-                // Lihat InteractsWithPenduduk + PendudukService.
+                // Demografi → disimpan ke tabel `penduduk` (lihat InteractsWithPenduduk + PendudukService).
+                // Wajib lengkap saat create; longgar saat edit (record lama boleh belum lengkap).
                 Section::make('Data Kependudukan')
                     ->columns(2)
-                    ->visible(fn (Get $get): bool => static::isPortalRole($get))
                     ->schema([
                         TextInput::make('tempat_lahir')
                             ->label('Tempat Lahir')
@@ -147,20 +151,9 @@ class UserForm
                             ->required(static::requiredOnCreate()),
                     ]),
 
-                Section::make('Akses')
+                Section::make('Akun & Status')
                     ->columns(2)
                     ->schema([
-                        // Admin desa hanya mengelola warga → pilihan peran disembunyikan
-                        // (peran dipaksa 'warga' di server). Hanya super_admin yang memilih peran.
-                        Select::make('role')
-                            ->label('Peran')
-                            ->options(fn () => static::roleOptions())
-                            ->default('warga')
-                            ->required()
-                            ->native(false)
-                            ->live()
-                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
-
                         Select::make('status')
                             ->label('Status')
                             ->options(ActiveStatus::class)
@@ -168,51 +161,12 @@ class UserForm
                             ->required()
                             ->native(false),
 
-                        // super_admin tidak terikat desa (global). Field hanya untuk super_admin
-                        // yang mengelola peran selain super_admin; untuk desa_admin, desa
-                        // dipaksa ke miliknya sendiri di halaman Create (tidak tampil di form).
-                        Select::make('desa_id')
-                            ->label('Desa')
-                            ->relationship('desa', 'nama')
-                            ->searchable()
-                            ->preload()
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, callable $set) => $set('desa_unit_id', null))
-                            ->placeholder('— Pilih desa —')
-                            ->visible(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
-                            ->required(fn (Get $get) => auth()->user()?->isSuperAdmin() && $get('role') !== 'super_admin')
-                            ->columnSpanFull(),
-                    ]),
-
-                TextInput::make('initial_otp')
-                    ->label('Kode OTP awal')
-                    ->maxLength(12)
-                    ->visible(fn (Get $get): bool => static::isPortalRole($get))
-                    ->disabled(fn (string $operation): bool => $operation === 'edit')
-                    ->dehydrated(fn (string $operation): bool => $operation === 'create')
-                    ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP" saat warga siap login. Wajib diganti saat login pertama, lalu terhapus.'),
-
-                Section::make('Keamanan')
-                    ->columns(2)
-                    ->visible(fn (Get $get): bool => ! static::isPortalRole($get))
-                    ->schema([
-                        TextInput::make('password')
-                            ->label('Kata sandi')
-                            ->password()
-                            ->revealable()
-                            ->minLength(8)
-                            ->autocomplete('new-password')
-                            ->required(fn (string $operation): bool => $operation === 'create')
-                            ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->confirmed()
-                            ->helperText('Minimal 8 karakter. Kosongkan saat edit bila tidak ingin mengganti.'),
-
-                        TextInput::make('password_confirmation')
-                            ->label('Ulangi kata sandi')
-                            ->password()
-                            ->revealable()
-                            ->dehydrated(false)
-                            ->required(fn (string $operation, Get $get): bool => $operation === 'create' || filled($get('password'))),
+                        TextInput::make('initial_otp')
+                            ->label('Kode OTP awal')
+                            ->maxLength(12)
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->dehydrated(fn (string $operation): bool => $operation === 'create')
+                            ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP" saat warga siap login. Wajib diganti saat login pertama, lalu terhapus.'),
                     ]),
             ]);
     }
@@ -224,17 +178,6 @@ class UserForm
     protected static function requiredOnCreate(): Closure
     {
         return fn (string $operation): bool => $operation === 'create';
-    }
-
-    /** Peran portal (warga) → login NIK + OTP, tanpa sandi manual. */
-    protected static function isPortalRole(Get $get): bool
-    {
-        // Admin desa hanya mengelola warga → selalu mode warga (field peran disembunyikan).
-        if (auth()->user()?->isDesaAdmin()) {
-            return true;
-        }
-
-        return $get('role') === 'warga';
     }
 
     /** Desa konteks: desa_admin → miliknya; super_admin → pilihan di form. */
@@ -262,7 +205,7 @@ class UserForm
             ->all();
     }
 
-    /** Label field mengikuti sebutan wilayah desa (Jorong/Dusun/…). */
+    /** Label field mengikuti sebutan wilayah desa (Jorong/Korong/Dusun/…). */
     protected static function wilayahLabel(Get $get): string
     {
         $desaId = static::resolveDesaId($get);
@@ -270,27 +213,5 @@ class UserForm
         return $desaId
             ? (Desa::find($desaId)?->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah')
             : 'Sub-Unit Wilayah';
-    }
-
-    /**
-     * super_admin boleh menetapkan semua peran; desa_admin hanya boleh
-     * membuat akun warga (tidak boleh membuat admin). Akses UMKM diberikan
-     * terpisah lewat aksi tabel, bukan saat memilih peran.
-     *
-     * @return array<string, string>
-     */
-    protected static function roleOptions(): array
-    {
-        if (auth()->user()?->isDesaAdmin()) {
-            return [
-                'warga' => 'Warga',
-            ];
-        }
-
-        return [
-            'super_admin' => 'Super Admin',
-            'desa_admin' => 'Admin Desa',
-            'warga' => 'Warga',
-        ];
     }
 }

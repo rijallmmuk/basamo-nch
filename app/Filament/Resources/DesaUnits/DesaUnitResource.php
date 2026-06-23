@@ -30,12 +30,25 @@ class DesaUnitResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Wilayah';
+        return static::subUnitLabel();
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Wilayah';
+        return static::subUnitLabel();
+    }
+
+    /**
+     * Sebutan menu/label mengikuti jenis sub-unit yang diatur per desa (Jorong/Korong/
+     * Dusun, dll). super_admin lintas-desa → istilah umum "Wilayah".
+     */
+    protected static function subUnitLabel(): string
+    {
+        $actor = auth()->user();
+
+        return $actor?->isDesaAdmin()
+            ? ($actor->desa?->jenisSubUnit?->nama ?: 'Wilayah')
+            : 'Wilayah';
     }
 
     public static function form(Schema $schema): Schema

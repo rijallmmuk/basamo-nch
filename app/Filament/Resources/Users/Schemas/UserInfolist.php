@@ -10,18 +10,6 @@ use Filament\Schemas\Schema;
 
 class UserInfolist
 {
-    private const ROLE_LABELS = [
-        'super_admin' => 'Super Admin',
-        'desa_admin' => 'Admin Desa',
-        'warga' => 'Warga',
-    ];
-
-    private const ROLE_COLORS = [
-        'super_admin' => 'danger',
-        'desa_admin' => 'warning',
-        'warga' => 'info',
-    ];
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -73,12 +61,6 @@ class UserInfolist
                             ->label('No. WhatsApp')
                             ->placeholder('—')
                             ->visible(fn (User $record): bool => $record->isPortalAccount()),
-                        TextEntry::make('role')
-                            ->label('Peran')
-                            ->badge()
-                            ->formatStateUsing(fn (?string $state): string => self::ROLE_LABELS[$state] ?? ($state ?? '—'))
-                            ->color(fn (?string $state): string => self::ROLE_COLORS[$state] ?? 'gray')
-                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                         TextEntry::make('status')
                             ->label('Status')
                             ->badge(),

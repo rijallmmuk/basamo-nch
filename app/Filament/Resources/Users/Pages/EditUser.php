@@ -48,32 +48,14 @@ class EditUser extends EditRecord
     }
 
     /**
-     * Saat mengedit akun sendiri, jangan biarkan menurunkan peran atau
-     * menonaktifkan diri sendiri (cegah kehilangan akses).
+     * Resource khusus warga → tak ada peran untuk diubah. Cukup pisahkan field
+     * identitas agar disimpan ke `penduduk` di afterSave().
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if ($this->record->getKey() === auth()->id()) {
-            $data['role'] = $this->record->role;
-            $data['status'] = 'active';
-            $data['desa_id'] = $this->record->desa_id;
-        }
-
-        // Guard server-side: desa_admin tak boleh mengubah peran pengguna
-        // (hanya kelola warga; tak bisa menaikkan jadi admin).
-        if (auth()->user()->isDesaAdmin()) {
-            $data['role'] = $this->record->role;
-        }
-
-        // super_admin (global) tidak terikat desa.
-        if (($data['role'] ?? null) === 'super_admin') {
-            $data['desa_id'] = null;
-        }
-
-        // Pisahkan field identitas → disimpan ke `penduduk` di afterSave().
         return $this->extractPendudukData($data);
     }
 

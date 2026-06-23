@@ -7,7 +7,6 @@ use App\Models\Penduduk;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
@@ -23,38 +22,12 @@ beforeEach(function () {
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 });
 
-it('super_admin dapat membuat admin desa, password ter-hash & role tersinkron', function () {
-    actingAs(User::factory()->superAdmin()->create());
-    $desa = Desa::factory()->create(['nama' => 'Desa Uji']);
-
-    Livewire::test(CreateUser::class)
-        ->fillForm([
-            'name' => 'Budi Admin',
-            'username' => 'budiadmin',
-            'email' => 'budi@desa.test',
-            'role' => 'desa_admin',
-            'desa_id' => $desa->id,
-            'status' => 'active',
-            'password' => 'rahasia123',
-            'password_confirmation' => 'rahasia123',
-        ])
-        ->call('create')
-        ->assertHasNoFormErrors();
-
-    $user = User::where('email', 'budi@desa.test')->first();
-
-    expect($user)->not->toBeNull()
-        ->and($user->desa_id)->toBe($desa->id)
-        ->and($user->hasRole('desa_admin'))->toBeTrue()
-        ->and(Hash::check('rahasia123', $user->password))->toBeTrue();
-});
-
 it('super_admin membuat warga lengkap dengan penduduk tertaut', function () {
     actingAs(User::factory()->superAdmin()->create());
     $desa = Desa::factory()->create();
 
     // Pilih desa dulu (memilih desa mereset wilayah), baru wilayahnya — seperti alur nyata.
-    $data = wargaFormData($desa, '3201000000000123', ['role' => 'warga', 'desa_id' => $desa->id]);
+    $data = wargaFormData($desa, '3201000000000123', ['desa_id' => $desa->id]);
     $unitId = $data['desa_unit_id'];
     unset($data['desa_unit_id']);
 
@@ -90,40 +63,47 @@ it('hapus warga (soft) menyisakan identitas penduduk; bisa dipulihkan', function
     expect($warga->fresh()->trashed())->toBeFalse();
 });
 
-it('desa_admin hanya melihat pengguna di desanya sendiri', function () {
+it('hanya warga yang tampil: admin & lintas-desa tak muncul', function () {
     $desaA = Desa::factory()->create(['nama' => 'Desa A']);
     $desaB = Desa::factory()->create(['nama' => 'Desa B']);
 
-    actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]));
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    actingAs($admin);
+
     $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
     $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
 
     Livewire::test(ListUsers::class)
         ->assertCanSeeTableRecords([$wargaA])
-        ->assertCanNotSeeTableRecords([$wargaB]);
+        ->assertCanNotSeeTableRecords([$wargaB, $admin]); // beda desa + akun admin tak muncul
 });
 
-it('desa_admin: form warga tanpa pilihan peran, akun dibuat sebagai warga', function () {
+it('super_admin melihat warga semua desa, tapi bukan akun admin', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $super = actingAs(User::factory()->superAdmin()->create());
+
+    $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+
+    Livewire::test(ListUsers::class)
+        ->assertCanSeeTableRecords([$wargaA, $wargaB])
+        ->assertCanNotSeeTableRecords([$admin]);
+});
+
+it('form tak punya field peran; akun dibuat selalu sebagai warga', function () {
     $desa = Desa::factory()->create(['nama' => 'Desa A']);
     actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
-    // Pilihan peran disembunyikan untuk admin desa (hanya kelola warga).
+    // Resource khusus warga → tak ada field peran sama sekali.
     Livewire::test(CreateUser::class)
-        ->assertFormFieldIsHidden('role')
+        ->assertFormFieldDoesNotExist('role')
         ->fillForm(wargaFormData($desa, '3201000000000999'))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    // Peran dipaksa warga di server (defense-in-depth) + ter-scope ke desa admin.
     $warga = User::where('nik', '3201000000000999')->first();
     expect($warga->role)->toBe('warga')
         ->and($warga->desa_id)->toBe($desa->id);
-});
-
-it('aksi hapus disembunyikan untuk akun sendiri', function () {
-    $admin = User::factory()->superAdmin()->create();
-    actingAs($admin);
-
-    Livewire::test(ListUsers::class)
-        ->assertTableActionHidden('delete', $admin);
 });
