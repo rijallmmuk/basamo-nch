@@ -237,12 +237,10 @@ Belum merge ke main.
 
 ## Status
 
-**Fase**: MVP — LMS lengkap; pilar **UMKM (sisi admin)** & **dashboard admin** kini ada di /admin.
-**Progres**: ~99%. LMS + provisioning warga + master wilayah di **`main`**. Sedang berjalan:
-branch **`feat/umkm`** — akses UMKM, UmkmProfileResource + antrian verifikasi, dashboard
-ApexCharts, Lapak portal pemilik, **katalog publik `/umkm` (M4.3 SELESAI)**, **+ audit RBAC/DB
-(role→kapabilitas, OTP expiry, harga integer, taksonomi kategori)**. Belum merge.
-**Pilar UMKM kini lengkap** (admin + portal pemilik + katalog publik). Next: SDGs/IoT atau PR ke main.
+**Fase**: MVP. LMS + UMKM (admin/portal/publik) + dashboard admin lengkap. Branch aktif
+**`feat/ref-wilayah-sumbar`** (belum merge ke main): master wilayah + peta, design system NCH,
+data master warga → **refactor 3-lapisan `penduduk`**, dan **UserResource jadi halaman "Warga"**
+(murni warga) + penyeragaman pola tabel semua halaman admin. Suite **173 (171 lulus, 2 skip)**, Pint bersih.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - desa_admin: `admin.nch001@basamo.nch` & `admin.nch002@basamo.nch` / `password`
@@ -251,17 +249,19 @@ ApexCharts, Lapak portal pemilik, **katalog publik `/umkm` (M4.3 SELESAI)**, **+
 
 ---
 
-## ⏭️ BERIKUTNYA (saat user ketik "lanjut")
+## ⏭️ BERIKUTNYA (sesi baru — 2026-06-24)
 > Konfirmasi arah dulu ke user, lalu kerjakan.
 
-**⚠️ Git tertunda:** branch `feat/login-username-rbac-audit` = 7 commit (UI kit · login username/email · audit RBAC · UserResource · NagariResource · docs). 4 commit awal sudah ter-push; **3 commit terakhir belum di-push**. **PR ke main belum dibuka** (URL & body sudah disiapkan; `gh` terpasang di `~/.local/bin` tapi belum login). Tindakan: `git push` lalu buka PR.
+**⚠️ Git tertunda:** branch `feat/ref-wilayah-sumbar` = **5 commit lokal belum di-push**
+(c66f81b warga-only · fdfd037 ikon akses UMKM · 508697f tanpa checkbox · 6723b26 seragamkan tabel ·
+4191727 aksi inline). **Tindakan pertama sesi baru: `git push`** (lalu pertimbangkan PR ke main).
+`gh` terpasang di `~/.local/bin` (cek login).
 
-> Kandidat fitur (urut saran):
-1. **Katalog publik `/umkm`** (M4.3) — tanpa login, filter nagari/kategori, kartu produk
-   (foto, info, tombol WA), counter view. Frontend publik Lapisan 1 (Blade+Tailwind, SEO).
-   Hanya produk `status=approved`. Detail produk → galeri foto + tombol WhatsApp.
-2. **Pilar SDGs (M3)** atau **IoT (M5.3)** — lalu lengkapi chart SDGs radial + panel IoT.
-3. **Testing Pest** — coverage portal/admin masih minim.
+> Kandidat lanjutan (urut saran):
+1. **Push branch** + (opsional) PR ke main.
+2. **Port halaman portal warga** (modul/materi/kuis/leaderboard) ke token design NCH (sisa redesign).
+3. **Pilar SDGs (M3)** atau **IoT (M5.3)** — chart SDGs radial + panel IoT (dikerjakan programmer lain, lihat memori scope).
+4. **Penyempurnaan UI panel** lanjutan bila ada masukan baru.
 
 ---
 

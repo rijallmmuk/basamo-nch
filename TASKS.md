@@ -8,6 +8,10 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [ ] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — 5 commit lokal belum di-push (tindakan pertama sesi baru).
+- [x] **UserResource → halaman "Warga" murni + penyeragaman tabel admin** (2026-06-23/24): warga-only
+      (role=warga; admin via form Desa), No. urut, tanpa checkbox/bulk, klik baris→Edit (Warga→Lihat),
+      aksi inline kecuali Warga (⋮), kolom toggle demografi, sebutan sub-unit per desa, ikon akses UMKM.
 - [~] **Design system "Nagari Creative Hub"** (2026-06-23) — token NCH (deep blue/gold/Plus Jakarta
       Sans) di app.css; publik home + login portal/admin + panel admin diselaraskan. Sisa: port
       halaman portal lain (modul/materi/kuis/leaderboard) ke token NCH. Lihat PROGRESS + [[stitch-redesign-plan]].
