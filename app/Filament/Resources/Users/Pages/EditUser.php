@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Resources\Users\Pages\Concerns\InteractsWithPenduduk;
 use App\Filament\Resources\Users\UserResource;
+use App\Services\PendudukService;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -10,7 +12,28 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
+    use InteractsWithPenduduk;
+
     protected static string $resource = UserResource::class;
+
+    /**
+     * Muat identitas kependudukan ke form (disimpan terpisah di `penduduk`).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        if ($penduduk = $this->record->penduduk) {
+            foreach (PendudukService::FIELDS as $field) {
+                $data[$field] = $field === 'jenis_kelamin'
+                    ? $penduduk->jenis_kelamin?->value
+                    : $penduduk->{$field};
+            }
+        }
+
+        return $data;
+    }
 
     protected function getHeaderActions(): array
     {
@@ -50,6 +73,12 @@ class EditUser extends EditRecord
             $data['desa_id'] = null;
         }
 
-        return $data;
+        // Pisahkan field identitas → disimpan ke `penduduk` di afterSave().
+        return $this->extractPendudukData($data);
+    }
+
+    protected function afterSave(): void
+    {
+        $this->syncPenduduk();
     }
 }

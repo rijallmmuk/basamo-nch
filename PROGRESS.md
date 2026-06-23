@@ -6,6 +6,86 @@
 
 ---
 
+## Sesi 2026-06-23 (lanjutan) — Refactor 3-lapisan: tabel `penduduk` (identitas / akun / akses)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **169 (167 lulus, 2 skip)**. Pint bersih. Belum merge.
+Membongkar [[warga-data-master]] sesuai [[penduduk-plan]]. Keputusan user (via AskUserQuestion):
+**(1)** `nik` di-mirror di `users` sbg kunci login (AuthController tak berubah); **(2)** form
+UserResource tetap terpadu (upsert penduduk inline).
+
+- **Tabel `penduduk`** (identitas, lapisan 1): nik(unik)/nama/desa_id/desa_unit_id + demografi
+  (tempat_lahir/tanggal_lahir/jenis_kelamin/agama_id/status_perkawinan_id/pekerjaan_id) + **jabatan_id**;
+  softDeletes + LogsActivity + BelongsToDesa. Orang bisa ada tanpa akun.
+- **Referensi `jabatan`** (global, seed inline di migrasi 200558): Kepala Desa, Sekretaris Desa, Kaur,
+  Kasi, Kepala Dusun/Jorong, Bendahara, Staf, Ketua RT/RW. Model `Jabatan`.
+- **`users`** (akun, lapisan 2): +`penduduk_id` (FK nullOnDelete) + `nik` (mirror login). **Drop** 6
+  kolom demografi (pindah ke penduduk). Relasi `User::penduduk()`; relasi agama/status/pekerjaan pindah
+  ke `Penduduk`. LMS/UMKM/XP TETAP di users (tak di-refactor).
+- **Akses** (lapisan 3): Spatie+Shield apa adanya (YAGNI; cek role hardcoded belum diubah).
+- **Sinkronisasi**: `PendudukService::syncForUser` (upsert penduduk + mirror nik/nama/desa) dipanggil via
+  trait `InteractsWithPenduduk` di Create/EditUser. UserForm demografi: `relationship()`→`options()`,
+  +Select jabatan. Migrasi 200559 di-rewrite (create penduduk + link users) & di-rename.
+- **DemoSeeder**: buat `penduduk` (demografi acak) lalu tautkan ke user warga. Test `PendudukTest` (3).
+- **Belum (sadar, YAGNI):** PendudukResource mandiri (identitas tanpa akun); authz berbasis permission
+  (ganti cek `role===` saat peran/jabatan baru pertama muncul).
+
+## Sesi 2026-06-23 — Design system "Nagari Creative Hub" + Data master warga (NIK)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **166 (164 lulus, 2 skip)**. Pint bersih. Belum commit/merge.
+Design kanonik BARU di `stitch_nagari_creative_hub_redesign/` (ganti indigo lama). Memori:
+[[stitch-redesign-plan]], [[warga-data-master]], [[penduduk-plan]].
+
+**A. Design system → NCH (palet tunggal):** `app.css` `@theme` = Deep Blue `#003857` + Minang Gold
+`#fed33e` + green + **Plus Jakarta Sans** (self-host bunny di `vite.config.js`) + `@layer` motif
+gonjong/songket/bada-mudiak. `docs/UI-GUIDE.md` = SoT + tabel ikon + **gotcha `max-w-{sm,md,lg,xl}`**
+(token `--spacing-*` menimpa skala lebar → pakai `max-w-2xl..7xl`/arbitrary; fix di toast/login/
+change-password/profile).
+- **Publik**: `public/layouts/app` + `public/home` dibangun ulang (hero/4-pilar/statistik/produk/
+  peta/CTA) — hanya section ber-data nyata; SDGs/IoT "Segera hadir". `HomeController` +produkUnggulan.
+- **Login portal** (`portal/auth/login`) diretrofit NCH; **login admin Filament** direstyle senada
+  (brand `filament/brand`, `theme.css` `.fi-simple-*`, input fill+fokus emas, tombol pill+ikon).
+- **Panel admin** (`AdminPanelProvider`): primary navy (ramp eksplisit, 600=#003857; `Color::hex`
+  gagal), font Plus Jakarta Sans, **hapus tema per-peran** (Teal/Indigo) → palet tunggal; brandLogo;
+  badge peran netral. Dashboard: `App\Filament\Pages\Dashboard` (heading kosong), card sapaan
+  **tanpa peran**, banner+chart navy, latar `.fi-main-ctn` motif belah ketupat.
+
+**B. Data master warga** (warga = baris `users` peran warga — BUKAN tabel terpisah, lihat [[warga-data-master]]):
+- Kolom **`nik`** (16, unik) pisah dari `username` (warga login via nik; username=khusus admin).
+  Migrasi data warga lama username→nik. `AuthController` portal pakai `nik`.
+- Demografi di `users`: tempat/tanggal_lahir, jenis_kelamin(enum), agama_id/status_perkawinan_id/
+  pekerjaan_id (FK). Alamat=`desa_unit_id`. Tabel referensi `agama`(6)/`status_perkawinan`(4)/
+  `pekerjaan`(99+kode) di-seed inline. UserForm: field nik/username terpisah + section demografi.
+
+**➡️ NEXT (disepakati, belum dikerjakan): buat tabel `penduduk`** — refactor 3-lapisan untuk
+extensibility (peran baru kepala desa/aparat dll). Lihat [[penduduk-plan]]. Akan memindah
+nik+demografi dari `users` → `penduduk`, tambah `users.penduduk_id` + tabel `jabatan`.
+
+## Sesi 2026-06-22 (lanjutan 3) — Redesign Stitch "Nagari Creative": token + Layout + Dashboard
+
+Branch `feat/ref-wilayah-sumbar`. Suite **166 (164 lulus, 2 skip spasial)**. Belum merge.
+Replikasi desain Google Stitch (MCP `stitch`, project "Portal Warga Digital" 5674614783916017095).
+Iterasi 1 dari 4 (sisa: Daftar Modul · Materi · Kuis). Memori: [[stitch-redesign-plan]].
+- **Token design-system penuh** → `resources/css/app.css` `@theme` (Tailwind v4): palet semantik
+  Material-3 (primary `#3525cd`/primary-container `#4f46e5`/surface/on-* + 18 warna SDG), named
+  spacing (`xs..xl`,`gutter`,`margin-mobile/desktop`), skala tipografi (`headline-lg/md/sm`,
+  `body-md`,`label-md`,`metric-lg`). Class lama indigo/slate **tetap valid** (default v4 utuh) →
+  migrasi halaman portal sisa bertahap.
+- **Font Inter self-host**: `vite.config.js` `bunny('Instrument Sans')` → `bunny('Inter')`
+  (bobot 400–800). Hapus link Google Fonts CDN (auto-inject via @vite, low-bandwidth PRD).
+- **Layout `portal/layouts/app.blade.php`**: sidebar `bg-surface-container-low` + logo bulat primary
+  + CTA "Mulai Belajar" + nav aktif `bg-primary-container/on-primary-container`; tambah nav
+  **Peringkat** (leaderboard); bottom sidebar Profil+Keluar. Top header & bottom-nav di-retoken.
+  Ikon Material Symbols Stitch → **Heroicons** (aturan #6).
+- **Dashboard `portal/home.blade.php`**: welcome banner `bg-primary-container` + blur dekoratif +
+  progress widget; 3 stat card (Modul Selesai sdg-4 / Poin sdg-7 / Peringkat sdg-10, `metric-lg`);
+  grid 3-kol = **tabel Peringkat** (col-span-2, baris user `bg-primary-fixed`) + **Lanjutkan
+  Belajar** (samping). "Aktivitas Terbaru" Stitch diganti "Lanjutkan Belajar" (data nyata; kolom
+  Trend leaderboard dibuang—tak ada data).
+- **Catatan teknis:** class Tailwind dinamis dirakit-string TAK ter-generate v4 → semua varian
+  warna pakai literal penuh (array `tile`/match). `npm run build` wajib.
+
+---
+
 ## Sesi 2026-06-22 (lanjutan 2) — Audit penamaan, konsolidasi migrasi, rename DesaUnit, 7 rekomendasi
 
 Branch `feat/ref-wilayah-sumbar`. Suite **157 lulus, 2 skip** (159; +9 smoke). Belum merge.

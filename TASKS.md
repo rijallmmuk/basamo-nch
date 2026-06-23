@@ -6,6 +6,20 @@
 
 ---
 
+## ⬅️ AKTIF / NEXT SESSION
+
+- [~] **Design system "Nagari Creative Hub"** (2026-06-23) — token NCH (deep blue/gold/Plus Jakarta
+      Sans) di app.css; publik home + login portal/admin + panel admin diselaraskan. Sisa: port
+      halaman portal lain (modul/materi/kuis/leaderboard) ke token NCH. Lihat PROGRESS + [[stitch-redesign-plan]].
+- [x] **Data master warga** (2026-06-23) — kolom `nik` (pisah username), demografi + tabel referensi
+      agama/status_perkawinan/pekerjaan + enum JenisKelamin. [[warga-data-master]]
+- [x] **➡️ Tabel `penduduk` (refactor 3-lapisan)** (2026-06-23) — identitas(`penduduk`) /
+      akun(`users.penduduk_id`) / akses(Spatie+Shield); tabel referensi `jabatan` (kepala desa/aparat).
+      Demografi dipindah users → penduduk; `nik` di-mirror di users (kunci login). UserForm tetap
+      terpadu (upsert penduduk via `PendudukService`+`InteractsWithPenduduk`). Test `PendudukTest` (3).
+
+---
+
 ## Milestone 1 — Setup & Fondasi (Target: Minggu 1–2)
 
 > Catatan: proyek dibuat dari nol. Laravel + MySQL sudah ada, sisanya belum.

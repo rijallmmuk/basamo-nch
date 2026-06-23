@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Resources\Users\Pages\Concerns\InteractsWithPenduduk;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Filament\Notifications\Notification;
@@ -9,6 +10,8 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateUser extends CreateRecord
 {
+    use InteractsWithPenduduk;
+
     protected static string $resource = UserResource::class;
 
     /**
@@ -44,16 +47,19 @@ class CreateUser extends CreateRecord
             $data['must_change_password'] = true;
         }
 
-        return $data;
+        // Pisahkan field identitas → disimpan ke `penduduk` di afterCreate().
+        return $this->extractPendudukData($data);
     }
 
-    /** Tampilkan OTP awal ke admin agar bisa disampaikan ke warga. */
+    /** Simpan identitas penduduk lalu tampilkan OTP awal ke admin. */
     protected function afterCreate(): void
     {
+        $this->syncPenduduk();
+
         if ($this->record->isPortalAccount() && filled($this->record->initial_otp)) {
             Notification::make()
                 ->title('Akun dibuat — OTP awal')
-                ->body("NIK {$this->record->username} · OTP: {$this->record->initial_otp}. Sampaikan ke warga; wajib diganti saat login pertama.")
+                ->body("NIK {$this->record->nik} · OTP: {$this->record->initial_otp}. Sampaikan ke warga; wajib diganti saat login pertama.")
                 ->success()
                 ->persistent()
                 ->send();

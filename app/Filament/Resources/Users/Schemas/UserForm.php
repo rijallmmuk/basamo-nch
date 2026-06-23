@@ -3,10 +3,16 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\ActiveStatus;
+use App\Enums\JenisKelamin;
+use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
+use App\Models\Jabatan;
+use App\Models\Pekerjaan;
+use App\Models\StatusPerkawinan;
 use App\Models\User;
 use Closure;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -27,14 +33,22 @@ class UserForm
                             ->required()
                             ->maxLength(255),
 
+                        // Warga: NIK (login portal). Admin: username.
+                        TextInput::make('nik')
+                            ->label('NIK')
+                            ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                            ->required(fn (Get $get): bool => static::isPortalRole($get))
+                            ->rules(['digits:16'])
+                            ->helperText('NIK 16 digit — dipakai warga untuk login portal.')
+                            ->unique(User::class, 'nik', ignoreRecord: true),
+
                         TextInput::make('username')
-                            ->label(fn (Get $get): string => static::isPortalRole($get) ? 'NIK' : 'Username')
-                            ->required()
+                            ->label('Username')
+                            ->visible(fn (Get $get): bool => ! static::isPortalRole($get))
+                            ->required(fn (Get $get): bool => ! static::isPortalRole($get))
                             ->maxLength(255)
-                            ->rules(fn (Get $get): array => static::isPortalRole($get) ? ['digits:16'] : ['alpha_dash'])
-                            ->helperText(fn (Get $get): ?string => static::isPortalRole($get)
-                                ? 'NIK 16 digit — dipakai warga untuk login portal.'
-                                : null)
+                            ->rules(['alpha_dash'])
+                            ->helperText('Dipakai admin untuk login panel.')
                             ->unique(User::class, 'username', ignoreRecord: true),
 
                         TextInput::make('email')
@@ -73,6 +87,52 @@ class UserForm
                                 }
                             })
                             ->columnSpanFull(),
+                    ]),
+
+                // Data kependudukan warga → disimpan ke tabel `penduduk` (bukan `users`).
+                // Lihat InteractsWithPenduduk + PendudukService.
+                Section::make('Data Kependudukan')
+                    ->columns(2)
+                    ->visible(fn (Get $get): bool => static::isPortalRole($get))
+                    ->schema([
+                        TextInput::make('tempat_lahir')
+                            ->label('Tempat Lahir')
+                            ->maxLength(100),
+
+                        DatePicker::make('tanggal_lahir')
+                            ->label('Tanggal Lahir')
+                            ->native(false)
+                            ->displayFormat('d F Y')
+                            ->maxDate(now()),
+
+                        Select::make('jenis_kelamin')
+                            ->label('Jenis Kelamin')
+                            ->options(JenisKelamin::class)
+                            ->native(false),
+
+                        Select::make('agama_id')
+                            ->label('Agama')
+                            ->options(fn (): array => Agama::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->searchable()
+                            ->preload(),
+
+                        Select::make('status_perkawinan_id')
+                            ->label('Status Perkawinan')
+                            ->options(fn (): array => StatusPerkawinan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->native(false),
+
+                        Select::make('pekerjaan_id')
+                            ->label('Pekerjaan')
+                            ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->searchable()
+                            ->preload(),
+
+                        Select::make('jabatan_id')
+                            ->label('Jabatan')
+                            ->options(fn (): array => Jabatan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Opsional. Untuk aparat/perangkat desa (Kepala Desa, dll).'),
                     ]),
 
                 Section::make('Akses')

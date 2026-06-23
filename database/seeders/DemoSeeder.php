@@ -2,15 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
 use App\Models\Discussion;
 use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use App\Models\Module;
+use App\Models\Pekerjaan;
+use App\Models\Penduduk;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\RefWilayah;
+use App\Models\StatusPerkawinan;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -209,16 +213,36 @@ class DemoSeeder extends Seeder
         $names = ['Budi Santoso', 'Siti Aminah', 'Andi Pratama', 'Dewi Lestari', 'Rudi Hartono', 'Nurul Hidayah', 'Fajar Nugraha', 'Maya Sari'];
         $seq = $desa->id;
 
-        return collect($names)->map(function (string $nama, int $i) use ($desa, $units, $seq) {
+        $agamaId = Agama::value('id');
+        $statusIds = StatusPerkawinan::pluck('id')->all();
+        $pekerjaanIds = Pekerjaan::pluck('id')->all();
+
+        return collect($names)->map(function (string $nama, int $i) use ($desa, $units, $seq, $agamaId, $statusIds, $pekerjaanIds) {
             // NIK demo 16 digit: 32 (SumBar) + 2 digit desa + 12 digit urut.
             $nik = sprintf('32%02d%012d', $seq, ($seq * 100) + $i + 1);
+            $unit = $units[$i % count($units)];
+
+            // Identitas kependudukan (lapisan 1) — akun warga ditautkan via penduduk_id.
+            $penduduk = Penduduk::firstOrCreate(
+                ['nik' => $nik],
+                [
+                    'nama' => $nama,
+                    'desa_id' => $desa->id,
+                    'desa_unit_id' => $unit->id,
+                    'jenis_kelamin' => $i % 2 === 0 ? 'L' : 'P',
+                    'agama_id' => $agamaId,
+                    'status_perkawinan_id' => $statusIds[$i % count($statusIds)],
+                    'pekerjaan_id' => $pekerjaanIds[array_rand($pekerjaanIds)],
+                ],
+            );
 
             $warga = User::firstOrCreate(
-                ['username' => $nik],
+                ['nik' => $nik],
                 [
                     'name' => $nama,
+                    'penduduk_id' => $penduduk->id,
                     'desa_id' => $desa->id,
-                    'desa_unit_id' => $units[$i % count($units)]->id,
+                    'desa_unit_id' => $unit->id,
                     'phone' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'password' => Hash::make('password'),
                     'role' => 'warga',

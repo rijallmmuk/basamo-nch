@@ -26,7 +26,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 // `total_xp` sengaja TIDAK fillable — hanya diubah via increment() di LmsPointService.
-#[Fillable(['name', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'desa_unit_id', 'role', 'umkm_access_granted_at', 'status'])]
+// Demografi (tempat/tanggal lahir, jenis_kelamin, agama/status/pekerjaan) kini di `penduduk`.
+#[Fillable(['name', 'nik', 'penduduk_id', 'username', 'email', 'phone', 'password', 'must_change_password', 'initial_otp', 'desa_id', 'desa_unit_id', 'role', 'umkm_access_granted_at', 'status'])]
 #[Hidden(['password', 'remember_token', 'initial_otp'])]
 class User extends Authenticatable implements FilamentUser, HasMedia
 {
@@ -37,7 +38,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'desa_id', 'status'])
+            ->logOnly(['name', 'nik', 'username', 'email', 'phone', 'role', 'umkm_access_granted_at', 'desa_id', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('pengguna');
@@ -173,6 +174,12 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function desaUnit(): BelongsTo
     {
         return $this->belongsTo(DesaUnit::class);
+    }
+
+    /** Identitas kependudukan pemilik akun (NIK, demografi, jabatan). */
+    public function penduduk(): BelongsTo
+    {
+        return $this->belongsTo(Penduduk::class);
     }
 
     public function umkmProfile(): HasOne
