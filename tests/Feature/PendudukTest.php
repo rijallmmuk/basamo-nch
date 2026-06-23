@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
+use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\Pekerjaan;
@@ -74,6 +75,23 @@ it('mengedit warga memperbarui penduduk yang sama (tanpa duplikat)', function ()
 
     expect(Penduduk::where('nik', '3201010101010002')->count())->toBe(1)
         ->and($penduduk->fresh()->tempat_lahir)->toBe('Padang');
+});
+
+it('halaman lihat warga menampilkan identitas penduduk', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'nik' => '3201010101010005', 'name' => 'Warga Lihat']);
+    $penduduk = Penduduk::create([
+        'nik' => '3201010101010005', 'nama' => 'Warga Lihat', 'desa_id' => $desa->id, 'tempat_lahir' => 'Solok',
+    ]);
+    $warga->forceFill(['penduduk_id' => $penduduk->id])->save();
+
+    Livewire::test(ViewUser::class, ['record' => $warga->getRouteKey()])
+        ->assertOk()
+        ->assertSee('Warga Lihat')
+        ->assertSee('3201010101010005')
+        ->assertSee('Solok');
 });
 
 it('admin (non-warga) tidak punya penduduk', function () {

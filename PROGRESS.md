@@ -8,7 +8,7 @@
 
 ## Sesi 2026-06-23 (lanjutan) — Refactor 3-lapisan: tabel `penduduk` (identitas / akun / akses)
 
-Branch `feat/ref-wilayah-sumbar`. Suite **169 (167 lulus, 2 skip)**. Pint bersih. Belum merge.
+Branch `feat/ref-wilayah-sumbar`. Suite **170 (168 lulus, 2 skip)**. Pint bersih. Belum merge.
 Membongkar [[warga-data-master]] sesuai [[penduduk-plan]]. Keputusan user (via AskUserQuestion):
 **(1)** `nik` di-mirror di `users` sbg kunci login (AuthController tak berubah); **(2)** form
 UserResource tetap terpadu (upsert penduduk inline).
@@ -24,7 +24,10 @@ UserResource tetap terpadu (upsert penduduk inline).
 - **Sinkronisasi**: `PendudukService::syncForUser` (upsert penduduk + mirror nik/nama/desa) dipanggil via
   trait `InteractsWithPenduduk` di Create/EditUser. UserForm demografi: `relationship()`→`options()`.
   Migrasi 200559 di-rewrite (create penduduk + link users) & di-rename.
-- **DemoSeeder**: buat `penduduk` (demografi acak) lalu tautkan ke user warga. Test `PendudukTest` (3).
+- **DemoSeeder**: buat `penduduk` (demografi acak) lalu tautkan ke user warga.
+- **CRUD warga lengkap** di `/admin` (UserResource): + **halaman View** (`ViewUser` + infolist
+  `UserInfolist` — Identitas Kependudukan/Akun/Aktivitas, demografi via relasi `penduduk`) +
+  `ViewAction` di tabel. Create/Edit/Delete/Restore/Reset OTP/akses UMKM sudah ada. `PendudukTest` (4).
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

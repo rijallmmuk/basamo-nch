@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -43,9 +44,10 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('username')
-                    ->label('Username')
-                    ->searchable()
+                TextColumn::make('nik')
+                    ->label('NIK / Username')
+                    ->state(fn ($record): ?string => $record->nik ?? $record->username)
+                    ->searchable(['nik', 'username'])
                     ->toggleable(),
 
                 TextColumn::make('email')
@@ -139,7 +141,7 @@ class UsersTable
 
                         Notification::make()
                             ->title('OTP baru diterbitkan')
-                            ->body("NIK {$record->username} · OTP: {$otp}. Sampaikan ke warga.")
+                            ->body("NIK {$record->nik} · OTP: {$otp}. Sampaikan ke warga.")
                             ->success()
                             ->persistent()
                             ->send();
@@ -184,6 +186,7 @@ class UsersTable
                             ->send();
                     }),
 
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     // Tak boleh menghapus akun sendiri (cegah self-lockout).
