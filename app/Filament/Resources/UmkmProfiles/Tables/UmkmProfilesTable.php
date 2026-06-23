@@ -5,7 +5,6 @@ namespace App\Filament\Resources\UmkmProfiles\Tables;
 use App\Enums\ActiveStatus;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\UmkmProfile;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -73,11 +72,9 @@ class UmkmProfilesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make([
-                    DeleteAction::make(),
-                    RestoreAction::make(),
-                    ForceDeleteAction::make(),
-                ])->tooltip('Aksi'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }

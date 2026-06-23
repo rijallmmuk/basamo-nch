@@ -74,6 +74,9 @@ UserResource tetap terpadu (upsert penduduk inline).
   UmkmCategory (modal/ManageRecords) +No. + ⋮ tanpa klik-baris. Desa: guard anti-orphan + arsip admin
   dipertahankan di ⋮ (Delete/Restore/Force). Kolom Akses UMKM Warga = ikon boolean (centang/silang).
   Smoke 10 halaman index = 200. **Suite 173 (171 lulus, 2 skip).** Belum di-push.
+- **Aksi inline (koreksi user):** halaman beraksi sedikit → aksi **langsung tampil** (bukan ⋮). **Hanya
+  Warga** yang pakai ⋮ (aksinya banyak: Reset OTP, Beri/Cabut UMKM, Hapus). ActionGroup dibongkar di
+  Desa/Wilayah/Modul/Kuis/Profil UMKM/Diskusi/Antrean Produk/Kategori UMKM. Smoke 8 index = 200.
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

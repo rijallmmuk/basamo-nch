@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Modules\Tables;
 use App\Enums\ModuleStatus;
 use App\Filament\Resources\Modules\ModuleResource;
 use App\Models\Module;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -96,11 +95,9 @@ class ModulesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make([
-                    DeleteAction::make(),
-                    RestoreAction::make(),
-                    ForceDeleteAction::make(),
-                ])->tooltip('Aksi'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->reorderable('urutan')
             ->defaultSort('urutan', 'asc');

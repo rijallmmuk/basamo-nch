@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Quizzes\Tables;
 
 use App\Filament\Resources\Quizzes\QuizResource;
 use App\Models\Quiz;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -49,9 +48,7 @@ class QuizzesTable
             ])
             ->filters([])
             ->recordActions([
-                ActionGroup::make([
-                    DeleteAction::make(),
-                ])->tooltip('Aksi'),
+                DeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }

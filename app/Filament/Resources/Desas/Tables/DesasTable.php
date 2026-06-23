@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Desas\Tables;
 use App\Enums\ActiveStatus;
 use App\Filament\Resources\Desas\DesaResource;
 use App\Models\Desa;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -74,16 +73,14 @@ class DesasTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make([
-                    // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
-                    DeleteAction::make()
-                        ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
-                        ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
-                    RestoreAction::make()
-                        ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
-                    ForceDeleteAction::make()
-                        ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
-                ])->tooltip('Aksi'),
+                // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
+                DeleteAction::make()
+                    ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
+                    ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
+                RestoreAction::make()
+                    ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
+                ForceDeleteAction::make()
+                    ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
             ])
             ->defaultSort('nama');
     }

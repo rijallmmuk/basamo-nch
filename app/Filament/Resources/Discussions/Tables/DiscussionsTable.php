@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Discussions\Tables;
 use App\Models\Desa;
 use App\Models\Discussion;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -115,28 +114,26 @@ class DiscussionsTable
             ])
             ->filters($filters)
             ->recordActions([
-                ActionGroup::make([
-                    Action::make('togglePin')
-                        ->label(fn (Discussion $record): string => $record->is_pinned ? 'Lepas sematan' : 'Sematkan')
-                        ->icon(fn (Discussion $record): string => $record->is_pinned ? 'heroicon-o-bookmark-slash' : 'heroicon-o-bookmark')
-                        ->color('warning')
+                Action::make('togglePin')
+                    ->label(fn (Discussion $record): string => $record->is_pinned ? 'Lepas sematan' : 'Sematkan')
+                    ->icon(fn (Discussion $record): string => $record->is_pinned ? 'heroicon-o-bookmark-slash' : 'heroicon-o-bookmark')
+                    ->color('warning')
                     // Pin hanya untuk pertanyaan (top-level) yang belum dihapus.
-                        ->visible(fn (Discussion $record): bool => $record->parent_id === null
-                            && ! $record->trashed()
-                            && auth()->user()->can('update', $record))
-                        ->action(function (Discussion $record): void {
-                            $record->update(['is_pinned' => ! $record->is_pinned]);
+                    ->visible(fn (Discussion $record): bool => $record->parent_id === null
+                        && ! $record->trashed()
+                        && auth()->user()->can('update', $record))
+                    ->action(function (Discussion $record): void {
+                        $record->update(['is_pinned' => ! $record->is_pinned]);
 
-                            Notification::make()
-                                ->title($record->is_pinned ? 'Diskusi disematkan' : 'Sematan dilepas')
-                                ->success()
-                                ->send();
-                        }),
+                        Notification::make()
+                            ->title($record->is_pinned ? 'Diskusi disematkan' : 'Sematan dilepas')
+                            ->success()
+                            ->send();
+                    }),
 
-                    DeleteAction::make(),
-                    RestoreAction::make(),
-                    ForceDeleteAction::make(),
-                ])->tooltip('Aksi'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }

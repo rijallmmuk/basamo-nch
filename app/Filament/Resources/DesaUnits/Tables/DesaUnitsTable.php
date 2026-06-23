@@ -4,7 +4,6 @@ namespace App\Filament\Resources\DesaUnits\Tables;
 
 use App\Filament\Resources\DesaUnits\DesaUnitResource;
 use App\Models\DesaUnit;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -59,11 +58,9 @@ class DesaUnitsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make([
-                    DeleteAction::make(),
-                    RestoreAction::make(),
-                    ForceDeleteAction::make(),
-                ])->tooltip('Aksi'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->defaultSort('nama', 'asc');
     }

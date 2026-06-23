@@ -5,7 +5,6 @@ namespace App\Filament\Resources\UmkmCategories;
 use App\Filament\Resources\UmkmCategories\Pages\ManageUmkmCategories;
 use App\Models\UmkmCategory;
 use BackedEnum;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -95,10 +94,8 @@ class UmkmCategoryResource extends Resource
             ])
             ->defaultSort('urutan')
             ->recordActions([
-                ActionGroup::make([
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ])->tooltip('Aksi'),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 
