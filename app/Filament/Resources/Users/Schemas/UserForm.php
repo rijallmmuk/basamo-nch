@@ -10,6 +10,7 @@ use App\Models\DesaUnit;
 use App\Models\Pekerjaan;
 use App\Models\StatusPerkawinan;
 use App\Models\User;
+use App\Support\PhoneNumber;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -62,7 +63,9 @@ class UserForm
                             ->label('No. HP')
                             ->tel()
                             ->maxLength(20)
-                            ->helperText('Opsional. Nomor kontak warga (HP/WhatsApp/Telegram) — juga dipakai menyampaikan kode OTP.')
+                            ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…')
+                            // Normalisasi ke format internasional 62xxxx saat simpan.
+                            ->dehydrateStateUsing(fn (?string $state): ?string => PhoneNumber::normalize($state))
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->columnSpanFull(),
 
@@ -71,7 +74,17 @@ class UserForm
                             ->options(fn (Get $get): array => static::wilayahOptions($get))
                             ->searchable()
                             ->placeholder('— Pilih —')
-                            ->helperText('Atur daftarnya di menu Wilayah.')
+                            // Arahkan admin bila wilayah desanya belum dikonfigurasi (cegah kebingungan
+                            // dropdown kosong; pembuatan warga memang menuntut alamat lebih dulu).
+                            ->helperText(function (Get $get): string {
+                                if (! static::resolveDesaId($get)) {
+                                    return 'Pilih desa terlebih dahulu.';
+                                }
+
+                                return empty(static::wilayahOptions($get))
+                                    ? '⚠️ Belum ada wilayah untuk desa ini — tambahkan dulu di menu Wilayah sebelum membuat warga.'
+                                    : 'Atur daftarnya di menu Wilayah.';
+                            })
                             ->visible(fn (Get $get): bool => static::isPortalRole($get))
                             ->required(static::requiredOnCreate())
                             // Pertahanan server-side: wilayah harus milik desa warga.

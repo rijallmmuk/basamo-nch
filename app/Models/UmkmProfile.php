@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ActiveStatus;
 use App\Models\Concerns\BelongsToDesa;
+use App\Support\PhoneNumber;
 use Database\Factories\UmkmProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,14 +54,7 @@ class UmkmProfile extends Model
     /** Nomor WhatsApp dinormalisasi ke format internasional Indonesia (62xxxx). */
     public function normalizedWhatsapp(): string
     {
-        // Buang non-digit lalu semua nol di depan (tangani 0, 00, +62 sekaligus).
-        $number = preg_replace('/^0+/', '', preg_replace('/\D/', '', (string) $this->whatsapp));
-
-        return match (true) {
-            str_starts_with($number, '62') => $number, // sudah kode negara
-            str_starts_with($number, '8') => '62'.$number, // 8xx (eks-0) → 628xx
-            default => $number,
-        };
+        return PhoneNumber::normalize($this->whatsapp) ?? '';
     }
 
     /** URL wa.me dengan nomor dinormalisasi + pesan opsional. */

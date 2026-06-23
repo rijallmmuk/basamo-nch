@@ -41,6 +41,15 @@ UserResource tetap terpadu (upsert penduduk inline).
   sandi acak tak terpakai + notif "terbitkan OTP via Reset OTP"; bila diisi, jadi sandi awal; (d) menu
   **Warga dipindah dari grup "Pengaturan" → tingkat atas** (`navigationGroup null`, sort 1).
   Helper tes `wargaFormData()` di `tests/Pest.php` (payload warga lengkap). Suite 171 (169 lulus, 2 skip).
+- **Penyempurnaan warga (praktik nyata + EYD):** (a) **alamat wajib + graceful** — helperText
+  dinamis (Pilih desa dulu / ⚠️ belum ada wilayah → arahkan ke menu Wilayah), `required` tetap
+  jalan tanpa crash; (b) **No. HP dinormalkan ke `62`** via `App\Support\PhoneNumber::normalize`
+  (`dehydrateStateUsing`), helper DRY dipakai ulang oleh `UmkmProfile::normalizedWhatsapp`;
+  (c) **jenis_kelamin tetap `L`/`P`** (standar Dukcapil; 0/1 ditolak — ISO 5218 pakai 1/2);
+  (d) **99 pekerjaan diverifikasi sudah lengkap & EYD** (Penerjemah/Provinsi/Atlet/Chef/"Anggota
+  Lembaga Tinggi Lainnya") — daftar non-EYD user tidak dipakai; (e) data fondasi: lookup FK
+  (agama/status/pekerjaan) **tetap inline di migrasi** (dijamin ada saat migrate), wilayah via seeder.
+  Suite 172 (170 lulus, 2 skip).
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

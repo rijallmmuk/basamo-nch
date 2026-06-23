@@ -65,6 +65,13 @@ Sekarang cukup 3 peran (`super_admin`, `desa_admin`, `warga`). Kepala desa/apara
 - **Data jabatan & masa menjabat** = tabel baru **`jabatan`** (referensi) + **`penugasan_jabatan`** (`penduduk_id`, `jabatan_id`, `desa_id`, no/tgl/file SK, `mulai`–`selesai`, status). Menggantung di **penduduk** (orang), bukan akun → tak mengubah `penduduk`/`users`. Mendukung riwayat & pergantian pejabat.
 **Ditolak**: bikin tabel `jabatan`/`penugasan_jabatan` sekarang (belum dipakai → tabel kosong); `penduduk.jabatan_id` FK tunggal (tak bisa simpan periode/SK/riwayat); many-to-many role (tak perlu, 1 akun = 1 role).
 
+### Aturan data warga & data fondasi (2026-06-23)
+- **Create warga = data lengkap wajib** (nama, NIK, tempat/tgl lahir, jenis kelamin, agama, status kawin, pekerjaan, **alamat sub-unit**); **opsional**: email & No. HP. Wajib hanya saat `create` (edit longgar agar record lama tetap bisa disunting).
+- **Alamat wajib tapi graceful**: bila desa belum punya sub-unit wilayah, form menampilkan peringatan terarah ("tambahkan dulu di menu Wilayah"), bukan error/exception. Konsekuensi sengaja: admin harus konfigurasi wilayah desa sebelum membuat warga.
+- **No. HP generik (bukan khusus WA)**, dinormalkan ke format internasional **`62xxxx`** saat simpan via `App\Support\PhoneNumber::normalize` (dipakai ulang oleh `UmkmProfile::normalizedWhatsapp` — DRY). Input fleksibel (`0…`/`+62…`/`62…`).
+- **Jenis kelamin = `L`/`P`** (enum `JenisKelamin`, label "Laki-laki"/"Perempuan") — standar Dukcapil, terbaca di DB. **Ditolak** kode `0/1` (ambigu; ISO 5218 justru 1=laki/2=perempuan). EYD untuk semua label.
+- **Data fondasi** (referensi tetap bawaan app): lookup FK kecil — `agama`(6)/`status_perkawinan`(4)/`pekerjaan`(99, EYD & sesuai Permendagri Dukcapil) + `jenis_desa`/`jenis_sub_unit` — **di-seed inline di migrasi** (dijamin ada saat `migrate`, aman jadi target FK). Wilayah (`ref_wilayah` + `wilayah_boundaries`/peta, Sumbar dulu, perluas nasional aditif) via `CoreSeeder` (data besar/ETL). Pemisahan ini disengaja, bukan diseragamkan ke satu seeder.
+
 ### Login admin: username ATAU email
 Satu field `login`; deteksi email via `FILTER_VALIDATE_EMAIL`. Custom `App\Filament\Auth\Login` (di `app/Filament/Auth/`, bukan `Pages/`, agar tak ter-discover sebagai page). Kolom `users.username` nullable+unique.
 

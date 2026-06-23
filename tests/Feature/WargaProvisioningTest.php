@@ -39,6 +39,18 @@ it('membuat warga wajib mengisi data demografi (kecuali email & no. HP)', functi
         ->assertHasFormErrors(['tanggal_lahir', 'jenis_kelamin', 'agama_id', 'pekerjaan_id', 'desa_unit_id']);
 });
 
+it('nomor HP dinormalkan ke format 62 saat create', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    Livewire::test(CreateUser::class)
+        ->fillForm(wargaFormData($desa, '3201010101013333', ['phone' => '0812-3456-7890']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(User::where('nik', '3201010101013333')->value('phone'))->toBe('6281234567890');
+});
+
 it('NIK harus 16 digit', function () {
     $desa = Desa::factory()->create();
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
