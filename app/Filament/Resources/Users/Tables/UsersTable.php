@@ -17,6 +17,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -85,13 +86,15 @@ class UsersTable
                     ->sortable()
                     ->visible($isSuperAdmin),
 
-                TextColumn::make('umkm_access_granted_at')
+                IconColumn::make('umkm_access_granted_at')
                     ->label('Akses UMKM')
-                    ->badge()
-                    ->placeholder('—')
-                    ->formatStateUsing(fn (): string => 'Pemilik UMKM')
-                    ->color('success')
-                    ->icon('heroicon-o-building-storefront'),
+                    // Paksa jadi boolean asli — kalau dibiarkan null, boolean() tak menggambar
+                    // ikon apa pun. Dengan getStateUsing: true → centang hijau, false → silang abu.
+                    ->getStateUsing(fn (User $record): bool => $record->hasUmkmAccess())
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn (User $record): string => $record->hasUmkmAccess() ? 'Pemilik UMKM' : 'Belum diberi akses'),
 
                 TextColumn::make('status')
                     ->label('Status')
