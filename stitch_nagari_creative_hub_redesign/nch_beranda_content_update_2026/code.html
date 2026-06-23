@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nagari Creative Hub | Ekosistem Digital Terintegrasi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .gonjong-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23D4AC0D' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        .songket-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(212, 172, 13, 0.15) 1px, transparent 0);
+            background-size: 16px 16px;
+        }
+
+        .gonjong-peak {
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        }
+
+        .tech-glow {
+            box-shadow: 0 0 20px rgba(27, 79, 114, 0.2), 0 0 40px rgba(212, 172, 13, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 172, 13, 0.2);
+        }
+
+        .minang-divider {
+            height: 40px;
+            background-color: transparent;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='40' viewBox='0 0 100 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 Q25 0 50 40 Q75 0 100 40' fill='none' stroke='%231B4F72' stroke-width='1' opacity='0.2'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+        }
+
+        .pucuk-rabuang-path {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            background: linear-gradient(180deg, #D4AC0D 0%, transparent 100%);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#1B4F72",
+                      "secondary": "#D4AC0D",
+                      "secondary-container": "#F4D03F",
+                      "on-primary": "#ffffff",
+                      "background": "#F7F9FB",
+                      "surface": "#ffffff",
+                      "outline": "#D4AC0D",
+                      "tertiary": "#003D1C",
+                      "error": "#BA1A1A"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "section-gap": "100px",
+                      "container-max": "1280px",
+                      "margin-desktop": "48px"
+              },
+              "fontFamily": {
+                      "body-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "display-md": ["Plus Jakarta Sans"]
+              },
+              "letterSpacing": {
+                      "widest": "0.15em",
+                      "tightest": "-0.04em"
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-[#191C1E] font-body-md tracking-normal overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-white/90 backdrop-blur-xl border-b border-secondary/20 docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center px-margin-desktop py-5 max-w-container-max mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center gonjong-peak">
+<span class="material-symbols-outlined text-secondary text-[24px]">hub</span>
+</div>
+<div class="font-display-md text-[24px] font-extrabold tracking-tightest text-primary">Nagari <span class="text-secondary">Hub</span></div>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-primary font-bold border-b-2 border-secondary pb-1 tracking-wide" href="#">Beranda</a>
+<a class="text-slate-500 hover:text-primary transition-all duration-300 font-semibold tracking-wide" href="#">Tentang NCH</a>
+<a class="text-slate-500 hover:text-primary transition-all duration-300 font-semibold tracking-wide" href="#">4 Pilar</a>
+<a class="text-slate-500 hover:text-primary transition-all duration-300 font-semibold tracking-wide" href="#">Katalog UMKM</a>
+<a class="text-slate-500 hover:text-primary transition-all duration-300 font-semibold tracking-wide" href="#">Mitra</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2.5 text-primary font-bold hover:bg-slate-100 transition-all rounded-full">Masuk</button>
+<button class="px-8 py-2.5 bg-primary text-white font-bold rounded-full hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all">Daftar UMKM</button>
+</div>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-24 pb-32 gonjong-bg">
+<!-- Asymmetric Background Elements -->
+<div class="absolute top-0 right-0 w-1/3 h-full bg-primary/5 -skew-x-12 translate-x-20 z-0"></div>
+<div class="absolute -bottom-20 -left-20 w-64 h-64 bg-secondary/10 rounded-full blur-3xl z-0"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
+<div class="lg:col-span-7 space-y-10">
+<div class="inline-flex items-center gap-3 px-5 py-2 bg-secondary/10 border border-secondary/20 text-secondary font-bold rounded-full text-[13px] tracking-widest uppercase">
+<span class="material-symbols-outlined text-[18px] fill-1">verified</span>
+                    Smart Nagari Sumatera Barat
+                </div>
+<h1 class="font-display-lg text-[56px] leading-[1.1] text-primary font-extrabold tracking-tightest">
+                    Ekosistem digital yang berakar di nagari, tumbuh ke seluruh negeri.
+                </h1>
+<p class="text-[20px] text-slate-600 max-w-2xl leading-relaxed font-light tracking-wide">
+                    Satu platform untuk belajar, berdaya, dan berjualan — menyatukan kearifan lokal Minangkabau dengan teknologi yang dirancang untuk masyarakat nagari.
+                </p>
+<div class="flex flex-wrap gap-6 pt-4">
+<button class="px-10 py-5 bg-primary text-white font-bold rounded-full shadow-2xl shadow-primary/30 hover:scale-105 transition-all flex items-center gap-3">
+                        Jelajahi Katalog UMKM <span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="px-10 py-5 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary hover:text-white transition-all">
+                        Tentang NCH
+                    </button>
+</div>
+</div>
+<div class="lg:col-span-5 relative group">
+<div class="relative z-10 rounded-3xl overflow-hidden tech-glow border-4 border-white transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
+<img class="w-full h-auto object-cover aspect-[4/5]" data-alt="A futuristic 3D visualization of a traditional Minangkabau 'Rumah Gadang' integrated with glowing digital circuitry and holographic data overlays. The house sits on a stylized green mountain landscape. The sky is a deep navy blue with golden constellations. High-tech UI elements like floating graphs and progress bars surround the structure, symbolizing a 'Smart Nagari'." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsNxpLCNZvoF1Ee0SBCrtO7mLlj2PMHaEiTaK51SZcgiAsM4U0t39mYTlrcpec1QgjcSkH4lEYyiZMZZtaEeViSNZq3Q7h82IDfjzcWuBzO7MxBfEeNwNLfelqBbv8JoEPNfufv6QU_4YNXG6uvWIJMwPJkJhfS--jCdwIuqHOTsuBoX1Re_a-yIud_dTN4OVWzbFQ2gYpPs-UYLcI4b3Tr6T5JaojXkDIH4RrmLwU0VqVX97zQ6rESdYvCLDGuTj7mpA61S5yH1bC"/>
+</div>
+<!-- Stats Overlays -->
+<div class="absolute -bottom-10 -left-10 glass-card p-8 rounded-3xl shadow-2xl z-20 border-b-4 border-b-secondary">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 bg-primary text-secondary flex items-center justify-center gonjong-peak">
+<span class="material-symbols-outlined text-[32px]">school</span>
+</div>
+<div>
+<div class="text-[36px] font-extrabold text-primary leading-none">320</div>
+<div class="text-[12px] font-bold text-slate-500 uppercase tracking-widest mt-1">Peserta aktif belajar di LMS Hub bulan ini</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Partners Strip -->
+<section class="py-12 bg-white border-b border-slate-100">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<p class="text-center text-sm font-bold text-slate-400 tracking-widest uppercase mb-8">Dipercaya Oleh</p>
+<div class="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="text-xl font-display-md font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">account_balance</span> Pemprov Sumbar</div>
+<div class="text-xl font-display-md font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">assured_workload</span> Kemenkominfo</div>
+<div class="text-xl font-display-md font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">corporate_fare</span> Bank Nagari</div>
+<div class="text-xl font-display-md font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">school</span> Universitas Andalas</div>
+</div>
+</div>
+</section>
+<!-- Custom Divider -->
+<div class="minang-divider"></div>
+<!-- 4 Pilar Section -->
+<section class="py-section-gap bg-slate-50 relative overflow-hidden">
+<!-- Asymmetric Peak Background -->
+<div class="absolute top-0 right-0 w-full h-64 bg-primary/5 gonjong-peak transform -translate-y-32"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop relative z-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+<div class="space-y-4">
+<span class="text-secondary font-bold tracking-widest uppercase text-sm">4 Pilar NCH</span>
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest">Empat modul, satu ekosistem nagari.</h2>
+<p class="text-slate-500 max-w-xl text-lg tracking-wide">Medan Nim Balindu — LMS, KSDGC, SIM UMKM, dan Sensor IoT bekerja terintegrasi untuk membentuk Smart Learning Center Nagari.</p>
+</div>
+<div class="h-1 w-32 bg-secondary rounded-full hidden md:block mb-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- LMS -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 songket-pattern">
+<div class="absolute -bottom-4 -right-4 w-24 h-24 pucuk-rabuang-path opacity-10"></div>
+<div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8 text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px]">school</span>
+</div>
+<h3 class="text-[24px] font-extrabold text-primary mb-4">LMS Hub</h3>
+<p class="text-slate-600 mb-8 leading-relaxed">Pusat pembelajaran digital nagari — kursus, quiz interaktif, dan sertifikat kelulusan otomatis.</p>
+<a class="inline-flex items-center text-primary font-bold gap-2 group-hover:gap-4 transition-all tracking-wide" href="#">
+                        PELAJARI <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+</div>
+<!-- KSDGC -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 songket-pattern">
+<div class="absolute -bottom-4 -right-4 w-24 h-24 pucuk-rabuang-path opacity-10"></div>
+<div class="w-16 h-16 bg-tertiary/10 rounded-2xl flex items-center justify-center mb-8 text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px]">analytics</span>
+</div>
+<h3 class="text-[24px] font-extrabold text-primary mb-4">KSDGC Desa</h3>
+<p class="text-slate-600 mb-8 leading-relaxed">Tiga sub-program pemberdayaan masyarakat dengan tracking peserta dan laporan capaian real-time.</p>
+<a class="inline-flex items-center text-tertiary font-bold gap-2 group-hover:gap-4 transition-all tracking-wide" href="#">
+                        PANTAU DATA <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+</div>
+<!-- SIM UMKM -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 songket-pattern">
+<div class="absolute -bottom-4 -right-4 w-24 h-24 pucuk-rabuang-path opacity-10"></div>
+<div class="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mb-8 text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px]">inventory_2</span>
+</div>
+<h3 class="text-[24px] font-extrabold text-primary mb-4">SIM UMKM</h3>
+<p class="text-slate-600 mb-8 leading-relaxed">Repositori UMKM terintegrasi — katalog produk, dashboard mandiri, dan kontak langsung via WhatsApp.</p>
+<a class="inline-flex items-center text-secondary font-bold gap-2 group-hover:gap-4 transition-all tracking-wide" href="#">
+                        LIHAT KATALOG <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+</div>
+<!-- IoT -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 songket-pattern">
+<div class="absolute -bottom-4 -right-4 w-24 h-24 pucuk-rabuang-path opacity-10"></div>
+<div class="w-16 h-16 bg-error/10 rounded-2xl flex items-center justify-center mb-8 text-error group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px]">sensors</span>
+</div>
+<h3 class="text-[24px] font-extrabold text-primary mb-4">Sensor IoT</h3>
+<p class="text-slate-600 mb-8 leading-relaxed">Empat sensor per nagari memantau suhu, kelembaban tanah, curah hujan, dan kualitas udara.</p>
+<a class="inline-flex items-center text-error font-bold gap-2 group-hover:gap-4 transition-all tracking-wide" href="#">
+                        DASHBOARD LIVE <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Program Detail Grid -->
+<section class="py-section-gap bg-white relative overflow-hidden border-t border-slate-100">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest mb-4">Program Unggulan</h2>
+<p class="text-slate-500 text-lg tracking-wide max-w-2xl mx-auto">Inisiatif strategis untuk mendorong percepatan transformasi digital di tingkat nagari.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all">
+<div class="w-14 h-14 bg-secondary/20 text-secondary rounded-xl flex items-center justify-center mb-6"><span class="material-symbols-outlined text-[28px]">code</span></div>
+<h3 class="text-[22px] font-bold text-primary mb-3">Nagari Coder</h3>
+<p class="text-slate-600 leading-relaxed">Pelatihan intensif pemograman dan literasi digital untuk pemuda nagari.</p>
+</div>
+<div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all">
+<div class="w-14 h-14 bg-tertiary/20 text-tertiary rounded-xl flex items-center justify-center mb-6"><span class="material-symbols-outlined text-[28px]">store</span></div>
+<h3 class="text-[22px] font-bold text-primary mb-3">UMKM Go Digital</h3>
+<p class="text-slate-600 leading-relaxed">Pendampingan onboarding UMKM lokal ke marketplace dan ekosistem pembayaran digital.</p>
+</div>
+<div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all">
+<div class="w-14 h-14 bg-primary/20 text-primary rounded-xl flex items-center justify-center mb-6"><span class="material-symbols-outlined text-[28px]">eco</span></div>
+<h3 class="text-[22px] font-bold text-primary mb-3">Smart Farming</h3>
+<p class="text-slate-600 leading-relaxed">Implementasi IoT untuk optimalisasi hasil pertanian dan efisiensi sumber daya.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Belt -->
+<section class="bg-primary py-20 relative overflow-hidden">
+<div class="absolute inset-0 opacity-5 gonjong-bg scale-150"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop relative z-10">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+<div class="space-y-3">
+<div class="text-[48px] font-extrabold text-secondary tracking-tightest">10</div>
+<div class="text-white/60 font-bold tracking-widest uppercase text-[12px]">Nagari Aktif</div>
+</div>
+<div class="space-y-3">
+<div class="text-[48px] font-extrabold text-secondary tracking-tightest">840+</div>
+<div class="text-white/60 font-bold tracking-widest uppercase text-[12px]">UMKM Terdaftar</div>
+</div>
+<div class="space-y-3">
+<div class="text-[48px] font-extrabold text-secondary tracking-tightest">4</div>
+<div class="text-white/60 font-bold tracking-widest uppercase text-[12px]">Modul Terintegrasi</div>
+</div>
+</div>
+</div>
+</section>
+<!-- UMKM Showcase -->
+<section class="py-section-gap bg-white relative overflow-hidden">
+<div class="absolute -top-10 left-10 w-40 h-40 border-l-4 border-t-4 border-secondary/20"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+<div class="space-y-3">
+<span class="text-secondary font-bold tracking-widest uppercase text-sm">SIM UMKM</span>
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest">Produk unggulan nagari minggu ini.</h2>
+</div>
+<a class="flex items-center gap-3 text-primary font-extrabold hover:gap-5 transition-all tracking-wider text-sm uppercase" href="#">
+                    Lihat semua produk <span class="material-symbols-outlined">east</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Card 1 -->
+<div class="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all group">
+<div class="relative overflow-hidden h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A macro photograph of rich, dark brown Rendang cooked in a traditional clay pot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjLtCK55ITamyHLEd9XwnWXUFWXNAFVmBa5iFgNdsyfqo1KC-fwm9FSoZ5-7vgFw6ovbRkb61kj9PDcKX24WbNcyDYBlI9LfiKpj1tmGmaFNCHPzKw_wzp5SHYyd-CXFhIindvSTv6wyJpO6r_rpVCArkSpEFz2xQMhn2yosuKN8bvcfcSJuqHBBmiloAjXAE4_U6_WGtYyWMCvXrAD4bOGVLVyT6gX7utFY9XUP4DlqB9mlc8pbsuDBDNwyj61s8QlHvYSgfp1mOH"/>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-bold text-primary tracking-widest uppercase">Koto Gadang</div>
+</div>
+<div class="p-6">
+<h4 class="text-[20px] font-extrabold text-primary mb-3">Rendang Daging Autentik</h4>
+<p class="text-slate-600 mb-6 text-sm leading-relaxed line-clamp-2">Dimasak perlahan dengan 21 jam rempah pilihan sesuai resep turun temurun.</p>
+<div class="flex flex-col gap-4">
+<span class="text-secondary font-extrabold text-[18px]">Rp 85.000</span>
+<button class="flex justify-center items-center gap-2 px-4 py-2.5 bg-tertiary text-white font-bold rounded-full hover:shadow-lg transition-all text-sm w-full">
+<span class="material-symbols-outlined text-[16px]">chat</span> WhatsApp
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all group">
+<div class="relative overflow-hidden h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Close-up of a beautifully intricate Songket fabric being hand-woven." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbqM4x9NrUnD0NMW_k126EBfGLfYv8rlHpm0GWYWVmqdwpfkokuw167HYw9bxmoEiAIqzCRx7BKhivoeP0ARLUWTH75XhKfq5LW59321PwsNOZBP5HEyqRNVPqGKmceVVDcwAa_w6dMyvNPOOSz37Rvf_lO6FKFEO06G2joANwudMUdDYilc1je6nQBrvsWrsuZVXKlD-7XZBfTy5AxO8LrqZPgxNsqU6QpllrJr3OVGoATrbQXbzsC3u84CG2yIA6Qe9KgSTQu3-T"/>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-bold text-primary tracking-widest uppercase">Pandai Sikek</div>
+</div>
+<div class="p-6">
+<h4 class="text-[20px] font-extrabold text-primary mb-3">Songket Tenun Tangan</h4>
+<p class="text-slate-600 mb-6 text-sm leading-relaxed line-clamp-2">Kain tradisional berkualitas tinggi dengan motif benang emas asli yang mewah.</p>
+<div class="flex flex-col gap-4">
+<span class="text-secondary font-extrabold text-[18px]">Rp 1.250.000</span>
+<button class="flex justify-center items-center gap-2 px-4 py-2.5 bg-tertiary text-white font-bold rounded-full hover:shadow-lg transition-all text-sm w-full">
+<span class="material-symbols-outlined text-[16px]">chat</span> WhatsApp
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all group">
+<div class="relative overflow-hidden h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A premium bag of specialty Arabica coffee beans placed on a wooden surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeCXNrL2qgNWugy4x2TvjiDip3IfK70Kp9YLMF-dWcyp6AisFiEteEplKKWaCSae6zFw2CyoBGYQty4xN_4h5Q-HtQVN3MIK7q38BmYrOGFzFIpfb_ONbXL9g8WRYs-1NxFdPdO59NoHkVUYvQq6IRu7wTlG18hpNwcpO5JW0K9UcycMkUiAsAZwLjme8ECYbuERHkgp_OhdZgFrp3aJmbBQq-Kae2dpZWrbS0zw2upGI0C7O0t07204NZlwTIVPpuSOQp3p56MMm6"/>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-bold text-primary tracking-widest uppercase">Alahan Panjang</div>
+</div>
+<div class="p-6">
+<h4 class="text-[20px] font-extrabold text-primary mb-3">Kopi Arabika Solok</h4>
+<p class="text-slate-600 mb-6 text-sm leading-relaxed line-clamp-2">Biji kopi pilihan dengan rasa buah-buahan khas dari dataran tinggi Solok.</p>
+<div class="flex flex-col gap-4">
+<span class="text-secondary font-extrabold text-[18px]">Rp 45.000</span>
+<button class="flex justify-center items-center gap-2 px-4 py-2.5 bg-tertiary text-white font-bold rounded-full hover:shadow-lg transition-all text-sm w-full">
+<span class="material-symbols-outlined text-[16px]">chat</span> WhatsApp
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all group">
+<div class="relative overflow-hidden h-64 bg-slate-200">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9rJX5z0u6saWJ1a3rptklMxrGP9OGcfSsIMoYPn0yY-AQXchIEDRQltSN0Kzlk81KBeYK7jPp11GMpiFlLU5Pj9EHn22dw5ux7bHVG8JIssvPy0nMoWjk-DMoOOCQFq5XY7KvqE1iFjQMEXVPZmk3IfzGauGqri3IhuaAjWp7dgBre8eCfOYdcqF-XQAT7HZHKJhQMzDRhk7aS57SZjG-XpMg5SH0ux6pRTW8cTQJ1oa3M8NRJThdbIY65JhmlOqV1OPiQ2Tt-YBO"/>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-bold text-primary tracking-widest uppercase">Sumpur</div>
+</div>
+<div class="p-6">
+<h4 class="text-[20px] font-extrabold text-primary mb-3">Kerajinan Anyaman Pandan</h4>
+<p class="text-slate-600 mb-6 text-sm leading-relaxed line-clamp-2">Dianyam langsung oleh pengrajin lokal dengan motif unik khas Minang.</p>
+<div class="flex flex-col gap-4">
+<span class="text-secondary font-extrabold text-[18px]">Rp 120.000</span>
+<button class="flex justify-center items-center gap-2 px-4 py-2.5 bg-tertiary text-white font-bold rounded-full hover:shadow-lg transition-all text-sm w-full">
+<span class="material-symbols-outlined text-[16px]">chat</span> WhatsApp
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="py-section-gap bg-slate-50 relative overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest mb-4">Suara Mitra</h2>
+<p class="text-slate-500 text-lg tracking-wide max-w-2xl mx-auto">Dampak nyata dari transformasi digital di akar rumput.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="p-10 bg-white rounded-3xl shadow-sm border border-slate-100 relative">
+<span class="material-symbols-outlined text-secondary/20 text-[64px] absolute top-6 right-6">format_quote</span>
+<p class="text-slate-600 text-lg leading-relaxed mb-8 relative z-10">"Semenjak bergabung dengan NCH, produk rendang kami bisa dijangkau oleh pembeli dari luar provinsi. Sistem yang ada sangat membantu pencatatan stok."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary text-secondary rounded-full flex items-center justify-center font-bold">U</div>
+<div>
+<div class="font-bold text-primary">Uni Yanti</div>
+<div class="text-sm text-slate-500">Pemilik UMKM Rendang, Koto Gadang</div>
+</div>
+</div>
+</div>
+<div class="p-10 bg-white rounded-3xl shadow-sm border border-slate-100 relative">
+<span class="material-symbols-outlined text-secondary/20 text-[64px] absolute top-6 right-6">format_quote</span>
+<p class="text-slate-600 text-lg leading-relaxed mb-8 relative z-10">"Sensor IoT dari program Smart Farming membuat kami bisa memantau kelembaban tanah secara real-time lewat HP. Panen kopi meningkat drastis."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary text-white rounded-full flex items-center justify-center font-bold">D</div>
+<div>
+<div class="font-bold text-primary">Dt. Rajo Alam</div>
+<div class="text-sm text-slate-500">Petani Kopi, Alahan Panjang</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Peta Nagari / GIS Hub -->
+<section class="py-section-gap bg-primary relative overflow-hidden">
+<div class="absolute inset-0 songket-pattern opacity-10"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-20 items-center relative z-10">
+<div class="lg:col-span-6 order-2 lg:order-1">
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-secondary to-primary rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+<div class="relative bg-slate-900 p-2 rounded-3xl border border-white/10 shadow-2xl overflow-hidden aspect-[16/10]">
+<img class="w-full h-full object-cover rounded-2xl opacity-60 mix-blend-screen" data-alt="A clean and stylized interactive map of a lush, mountainous region." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZr09WUDn-xJnGGMD0Yks_vgl0QL3PVPzbE-btatmHmF8vHhxJ0vFgt7kAsMSeYe_VWDV9R5Rmm0eaoTx_nJq5tqKRTV5-42WpCIfg1PQBqG4bNbdYHtfEPRpBgSjb9za3OrDFsK41YPygdoJ2A1R0Pfy7oCkYdyTSVBo0K6jB6Pnu6M5OVydBgxXH8ae_3weSHUJHxCrAIYsGsI8HwGxyN0aBOa7Z2a0OTqMlSI6PXGhUksGyBJEOcruEsCR4vjNfhEUPeLHcRzs8"/>
+<!-- GIS Overlays -->
+<div class="absolute top-6 right-6 flex flex-col gap-2">
+<div class="px-3 py-1 bg-black/60 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono text-secondary">LAT: -0.9471</div>
+<div class="px-3 py-1 bg-black/60 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono text-secondary">LON: 100.4172</div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="px-10 py-4 bg-secondary text-primary rounded-full font-extrabold shadow-2xl hover:scale-105 transition-transform tracking-widest uppercase text-xs">
+                                Buka Peta Interaktif
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 order-1 lg:order-2 space-y-10">
+<div class="space-y-4">
+<span class="text-secondary font-bold tracking-widest uppercase text-sm">Peta Nagari</span>
+<h2 class="font-display-md text-[42px] font-extrabold text-white tracking-tightest">Sepuluh nagari, satu peta interaktif.</h2>
+<p class="text-white/70 text-lg leading-relaxed font-light tracking-wide">Jelajahi sebaran nagari mitra lengkap dengan profil, koordinat, dan status program aktif di tiap wilayah.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">Koto Gadang</span>
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">Pandai Sikek</span>
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">Alahan Panjang</span>
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">Sumpur</span>
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">Pariangan</span>
+<span class="px-5 py-2.5 bg-white/5 text-secondary border border-secondary/30 rounded-lg font-bold text-xs tracking-widest uppercase hover:bg-secondary hover:text-primary transition-all cursor-default">+5 lainnya</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Nagari Coverage -->
+<section class="py-section-gap bg-white relative overflow-hidden border-b border-slate-100">
+<div class="max-w-container-max mx-auto px-margin-desktop text-center">
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest mb-4">Cakupan Wilayah</h2>
+<p class="text-slate-500 text-lg tracking-wide max-w-2xl mx-auto mb-16">Ekspansi jaringan digital kami menjangkau berbagai pelosok nagari.</p>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+<div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer">Koto Gadang</div>
+<div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer">Pandai Sikek</div>
+<div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer">Alahan Panjang</div>
+<div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer">Sumpur</div>
+<div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer">Silokek</div>
+</div>
+</div>
+</section>
+<!-- News -->
+<section class="py-section-gap bg-slate-50 relative overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+<div>
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest mb-4">Kabar Terbaru</h2>
+<p class="text-slate-500 text-lg tracking-wide">Update kegiatan dan pencapaian ekosistem.</p>
+</div>
+<a class="flex items-center gap-3 text-primary font-extrabold hover:gap-5 transition-all tracking-wider text-sm uppercase" href="#">Lihat Semua <span class="material-symbols-outlined">east</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 group">
+<div class="h-48 bg-slate-200 overflow-hidden">
+<img alt="News 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJNowUuBIGiRI2J4PNnv2Zx1A_fs_qTVal601wIeeFSIDvJmOZrbaFLkXl2lOjb6pF-6rhccwUoQ4zeuZzZSNbpSWkdhSSdLnqlUtWuWBIS2eI0X5MlNOmwxXq6H691HSLbZW4WldMU5MCnsL_RC509JTuWEjpy_HUlw8rkgqz8XUMJHiGeZiY_guYkrSEQBxNADbZZkPqhs2quddAxgaELq_BUFs6greyyIJhyK6gdK8R2n9ybSHxnGcaR9Kr_zASmxZkvykigLdP"/>
+</div>
+<div class="p-6">
+<div class="text-xs font-bold text-secondary tracking-widest uppercase mb-2">Event</div>
+<h3 class="font-bold text-xl text-primary mb-3">Pelatihan Digital Marketing Batch 4 Sukses Digelar</h3>
+<p class="text-slate-500 text-sm line-clamp-2">Puluhan pelaku UMKM dari berbagai nagari mengikuti workshop intensif tentang strategi pemasaran di media sosial.</p>
+</div>
+</div>
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 group">
+<div class="h-48 bg-slate-200 overflow-hidden">
+<img alt="News 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9rJX5z0u6saWJ1a3rptklMxrGP9OGcfSsIMoYPn0yY-AQXchIEDRQltSN0Kzlk81KBeYK7jPp11GMpiFlLU5Pj9EHn22dw5ux7bHVG8JIssvPy0nMoWjk-DMoOOCQFq5XY7KvqE1iFjQMEXVPZmk3IfzGauGqri3IhuaAjWp7dgBre8eCfOYdcqF-XQAT7HZHKJhQMzDRhk7aS57SZjG-XpMg5SH0ux6pRTW8cTQJ1oa3M8NRJThdbIY65JhmlOqV1OPiQ2Tt-YBO"/>
+</div>
+<div class="p-6">
+<div class="text-xs font-bold text-secondary tracking-widest uppercase mb-2">Inovasi</div>
+<h3 class="font-bold text-xl text-primary mb-3">Rilis Fitur Baru SIM UMKM: Integrasi Kurir Lokal</h3>
+<p class="text-slate-500 text-sm line-clamp-2">Kini pengiriman produk UMKM semakin mudah dengan kolaborasi bersama penyedia jasa logistik daerah.</p>
+</div>
+</div>
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 group">
+<div class="h-48 bg-slate-200 overflow-hidden">
+<img alt="News 3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKn3S2fdcVbQuB78g88YnkQzgUlcTNc1NSkIH7GWh7VoGe6dXSZix-ookQNQE-RE8TuunA-QoMsGZ0qK7nw2DQhLvwputhgrPvCqsgbZ3tbXJJo9HJlIWRTWZFDtqkHtGxNGZ2qiN3k_ECKxytNSQVnTrWU8dSzLRyucnBSdHVwi-cS6Qqr3sPuv2giDGZK5V8gGcRDyjq-RQeO7OlvkrCD2ET042jFc2jQWu4kWz9zPkvVcIwp4KKqZFjajQwlF8pfZCNN6EYpqt3"/>
+</div>
+<div class="p-6">
+<div class="text-xs font-bold text-secondary tracking-widest uppercase mb-2">Penghargaan</div>
+<h3 class="font-bold text-xl text-primary mb-3">Nagari Hub Sabet Penghargaan Desa Cerdas 2024</h3>
+<p class="text-slate-500 text-sm line-clamp-2">Inisiatif ekosistem digital terpadu mendapat apresiasi dari Kementerian Komunikasi dan Informatika.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ -->
+<section class="py-section-gap bg-white relative overflow-hidden border-t border-slate-100">
+<div class="max-w-container-max mx-auto px-margin-desktop max-w-3xl">
+<div class="text-center mb-12">
+<h2 class="font-display-md text-[42px] font-extrabold text-primary tracking-tightest mb-4">Pertanyaan Umum</h2>
+</div>
+<div class="space-y-4">
+<div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+<h4 class="font-bold text-primary text-lg mb-2">Bagaimana cara mendaftarkan UMKM saya?</h4>
+<p class="text-slate-600">Anda dapat mengklik tombol "Daftar UMKM" di menu atas, kemudian mengisi formulir pendaftaran yang mencakup profil usaha dan produk Anda.</p>
+</div>
+<div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+<h4 class="font-bold text-primary text-lg mb-2">Apakah pelatihan di LMS Hub berbayar?</h4>
+<p class="text-slate-600">Tidak. Seluruh materi pelatihan di LMS Hub dapat diakses secara gratis oleh masyarakat nagari yang telah terdaftar dalam sistem kami.</p>
+</div>
+<div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+<h4 class="font-bold text-primary text-lg mb-2">Bagaimana sistem kerja sensor IoT Smart Farming?</h4>
+<p class="text-slate-600">Sensor dipasang di lahan pertanian untuk mengukur kelembaban, suhu, dan pH tanah. Data akan dikirim ke dashboard aplikasi yang bisa dipantau melalui smartphone.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-28 bg-white relative overflow-hidden border-t border-slate-100">
+<div class="absolute inset-0 gonjong-bg opacity-20"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop text-center relative z-10">
+<div class="bg-primary p-16 md:p-24 rounded-[3rem] relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+<div class="relative z-10 space-y-10">
+<span class="text-secondary font-bold tracking-widest uppercase text-sm">Mulai Sekarang</span>
+<h2 class="font-display-md text-[48px] md:text-[56px] text-white font-extrabold tracking-tightest leading-tight">Daftarkan usahamu, jadi bagian dari ekosistem nagari.</h2>
+<p class="text-white/70 text-xl max-w-2xl mx-auto font-light leading-relaxed">Gratis untuk pelaku UMKM terdaftar — kelola profil, unggah produk, dan terhubung langsung dengan pembeli.</p>
+<div class="flex justify-center gap-6 pt-4 flex-wrap">
+<button class="px-12 py-6 bg-secondary text-primary font-extrabold text-lg rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 tracking-widest uppercase">
+                            Daftar UMKM Sekarang <span class="material-symbols-outlined font-bold">rocket_launch</span>
+</button>
+<button class="px-12 py-6 border-2 border-white/20 text-white font-extrabold text-lg rounded-full shadow-2xl hover:bg-white/10 active:scale-95 transition-all flex items-center gap-4 tracking-widest uppercase">
+                            Hubungi Tim NCH
+</button>
+</div>
+</div>
+<!-- Decorative Peak -->
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-12 bg-secondary opacity-20 gonjong-peak"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary pt-24 pb-12 border-t-8 border-secondary relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full songket-pattern opacity-5"></div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-16 px-margin-desktop max-w-container-max mx-auto text-white relative z-10">
+<div class="md:col-span-5 space-y-8">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-secondary flex items-center justify-center gonjong-peak">
+<span class="material-symbols-outlined text-primary text-[28px] fill-1">hub</span>
+</div>
+<div class="font-display-md text-[32px] font-extrabold tracking-tightest text-white">Nagari <span class="text-secondary">Hub</span></div>
+</div>
+<p class="text-white/60 text-lg leading-relaxed max-w-sm">Berakar pada tradisi, digerakkan oleh inovasi — platform digital nagari Sumatera Barat.</p>
+<div class="flex gap-4">
+<a class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+</div>
+<div class="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-10">
+<div class="space-y-6">
+<h4 class="font-bold text-secondary uppercase tracking-widest text-[13px]">Modul</h4>
+<ul class="space-y-4">
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">LMS Hub</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">KSDGC Desa</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">SIM UMKM</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Sensor IoT</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="font-bold text-secondary uppercase tracking-widest text-[13px]">Nagari</h4>
+<ul class="space-y-4">
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Daftar Nagari</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Program Mitra</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Peta Interaktif</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="font-bold text-secondary uppercase tracking-widest text-[13px]">Dukungan</h4>
+<ul class="space-y-4">
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Kontak Kami</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">FAQ</a></li>
+<li><a class="text-white/60 hover:text-secondary transition-all" href="#">Kebijakan Privasi</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="px-margin-desktop mt-24 pt-8 border-t border-white/10 max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-white/40 text-[12px] tracking-widest uppercase font-bold relative z-10">
+<div>© 2026 Nagari Creative Hub — Tradisi Berpadu Inovasi</div>
+<div class="flex gap-10">
+<a class="hover:text-secondary" href="#">Modul</a>
+<a class="hover:text-secondary" href="#">Nagari</a>
+<a class="hover:text-secondary" href="#">Akun</a>
+</div>
+</div>
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const revealElements = document.querySelectorAll('.bg-white, .bg-slate-50, section');
+        
+        const observerOptions = {
+            threshold: 0.05,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100');
+                    entry.target.classList.remove('opacity-0');
+                }
+            });
+        }, observerOptions);
+
+        revealElements.forEach(el => {
+            el.classList.add('transition-opacity', 'duration-1000', 'opacity-0');
+            observer.observe(el);
+        });
+    });
+</script>
+</body></html>

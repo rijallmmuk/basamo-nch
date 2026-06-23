@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard SDGs & KSDGC — Nagari Creative Hub Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#FBF7EE;
+    --canvas-deep:#F1E9D5;
+    --surface:#FFFFFF;
+    --ink:#2C3E50;
+    --ink-soft:#5C6B73;
+    --ink-faint:#8B9499;
+    --navy:#1B4F72;
+    --navy-deep:#102C40;
+    --navy-deeper:#0B1F2E;
+    --gold:#D4AC0D;
+    --gold-soft:#F4E6AE;
+    --gold-deep:#9C7B07;
+    --coral:#E74C3C;
+    --green:#27AE60;
+    --line:rgba(27,79,114,0.14);
+    --line-soft:rgba(27,79,114,0.08);
+    --shadow-card:0 1px 2px rgba(16,44,64,0.04), 0 12px 28px -16px rgba(16,44,64,0.18);
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --sidebar-w:252px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;line-height:1.5;
+  }
+  h1,h2,h3{font-family:var(--font-display);font-weight:500;margin:0;color:var(--navy-deep);}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2.5px solid var(--gold-deep);outline-offset:2px;border-radius:4px;}
+
+  .eyebrow{
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--gold-deep);font-weight:500;display:flex;align-items:center;gap:9px;
+  }
+  .eyebrow::before{content:"";width:16px;height:1px;background:var(--gold-deep);}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    padding:11px 20px;border-radius:11px;font-weight:600;font-size:13.5px;
+    border:1px solid transparent;cursor:pointer;transition:all .18s ease;white-space:nowrap;
+  }
+  .btn-gold{background:var(--gold);color:var(--navy-deep);}
+  .btn-gold:hover{background:#c19b0c;}
+  .btn-line{background:transparent;border-color:var(--line);color:var(--navy-deep);}
+  .btn-line:hover{border-color:var(--navy);background:var(--line-soft);}
+  .btn-ghost{background:transparent;color:var(--ink-soft);}
+  .btn-ghost:hover{background:var(--line-soft);color:var(--navy-deep);}
+  .btn-sm{padding:8px 14px;font-size:12.5px;border-radius:9px;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  /* ---------- gonjong motif ---------- */
+  .gonjong-mark path{stroke-linecap:round;}
+
+  /* ---------- shell ---------- */
+  .admin-shell{display:flex;min-height:100vh;}
+
+  .sidebar{
+    width:var(--sidebar-w);flex:0 0 auto;background:var(--navy-deeper);
+    display:flex;flex-direction:column;padding:22px 16px;
+    position:sticky;top:0;height:100vh;
+  }
+  .sidebar-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 22px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:18px;}
+  .sidebar-brand-text strong{display:block;color:#fff;font-family:var(--font-display);font-size:15.5px;font-weight:600;}
+  .sidebar-brand-text small{display:block;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px;}
+
+  .btn-new-project{
+    width:100%;background:var(--gold);color:var(--navy-deep);border:none;border-radius:11px;
+    padding:12px;font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:8px;
+    cursor:pointer;margin-bottom:20px;transition:background .18s ease;
+  }
+  .btn-new-project:hover{background:#c19b0c;}
+
+  .side-nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .side-nav-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:14px 12px 8px;}
+  .side-link{
+    display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;
+    color:rgba(255,255,255,0.62);font-size:13.5px;font-weight:500;transition:all .15s ease;
+  }
+  .side-link svg{flex:0 0 auto;opacity:0.85;}
+  .side-link:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .side-link.is-active{background:rgba(212,172,13,0.14);color:var(--gold);}
+  .side-link.is-active svg{stroke:var(--gold);}
+
+  .sidebar-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;display:flex;flex-direction:column;gap:2px;}
+
+  .admin-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+
+  .topbar{
+    position:sticky;top:0;z-index:30;background:rgba(251,247,238,0.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line-soft);
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+    padding:16px 28px;
+  }
+  .topbar-title{display:flex;flex-direction:column;gap:2px;}
+  .topbar-title h1{font-size:19px;}
+  .topbar-title span{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);}
+  .sidebar-toggle{display:none;background:none;border:none;cursor:pointer;color:var(--navy-deep);padding:6px;}
+
+  .topbar-actions{display:flex;align-items:center;gap:14px;}
+  .search-box{
+    display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:9px 14px;width:260px;
+  }
+  .search-box input{border:none;outline:none;background:transparent;font-family:inherit;font-size:13px;color:var(--ink);width:100%;}
+  .search-box input::placeholder{color:var(--ink-faint);}
+  .icon-btn{position:relative;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);}
+  .icon-btn:hover{border-color:var(--navy);color:var(--navy-deep);}
+  .icon-btn .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--coral);border:1.5px solid var(--canvas);}
+  .avatar{
+    width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;font-family:var(--font-mono);
+  }
+  .who{display:flex;flex-direction:column;line-height:1.2;}
+  .who strong{font-size:13px;color:var(--navy-deep);}
+  .who span{font-size:11px;color:var(--ink-faint);}
+  .who-block{display:flex;align-items:center;gap:10px;}
+
+  .admin-content{padding:28px;display:flex;flex-direction:column;gap:32px;max-width:1180px;width:100%;margin:0 auto;}
+
+  /* ---------- overview ---------- */
+  .overview{display:grid;grid-template-columns:1.1fr 1.4fr;gap:18px;}
+  .score-card{
+    background:linear-gradient(155deg, var(--navy-deep), var(--navy-deeper));
+    border-radius:20px;padding:26px;color:#fff;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .score-card .gonjong-bg{position:absolute;right:-30px;bottom:-20px;opacity:0.12;width:200px;height:200px;}
+  .score-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+  .place-pill{font-family:var(--font-mono);font-size:11px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:999px;color:rgba(255,255,255,0.8);}
+  .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--green);background:rgba(39,174,96,0.18);padding:5px 11px;border-radius:999px;}
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+  .score-body{display:flex;align-items:center;gap:20px;margin-top:22px;position:relative;z-index:1;}
+  .score-ring-sm{position:relative;width:108px;height:108px;flex:0 0 auto;}
+  .score-ring-sm .score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .score-ring-sm .score-num strong{font-family:var(--font-display);font-size:25px;font-weight:600;}
+  .score-ring-sm .score-num small{font-family:var(--font-mono);font-size:8.5px;color:rgba(255,255,255,0.55);letter-spacing:0.05em;}
+  .ring-track-dark{fill:none;stroke:rgba(255,255,255,0.14);stroke-width:8;}
+  .ring-progress-dark{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1.3s cubic-bezier(.16,.84,.32,1);}
+  .score-desc h2{color:#fff;font-size:17px;margin-bottom:6px;}
+  .score-desc p{color:rgba(255,255,255,0.6);font-size:12.5px;line-height:1.55;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .stat-tile{background:var(--surface);border:1px solid var(--line-soft);border-radius:16px;padding:20px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:10px;}
+  .stat-tile-top{display:flex;align-items:center;justify-content:space-between;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
+  .stat-tile strong{font-family:var(--font-display);font-size:27px;color:var(--navy-deep);font-weight:600;}
+  .stat-tile span{font-size:12.5px;color:var(--ink-soft);}
+  .stat-tile.alert .stat-icon{background:rgba(231,76,60,0.12);}
+  .stat-tile.alert strong{color:var(--coral);}
+
+  @media (max-width:980px){
+    .overview{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .stat-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- section head row ---------- */
+  .section-row-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+  .section-row-head h2{font-size:21px;margin-top:8px;}
+  .section-row-head .section-lead{font-size:13px;color:var(--ink-soft);margin-top:6px;max-width:54ch;}
+
+  /* ---------- metrics ---------- */
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px,1fr));gap:14px;}
+  .metric-card{background:var(--surface);border:1px solid var(--line-soft);border-radius:15px;padding:16px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;transition:border-color .2s ease, transform .2s ease;}
+  .metric-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .metric-card.is-extra{display:none;}
+  .metric-ring{width:48px;height:48px;flex:0 0 auto;position:relative;}
+  .metric-ring .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:600;font-size:12px;color:var(--navy-deep);}
+  .metric-info{min-width:0;}
+  .metric-info .num{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);}
+  .metric-info .name{font-size:13px;font-weight:600;color:var(--navy-deep);line-height:1.25;margin-top:2px;}
+
+  .metrics-foot{display:flex;justify-content:center;margin-top:18px;}
+
+  /* ---------- programs ---------- */
+  .programs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .program-card{border-radius:18px;padding:24px;color:#fff;position:relative;overflow:hidden;}
+  .program-card[data-tone="navy"]{background:linear-gradient(160deg,#1B4F72,#123A56);}
+  .program-card[data-tone="green"]{background:linear-gradient(160deg,#1f7a4d,#155936);}
+  .program-card[data-tone="gold"]{background:linear-gradient(160deg,#b8910b,#8f6f08);}
+  .program-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.16);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .program-card h3{color:#fff;font-size:17px;margin-bottom:8px;}
+  .program-card p{font-size:12.5px;color:rgba(255,255,255,0.75);line-height:1.55;margin-bottom:18px;}
+  .program-meta{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid rgba(255,255,255,0.18);}
+  .program-meta span{font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.65);}
+  .program-meta button{background:rgba(255,255,255,0.16);border:none;color:#fff;font-size:12px;font-weight:600;padding:7px 13px;border-radius:8px;cursor:pointer;}
+  .program-meta button:hover{background:rgba(255,255,255,0.26);}
+
+  @media (max-width:860px){.programs-grid{grid-template-columns:1fr;}}
+
+  /* ---------- table ---------- */
+  .table-card{background:var(--surface);border:1px solid var(--line-soft);border-radius:18px;box-shadow:var(--shadow-card);overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--ink-faint);padding:14px 18px;border-bottom:1px solid var(--line-soft);background:var(--canvas-deep);
+  }
+  tbody td{padding:14px 18px;border-bottom:1px solid var(--line-soft);font-size:13.5px;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(212,172,13,0.05);}
+  .proj-name{font-weight:600;color:var(--navy-deep);}
+  .proj-loc{color:var(--ink-soft);font-size:12.5px;}
+  .sdg-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);}
+  .sdg-dot{width:8px;height:8px;border-radius:3px;}
+  .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;display:inline-block;}
+  .badge.aktif{background:rgba(39,174,96,0.13);color:var(--green);}
+  .badge.perencanaan{background:rgba(212,172,13,0.15);color:var(--gold-deep);}
+  .badge.selesai{background:rgba(27,79,114,0.12);color:var(--navy);}
+  .progress-cell{display:flex;align-items:center;gap:8px;}
+  .progress-track{width:70px;height:6px;border-radius:99px;background:var(--line-soft);overflow:hidden;}
+  .progress-fill{height:100%;background:var(--gold);border-radius:99px;}
+  .progress-cell span{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);}
+  .row-actions{display:flex;gap:6px;}
+  .row-actions button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .row-actions button:hover{border-color:var(--navy);color:var(--navy-deep);}
+
+  @media (max-width:760px){
+    .table-card{overflow-x:auto;}
+    table{min-width:680px;}
+  }
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(11,31,46,0.55);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .modal-overlay.is-open{opacity:1;pointer-events:auto;}
+  .modal{
+    background:var(--surface);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+    box-shadow:0 30px 60px -20px rgba(11,31,46,0.4);
+    transform:translateY(14px) scale(0.98);transition:transform .22s ease;
+  }
+  .modal-overlay.is-open .modal{transform:translateY(0) scale(1);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line-soft);}
+  .modal-head h2{font-size:17px;}
+  .modal-close{background:none;border:none;font-size:18px;color:var(--ink-faint);cursor:pointer;width:30px;height:30px;border-radius:8px;}
+  .modal-close:hover{background:var(--line-soft);color:var(--navy-deep);}
+  .modal-body{padding:22px;display:flex;flex-direction:column;gap:18px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--navy-deep);margin-bottom:7px;}
+  .field input[type="text"],.field select{
+    width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);font-family:inherit;font-size:13.5px;
+    background:var(--canvas);color:var(--ink);outline:none;transition:border-color .15s ease;
+  }
+  .field input[type="text"]:focus,.field select:focus{border-color:var(--navy);}
+  .field input::placeholder{color:var(--ink-faint);}
+
+  .chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;max-height:168px;overflow-y:auto;padding:2px;}
+  .sdg-chip-btn{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);
+    background:var(--canvas);font-size:11.5px;color:var(--ink-soft);cursor:pointer;text-align:left;transition:all .15s ease;
+  }
+  .sdg-chip-btn .sdg-dot{width:7px;height:7px;border-radius:2px;flex:0 0 auto;}
+  .sdg-chip-btn:hover{border-color:var(--navy);}
+  .sdg-chip-btn.is-selected{border-color:var(--gold);background:var(--gold-soft);color:var(--navy-deep);font-weight:600;}
+
+  .segmented{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .segmented button{flex:1;padding:10px;border:none;background:var(--canvas);font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;border-right:1px solid var(--line);}
+  .segmented button:last-child{border-right:none;}
+  .segmented button.is-selected{background:var(--navy);color:#fff;}
+
+  .progress-field-head{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .progress-field-head span{font-family:var(--font-mono);font-size:12.5px;color:var(--navy-deep);font-weight:600;}
+  input[type="range"]{
+    -webkit-appearance:none;width:100%;height:6px;border-radius:99px;background:var(--line-soft);outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);
+    border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;margin-top:-1px;
+  }
+  input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid #fff;cursor:pointer;}
+
+  .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:18px 22px;border-top:1px solid var(--line-soft);}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy-deep);color:#fff;padding:13px 22px;border-radius:12px;font-size:13.5px;font-weight:600;
+    display:flex;align-items:center;gap:10px;box-shadow:0 14px 30px -10px rgba(16,44,64,0.5);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;z-index:200;
+  }
+  .toast.is-shown{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast .dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+
+  @media (max-width:900px){
+    .sidebar{position:fixed;left:0;top:0;z-index:60;transform:translateX(-100%);transition:transform .25s ease;}
+    .sidebar.is-open{transform:translateX(0);}
+    .sidebar-toggle{display:flex;}
+    .search-box{display:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <svg class="gonjong-mark" width="30" height="30" viewBox="0 0 40 40" fill="none">
+        <path d="M3,30 Q8,30 10,16 Q11.5,7 17,7 Q22,7 23,16" stroke="#D4AC0D" stroke-width="2.6" fill="none"/>
+        <path d="M17,30 Q22,30 24,16 Q25.5,7 31,7 Q36,7 37,16" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6" fill="none"/>
+      </svg>
+      <div class="sidebar-brand-text">
+        <strong>Nagari Hub</strong>
+        <small>Admin Terminal</small>
+      </div>
+    </div>
+
+    <button class="btn-new-project" id="openModalBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+      Proyek Baru
+    </button>
+
+    <nav class="side-nav">
+      <a class="side-link is-active" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V11M12 19V5M20 19v-7"/></svg>
+        Metrik SDGs
+      </a>
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="18" cy="8" r="2.4"/><path d="M16.2 14.3c2.6.5 4.3 2.5 4.3 5.2"/></svg>
+        Program KSDGC
+      </a>
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 4l9 5.5V19a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>
+        Manajemen UMKM
+      </a>
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 6.5v5c0 4.7 3.2 8.8 8 9.9 4.8-1.1 8-5.2 8-9.9v-5L12 3Z"/></svg>
+        Akses Pengguna
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4M12 17h.01"/></svg>
+        Bantuan
+      </a>
+      <a class="side-link" href="#">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Keluar
+      </a>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Buka menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="topbar-title">
+          <h1>Dashboard SDGs &amp; KSDGC</h1>
+          <span>Nagari Sambungo · Diperbarui hari ini</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink-faint)"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="Cari proyek, UMKM, atau nagari...">
+        </div>
+        <button class="icon-btn" aria-label="Notifikasi">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="dot"></span>
+        </button>
+        <button class="icon-btn" aria-label="Pengaturan">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.97 7.97 0 0 0 0-2l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 2.5a8 8 0 0 0-1.7 1l-2.4-1-2 3.5L6.6 11a7.97 7.97 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5Z"/></svg>
+        </button>
+        <div class="who-block">
+          <div class="avatar">AS</div>
+          <div class="who">
+            <strong>Admin Sambungo</strong>
+            <span>Pengelola Nagari</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <section class="overview">
+        <div class="score-card">
+          <svg class="gonjong-bg" viewBox="0 0 200 200" fill="none">
+            <path d="M20,150 Q35,150 41,100 Q45,70 65,70 Q85,70 89,100 Q95,150 110,150 Q125,150 129,100 Q133,70 153,70 Q173,70 177,100" stroke="#D4AC0D" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div class="score-top">
+            <span class="place-pill">Nagari Sambungo</span>
+            <span class="status-pill"><span class="dot"></span> Berkembang</span>
+          </div>
+          <div class="score-body">
+            <div class="score-ring-sm">
+              <svg width="108" height="108" viewBox="0 0 108 108">
+                <circle class="ring-track-dark" cx="54" cy="54" r="44"/>
+                <circle id="overviewRing" class="ring-progress-dark" cx="54" cy="54" r="44"/>
+              </svg>
+              <div class="score-num">
+                <strong id="overviewScoreValue">0</strong>
+                <small>INDEX SCORE</small>
+              </div>
+            </div>
+            <div class="score-desc">
+              <h2>Skor SDGs Global</h2>
+              <p>Indeks performa keberlanjutan nagari, dihitung otomatis dari 17 indikator SDGs dan diperbarui tiap akhir bulan.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <div class="stat-tile-top">
+              <div class="stat-icon" style="background:rgba(39,174,96,0.13)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#27AE60" stroke-width="2"><path d="M3 17 9 11 13 15 21 7"/></svg>
+              </div>
+            </div>
+            <strong>48</strong>
+            <span>Program aktif</span>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-top">
+              <div class="stat-icon" style="background:rgba(27,79,114,0.1)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B4F72" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2.5 19c0-3.3 2.9-5.5 6.5-5.5S15.5 15.7 15.5 19"/><circle cx="18" cy="8" r="2.4"/><path d="M16.3 13.7c2.4.5 3.7 2.4 3.7 5.3"/></svg>
+              </div>
+            </div>
+            <strong>3.240</strong>
+            <span>Total partisipan</span>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-top">
+              <div class="stat-icon" style="background:rgba(212,172,13,0.15)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9C7B07" stroke-width="2"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+              </div>
+            </div>
+            <strong>1.180</strong>
+            <span>Peserta KSDGC</span>
+          </div>
+          <div class="stat-tile alert">
+            <div class="stat-tile-top">
+              <div class="stat-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E74C3C" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+              </div>
+            </div>
+            <strong>6</strong>
+            <span>Menunggu verifikasi</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-row-head">
+          <div>
+            <p class="eyebrow">Metrik SDGs Detail</p>
+            <h2>Breakdown performa per tujuan pembangunan</h2>
+            <p class="section-lead">Diurutkan sesuai nomor resmi SDG. Klik "Lihat semua" untuk membuka 17 tujuan secara penuh.</p>
+          </div>
+          <button class="btn btn-line btn-sm" id="downloadReportBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            Unduh Laporan
+          </button>
+        </div>
+        <div class="metrics-grid" id="metricsGrid"></div>
+        <div class="metrics-foot">
+          <button class="btn btn-line btn-sm" id="toggleMetricsBtn">Lihat Semua 17 Tujuan SDGs ↓</button>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-row-head">
+          <div>
+            <p class="eyebrow">Sub-Program KSDGC</p>
+            <h2>Tiga inisiatif inti pemberdayaan nagari</h2>
+          </div>
+        </div>
+        <div class="programs-grid">
+          <div class="program-card" data-tone="navy">
+            <div class="program-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <h3>Literasi Digital</h3>
+            <p>Peningkatan kapasitas masyarakat dalam pemanfaatan teknologi informasi untuk ekonomi kreatif.</p>
+            <div class="program-meta"><span>24 proyek</span><button>Kelola</button></div>
+          </div>
+          <div class="program-card" data-tone="green">
+            <div class="program-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 2c4 3 6 6 6 10a6 6 0 0 1-12 0c0-4 2-7 6-10Z"/></svg>
+            </div>
+            <h3>Ketahanan Pangan</h3>
+            <p>Optimalisasi lahan dan inovasi pertanian berkelanjutan berbasis kearifan lokal.</p>
+            <div class="program-meta"><span>16 proyek</span><button>Kelola</button></div>
+          </div>
+          <div class="program-card" data-tone="gold">
+            <div class="program-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 19V7l8-4 8 4v12M4 19h16M9 19v-6h6v6"/></svg>
+            </div>
+            <h3>Pelestarian Budaya</h3>
+            <p>Dokumentasi dan revitalisasi seni serta tradisi Minangkabau untuk generasi muda.</p>
+            <div class="program-meta"><span>9 proyek</span><button>Kelola</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-row-head">
+          <div>
+            <p class="eyebrow">Aktivitas Terbaru</p>
+            <h2>Proyek SDGs yang sedang berjalan</h2>
+          </div>
+          <button class="btn btn-gold btn-sm" id="openModalBtn2">+ Proyek Baru</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr><th>Proyek</th><th>Fokus SDG</th><th>Status</th><th>Progres</th><th></th></tr>
+            </thead>
+            <tbody id="projectsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Tambah Proyek Baru -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Tambah Proyek Baru</h2>
+      <button class="modal-close" id="closeModalBtn" aria-label="Tutup">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="projName">Nama Proyek</label>
+        <input type="text" id="projName" placeholder="Contoh: Revitalisasi Irigasi Subak">
+      </div>
+      <div class="field">
+        <label for="projLoc">Lokasi</label>
+        <select id="projLoc">
+          <option>Pilih Kabupaten/Kota</option>
+          <option>Kab. Pesisir Selatan</option>
+          <option>Kab. Tanah Datar</option>
+          <option>Kab. Agam</option>
+          <option>Kab. Solok</option>
+          <option>Kota Padang Panjang</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fokus SDG Utama</label>
+        <div class="chip-grid" id="sdgChipGrid"></div>
+      </div>
+      <div class="field">
+        <label>Status Saat Ini</label>
+        <div class="segmented" id="statusSegmented">
+          <button data-status="Planning" class="is-selected">Planning</button>
+          <button data-status="Active">Active</button>
+          <button data-status="Done">Done</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="progress-field-head">
+          <label style="margin:0;">Estimasi Progres</label>
+          <span id="progressValueLabel">25%</span>
+        </div>
+        <input type="range" id="progressSlider" min="0" max="100" value="25">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-line" id="cancelModalBtn">Batal</button>
+      <button class="btn btn-gold" id="saveProjectBtn">Simpan Proyek</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span> Proyek berhasil disimpan</div>
+
+<script>
+  // ---------- shared goal data (consistent with public page) ----------
+  const GOALS = [
+    {n:1,  name:"Desa Tanpa Kemiskinan",                  score:58.04, color:"#E5243B"},
+    {n:2,  name:"Desa Tanpa Kelaparan",                   score:33.06, color:"#DDA63A"},
+    {n:3,  name:"Desa Sehat dan Sejahtera",                score:61.03, color:"#4C9F38"},
+    {n:4,  name:"Pendidikan Desa Berkualitas",             score:29.68, color:"#C5192D"},
+    {n:5,  name:"Keterlibatan Perempuan Desa",             score:41.35, color:"#FF3A21"},
+    {n:6,  name:"Desa Layak Air Bersih & Sanitasi",        score:62.58, color:"#26BDE2"},
+    {n:7,  name:"Desa Berenergi Bersih & Terbarukan",      score:99.03, color:"#FCC30B"},
+    {n:8,  name:"Pertumbuhan Ekonomi Desa Merata",         score:40.29, color:"#A21942"},
+    {n:9,  name:"Infrastruktur & Inovasi Sesuai Kebutuhan",score:89.40, color:"#FD6925"},
+    {n:10, name:"Desa Tanpa Kesenjangan",                  score:75.12, color:"#DD1367"},
+    {n:11, name:"Kawasan Permukiman Aman & Nyaman",        score:72.80, color:"#FD9D24"},
+    {n:12, name:"Konsumsi & Produksi Sadar Lingkungan",    score:54.91, color:"#BF8B2E"},
+    {n:13, name:"Tanggap Perubahan Iklim",                 score:68.22, color:"#3F7E44"},
+    {n:14, name:"Peduli Lingkungan Laut",                  score:81.05, color:"#0A97D9"},
+    {n:15, name:"Peduli Lingkungan Darat",                 score:79.34, color:"#56C02B"},
+    {n:16, name:"Desa Damai Berkeadilan",                  score:88.90, color:"#00689D"},
+    {n:17, name:"Kemitraan untuk Pembangunan Desa",        score:74.65, color:"#19486A"},
+  ];
+
+  function ringSVG(score, color, size, stroke){
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    const offset = c - (score/100)*c;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle fill="none" stroke="var(--line)" stroke-width="${stroke}" cx="${size/2}" cy="${size/2}" r="${r}"/>
+      <circle fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" cx="${size/2}" cy="${size/2}" r="${r}"
+        stroke-dasharray="${c}" stroke-dashoffset="${offset}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    </svg>`;
+  }
+
+  // ---------- render metrics grid (8 visible, 9 extra) ----------
+  const metricsGrid = document.getElementById('metricsGrid');
+  GOALS.forEach((g, i) => {
+    const el = document.createElement('div');
+    el.className = 'metric-card' + (i >= 8 ? ' is-extra' : '');
+    el.innerHTML = `
+      <div class="metric-ring">
+        ${ringSVG(g.score, g.color, 48, 5)}
+        <div class="v">${g.score.toFixed(0)}</div>
+      </div>
+      <div class="metric-info">
+        <div class="num">SDG ${String(g.n).padStart(2,'0')}</div>
+        <div class="name">${g.name}</div>
+      </div>`;
+    metricsGrid.appendChild(el);
+  });
+
+  const toggleBtn = document.getElementById('toggleMetricsBtn');
+  toggleBtn.addEventListener('click', () => {
+    const hidden = document.querySelectorAll('.metric-card.is-extra');
+    const willShow = hidden[0] && getComputedStyle(hidden[0]).display === 'none';
+    hidden.forEach(c => c.style.display = willShow ? 'flex' : 'none');
+    toggleBtn.textContent = willShow ? 'Tampilkan Lebih Sedikit ↑' : 'Lihat Semua 17 Tujuan SDGs ↓';
+  });
+
+  // ---------- overview ring + counter ----------
+  const OVERVIEW_SCORE = 42.14;
+  const oRing = document.getElementById('overviewRing');
+  const oR = 44, oC = 2 * Math.PI * oR;
+  oRing.setAttribute('stroke-dasharray', oC);
+  oRing.style.strokeDashoffset = oC;
+  const oVal = document.getElementById('overviewScoreValue');
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => { oRing.style.strokeDashoffset = oC - (OVERVIEW_SCORE/100)*oC; });
+    const start = performance.now(), dur = 1200;
+    function tick(now){
+      const p = Math.min(1,(now-start)/dur);
+      oVal.textContent = (OVERVIEW_SCORE * (1-Math.pow(1-p,3))).toFixed(1);
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  // ---------- projects table ----------
+  const PROJECTS = [
+    {name:"Revitalisasi Irigasi Subak", loc:"Nagari Sambungo Utara", sdg:6, status:"aktif", progress:65},
+    {name:"Pelatihan Literasi Digital UMKM", loc:"Nagari Sambungo", sdg:4, status:"aktif", progress:40},
+    {name:"Bank Sampah Nagari", loc:"Nagari Koto Baru", sdg:12, status:"selesai", progress:100},
+    {name:"Festival Budaya Minang", loc:"Nagari Sambungo", sdg:11, status:"perencanaan", progress:10},
+    {name:"Program Ketahanan Pangan Lokal", loc:"Nagari Sungai Lasi", sdg:2, status:"aktif", progress:55},
+  ];
+  const STATUS_LABEL = {aktif:"Aktif", selesai:"Selesai", perencanaan:"Perencanaan"};
+  const tbody = document.getElementById('projectsTableBody');
+  PROJECTS.forEach(p => {
+    const goal = GOALS.find(g => g.n === p.sdg);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="proj-name">${p.name}</div>
+        <div class="proj-loc">${p.loc}</div>
+      </td>
+      <td><span class="sdg-chip"><span class="sdg-dot" style="background:${goal.color}"></span>SDG ${String(goal.n).padStart(2,'0')}</span></td>
+      <td><span class="badge ${p.status}">${STATUS_LABEL[p.status]}</span></td>
+      <td>
+        <div class="progress-cell">
+          <div class="progress-track"><div class="progress-fill" style="width:${p.progress}%"></div></div>
+          <span>${p.progress}%</span>
+        </div>
+      </td>
+      <td>
+        <div class="row-actions">
+          <button aria-label="Ubah"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+          <button aria-label="Hapus"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m-9 0 1 14a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-14"/></svg></button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // ---------- modal ----------
+  const overlay = document.getElementById('modalOverlay');
+  const openBtns = [document.getElementById('openModalBtn'), document.getElementById('openModalBtn2')];
+  const closeBtns = [document.getElementById('closeModalBtn'), document.getElementById('cancelModalBtn')];
+  function openModal(){ overlay.classList.add('is-open'); document.body.style.overflow='hidden'; }
+  function closeModal(){ overlay.classList.remove('is-open'); document.body.style.overflow=''; }
+  openBtns.forEach(b => b.addEventListener('click', openModal));
+  closeBtns.forEach(b => b.addEventListener('click', closeModal));
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+  // sdg chip selector inside modal
+  const chipGrid = document.getElementById('sdgChipGrid');
+  GOALS.forEach(g => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'sdg-chip-btn';
+    chip.dataset.sdg = g.n;
+    chip.innerHTML = `<span class="sdg-dot" style="background:${g.color}"></span> SDG ${String(g.n).padStart(2,'0')} — ${g.name}`;
+    chipGrid.appendChild(chip);
+  });
+  chipGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.sdg-chip-btn');
+    if(!btn) return;
+    chipGrid.querySelectorAll('.sdg-chip-btn').forEach(c => c.classList.remove('is-selected'));
+    btn.classList.add('is-selected');
+  });
+
+  // status segmented control
+  const segmented = document.getElementById('statusSegmented');
+  segmented.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    segmented.querySelectorAll('button').forEach(b => b.classList.remove('is-selected'));
+    btn.classList.add('is-selected');
+  });
+
+  // progress slider
+  const slider = document.getElementById('progressSlider');
+  const sliderLabel = document.getElementById('progressValueLabel');
+  slider.addEventListener('input', () => { sliderLabel.textContent = slider.value + '%'; });
+
+  // save -> toast
+  const toast = document.getElementById('toast');
+  document.getElementById('saveProjectBtn').addEventListener('click', () => {
+    closeModal();
+    toast.classList.add('is-shown');
+    setTimeout(() => toast.classList.remove('is-shown'), 2600);
+  });
+
+  // ---------- mobile sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  document.getElementById('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('is-open'));
+</script>
+</body>
+</html>

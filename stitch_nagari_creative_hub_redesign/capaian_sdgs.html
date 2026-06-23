@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capaian SDGs — Nagari Sambungo · Nagari Creative Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#FBF7EE;
+    --canvas-deep:#F1E9D5;
+    --surface:#FFFFFF;
+    --ink:#2C3E50;
+    --ink-soft:#5C6B73;
+    --ink-faint:#8B9499;
+    --navy:#1B4F72;
+    --navy-deep:#102C40;
+    --gold:#D4AC0D;
+    --gold-soft:#F4E6AE;
+    --gold-deep:#9C7B07;
+    --coral:#E74C3C;
+    --green:#27AE60;
+    --line:rgba(27,79,114,0.14);
+    --line-soft:rgba(27,79,114,0.08);
+    --shadow-card:0 1px 2px rgba(16,44,64,0.04), 0 12px 28px -16px rgba(16,44,64,0.18);
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  ul{margin:0;padding:0;list-style:none;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:500;margin:0;color:var(--navy-deep);}
+  p{margin:0;}
+  :focus-visible{outline:2.5px solid var(--gold-deep);outline-offset:3px;border-radius:4px;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+  /* ---------- shared layout ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{content:"";width:18px;height:1px;background:var(--gold-deep);display:inline-block;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 24px;border-radius:999px;font-weight:600;font-size:14.5px;
+    border:1px solid transparent;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+    white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-navy:hover{background:var(--navy-deep);box-shadow:0 8px 20px -8px rgba(27,79,114,0.55);}
+  .btn-gold{background:var(--gold);color:var(--navy-deep);}
+  .btn-gold:hover{background:#c19b0c;box-shadow:0 8px 20px -8px rgba(212,172,13,0.6);}
+  .btn-ghost{background:transparent;color:var(--navy-deep);}
+  .btn-ghost:hover{background:var(--line-soft);}
+  .btn-line{background:transparent;color:var(--navy-deep);border-color:var(--line);}
+  .btn-line:hover{border-color:var(--navy);background:var(--line-soft);}
+
+  /* ---------- gonjong motif ---------- */
+  .gonjong-divider{
+    height:30px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='176' height='30' viewBox='0 0 176 30'%3E%3Cpath d='M0,30 Q14,30 18,12 Q21,1 28,1 Q35,1 38,12 Q42,30 56,30 Q70,30 74,12 Q77,1 84,1 Q91,1 94,12 Q98,30 112,30 Q126,30 130,12 Q133,1 140,1 Q147,1 150,12 Q154,30 168,30 L176,30 L0,30 Z' fill='%23D4AC0D' fill-opacity='0.55'/%3E%3C/svg%3E");
+    background-repeat:repeat-x;
+    background-size:176px 30px;
+    background-position:center;
+  }
+  .gonjong-divider.on-dark{opacity:0.5;}
+
+  /* ---------- header ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:40;
+    background:rgba(251,247,238,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .header-inner{
+    max-width:1180px;margin:0 auto;padding:16px 32px;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+  }
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand-mark{width:34px;height:34px;flex:0 0 auto;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .brand-text strong{font-family:var(--font-display);font-size:17px;color:var(--navy-deep);font-weight:600;}
+  .brand-text small{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);}
+  .main-nav{display:flex;align-items:center;gap:28px;font-size:14.5px;font-weight:500;color:var(--ink-soft);}
+  .main-nav a{position:relative;padding:4px 0;}
+  .main-nav a:hover{color:var(--navy-deep);}
+  .main-nav a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .2s ease;}
+  .main-nav a:hover::after{transform:scaleX(1);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .nav-toggle{display:none;background:none;border:none;font-size:22px;color:var(--navy-deep);cursor:pointer;padding:4px 6px;}
+
+  @media (max-width:920px){
+    .main-nav{
+      position:fixed;inset:64px 0 auto 0;background:var(--canvas);
+      flex-direction:column;align-items:flex-start;gap:0;
+      border-bottom:1px solid var(--line);
+      transform:translateY(-130%);opacity:0;transition:transform .25s ease, opacity .25s ease;
+    }
+    .main-nav.is-open{transform:translateY(0);opacity:1;}
+    .main-nav a{width:100%;padding:14px 32px;border-top:1px solid var(--line-soft);}
+    .header-actions .btn-ghost{display:none;}
+    .nav-toggle{display:block;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;overflow:hidden;padding:72px 0 0;}
+  .hero-texture{
+    position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%231B4F72' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M0 60 L60 0 M30 90 L90 30 M0 100 L20 120 M100 0 L120 20'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:120px 120px;
+  }
+  .hero-inner{
+    position:relative;max-width:1180px;margin:0 auto;padding:0 32px 56px;
+    display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;
+  }
+  .hero-copy .eyebrow{margin-bottom:22px;}
+  .hero h1{font-size:clamp(34px,4.6vw,54px);line-height:1.04;letter-spacing:-0.01em;}
+  .hero h1 em{font-style:italic;color:var(--gold-deep);}
+  .hero-lead{margin-top:20px;max-width:46ch;color:var(--ink-soft);font-size:16.5px;line-height:1.65;}
+  .hero-actions{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;}
+
+  .hero-score{position:relative;display:flex;flex-direction:column;align-items:center;}
+  .score-ring-wrap{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;}
+  .gonjong-watermark{position:absolute;inset:-14px;opacity:0.16;}
+  .score-center{position:absolute;display:flex;flex-direction:column;align-items:center;}
+  .score-value{font-family:var(--font-display);font-size:50px;font-weight:500;color:var(--navy-deep);letter-spacing:-0.02em;}
+  .score-label{font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px;}
+  .score-status{
+    margin-top:18px;display:inline-flex;align-items:center;gap:8px;
+    font-size:13.5px;font-weight:600;color:var(--green);
+    background:rgba(39,174,96,0.1);padding:7px 16px;border-radius:999px;
+  }
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+  .ring-track{fill:none;stroke:var(--line);stroke-width:9;}
+  .ring-progress{fill:none;stroke:var(--gold);stroke-width:9;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1.4s cubic-bezier(.16,.84,.32,1);}
+
+  .hero-stats{
+    position:relative;border-top:1px solid var(--line);
+    background:var(--canvas-deep);
+  }
+  .hero-stats-inner{
+    max-width:1180px;margin:0 auto;padding:30px 32px;
+    display:grid;grid-template-columns:repeat(4,1fr);
+  }
+  .stat{display:flex;flex-direction:column;gap:4px;padding:0 24px;border-left:1px solid var(--line);}
+  .stat:first-child{border-left:none;padding-left:0;}
+  .stat strong{font-family:var(--font-display);font-size:30px;color:var(--navy-deep);font-weight:600;}
+  .stat span{font-size:13px;color:var(--ink-soft);}
+
+  @media (max-width:920px){
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-score{margin-top:8px;}
+    .hero-stats-inner{grid-template-columns:repeat(2,1fr);row-gap:22px;}
+    .stat:nth-child(3){border-left:none;}
+  }
+  @media (max-width:520px){
+    .score-ring-wrap{width:220px;height:220px;}
+    .score-value{font-size:38px;}
+  }
+
+  /* ---------- section heads ---------- */
+  .section-head{max-width:640px;margin:0 auto 36px;text-align:center;}
+  .section-head .eyebrow{justify-content:center;}
+  .section-head h2{font-size:clamp(26px,3vw,34px);margin-top:16px;line-height:1.2;}
+  .section-lead{margin-top:14px;color:var(--ink-soft);font-size:15.5px;line-height:1.6;}
+
+  /* ---------- goals ---------- */
+  .goals{padding:76px 0 86px;}
+  .filter-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:40px;}
+  .filter-pill{
+    font-family:var(--font-mono);font-size:12.5px;font-weight:500;letter-spacing:0.02em;
+    padding:9px 18px;border-radius:999px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink-soft);cursor:pointer;transition:all .18s ease;
+  }
+  .filter-pill:hover{border-color:var(--navy);color:var(--navy-deep);}
+  .filter-pill.is-active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+  .goals-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(252px,1fr));gap:16px;
+  }
+  .goal-card{
+    background:var(--surface);border:1px solid var(--line-soft);border-radius:18px;
+    padding:22px;box-shadow:var(--shadow-card);
+    display:flex;flex-direction:column;gap:14px;
+    opacity:0;transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .goal-card.is-visible{opacity:1;transform:translateY(0);}
+  .goal-card:hover{border-color:var(--gold);box-shadow:0 1px 2px rgba(16,44,64,0.05), 0 18px 32px -16px rgba(212,172,13,0.35);}
+  .goal-card.is-hidden{display:none;}
+  .goal-top{display:flex;align-items:flex-start;justify-content:space-between;}
+  .goal-num{
+    font-family:var(--font-mono);font-size:11px;font-weight:600;color:#fff;
+    width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  }
+  .goal-pillar-tag{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-faint);margin-top:8px;}
+  .goal-mid{display:flex;align-items:center;gap:14px;}
+  .goal-ring{width:62px;height:62px;flex:0 0 auto;position:relative;}
+  .goal-ring .ring-progress{stroke-linecap:round;}
+  .goal-score{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:600;font-size:14.5px;color:var(--navy-deep);
+  }
+  .goal-name{font-size:14.5px;font-weight:600;color:var(--navy-deep);line-height:1.3;}
+
+  /* ---------- pillars ---------- */
+  .pillars{background:var(--navy-deep);padding:80px 0 88px;position:relative;}
+  .pillars .eyebrow{color:var(--gold);}
+  .pillars .eyebrow::before{background:var(--gold);}
+  .pillars .section-head h2{color:#fff;}
+  .pillars .section-lead{color:rgba(255,255,255,0.65);}
+  .pillars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .pillar-card{
+    position:relative;border-radius:20px;padding:30px 26px 26px;
+    background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.1);
+    overflow:hidden;transition:transform .25s ease, background .25s ease;
+  }
+  .pillar-card:hover{transform:translateY(-4px);background:rgba(255,255,255,0.07);}
+  .pillar-card::before{
+    content:"";position:absolute;top:0;left:26px;right:26px;height:3px;border-radius:0 0 4px 4px;
+  }
+  .pillar-card[data-tone="navy"]::before{background:#6EA8D4;}
+  .pillar-card[data-tone="green"]::before{background:var(--green);}
+  .pillar-card[data-tone="gold"]::before{background:var(--gold);}
+  .pillar-icon{
+    width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  }
+  .pillar-card[data-tone="navy"] .pillar-icon{background:rgba(110,168,212,0.16);}
+  .pillar-card[data-tone="green"] .pillar-icon{background:rgba(39,174,96,0.18);}
+  .pillar-card[data-tone="gold"] .pillar-icon{background:rgba(212,172,13,0.18);}
+  .pillar-card h3{color:#fff;font-size:19px;font-weight:600;margin-bottom:10px;}
+  .pillar-card p{color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;margin-bottom:22px;}
+  .pillar-meta{display:flex;align-items:center;justify-content:space-between;padding-top:18px;border-top:1px solid rgba(255,255,255,0.1);}
+  .pillar-meta span{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.5);}
+  .pillar-meta a{font-size:13px;font-weight:600;color:var(--gold);display:inline-flex;align-items:center;gap:6px;}
+  .pillar-meta a:hover{text-decoration:underline;}
+
+  @media (max-width:860px){.pillars-grid{grid-template-columns:1fr;}}
+
+  /* ---------- cta band ---------- */
+  .cta-band{padding:74px 0;text-align:center;}
+  .cta-band h2{font-size:clamp(24px,3vw,32px);max-width:560px;margin:0 auto;}
+  .cta-band p{margin-top:14px;color:var(--ink-soft);max-width:480px;margin-left:auto;margin-right:auto;}
+  .cta-band .btn{margin-top:26px;}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--navy-deep);color:rgba(255,255,255,0.7);padding-top:0;}
+  .footer-inner{max-width:1180px;margin:0 auto;padding:54px 32px 30px;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:32px;}
+  .footer-brand strong{font-family:var(--font-display);font-size:19px;color:#fff;display:block;margin-bottom:8px;}
+  .footer-brand p{font-size:13px;color:rgba(255,255,255,0.45);max-width:32ch;line-height:1.6;}
+  .footer-col h4{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);font-weight:600;margin-bottom:14px;font-family:var(--font-mono);}
+  .footer-col ul li{margin-bottom:10px;}
+  .footer-col a{font-size:13.5px;color:rgba(255,255,255,0.78);}
+  .footer-col a:hover{color:var(--gold);}
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,0.1);
+    padding:20px 32px 28px;max-width:1180px;margin:0 auto;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    font-size:12.5px;color:rgba(255,255,255,0.4);
+  }
+  @media (max-width:860px){.footer-inner{grid-template-columns:1fr 1fr;}}
+  @media (max-width:520px){.footer-inner{grid-template-columns:1fr;}}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+
+<a class="visually-hidden" href="#goals">Lewati ke konten</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+        <path d="M3,30 Q8,30 10,16 Q11.5,7 17,7 Q22,7 23,16" stroke="#1B4F72" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M17,30 Q22,30 24,16 Q25.5,7 31,7 Q36,7 37,16" stroke="#D4AC0D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <line x1="3" y1="33" x2="37" y2="33" stroke="#1B4F72" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">
+        <strong>Nagari Creative Hub</strong>
+        <small>Capaian SDGs</small>
+      </span>
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="#">Beranda</a>
+      <a href="#">Tentang</a>
+      <a href="#">4 Pilar</a>
+      <a href="#">Katalog UMKM</a>
+      <a href="#">Peta Nagari</a>
+      <a href="#">Mitra</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-ghost" href="#">Masuk</a>
+      <a class="btn btn-gold" href="#">Daftar UMKM</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Buka menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-texture" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">Nagari Sambungo · Pesisir Selatan</p>
+        <h1>Capaian <em>SDGs</em><br>Nagari Sambungo</h1>
+        <p class="hero-lead">Tujuh belas tujuan pembangunan dunia, dipantau langsung dari pusat data nagari — berpijak pada adat, dijalankan dengan cara baru.</p>
+        <div class="hero-actions">
+          <a class="btn btn-navy" href="#goals">Lihat 17 Capaian</a>
+          <a class="btn btn-line" href="#pillars">Sub-Program KSDGC</a>
+        </div>
+      </div>
+      <div class="hero-score">
+        <div class="score-ring-wrap">
+          <svg class="gonjong-watermark" viewBox="0 0 280 280" fill="none">
+            <path d="M40,200 Q60,200 68,140 Q73,100 100,100 Q127,100 132,140 Q140,200 160,200 Q180,200 188,140 Q193,100 220,100 Q247,100 252,140" stroke="#D4AC0D" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+          <svg width="280" height="280" viewBox="0 0 280 280">
+            <circle class="ring-track" cx="140" cy="140" r="118"/>
+            <circle id="heroRingProgress" class="ring-progress" cx="140" cy="140" r="118"/>
+          </svg>
+          <div class="score-center">
+            <span class="score-value" id="heroScoreValue">0</span>
+            <span class="score-label">Indeks SDGs</span>
+          </div>
+        </div>
+        <p class="score-status"><span class="status-dot"></span> Status: Berkembang</p>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stats-inner">
+        <div class="stat"><strong>48</strong><span>Program aktif</span></div>
+        <div class="stat"><strong>3.240</strong><span>Total partisipan</span></div>
+        <div class="stat"><strong>1.180</strong><span>Peserta KSDGC</span></div>
+        <div class="stat"><strong>17</strong><span>Tujuan dipantau</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gonjong-divider" aria-hidden="true"></div>
+
+  <section class="goals" id="goals">
+    <div class="section-head">
+      <p class="eyebrow">17 Tujuan · Kerangka 5P</p>
+      <h2>Setiap tujuan, dipantau hingga ke tingkat dusun.</h2>
+      <p class="section-lead">Dikelompokkan menurut lima pilar PBB — Manusia, Kemakmuran, Bumi, Perdamaian, dan Kemitraan — agar capaian nagari mudah dibaca, bukan sekadar dihitung.</p>
+    </div>
+    <div class="filter-row" id="filterRow">
+      <button class="filter-pill is-active" data-filter="all">Semua · 17</button>
+      <button class="filter-pill" data-filter="manusia">Manusia</button>
+      <button class="filter-pill" data-filter="kemakmuran">Kemakmuran</button>
+      <button class="filter-pill" data-filter="bumi">Bumi</button>
+      <button class="filter-pill" data-filter="perdamaian">Perdamaian</button>
+      <button class="filter-pill" data-filter="kemitraan">Kemitraan</button>
+    </div>
+    <div class="goals-grid" id="goalsGrid"></div>
+  </section>
+
+  <section class="pillars" id="pillars">
+    <div class="gonjong-divider on-dark" aria-hidden="true" style="position:absolute;top:0;left:0;right:0;"></div>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Sub-Program KSDGC</p>
+        <h2>Tiga inisiatif inti pemberdayaan nagari</h2>
+        <p class="section-lead">Fokus pelaksanaan Kelompok Sadar Desa Globally Connected — disusun dari kebutuhan warga, bukan dari atas meja.</p>
+      </div>
+      <div class="pillars-grid">
+        <div class="pillar-card" data-tone="navy">
+          <div class="pillar-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6EA8D4" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <h3>Literasi Digital</h3>
+          <p>Peningkatan kapasitas masyarakat dalam pemanfaatan teknologi informasi untuk ekonomi kreatif nagari.</p>
+          <div class="pillar-meta"><span>24 proyek berjalan</span><a href="#">Kelola →</a></div>
+        </div>
+        <div class="pillar-card" data-tone="green">
+          <div class="pillar-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#27AE60" stroke-width="1.8"><path d="M12 2c4 3 6 6 6 10a6 6 0 0 1-12 0c0-4 2-7 6-10Z"/></svg>
+          </div>
+          <h3>Ketahanan Pangan</h3>
+          <p>Optimalisasi lahan dan inovasi pertanian berkelanjutan berbasis kearifan lokal Minangkabau.</p>
+          <div class="pillar-meta"><span>16 proyek berjalan</span><a href="#">Kelola →</a></div>
+        </div>
+        <div class="pillar-card" data-tone="gold">
+          <div class="pillar-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4AC0D" stroke-width="1.8"><path d="M4 19V7l8-4 8 4v12M4 19h16M9 19v-6h6v6"/></svg>
+          </div>
+          <h3>Pelestarian Budaya</h3>
+          <p>Dokumentasi dan revitalisasi seni serta tradisi Minangkabau untuk generasi muda nagari.</p>
+          <div class="pillar-meta"><span>9 proyek berjalan</span><a href="#">Kelola →</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <h2>Punya data atau program yang belum tercatat?</h2>
+    <p>Mitra dan pengelola nagari dapat mengajukan pembaruan capaian langsung ke admin KSDGC.</p>
+    <a class="btn btn-navy" href="#">Ajukan Pembaruan Data</a>
+  </section>
+</main>
+
+<footer>
+  <div class="gonjong-divider on-dark" aria-hidden="true"></div>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Nagari Creative Hub</strong>
+      <p>Platform digital untuk UMKM lokal, informasi nagari, dan kolaborasi mitra. Rooted in tradition, powered by innovation.</p>
+    </div>
+    <div class="footer-col"><h4>Platform</h4><ul><li><a href="#">Beranda</a></li><li><a href="#">4 Pilar</a></li><li><a href="#">Katalog UMKM</a></li></ul></div>
+    <div class="footer-col"><h4>Nagari</h4><ul><li><a href="#">Peta Nagari</a></li><li><a href="#">Capaian SDGs</a></li><li><a href="#">KSDGC</a></li></ul></div>
+    <div class="footer-col"><h4>Akun</h4><ul><li><a href="#">Masuk</a></li><li><a href="#">Daftar UMKM</a></li><li><a href="#">Dashboard</a></li></ul></div>
+    <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">Kebijakan Privasi</a></li><li><a href="#">Syarat & Ketentuan</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Nagari Creative Hub. Seluruh hak cipta dilindungi.</span>
+    <span>Dibangun dengan Laravel, Filament &amp; Tailwind CSS</span>
+  </div>
+</footer>
+
+<script>
+  // ---------- data: 17 goals, official UN SDG colors, 5P grouping ----------
+  const GOALS = [
+    {n:1,  name:"Desa Tanpa Kemiskinan",                 score:58.04, color:"#E5243B", pillar:"manusia"},
+    {n:2,  name:"Desa Tanpa Kelaparan",                  score:33.06, color:"#DDA63A", pillar:"manusia"},
+    {n:3,  name:"Desa Sehat dan Sejahtera",               score:61.03, color:"#4C9F38", pillar:"manusia"},
+    {n:4,  name:"Pendidikan Desa Berkualitas",            score:29.68, color:"#C5192D", pillar:"manusia"},
+    {n:5,  name:"Keterlibatan Perempuan Desa",            score:41.35, color:"#FF3A21", pillar:"manusia"},
+    {n:6,  name:"Desa Layak Air Bersih & Sanitasi",       score:62.58, color:"#26BDE2", pillar:"bumi"},
+    {n:7,  name:"Desa Berenergi Bersih & Terbarukan",     score:99.03, color:"#FCC30B", pillar:"kemakmuran"},
+    {n:8,  name:"Pertumbuhan Ekonomi Desa Merata",        score:40.29, color:"#A21942", pillar:"kemakmuran"},
+    {n:9,  name:"Infrastruktur & Inovasi Sesuai Kebutuhan",score:89.40, color:"#FD6925", pillar:"kemakmuran"},
+    {n:10, name:"Desa Tanpa Kesenjangan",                 score:75.12, color:"#DD1367", pillar:"kemakmuran"},
+    {n:11, name:"Kawasan Permukiman Aman & Nyaman",       score:72.80, color:"#FD9D24", pillar:"kemakmuran"},
+    {n:12, name:"Konsumsi & Produksi Sadar Lingkungan",   score:54.91, color:"#BF8B2E", pillar:"bumi"},
+    {n:13, name:"Tanggap Perubahan Iklim",                score:68.22, color:"#3F7E44", pillar:"bumi"},
+    {n:14, name:"Peduli Lingkungan Laut",                 score:81.05, color:"#0A97D9", pillar:"bumi"},
+    {n:15, name:"Peduli Lingkungan Darat",                score:79.34, color:"#56C02B", pillar:"bumi"},
+    {n:16, name:"Desa Damai Berkeadilan",                 score:88.90, color:"#00689D", pillar:"perdamaian"},
+    {n:17, name:"Kemitraan untuk Pembangunan Desa",       score:74.65, color:"#19486A", pillar:"kemitraan"},
+  ];
+
+  const grid = document.getElementById('goalsGrid');
+
+  function ringSVG(score, color, size, stroke){
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle class="ring-track" cx="${size/2}" cy="${size/2}" r="${r}" stroke-width="${stroke}"/>
+      <circle class="ring-progress goal-ring-progress" cx="${size/2}" cy="${size/2}" r="${r}" stroke-width="${stroke}"
+        stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-offset="${c - (score/100)*c}"/>
+    </svg>`;
+  }
+
+  GOALS.forEach(g => {
+    const card = document.createElement('article');
+    card.className = 'goal-card';
+    card.dataset.pillar = g.pillar;
+    card.innerHTML = `
+      <div class="goal-top">
+        <span class="goal-num" style="background:${g.color}">${String(g.n).padStart(2,'0')}</span>
+      </div>
+      <div class="goal-mid">
+        <div class="goal-ring">
+          ${ringSVG(g.score, g.color, 62, 6)}
+          <div class="goal-score">${g.score.toFixed(0)}</div>
+        </div>
+        <div class="goal-name">${g.name}</div>
+      </div>
+      <div class="goal-pillar-tag">${g.pillar}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ---------- scroll reveal + ring fill ----------
+  const cards = document.querySelectorAll('.goal-card');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        const ring = entry.target.querySelector('.goal-ring-progress');
+        if(ring){
+          requestAnimationFrame(() => { ring.style.strokeDashoffset = ring.dataset.offset; });
+        }
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.15});
+  cards.forEach(c => io.observe(c));
+
+  // ---------- hero ring + counter ----------
+  const HERO_SCORE = 68.42;
+  const heroRing = document.getElementById('heroRingProgress');
+  const heroR = 118, heroStroke = 9;
+  const heroC = 2 * Math.PI * heroR;
+  heroRing.setAttribute('stroke-dasharray', heroC);
+  heroRing.style.strokeDashoffset = heroC;
+  const heroValueEl = document.getElementById('heroScoreValue');
+
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      heroRing.style.strokeDashoffset = heroC - (HERO_SCORE/100)*heroC;
+    });
+    const start = performance.now();
+    const dur = 1400;
+    function tick(now){
+      const p = Math.min(1, (now - start)/dur);
+      const eased = 1 - Math.pow(1-p, 3);
+      heroValueEl.textContent = (HERO_SCORE * eased).toFixed(1);
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  // ---------- filters ----------
+  const pills = document.querySelectorAll('.filter-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('is-active'));
+      pill.classList.add('is-active');
+      const f = pill.dataset.filter;
+      cards.forEach(card => {
+        const show = (f === 'all' || card.dataset.pillar === f);
+        card.classList.toggle('is-hidden', !show);
+      });
+    });
+  });
+
+  // ---------- mobile nav ----------
+  const navToggle = document.getElementById('navToggle');
+  const mainNav = document.getElementById('mainNav');
+  navToggle.addEventListener('click', () => {
+    const open = mainNav.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.textContent = open ? '✕' : '☰';
+  });
+</script>
+</body>
+</html>

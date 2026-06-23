@@ -1,0 +1,547 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Nagari Creative Hub Admin - Dashboard Terpadu SDGs &amp; KSDGC</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "on-surface-variant": "#41474e",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-fixed": "#00210c",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed-dim": "#ecc22c",
+                        "secondary": "#735c00",
+                        "tertiary": "#003d1c",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fed33e",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#9dcbf4",
+                        "tertiary-fixed-dim": "#61de8a",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed-variant": "#154b6d",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-container": "#725b00",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-tint": "#326286",
+                        "tertiary-container": "#00572a",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#cce5ff",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#92c0e9",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "background": "#f7f9fb",
+                        "primary": "#003857",
+                        "on-secondary-fixed": "#231b00",
+                        "on-primary-fixed": "#001e31",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed": "#ffe085",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-container": "#54d280",
+                        "outline": "#72787f",
+                        "primary-fixed-dim": "#9dcbf4",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed": "#7efba4",
+                        "primary-container": "#1b4f72",
+                        "on-background": "#191c1e",
+                        "outline-variant": "#c1c7cf"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "80px",
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-desktop": "48px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-md": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pattern-overlay {
+            background-image: repeating-linear-gradient(45deg, rgba(27, 79, 114, 0.03) 0px, rgba(27, 79, 114, 0.03) 2px, transparent 2px, transparent 8px);
+        }
+        .filigree-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c0-10 10-20 20-20S60 20 60 30 50 50 40 50s-10-10-10-20zm0 0c0 10-10 20-20 20S0 40 0 30s10-20 20-20 10 10 10 20z' fill='%23735c00' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .circular-progress {
+            background: conic-gradient(rgb(var(--primary-rgb)) 68.42%, transparent 0);
+        }
+        :root {
+            --primary-rgb: 0, 56, 87;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col py-6 z-50 overflow-y-auto bg-surface-container-low dark:bg-surface-dim shadow-md border-r border-surface-variant hidden md:flex">
+<div class="px-6 mb-8 flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md font-bold">NH</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary dark:text-primary-fixed-dim">Nagari Hub</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Admin Terminal</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full flex items-center justify-center gap-2 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full py-3 px-4 transition-colors text-label-md font-label-md">
+<span class="material-symbols-outlined text-lg">add</span> New Project
+        </button>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 bg-secondary-container dark:bg-tertiary-container text-on-secondary-container dark:text-on-tertiary-container rounded-full px-4 py-3 mx-2 transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-md font-label-md">SDG Metrics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="text-label-md font-label-md">KSDGC Programs</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined">table_chart</span>
+<span class="text-label-md font-label-md">Project Manager</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-md font-label-md">Performance Reports</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="text-label-md font-label-md">User Access</span>
+</a>
+</nav>
+<div class="mt-auto px-2 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Support</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline-variant px-4 py-3 mx-2 hover:bg-surface-container-highest dark:hover:bg-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright rounded-full" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 flex flex-col min-h-screen filigree-bg">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-40 bg-surface-bright dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-extrabold text-primary dark:text-primary-fixed-dim hidden md:block">Nagari Creative Hub Admin</span>
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-body-md focus:ring-2 focus:ring-secondary-container w-64 transition-all focus:bg-surface-container-lowest" placeholder="Cari data..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container ml-2 overflow-hidden border border-outline-variant">
+<img alt="Admin Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSC6o6-XoZWQUERLcZ2qK66fKojIpHuvaUE-glR9nOVfbjL5VTc0KlD39vWrLp7j3yNrI3s6m_RuaYf8WDJaerRE3RZJkcBNOdy5TX6Tn6nItdCN5eRzEeYgkBPJeQMi4qu286FKB_srLQ4Q5vw5qe9Lmqu9yXlhXeDdTL2OpbWc51awUekM1hny-8UYhGrhwlzxjGuXyWrlnOTon9_bnL5hlFINkf_LaTirJrXGiOPYDed42qernaGTrAF3Uf3Je4H51gfj_hh6pI">
+</div>
+</div>
+</header>
+<div class="p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full space-y-gutter">
+<!-- Hero Section: Enhanced Metrics -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch border-b border-outline-variant pb-12">
+<!-- Main KPI Card -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-lg p-8 shadow-sm border border-surface-variant relative overflow-hidden group">
+<div class="pattern-overlay absolute inset-0 opacity-40"></div>
+<!-- Gonjong decorative accent -->
+<div class="absolute -top-10 -right-10 w-40 h-40 opacity-5 pointer-events-none rotate-12">
+<span class="material-symbols-outlined text-[160px] text-secondary">architecture</span>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+<div class="flex-1">
+<span class="inline-flex items-center gap-2 px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-label-sm font-label-sm mb-4">
+<span class="material-symbols-outlined text-sm">stars</span> Status: Berkembang
+                        </span>
+<h2 class="text-display-md font-display-md text-on-surface mb-2">Skor SDGs Nagari</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-md">Indeks performa keberlanjutan Nagari Sambungo menunjukkan tren positif pada tahun ini.</p>
+<div class="mt-6 flex items-center gap-4">
+<div class="flex items-center gap-1 text-tertiary font-label-md">
+<span class="material-symbols-outlined text-sm">trending_up</span> +4.2% dari kuartal lalu
+                            </div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<button class="text-primary font-label-md hover:underline flex items-center gap-1">Detail Indikator <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+<div class="relative w-48 h-48 shrink-0 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<circle class="text-surface-container-high stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<circle class="text-primary stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.2" stroke-dashoffset="79.33" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-display-md font-display-md font-extrabold text-primary">68.42</span>
+<span class="text-label-sm font-label-sm uppercase tracking-widest">Index Score</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Impact Cards -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="flex-1 bg-surface-container-lowest rounded-lg p-5 border border-surface-variant shadow-sm flex items-center gap-4 hover:border-primary transition-colors cursor-default">
+<div class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined">rocket_launch</span>
+</div>
+<div class="flex-1">
+<p class="text-label-md font-label-md text-on-surface-variant">Program Aktif</p>
+<div class="flex items-end justify-between">
+<p class="text-display-md font-display-md text-on-surface">48</p>
+<span class="text-label-sm font-label-sm text-tertiary bg-tertiary-fixed-dim px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +12%
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-lg p-5 border border-surface-variant shadow-sm flex items-center gap-4 hover:border-secondary transition-colors cursor-default">
+<div class="w-14 h-14 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex-1">
+<p class="text-label-md font-label-md text-on-surface-variant">Total Partisipan</p>
+<div class="flex items-end justify-between">
+<p class="text-display-md font-display-md text-on-surface">3.240</p>
+<span class="text-label-sm font-label-sm text-tertiary bg-tertiary-fixed-dim px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +8%
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-lg p-5 border border-surface-variant shadow-sm flex items-center gap-4 hover:border-tertiary transition-colors cursor-default">
+<div class="w-14 h-14 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div class="flex-1">
+<p class="text-label-md font-label-md text-on-surface-variant">Peserta KSDGC</p>
+<div class="flex items-end justify-between">
+<p class="text-display-md font-display-md text-on-surface">1.180</p>
+<span class="text-label-sm font-label-sm text-tertiary bg-tertiary-fixed-dim px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +15%
+                            </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SDG Grid: Detail with 5P Clustering -->
+<section class="space-y-6 bg-surface-container-low -mx-margin-mobile md:-mx-margin-desktop px-margin-mobile md:px-margin-desktop py-12">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface">Detail Capaian SDGs</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Monitoring real-time 17 indikator tujuan pembangunan berkelanjutan.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-lowest border border-outline-variant px-4 py-2 rounded-full text-label-md flex items-center gap-2 hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-lg">filter_alt</span> Filter Cluster
+                    </button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full text-label-md flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-lg">download</span> Unduh Laporan
+                    </button>
+</div>
+</div>
+<!-- Cluster: People -->
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-label-sm font-bold">PEOPLE</span>
+<div class="h-px flex-1 bg-surface-variant"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+<!-- SDG 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-variant shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center justify-between mb-3">
+<div class="w-10 h-10 bg-[#E5243B] rounded flex items-center justify-center text-white font-bold">1</div>
+<span class="text-headline-md font-headline-md">58.4</span>
+</div>
+<h4 class="text-label-sm font-bold text-on-surface-variant mb-4 line-clamp-1">Tanpa Kemiskinan</h4>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#E5243B]" style="width: 58.4%"></div>
+</div>
+</div>
+<!-- SDG 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-variant shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center justify-between mb-3">
+<div class="w-10 h-10 bg-[#DDA63A] rounded flex items-center justify-center text-white font-bold">2</div>
+<span class="text-headline-md font-headline-md">33.1</span>
+</div>
+<h4 class="text-label-sm font-bold text-on-surface-variant mb-4 line-clamp-1">Tanpa Kelaparan</h4>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#DDA63A]" style="width: 33.1%"></div>
+</div>
+</div>
+<!-- SDG 3 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-variant shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center justify-between mb-3">
+<div class="w-10 h-10 bg-[#4C9F38] rounded flex items-center justify-center text-white font-bold">3</div>
+<span class="text-headline-md font-headline-md">61.0</span>
+</div>
+<h4 class="text-label-sm font-bold text-on-surface-variant mb-4 line-clamp-1">Kehidupan Sehat</h4>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#4C9F38]" style="width: 61%"></div>
+</div>
+</div>
+<!-- SDG 4 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-variant shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center justify-between mb-3">
+<div class="w-10 h-10 bg-[#C5192D] rounded flex items-center justify-center text-white font-bold">4</div>
+<span class="text-headline-md font-headline-md">29.7</span>
+</div>
+<h4 class="text-label-sm font-bold text-on-surface-variant mb-4 line-clamp-1">Pendidikan Berkualitas</h4>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#C5192D]" style="width: 29.7%"></div>
+</div>
+</div>
+<!-- SDG 5 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-variant shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center justify-between mb-3">
+<div class="w-10 h-10 bg-[#FF3A21] rounded flex items-center justify-center text-white font-bold">5</div>
+<span class="text-headline-md font-headline-md">74.2</span>
+</div>
+<h4 class="text-label-sm font-bold text-on-surface-variant mb-4 line-clamp-1">Kesetaraan Gender</h4>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#FF3A21]" style="width: 74.2%"></div>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant text-on-surface-variant rounded-lg font-label-md hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+                Tampilkan Seluruh 17 Tujuan (Prosperity, Planet, Peace, Partnership) <span class="material-symbols-outlined">expand_more</span>
+</button>
+</section>
+<!-- KSDGC Programs Section -->
+<section class="space-y-6 bg-surface-container-low -mx-margin-mobile md:-mx-margin-desktop px-margin-mobile md:px-margin-desktop pb-12">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface">Sub-Program KSDGC Hub</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Inisiatif pemberdayaan masyarakat berbasis teknologi dan kearifan lokal.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Program 1 -->
+<div class="group bg-surface-container-lowest rounded-lg border border-surface-variant shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">laptop_mac</span>
+</div>
+<div class="text-right">
+<span class="block text-headline-md font-bold text-primary">24</span>
+<span class="text-label-sm text-on-surface-variant uppercase">Proyek</span>
+</div>
+</div>
+<h4 class="text-headline-md font-headline-md mb-2">Literasi Digital</h4>
+<p class="text-body-md text-on-surface-variant mb-6 h-12 overflow-hidden">Pelatihan IT dan ekonomi kreatif untuk pemuda Nagari agar kompetitif secara global.</p>
+<div class="pt-4 border-t border-surface-variant flex items-center justify-between">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-variant"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-dim"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-primary-container flex items-center justify-center text-[10px] text-on-primary-container">+12</div>
+</div>
+<button class="text-primary font-label-md hover:underline">Kelola Dashboard</button>
+</div>
+</div>
+</div>
+<!-- Program 2 -->
+<div class="group bg-surface-container-lowest rounded-lg border border-surface-variant shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-3 bg-tertiary"></div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">agriculture</span>
+</div>
+<div class="text-right">
+<span class="block text-headline-md font-bold text-tertiary">16</span>
+<span class="text-label-sm text-on-surface-variant uppercase">Proyek</span>
+</div>
+</div>
+<h4 class="text-headline-md font-headline-md mb-2">Ketahanan Pangan</h4>
+<p class="text-body-md text-on-surface-variant mb-6 h-12 overflow-hidden">Modernisasi pertanian dan optimalisasi distribusi logistik pangan lokal.</p>
+<div class="pt-4 border-t border-surface-variant flex items-center justify-between">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-variant"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-dim"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-primary-container flex items-center justify-center text-[10px] text-on-primary-container">+5</div>
+</div>
+<button class="text-primary font-label-md hover:underline">Kelola Dashboard</button>
+</div>
+</div>
+</div>
+<!-- Program 3 -->
+<div class="group bg-surface-container-lowest rounded-lg border border-surface-variant shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-3 bg-secondary"></div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">palette</span>
+</div>
+<div class="text-right">
+<span class="block text-headline-md font-bold text-secondary">8</span>
+<span class="text-label-sm text-on-surface-variant uppercase">Proyek</span>
+</div>
+</div>
+<h4 class="text-headline-md font-headline-md mb-2">Pelestarian Budaya</h4>
+<p class="text-body-md text-on-surface-variant mb-6 h-12 overflow-hidden">Dokumentasi digital tradisi lisan dan pengembangan pariwisata berbasis budaya.</p>
+<div class="pt-4 border-t border-surface-variant flex items-center justify-between">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-variant"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-dim"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-primary-container flex items-center justify-center text-[10px] text-on-primary-container">+3</div>
+</div>
+<button class="text-primary font-label-md hover:underline">Kelola Dashboard</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Project Management Table -->
+<section class="space-y-6 border-t border-outline-variant pt-12">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-lg font-headline-lg text-on-surface">Manajemen Proyek Berjalan</h3>
+<button class="text-primary font-label-md flex items-center gap-2">Tampilkan Semua <span class="material-symbols-outlined text-sm">open_in_new</span></button>
+</div>
+<div class="bg-surface-container-lowest rounded-lg border border-surface-variant overflow-hidden shadow-sm">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-surface-variant">
+<tr>
+<th class="px-6 py-4 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Nama Proyek</th>
+<th class="px-6 py-4 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+<th class="px-6 py-4 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Target SDG</th>
+<th class="px-6 py-4 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Progress</th>
+<th class="px-6 py-4 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<p class="text-label-md font-bold">Nagari Digital Academy</p>
+<p class="text-label-sm text-on-surface-variant">Batch 3 - Web Dev</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-xs font-bold uppercase">Aktif</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-6 h-6 bg-[#C5192D] rounded flex items-center justify-center text-[10px] text-white font-bold">4</div>
+</td>
+<td class="px-6 py-4 min-w-[200px]">
+<div class="flex items-center gap-3">
+<div class="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 75%"></div>
+</div>
+<span class="text-label-sm font-bold">75%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 hover:bg-surface-variant rounded-full"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<p class="text-label-md font-bold">Irigasi Pintar Sambungo</p>
+<p class="text-label-sm text-on-surface-variant">Instalasi Sensor IoT</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold uppercase">Perencanaan</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-6 h-6 bg-[#4C9F38] rounded flex items-center justify-center text-[10px] text-white font-bold">2</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 15%"></div>
+</div>
+<span class="text-label-sm font-bold">15%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 hover:bg-surface-variant rounded-full"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<p class="text-label-md font-bold">Pemetaan Hutan Nagari</p>
+<p class="text-label-sm text-on-surface-variant">Survei Drone 2024</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full text-xs font-bold uppercase">Selesai</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-6 h-6 bg-[#00689D] rounded flex items-center justify-center text-[10px] text-white font-bold">15</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-tertiary" style="width: 100%"></div>
+</div>
+<span class="text-label-sm font-bold">100%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 hover:bg-surface-variant rounded-full"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<footer class="mt-auto py-8 px-gutter border-t border-surface-variant text-center">
+<p class="text-label-sm text-on-surface-variant">Nagari SDG &amp; KSDGC Hub Admin Dashboard © 2024. Sistem Terpadu Pembangunan Berkelanjutan.</p>
+</footer>
+</main>
+
+
+</body></html>

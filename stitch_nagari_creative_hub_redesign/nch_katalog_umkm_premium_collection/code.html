@@ -1,0 +1,592 @@
+<!DOCTYPE html><html lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Katalog UMKM - Nagari Creative Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#00210c",
+                        "tertiary-fixed": "#7efba4",
+                        "tertiary": "#003d1c",
+                        "on-surface-variant": "#41474e",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "inverse-primary": "#9dcbf4",
+                        "error-container": "#ffdad6",
+                        "outline": "#72787f",
+                        "primary-fixed-dim": "#9dcbf4",
+                        "on-secondary-fixed": "#231b00",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-container": "#54d280",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001e31",
+                        "on-secondary-fixed-variant": "#574500",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "tertiary-container": "#00572a",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "primary": "#003857",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#ffe085",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary": "#735c00",
+                        "primary-fixed": "#cce5ff",
+                        "on-background": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-container": "#fed33e",
+                        "on-surface": "#191c1e",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-tint": "#326286",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#61de8a",
+                        "on-primary-fixed-variant": "#154b6d",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ecc22c",
+                        "outline-variant": "#c1c7cf",
+                        "primary-container": "#1b4f72",
+                        "on-secondary-container": "#725b00",
+                        "on-primary-container": "#92c0e9",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "section-gap": "80px",
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-md": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["30px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bada-mudiak-divider {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20H0L20 0z' fill='%231B4F72' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            height: 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full z-50 bg-surface/80 dark:bg-on-background/80 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm transition-all duration-300" id="main-nav">
+<div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+<a class="font-display-md text-display-md text-primary dark:text-primary-fixed tracking-tight flex items-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-[32px] text-secondary group-hover:rotate-12 transition-transform duration-300">hub</span>
+                Nagari Creative Hub
+            </a>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors duration-300" href="#">Showcase</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors duration-300" href="#">Ecosystem</a>
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed font-bold border-b-2 border-secondary pb-1" href="#">Directory</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors duration-300" href="#">Heritage</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors duration-300" href="#">Events</a>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md text-label-md hover:bg-secondary-fixed-dim transition-colors duration-300 active:scale-95 shadow-[0_4px_20px_rgba(27,79,114,0.15)] flex items-center gap-2">
+                Join Hub
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</nav>
+<main class="w-full">
+<!-- Premium Hero -->
+<section class="relative pt-32 pb-24 px-margin-desktop max-w-container-max mx-auto flex flex-col lg:flex-row items-center gap-16">
+<div class="lg:w-1/2 space-y-8 z-10">
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/20 border border-secondary-container/30 text-secondary-container text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+                    Directory
+                </div>
+<h1 class="font-display-lg text-display-lg md:text-[64px] text-primary leading-[1.1] tracking-tight">Koleksi&nbsp;<div>Premium:<br>
+<span class="text-secondary-fixed-dim">Karya terbaik</span> dari nagari, terkurasi untuk Anda.
+                </div></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                    Jelajahi mahakarya yang memadukan kekayaan tradisi Minangkabau dengan sentuhan modern. Setiap karya merepresentasikan warisan, dedikasi, dan inovasi dari UMKM unggulan kami.
+                </p>
+<div class="flex flex-wrap items-center gap-8 pt-4">
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-primary">840+</span>
+<span class="font-label-sm text-label-sm text-outline">UMKM Terdaftar</span>
+</div>
+<div class="w-px h-12 bg-outline-variant/30"></div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-primary">24</span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Produk</span>
+</div>
+<div class="w-px h-12 bg-outline-variant/30"></div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-primary flex items-center gap-1">
+                            4.8
+                            <span class="material-symbols-outlined text-secondary-fixed-dim text-[24px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+</span>
+<span class="font-label-sm text-label-sm text-outline">Rating Rata-rata</span>
+</div>
+</div>
+<div class="pt-6">
+<a class="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-full font-label-md text-label-md hover:bg-primary-container transition-all duration-300 shadow-[0_12px_32px_rgba(27,79,114,0.12)] group" href="#catalog">
+                        Jelajahi Sekarang
+                        <span class="material-symbols-outlined group-hover:translate-y-1 transition-transform duration-300">arrow_downward</span>
+</a>
+</div>
+</div>
+<div class="lg:w-1/2 relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-secondary/5 rounded-[40px] transform rotate-3 scale-105 -z-10"></div>
+<div class="relative h-[600px] w-full rounded-[40px] overflow-hidden shadow-[0_20px_40px_rgba(27,79,114,0.1)] border border-surface-variant/50">
+<img class="w-full h-full object-cover" data-alt="A striking digital product photography shot showcasing an exquisite collection of premium Minangkabau artisanal goods. The arrangement features intricate Songket weaving with subtle gold threads catching the light, alongside modern minimalist silver filigree jewelry and a beautifully packaged jar of gourmet Rendang. The setting is highly sophisticated, illuminated by soft, high-key studio lighting that emphasizes the rich textures and premium quality. The color palette revolves around the overarching UI aesthetic of deep blues, pristine whites, and rich gold accents, creating a modern, prestigious, and visually cohesive masterpiece suitable for a high-end catalog hero section." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ25JBJDlqPfuJbtO3pl3rniPRzyT__AB738kSnB0XvyuUUJtsmjKk9Z7mcCy8Z_pZHGHZMpiIuuUhvkVicDtRdzxWxUsD0_ZemqSNBjjTs_2isM1gqUKteNtmfpuH4iGuqyVWzELvb0lwpd_P8x5wYkAo85y7BCV-L781ibO5B4cnZvz2Pu46laKOx2ewAj42oEWlu5BdbEz6d8TMZYaw4XR91BzCURAaaxzhYjn61QTXAu-wMZcDwPMKnhlCxcxHPTTzg5Ijuk5r">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8 bg-surface/90 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Koleksi Kurasi 2024</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Edisi Terbatas Mahakarya Pengrajin</p>
+</div>
+<button class="bg-surface rounded-full p-3 shadow-sm text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="bada-mudiak-divider my-8"></div>
+<!-- Catalog Layout -->
+<section class="px-margin-desktop py-section-gap max-w-container-max mx-auto" id="catalog">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-gutter">
+<!-- Sidebar Filters -->
+<aside class="lg:col-span-1 space-y-8 sticky top-32 self-start">
+<div class="bg-surface-container-lowest rounded-DEFAULT border border-surface-variant p-6 shadow-[0_4px_20px_rgba(27,79,114,0.05)]">
+<h2 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">filter_list</span>
+                            Filter
+                        </h2>
+<!-- Kategori Utama -->
+<div class="mb-8">
+<h3 class="font-label-md text-label-md text-on-surface mb-4 uppercase tracking-wider">Kategori Utama</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container-lowest transition-colors" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">Songket &amp; Tenun</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container-lowest transition-colors" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">Kerajinan Tangan</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container-lowest transition-colors" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">Kuliner Premium</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container-lowest transition-colors" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">Perhiasan &amp; Logam</span>
+</label>
+</div>
+</div>
+<!-- Asal Nagari -->
+<div class="mb-8">
+<h3 class="font-label-md text-label-md text-on-surface mb-4 uppercase tracking-wider">Asal Nagari</h3>
+<select class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 font-body-md text-body-md text-on-surface-variant focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all">
+<option>Semua Nagari</option>
+<option>Pandai Sikek</option>
+<option>Koto Gadang</option>
+<option>Payakumbuh</option>
+<option>Alahan Panjang</option>
+<option>Sumpur</option>
+<option>Pariangan</option>
+</select>
+</div>
+<!-- Rentang Harga -->
+<div class="mb-8">
+<h3 class="font-label-md text-label-md text-on-surface mb-4 uppercase tracking-wider">Rentang Harga</h3>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 px-3 font-body-md text-body-md text-on-surface-variant focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant" placeholder="Min" type="number">
+<span class="text-outline-variant">-</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 px-3 font-body-md text-body-md text-on-surface-variant focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant" placeholder="Max" type="number">
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-full font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-colors duration-300">
+                            Terapkan Filter
+                        </button>
+</div>
+<!-- Promo Card -->
+<div class="bg-gradient-to-br from-primary to-primary-container rounded-DEFAULT p-6 text-on-primary relative overflow-hidden shadow-[0_12px_32px_rgba(27,79,114,0.2)]">
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[120px]">workspace_premium</span>
+</div>
+<span class="inline-block bg-secondary-container text-on-secondary-container text-xs font-bold px-2 py-1 rounded mb-4">MEMBER EXCLUSIVE</span>
+<h3 class="font-headline-md text-headline-md mb-2">Diskon 15%</h3>
+<p class="font-body-md text-body-md text-on-primary/80 mb-6">Untuk pembelian pertama produk pengrajin baru yang terkurasi bulan ini.</p>
+<a class="inline-flex items-center gap-2 font-label-md text-label-md text-secondary-fixed hover:text-white transition-colors" href="#">
+                            Klaim Promo <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</aside>
+<!-- Product Grid Area -->
+<div class="lg:col-span-3 space-y-8">
+<!-- Search & Sort Bar -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface-container-lowest p-2 rounded-xl border border-surface-variant shadow-[0_4px_20px_rgba(27,79,114,0.05)]">
+<div class="relative w-full sm:w-96">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-transparent border-none pl-12 pr-4 py-3 font-body-md text-body-md focus:ring-0 placeholder:text-outline-variant" placeholder="Cari mahakarya nagari..." type="text">
+</div>
+<div class="flex items-center gap-4 px-4 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-surface-variant pt-4 sm:pt-0">
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">Urutkan:</span>
+<select class="bg-transparent border-none py-2 pr-8 pl-0 font-label-md text-label-md text-primary focus:ring-0 cursor-pointer">
+<option>Terbaru</option>
+<option>Rating Tertinggi</option>
+<option>Harga: Rendah ke Tinggi</option>
+<option>Harga: Tinggi ke Rendah</option>
+</select>
+</div>
+</div>
+<!-- Category Explorer Pills -->
+<div class="flex overflow-x-auto pb-4 gap-3 scrollbar-hide">
+<button class="flex-none bg-primary text-on-primary px-5 py-2.5 rounded-full font-label-md text-label-md whitespace-nowrap flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+                            Semua <span class="bg-white/20 text-white px-2 py-0.5 rounded text-xs">840</span>
+</button>
+<button class="flex-none bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:border-primary hover:text-primary px-5 py-2.5 rounded-full font-label-md text-label-md whitespace-nowrap flex items-center gap-2 transition-all active:scale-95">
+                            Songket &amp; Tenun <span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-xs">215</span>
+</button>
+<button class="flex-none bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:border-primary hover:text-primary px-5 py-2.5 rounded-full font-label-md text-label-md whitespace-nowrap flex items-center gap-2 transition-all active:scale-95">
+                            Kerajinan Tangan <span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-xs">184</span>
+</button>
+<button class="flex-none bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:border-primary hover:text-primary px-5 py-2.5 rounded-full font-label-md text-label-md whitespace-nowrap flex items-center gap-2 transition-all active:scale-95">
+                            Kuliner Premium <span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-xs">342</span>
+</button>
+<button class="flex-none bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:border-primary hover:text-primary px-5 py-2.5 rounded-full font-label-md text-label-md whitespace-nowrap flex items-center gap-2 transition-all active:scale-95">
+                            Perhiasan &amp; Logam <span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-xs">99</span>
+</button>
+</div>
+<!-- Products Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A close-up, high-quality photograph of Songket Pucuk Rabuang from Pandai Sikek. The intricate geometric weaving patterns in vibrant gold threads are sharply focused against a rich, deep blue base fabric. The lighting is soft and directional, highlighting the luxurious texture and craftsmanship of the textile. The setting is a minimalist, modern studio environment that elevates the traditional craft into a premium context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP3zgu8vAzxl__zZ_1Pg2w3idhIZyCJkvWsJAkQCKHzTBFy_pdaqqaGu2b0F724AgPGUTNMaGmsIrH3gF7-_NtssU_FgwWd1GGjKe18n-Ls6O-rQFMtzjm94UwDUnc2AGXyn7uL2HQU-lSzPMrMc_b02n-JlEQgpJd-RbgsGdFSWUHcJQyXG7hgXK4NuvVGwi8PPZfsut0oQ-eHfflt05QOIJbZkSd5CtA_QgquNMUrxY-fFKQ8A8yHR2JUfCwLYrvCzuww2JTIcqP">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Pandai Sikek
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Songket &amp; Tenun</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Songket Pucuk Rabuang</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Tenun tangan asli dengan benang emas motif pucuk rabuang klasik.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 4.500.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors group/btn relative overflow-hidden">
+<span class="material-symbols-outlined z-10 relative">chat</span>
+<span class="sr-only">Hubungi via WhatsApp</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Product Card 2 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A macro studio shot of Perak Kerawang Murni from Koto Gadang. The image features a delicate, highly detailed silver filigree brooch resting on a pristine white marble surface. Soft, diffused lighting emphasizes the metallic shine and complex, hair-thin silver wires intertwined to form a floral motif. The overall aesthetic is clean, luxurious, and elegant, aligning with a modern, high-end catalog presentation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqfmyI8rOQw4A-jOgp5vpJQOudVE4RVLFA4G0mHBbXLLdT16067Z8xY9YxdEnloySMSEQyRe5Lx1IGePGOSAVgmNOwB8ECPSBMhuKh5uSyQ46-pPQYOZcmCtq9BB6Z_-L0Y3IUo6d4uq66VokztqfYKJr10jL-ATZ1WPDvw1SSMG_Tl6dbCD-3RCqKlPreKZRxPMsHXhxm7ey0yMLROjJrf0V3QMLAJoxWVqZ-JOu43-h0c4gpk6a5n40TGFbpxhabr1h4sg3LM8ju">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Koto Gadang
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Perhiasan &amp; Logam</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Perak Kerawang Murni</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Bros perak filigree buatan tangan dengan ketelitian tingkat tinggi.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 850.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A professional culinary photograph of Rendang Daging Premium from Payakumbuh. Dark, rich, caramelized chunks of beef rendang are presented elegantly in a minimalist ceramic bowl on a clean, light wooden table. A few fresh green herbs provide a pop of color. The lighting is warm and appetizing, yet maintains a modern, clean aesthetic consistent with a high-end gourmet food catalog." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLd-TraQ6xY-1Xz5WnCSjpNeDsEGz3aJCKS54HOSprjjX9Jej7ob0N1AOJlBF0x8Yc_zZe8oWLVF3bFhEPqvcgPtcTBw1dqvObBdOR2aUKa1XT3qQ4UwbR2pMMIZ0B3qtjjQIgnTtfwaSoi5mAMHqjA5HhICIyV96L1YJdPsFGPK3_vjmO4NyHSgNFzv_vbMmEmILR9qZOo1-TBtyD61QvcoVXw8axWDHkeXa3XxX-kW9yotjnCK5DLu8qDJ_jFvHZf00LG4REm3kZ">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Payakumbuh
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Kuliner Premium</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">5.0</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Rendang Daging Premium</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Dimasak perlahan selama 8 jam dengan rempah pilihan, kemasan vakum eksklusif.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 185.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A sleek product shot of Kopi Arabika Solok from Alahan Panjang. A premium matte-finish coffee bag with minimalist typography stands next to scattered roasted coffee beans on a clean, light grey surface. The lighting is crisp and modern, casting soft shadows that highlight the packaging's premium quality. The overall mood is sophisticated and appealing to specialty coffee enthusiasts, fitting seamlessly into the bright, tech-forward UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU4ZZKjNy-4kBplFuQsRFNNJdP1LWignBbhOnkTz_8ieXwp1K8gI1er08uBvbYo4iKPFh0CjvbMJ_4MrND4qfXcDRr4zs4PRaLvnnTmoHNIzTR3UM0qRrgHpEQ_OT6L7Fu8FrUvrZgIgrxEFoEZcDiixXq6YYWT6b_8X-wGlM3foUOO9AVW5_ee2TbEo9PcMtkikFazCvS9pse7xQHD-Iard6cZUhUMnxv4wYoUngz07MwBMelkaSWAOR8caqob0fzZrtqSSJz4FK5">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Alahan Panjang
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Kuliner Premium</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.7</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Kopi Arabika Solok</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Biji kopi spesialti dari dataran tinggi Solok dengan notes fruity dan floral.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 45.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Product Card 5 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A bright, airy studio photograph showcasing Anyaman Pandan Halus from Sumpur. An intricately woven, natural-colored pandanus leaf basket sits gracefully against a plain white background. The fine details of the weave are clearly visible under soft, natural-looking studio light. The aesthetic is organic yet highly refined, emphasizing the artisan's skill and perfectly matching the modern, minimalist gallery style of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR_dftcbpV2wkh0aFrTywFIk5PxwOuLyPtdAmnlm0MkkrRxOjYqLv7lVcg2ELhKc7p8TYkMyg4mlrlS1AsvcEe7uzeDK6Q_6aBp4ON0C7Xc36LRnr5Farg-Uysg4j-fwfLg78UTYo54pwvUfRAJjELAObpvvzFqArKPwagCDOE6ieMcg8Ws_p2UDjdFd9A2qMgSdYywXl_Mck53axKIgWIxSoG02dSugLIUS1f2nrZSMGyoDRkffe9mrb4ALTVX7kPUN_0EpQuyMXm">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Sumpur
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Kerajinan Tangan</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.6</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Anyaman Pandan Halus</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Tas jinjing anyaman pandan dengan detail presisi dan finishing premium.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 120.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Product Card 6 -->
+<article class="bg-surface-container-lowest rounded-[24px] border border-surface-variant overflow-hidden group hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(27,79,114,0.12)] transition-all duration-300 relative flex flex-col h-full">
+<div class="absolute bottom-0 right-0 w-32 h-32 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 0l10 10-10 10L0 10z\' fill=\'%231B4F72\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-5 pointer-events-none -z-0"></div>
+<div class="relative h-64 overflow-hidden z-10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A stunning, detailed shot of Batik Tulis Minang from Pariangan. The fabric is draped elegantly, showing off complex, hand-drawn motifs in rich indigo blues and subtle gold accents. The lighting is dramatic yet clear, highlighting the authentic texture of the textile and the artisanal imperfection of the hand-drawn wax lines. The visual style is premium and culturally grounded, fitting perfectly into the overarching sophisticated blue and gold aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcC78tmFtTg7VWrCSI3-U3yxTAJwUzlL0f-H8EDn58Q_gWrpHVWmZ--4FgqV_c3LJflxHiHo0Lnp3V7sRFkrZyGzpe4sXX79Uh5mcxFPcVSTLITK7i0TXyVvvGCAMrZcPoqW4RuaMlO2rW77IcwUrULviynggjp3wNsQRoAWjB8cXAqcoq303FNaojzX36tHtdzsW6MZkCh_SJHVF_ZMLz_nZT-qHt5DztLkxtjAZUTe3jwywBbUPBVomAcPqLJnuiI_xgNk2SCOI8">
+<button class="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-outline hover:text-error hover:bg-error-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Pariangan
+                                    </span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow z-10 bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold tracking-wider uppercase text-secondary">Songket &amp; Tenun</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-2 py-0.5 rounded text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">Batik Tulis Minang</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-2 text-sm">Kain batik tulis tangan dengan pewarna alami dan motif ukiran Rumah Gadang.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant">
+<span class="font-headline-md text-headline-md text-primary">Rp 680.000</span>
+<button class="bg-surface-container hover:bg-tertiary-container hover:text-on-tertiary-container text-primary p-2.5 rounded-full transition-colors">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-2 pt-8">
+<button class="p-2 rounded-lg border border-surface-variant text-outline hover:bg-surface-container hover:text-primary transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary text-on-primary font-label-md">1</button>
+<button class="w-10 h-10 rounded-lg hover:bg-surface-container text-on-surface font-label-md transition-colors">2</button>
+<button class="w-10 h-10 rounded-lg hover:bg-surface-container text-on-surface font-label-md transition-colors">3</button>
+<span class="text-outline">...</span>
+<button class="w-10 h-10 rounded-lg hover:bg-surface-container text-on-surface font-label-md transition-colors">12</button>
+<button class="p-2 rounded-lg border border-surface-variant text-outline hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Mitra CTA Section -->
+<section class="bg-primary text-on-primary py-24 relative overflow-hidden">
+<div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+<div class="max-w-container-max mx-auto px-margin-desktop relative z-10 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-[48px] text-secondary-fixed mb-6">handshake</span>
+<h2 class="font-display-md text-display-md mb-4 text-on-primary">Bergabung Sebagai Mitra</h2>
+<p class="font-body-lg text-body-lg text-on-primary-container max-w-2xl mb-10">
+                    Bawa produk UMKM Anda ke pasar global. Dapatkan akses ke kurasi profesional, pendampingan digital, dan komunitas pengrajin terbaik Nagari.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-secondary text-on-secondary px-8 py-4 rounded-full font-label-md text-label-md hover:bg-secondary-fixed-dim transition-colors duration-300 shadow-lg font-bold">
+                        Daftar Jadi Mitra
+                    </button>
+<button class="bg-transparent border-2 border-primary-fixed text-primary-fixed px-8 py-4 rounded-full font-label-md text-label-md hover:bg-primary-fixed/10 transition-colors duration-300">
+                        Panduan Kurasi
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-on-background dark:bg-surface-container-lowest w-full rounded-t-lg border-t border-outline/10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<!-- Brand Column -->
+<div class="md:col-span-1 space-y-4">
+<a class="font-headline-lg text-headline-lg text-secondary-fixed dark:text-secondary tracking-tight flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[28px]">hub</span>
+                    NCH 2026
+                </a>
+<p class="font-body-sm text-label-md text-surface-variant/70 max-w-xs mt-4 leading-relaxed">
+                    © 2024 Nagari Creative Hub. Rooted in Tradition, Powered by Innovation.
+                </p>
+</div>
+<!-- Links Column 1 -->
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-surface-bright uppercase tracking-wider mb-4 opacity-50">Platform</h4>
+<ul class="space-y-3">
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Vision</a></li>
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Our Story</a></li>
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Contact Us</a></li>
+</ul>
+</div>
+<!-- Links Column 2 -->
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-surface-bright uppercase tracking-wider mb-4 opacity-50">Ecosystem</h4>
+<ul class="space-y-3">
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Traditional Arts</a></li>
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Digital Innovation</a></li>
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Minangkabau Heritage</a></li>
+</ul>
+</div>
+<!-- Links Column 3 -->
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-surface-bright uppercase tracking-wider mb-4 opacity-50">Legal</h4>
+<ul class="space-y-3">
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Privacy Policy</a></li>
+<li class=""><a class="font-body-sm text-label-md text-surface-variant/70 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+</footer>
+<script>
+        // Simple script to handle nav scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            if (window.scrollY > 10) {
+                nav.classList.add('shadow-md');
+                nav.classList.remove('shadow-sm');
+            } else {
+                nav.classList.add('shadow-sm');
+                nav.classList.remove('shadow-md');
+            }
+        });
+    </script>
+
+
+</body></html>

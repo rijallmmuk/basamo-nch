@@ -1,0 +1,474 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mitra Strategis - Nagari Creative Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-fixed": "#00210c",
+                "outline-variant": "#c1c7cf",
+                "on-primary-fixed": "#001e31",
+                "surface": "#f7f9fb",
+                "on-tertiary-fixed-variant": "#005228",
+                "on-background": "#191c1e",
+                "secondary-fixed": "#ffe085",
+                "on-surface": "#191c1e",
+                "inverse-on-surface": "#eff1f3",
+                "tertiary-container": "#00572a",
+                "secondary-fixed-dim": "#ecc22c",
+                "background": "#f7f9fb",
+                "on-tertiary": "#ffffff",
+                "on-secondary-container": "#725b00",
+                "inverse-primary": "#9dcbf4",
+                "primary": "#003857",
+                "tertiary": "#003d1c",
+                "on-error": "#ffffff",
+                "surface-dim": "#d8dadc",
+                "on-primary": "#ffffff",
+                "on-secondary": "#ffffff",
+                "on-primary-fixed-variant": "#154b6d",
+                "tertiary-fixed-dim": "#61de8a",
+                "tertiary-fixed": "#7efba4",
+                "surface-bright": "#f7f9fb",
+                "primary-fixed-dim": "#9dcbf4",
+                "on-primary-container": "#92c0e9",
+                "surface-tint": "#326286",
+                "on-tertiary-container": "#54d280",
+                "on-surface-variant": "#41474e",
+                "surface-container": "#eceef0",
+                "primary-container": "#1b4f72",
+                "surface-container-lowest": "#ffffff",
+                "outline": "#72787f",
+                "on-secondary-fixed": "#231b00",
+                "surface-variant": "#e0e3e5",
+                "surface-container-high": "#e6e8ea",
+                "secondary": "#735c00",
+                "error": "#ba1a1a",
+                "inverse-surface": "#2d3133",
+                "surface-container-highest": "#e0e3e5",
+                "primary-fixed": "#cce5ff",
+                "on-secondary-fixed-variant": "#574500",
+                "error-container": "#ffdad6",
+                "surface-container-low": "#f2f4f6",
+                "secondary-container": "#fed33e",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "unit": "8px",
+                "section-gap": "80px",
+                "gutter": "24px",
+                "margin-mobile": "20px",
+                "margin-desktop": "48px",
+                "container-max": "1280px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-sm": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "30px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "500"
+                        }
+                ],
+                "display-md": [
+                        "36px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .pattern-bada-mudiak {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 56, 87, 0.05) 10px, rgba(0, 56, 87, 0.05) 20px);
+        }
+        .pattern-pucuk-rabuang {
+            background-image: radial-gradient(circle at 100% 100%, rgba(0, 56, 87, 0.03) 0, rgba(0, 56, 87, 0.03) 10px, transparent 10px, transparent 20px);
+            background-size: 30px 30px;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 12px 32px rgba(27, 79, 114, 0.12);
+        }
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-on-background docked full-width top-0 border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none z-50 sticky">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-extrabold text-primary dark:text-primary-fixed-dim">
+                Nagari Creative Hub
+            </div>
+<div class="hidden md:flex space-x-8">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Beranda</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Tentang NCH</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">4 Pilar</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Katalog UMKM</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md font-bold" href="#">Mitra</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="bg-secondary text-on-secondary px-6 py-2 rounded-full font-label-md text-label-md hover:bg-secondary-fixed-dim transition-colors hidden md:block">
+                    Daftar UMKM
+                </button>
+</div>
+</div>
+</nav>
+<main class="w-full">
+<!-- Hero Section -->
+<section class="relative pt-24 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto overflow-hidden">
+<div class="absolute right-0 top-0 w-1/2 h-full pattern-pucuk-rabuang opacity-50 pointer-events-none rounded-bl-full"></div>
+<div class="grid md:grid-cols-2 gap-gutter items-center relative z-10">
+<div class="space-y-6">
+<div class="inline-flex items-center space-x-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">handshake</span>
+<span class="">Peluang Kemitraan</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary md:hidden">Strategic Collaboration 2026</h1>
+<h1 class="hidden md:block font-display-lg text-display-lg text-primary">Strategi Kolaborasi<div>2026:<br>Membangun masa depan ekonomi digital Minang.</div></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                        Nagari Creative Hub mengundang institusi, investor, dan penyedia layanan untuk berkolaborasi dalam ekosistem yang menggabungkan warisan budaya dengan inovasi teknologi.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-label-md text-label-md smooth-transition hover:bg-primary-container shadow-[0px_4px_20px_rgba(27,79,114,0.15)] hover:shadow-[0px_12px_32px_rgba(27,79,114,0.25)] inline-flex justify-center items-center">
+                            Jadi Mitra Strategis <span class="material-symbols-outlined ml-2 text-[18px]">arrow_forward</span>
+</button>
+<button class="border-2 border-primary text-primary px-8 py-4 rounded-full font-label-md text-label-md smooth-transition hover:bg-surface-container">
+                            Pelajari Kerangka Kerja
+                        </button>
+</div>
+</div>
+<div class="relative h-[400px] md:h-[500px] w-full rounded-xl overflow-hidden shadow-[0px_12px_32px_rgba(27,79,114,0.12)]">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A modern, bright collaborative workspace representing professional partnership. Professional individuals in business casual attire engaging in a lively discussion around a sleek glass table. Sunlight streams through large windows, highlighting subtle architectural details that blend contemporary design with subtle traditional Indonesian wood accents. High-end, optimistic corporate tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYhpxmiW9v6mvNJAPRYQU5JDU-pDQxja9ojmN_7HeOjPFc4P7TRptWBm1czTCaQEqxicbOFjUvDoAw3f5RsoMVSJoO5cjHowvJb3RfXf_QcrOs-0fECShuBgourC9tkPWPMRQI4HicpXWAsI4WvygadqTXhVGC_YoPOzgtCLcRWeK5QzIHks3PDmReuVMaIA-v2beF0Une_n9pjupqDAlCnc9m2US6_cv0e4d80EEpkTPYe7gi1PP9P0Q53OzNpVumJYKz_o0pwdtw">
+</div>
+</div>
+</section>
+<!-- Ecosystem Impact Stats -->
+<section class="py-12 bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+<div>
+<div class="font-display-md text-display-md font-bold mb-2 text-secondary-container">150+</div>
+<div class="font-label-md text-label-md opacity-90">Mitra UMKM</div>
+</div>
+<div>
+<div class="font-display-md text-display-md font-bold mb-2 text-secondary-container">12</div>
+<div class="font-label-md text-label-md opacity-90">Kabupaten</div>
+</div>
+<div>
+<div class="font-display-md text-display-md font-bold mb-2 text-secondary-container">85%</div>
+<div class="font-label-md text-label-md opacity-90">Digitalisasi</div>
+</div>
+<div>
+<div class="font-display-md text-display-md font-bold mb-2 text-secondary-container">2.4M</div>
+<div class="font-label-md text-label-md opacity-90">Omzet Terkelola</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Decorative Divider -->
+<div class="w-full h-2 pattern-bada-mudiak opacity-30"></div>
+<!-- Collaboration Frameworks Bento -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto bg-surface-container-lowest">
+<div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+<h2 class="font-display-md text-display-md text-primary">Kerangka Kolaborasi Strategis</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Tiga pilar utama setiap kemitraan.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-6">
+<!-- Digital Partners -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant p-8 card-hover smooth-transition shadow-[0px_4px_20px_rgba(27,79,114,0.05)] relative overflow-hidden flex flex-col">
+<div class="absolute bottom-0 right-0 w-32 h-32 pattern-pucuk-rabuang opacity-30 pointer-events-none"></div>
+<div class="w-14 h-14 rounded-full bg-primary-container/10 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">computer</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3">Transformasi Digital &amp; IoT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-6">Integrasi teknologi untuk sektor UMKM dan agrikultur. Kami membuka peluang untuk Smart Farming, optimasi Supply Chain, dan Inkubasi Kreatif.</p>
+<ul class="space-y-2 font-label-md text-label-md text-on-surface-variant mb-6">
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-primary text-[18px]">check_circle</span><span class="">Akses Inkubasi Kreatif</span></li>
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-primary text-[18px]">check_circle</span><span class="">Implementasi Smart Farming</span></li>
+</ul>
+<button class="text-primary font-label-md text-label-md inline-flex items-center hover:text-secondary transition-colors mt-auto w-fit">
+                        Pelajari Transformasi Digital <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Logistics -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant p-8 card-hover smooth-transition shadow-[0px_4px_20px_rgba(27,79,114,0.05)] relative overflow-hidden flex flex-col md:transform md:-translate-y-4">
+<div class="absolute bottom-0 right-0 w-32 h-32 pattern-pucuk-rabuang opacity-30 pointer-events-none"></div>
+<div class="w-14 h-14 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-tertiary mb-3">Efisiensi Logistik</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-6">Menghubungkan produk dari berbagai nagari ke pasar nasional maupun global dengan optimasi rute dan biaya yang efisien.</p>
+<ul class="space-y-2 font-label-md text-label-md text-on-surface-variant mb-6">
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="">Distribusi Pasar Global</span></li>
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="">Rantai Pasok Terintegrasi</span></li>
+</ul>
+<button class="text-tertiary font-label-md text-label-md inline-flex items-center hover:text-primary transition-colors mt-auto w-fit">
+                        Gabung Jaringan Logistik <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Investors -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant p-8 card-hover smooth-transition shadow-[0px_4px_20px_rgba(27,79,114,0.05)] relative overflow-hidden flex flex-col">
+<div class="absolute bottom-0 right-0 w-32 h-32 pattern-pucuk-rabuang opacity-30 pointer-events-none"></div>
+<div class="w-14 h-14 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-secondary mb-3">Investasi Berdampak</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-6">Akses permodalan untuk UMKM terkurasi. Bergabung dengan 42+ investor institusional yang berfokus pada pertumbuhan berkelanjutan.</p>
+<ul class="space-y-2 font-label-md text-label-md text-on-surface-variant mb-6">
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="">Laporan Dampak Transparan</span></li>
+<li class="flex items-center space-x-2"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="">Portofolio UMKM Terkurasi</span></li>
+</ul>
+<button class="text-secondary font-label-md text-label-md inline-flex items-center hover:text-primary transition-colors mt-auto w-fit">
+                        Lihat Prospektus Investor <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Partnership Flow (Alur Kemitraan) -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+<h2 class="font-display-md text-display-md text-primary">Alur Kemitraan</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Langkah mudah untuk memulai kolaborasi berdampak dengan ekosistem kami.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+<div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-outline-variant -z-10"></div>
+<!-- Step 1 -->
+<div class="text-center">
+<div class="w-24 h-24 mx-auto bg-surface-container-lowest border-4 border-primary rounded-full flex items-center justify-center font-display-md text-primary mb-4 shadow-sm">01</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Ajukan Minat</h4>
+<p class="font-body-md text-on-surface-variant">Isi formulir kemitraan di bawah ini.</p>
+</div>
+<!-- Step 2 -->
+<div class="text-center">
+<div class="w-24 h-24 mx-auto bg-surface-container-lowest border-4 border-primary rounded-full flex items-center justify-center font-display-md text-primary mb-4 shadow-sm">02</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Diskusi Awal</h4>
+<p class="font-body-md text-on-surface-variant">Pertemuan untuk menyelaraskan visi dan misi.</p>
+</div>
+<!-- Step 3 -->
+<div class="text-center">
+<div class="w-24 h-24 mx-auto bg-surface-container-lowest border-4 border-primary rounded-full flex items-center justify-center font-display-md text-primary mb-4 shadow-sm">03</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Penyusunan Skema</h4>
+<p class="font-body-md text-on-surface-variant">Merancang kerangka kerja sama yang saling menguntungkan.</p>
+</div>
+<!-- Step 4 -->
+<div class="text-center">
+<div class="w-24 h-24 mx-auto bg-surface-container-lowest border-4 border-primary rounded-full flex items-center justify-center font-display-md text-primary mb-4 shadow-sm">04</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Peluncuran Program</h4>
+<p class="font-body-md text-on-surface-variant">Eksekusi dan monitoring program bersama.</p>
+</div>
+</div>
+</section>
+<!-- Testimonial Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto bg-surface relative rounded-3xl overflow-hidden shadow-[0px_4px_20px_rgba(27,79,114,0.05)] my-16">
+<div class="absolute inset-0 pattern-bada-mudiak opacity-10 pointer-events-none"></div>
+<div class="relative z-10 grid md:grid-cols-2 gap-gutter items-center">
+<div class="space-y-6 bg-surface-container-lowest p-8 rounded-2xl shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[48px] opacity-50" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<p class="font-body-lg text-body-lg text-primary italic">
+            "Kolaborasi dengan Nagari Creative Hub mempercepat distribusi logistik kami ke pelosok daerah, memberdayakan pengrajin lokal secara langsung."
+        </p>
+<div>
+<p class="font-label-md text-label-md text-primary font-bold">Siti Rahmawati</p>
+<p class="font-body-md text-body-md text-on-surface-variant">CEO, Logistik Utama</p>
+</div>
+</div>
+<div class="space-y-6 bg-surface-container-lowest p-8 rounded-2xl shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[48px] opacity-50" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<p class="font-body-lg text-body-lg text-primary italic">
+            "Kami menemukan portofolio UMKM yang sangat menjanjikan dengan dampak sosial yang jelas terukur melalui dashboard investasi mereka."
+        </p>
+<div>
+<p class="font-label-md text-label-md text-primary font-bold">Andi Wijaya</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Managing Partner, Sumbar Venture</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Inquiry Form Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant p-8 md:p-12 shadow-[0px_12px_32px_rgba(27,79,114,0.12)] max-w-4xl mx-auto relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 pattern-pucuk-rabuang opacity-20 pointer-events-none"></div>
+<div class="text-center mb-10 relative z-10">
+<h2 class="font-display-md text-display-md text-primary">Mulai Dialog Kemitraan</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Isi data Anda dan tim kemitraan kami akan segera menghubungi.</p>
+</div>
+<form class="space-y-6 relative z-10">
+<div class="grid md:grid-cols-2 gap-6">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Nama Perusahaan / Organisasi</label>
+<input class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all" placeholder="Masukkan nama perusahaan" type="text">
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Nama Kontak Utama</label>
+<input class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all" placeholder="Nama lengkap" type="text">
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Email Bisnis</label>
+<input class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all" placeholder="nama@perusahaan.com" type="email">
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Jenis Kemitraan</label>
+<select class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all text-on-surface-variant">
+<option>Pilih Skema Kemitraan...</option>
+<option>Transformasi Digital &amp; IoT</option>
+<option>Efisiensi Logistik</option>
+<option>Investasi Berdampak</option>
+<option>Lainnya</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Pesan / Proposal Singkat</label>
+<textarea class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all" placeholder="Ceritakan tujuan kolaborasi Anda..." rows="4"></textarea>
+</div>
+<div class="flex justify-end pt-4">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-full font-label-md text-label-md smooth-transition hover:bg-primary-container shadow-[0px_4px_20px_rgba(27,79,114,0.15)] flex items-center" type="button">
+                            Kirim Pengajuan <span class="material-symbols-outlined ml-2 text-[18px]">send</span>
+</button>
+</div>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-inverse-surface full-width bottom-0 border-t border-outline-variant dark:border-outline flat no shadows z-40 relative">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-gutter gap-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">
+                Nagari Creative Hub
+            </div>
+<div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Kebijakan Privasi</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Syarat dan Ketentuan</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Hubungi Kami</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Kerangka SDG</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant text-center md:text-right">
+                © 2026 Nagari Creative Hub. Rooted in Tradition, Powered by Innovation.
+            </div>
+</div>
+</footer>
+<script>
+        // Simple script to handle form interaction state styling (visual feedback only)
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.classList.add('bg-surface-container-lowest');
+                this.classList.remove('bg-surface');
+            });
+            element.addEventListener('blur', function() {
+                if(!this.value) {
+                    this.classList.remove('bg-surface-container-lowest');
+                    this.classList.add('bg-surface');
+                }
+            });
+        });
+    </script>
+
+
+</body></html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nagari SDG Hub - Tambah Proyek</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#9dcbf4",
+                    "on-primary-container": "#92c0e9",
+                    "secondary-fixed": "#ffe085",
+                    "on-primary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "outline": "#72787f",
+                    "inverse-primary": "#9dcbf4",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#7efba4",
+                    "on-background": "#191c1e",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#d8dadc",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-container": "#eceef0",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-low": "#f2f4f6",
+                    "outline-variant": "#c1c7cf",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#003d1c",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#154b6d",
+                    "secondary-fixed-dim": "#ecc22c",
+                    "primary": "#003857",
+                    "on-surface-variant": "#41474e",
+                    "on-secondary-fixed": "#231b00",
+                    "on-primary-fixed": "#001e31",
+                    "on-secondary-container": "#725b00",
+                    "surface-bright": "#f7f9fb",
+                    "surface-variant": "#e0e3e5",
+                    "secondary": "#735c00",
+                    "tertiary-container": "#00572a",
+                    "secondary-container": "#fed33e",
+                    "on-tertiary-fixed": "#00210c",
+                    "on-surface": "#191c1e",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface": "#f7f9fb",
+                    "primary-container": "#1b4f72",
+                    "on-tertiary-fixed-variant": "#005228",
+                    "tertiary-fixed-dim": "#61de8a",
+                    "surface-tint": "#326286",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary-container": "#54d280",
+                    "primary-fixed": "#cce5ff",
+                    "on-secondary-fixed-variant": "#574500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-gap": "80px",
+                    "margin-mobile": "20px",
+                    "unit": "8px",
+                    "container-max": "1280px",
+                    "gutter": "24px",
+                    "margin-desktop": "48px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg-mobile": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "display-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "display-md": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ],
+                    "headline-lg": [
+                            "30px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-md": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom styles for elements not fully handled by Tailwind config */
+        .minang-shadow {
+            box-shadow: 0px 12px 32px rgba(27, 79, 114, 0.12);
+        }
+        .bg-pattern {
+            background-image: radial-gradient(var(--tw-colors-primary) 0.5px, transparent 0.5px), radial-gradient(var(--tw-colors-primary) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.03;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #735c00; /* secondary */
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 2px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e0e3e5; /* surface-variant */
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased overflow-hidden">
+<!-- App Layout Shell -->
+<div class="flex h-screen w-full relative">
+<!-- SideNavBar -->
+<aside class="w-72 h-screen fixed left-0 top-0 bg-surface shadow-sm bg-surface-container-low flex flex-col py-8 px-4 border-r border-outline-variant/20 z-30">
+<div class="px-4 mb-8">
+<h1 class="font-display-md text-display-md text-primary">Nagari</h1>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-primary font-bold border-r-4 border-secondary bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">target</span>
+<span class="font-label-md text-label-md">SDG Goals</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Indicator Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings_accessibility</span>
+<span class="font-label-md text-label-md">Admin Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant/20 pt-4">
+<div class="flex items-center gap-3 px-4 py-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of an administrator in a modern office environment, soft lighting, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6WyItNiNAvJnOOwwxpPrm-JUvqGb2MDkEY6MnZWXxwMkUMy9ZYzaOO2V0ijj-8snPMbhBQUUpVWikA7yLERg6ej6ow4eUaUEaFwZnR8fa1DhDiUQQQInH6yMd3O-1eDTfIKTSoqTODuxKsbzg024HL7qaO13uVBEz3IBOEUJWPWu4RD7R2Ms8NJNqiPtFE02YRlC1vDCdvIpiS8eKVCDkel0cNFwNhzdN8C62-CeyrxpozAnOvCgjY51hPAO8e92pQbMpypcR-UIk"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Nagari Admin</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">SDG Management Portal</p>
+</div>
+</div>
+<button class="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined">download</span>
+                    Export Report
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 flex-1 flex flex-col h-full w-[calc(100%-288px)]">
+<!-- TopAppBar -->
+<header class="bg-surface/80 backdrop-blur-xl docked full-width top-0 sticky z-20 border-b border-outline-variant/10 shadow-sm flex justify-between items-center px-margin-desktop h-20">
+<div class="flex items-center gap-8">
+<h2 class="font-headline-md text-headline-md text-primary">Nagari SDG Hub</h2>
+<nav class="hidden lg:flex gap-6">
+<a class="text-primary border-b-2 border-secondary pb-1 font-label-md text-label-md" href="#">Overview</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md" href="#">History</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md" href="#">Audit Logs</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-secondary text-sm" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">apps</span>
+</button>
+</div>
+</header>
+<!-- Dummy Canvas Background (Blurred by overlay) -->
+<div class="flex-1 p-margin-desktop bg-surface-bright overflow-y-auto relative">
+<!-- Decorative Pattern -->
+<div class="absolute inset-0 bg-pattern pointer-events-none"></div>
+<div class="max-w-container-max mx-auto">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Proyek Aktif</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Ringkasan implementasi inisiatif SDG.</p>
+</div>
+</div>
+<!-- Bento Grid Dummy Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="col-span-2 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm min-h-[300px]"></div>
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm min-h-[300px]"></div>
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm min-h-[200px]"></div>
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm min-h-[200px]"></div>
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm min-h-[200px]"></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- MODAL OVERLAY -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-primary/20 backdrop-blur-md p-4">
+<!-- MODAL CONTAINER -->
+<div class="bg-surface-container-lowest w-full max-w-2xl rounded-xl minang-shadow border border-outline-variant/20 flex flex-col relative overflow-hidden transform scale-100 transition-transform">
+<!-- Subtle Watermark -->
+<div class="absolute bottom-0 right-0 w-64 h-64 opacity-5 pointer-events-none" style="background: radial-gradient(circle at 100% 100%, var(--tw-colors-primary) 0%, transparent 70%);"></div>
+<!-- Modal Header -->
+<div class="flex justify-between items-center p-6 border-b border-outline-variant/10 relative z-10">
+<h2 class="font-headline-md text-headline-md text-on-surface">Tambah Proyek Baru</h2>
+<button class="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container/20">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body (Form) -->
+<div class="p-8 flex-1 overflow-y-auto relative z-10">
+<form class="flex flex-col gap-6">
+<!-- Field 1: Nama Proyek -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="namaProyek">Nama Proyek</label>
+<input class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 border border-transparent focus:bg-surface-container-lowest focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none" id="namaProyek" placeholder="Contoh: Revitalisasi Irigasi Subak" type="text"/>
+</div>
+<!-- Field 2: Lokasi -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="lokasi">Lokasi</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 appearance-none border border-transparent focus:bg-surface-container-lowest focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none" id="lokasi">
+<option disabled="" selected="" value="">Pilih Kabupaten/Kota</option>
+<option value="padang">Kota Padang</option>
+<option value="bukittinggi">Kota Bukittinggi</option>
+<option value="agam">Kabupaten Agam</option>
+<option value="tanah-datar">Kabupaten Tanah Datar</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Field 3: Fokus SDG -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Fokus SDG Utama</label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<label class="flex items-center p-3 border border-outline-variant/30 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:bg-primary-container/10 has-[:checked]:border-primary">
+<input class="form-checkbox text-primary rounded focus:ring-secondary border-outline-variant" name="sdg[]" type="checkbox" value="1"/>
+<span class="ml-3 font-body-md text-body-md text-on-surface">1. No Poverty</span>
+</label>
+<label class="flex items-center p-3 border border-outline-variant/30 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:bg-primary-container/10 has-[:checked]:border-primary">
+<input class="form-checkbox text-primary rounded focus:ring-secondary border-outline-variant" name="sdg[]" type="checkbox" value="2"/>
+<span class="ml-3 font-body-md text-body-md text-on-surface">2. Zero Hunger</span>
+</label>
+<label class="flex items-center p-3 border border-outline-variant/30 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:bg-primary-container/10 has-[:checked]:border-primary">
+<input class="form-checkbox text-primary rounded focus:ring-secondary border-outline-variant" name="sdg[]" type="checkbox" value="4"/>
+<span class="ml-3 font-body-md text-body-md text-on-surface">4. Quality Education</span>
+</label>
+<label class="flex items-center p-3 border border-outline-variant/30 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:bg-primary-container/10 has-[:checked]:border-primary">
+<input class="form-checkbox text-primary rounded focus:ring-secondary border-outline-variant" name="sdg[]" type="checkbox" value="11"/>
+<span class="ml-3 font-body-md text-body-md text-on-surface">11. Sustainable Cities</span>
+</label>
+</div>
+</div>
+<!-- Field 4: Status -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-3">Status Saat Ini</label>
+<div class="flex flex-wrap gap-6">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-radio text-primary focus:ring-secondary border-outline-variant w-5 h-5 transition-all" name="status" type="radio" value="planning"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Planning</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="form-radio text-primary focus:ring-secondary border-outline-variant w-5 h-5 transition-all" name="status" type="radio" value="active"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Active</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-radio text-primary focus:ring-secondary border-outline-variant w-5 h-5 transition-all" name="status" type="radio" value="done"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Done</span>
+</label>
+</div>
+</div>
+<!-- Field 5: Progres -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="block font-label-md text-label-md text-on-surface" for="progres">Estimasi Progres</label>
+<span class="font-label-md text-label-md text-primary bg-primary-container/10 px-2 py-1 rounded" id="progressVal">25%</span>
+</div>
+<input class="w-full h-2 bg-surface-variant rounded-lg appearance-none cursor-pointer" id="progres" max="100" min="0" oninput="document.getElementById('progressVal').innerText = this.value + '%'" type="range" value="25"/>
+<div class="flex justify-between text-xs text-on-surface-variant mt-1 px-1">
+<span>0%</span>
+<span>50%</span>
+<span>100%</span>
+</div>
+</div>
+</form>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 border-t border-outline-variant/10 bg-surface/50 flex justify-end gap-4 relative z-10">
+<button class="px-6 py-3 rounded-full border-[1.5px] border-primary text-primary font-label-md text-label-md hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-secondary outline-none" type="button">
+                    Batal
+                </button>
+<button class="px-8 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md hover:shadow-lg focus:ring-2 focus:ring-secondary outline-none" type="button">
+                    Simpan Proyek
+                </button>
+</div>
+</div>
+</div>
+</body></html>
