@@ -25,7 +25,9 @@ class PendudukService
      */
     public function syncForUser(User $user, array $identity): void
     {
-        $penduduk = $user->penduduk ?: new Penduduk;
+        // Tautkan ke penduduk milik akun; bila belum tertaut, pakai ulang baris ber-NIK
+        // sama bila ada (identitas orang yang sudah terdaftar) — cegah duplikat/unique violation.
+        $penduduk = $user->penduduk ?: Penduduk::firstOrNew(['nik' => $user->nik]);
 
         $penduduk->fill(array_intersect_key($identity, array_flip(self::FIELDS)));
 

@@ -10,6 +10,7 @@ use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\StatusPerkawinan;
 use App\Models\User;
+use App\Services\PendudukService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -94,6 +95,20 @@ it('halaman lihat warga menampilkan identitas penduduk', function () {
         ->assertSee('Warga Lihat')
         ->assertSee('3201010101010005')
         ->assertSee('Solok');
+});
+
+it('sync memakai ulang penduduk ber-NIK sama (tanpa duplikat / unique violation)', function () {
+    $desa = Desa::factory()->create();
+    // Identitas sudah terdaftar lebih dulu tanpa akun.
+    $orphan = Penduduk::create(['nik' => '3201000000000200', 'nama' => 'Nama Lama', 'desa_id' => $desa->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'nik' => '3201000000000200', 'name' => 'Nama Baru']);
+
+    app(PendudukService::class)->syncForUser($warga, ['tempat_lahir' => 'Padang']);
+
+    expect(Penduduk::where('nik', '3201000000000200')->count())->toBe(1)        // tak duplikat
+        ->and($warga->fresh()->penduduk_id)->toBe($orphan->id)                  // tertaut ke yang ada
+        ->and($orphan->fresh()->nama)->toBe('Nama Baru')                        // di-mirror dari akun
+        ->and($orphan->fresh()->tempat_lahir)->toBe('Padang');
 });
 
 it('admin (non-warga) tidak punya penduduk', function () {
