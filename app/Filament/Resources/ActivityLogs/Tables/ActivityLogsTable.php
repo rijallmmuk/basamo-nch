@@ -19,6 +19,10 @@ class ActivityLogsTable
     {
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('created_at')
                     ->label('Waktu')
                     ->dateTime('d M Y H:i')

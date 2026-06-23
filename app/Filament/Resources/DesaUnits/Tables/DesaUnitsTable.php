@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\DesaUnits\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
+use App\Filament\Resources\DesaUnits\DesaUnitResource;
+use App\Models\DesaUnit;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -17,7 +18,13 @@ class DesaUnitsTable
     public static function configure(Table $table): Table
     {
         return $table
+            // Klik baris → buka Edit.
+            ->recordUrl(fn (DesaUnit $record): string => DesaUnitResource::getUrl('edit', ['record' => $record]))
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
@@ -52,14 +59,11 @@ class DesaUnitsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+                ActionGroup::make([
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
+                ])->tooltip('Aksi'),
             ])
             ->defaultSort('nama', 'asc');
     }

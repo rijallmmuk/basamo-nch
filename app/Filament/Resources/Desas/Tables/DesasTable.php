@@ -5,21 +5,27 @@ namespace App\Filament\Resources\Desas\Tables;
 use App\Enums\ActiveStatus;
 use App\Filament\Resources\Desas\DesaResource;
 use App\Models\Desa;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 
 class DesasTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            // Klik baris → buka Edit.
+            ->recordUrl(fn (Desa $record): string => DesaResource::getUrl('edit', ['record' => $record]))
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->formatStateUsing(fn (Desa $record): string => $record->nama_lengkap)
@@ -68,16 +74,16 @@ class DesasTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
-                    ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
-                    ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
-            ])
-            ->toolbarActions([
-                // Tanpa hapus massal: penghapusan desa harus per-record agar guard
-                // anti-orphan (warga/modul) berjalan. Restore massal tetap aman.
-                RestoreBulkAction::make()
-                    ->after(fn (Collection $records) => $records->each(fn (Desa $record) => DesaResource::restoreAdmin($record))),
+                ActionGroup::make([
+                    // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
+                    DeleteAction::make()
+                        ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
+                        ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
+                    RestoreAction::make()
+                        ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
+                    ForceDeleteAction::make()
+                        ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
+                ])->tooltip('Aksi'),
             ])
             ->defaultSort('nama');
     }

@@ -59,6 +59,10 @@ class DiscussionsTable
 
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('parent_id')
                     ->label('Tipe')
                     ->badge()

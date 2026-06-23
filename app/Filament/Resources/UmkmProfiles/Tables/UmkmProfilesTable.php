@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\UmkmProfiles\Tables;
 
 use App\Enums\ActiveStatus;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
+use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
+use App\Models\UmkmProfile;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -18,7 +19,13 @@ class UmkmProfilesTable
     public static function configure(Table $table): Table
     {
         return $table
+            // Klik baris → buka Edit.
+            ->recordUrl(fn (UmkmProfile $record): string => UmkmProfileResource::getUrl('edit', ['record' => $record]))
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('nama_usaha')
                     ->label('Nama usaha')
                     ->searchable()
@@ -66,14 +73,11 @@ class UmkmProfilesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+                ActionGroup::make([
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
+                ])->tooltip('Aksi'),
             ])
             ->defaultSort('created_at', 'desc');
     }

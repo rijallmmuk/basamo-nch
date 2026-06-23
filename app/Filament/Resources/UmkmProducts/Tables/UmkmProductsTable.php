@@ -19,6 +19,10 @@ class UmkmProductsTable
     {
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('nama_produk')
                     ->label('Produk')
                     ->searchable(),

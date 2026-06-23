@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UmkmCategories;
 use App\Filament\Resources\UmkmCategories\Pages\ManageUmkmCategories;
 use App\Models\UmkmCategory;
 use BackedEnum;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -63,6 +64,10 @@ class UmkmCategoryResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
@@ -90,8 +95,10 @@ class UmkmCategoryResource extends Resource
             ])
             ->defaultSort('urutan')
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ])->tooltip('Aksi'),
             ]);
     }
 

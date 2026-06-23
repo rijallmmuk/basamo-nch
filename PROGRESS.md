@@ -67,6 +67,13 @@ UserResource tetap terpadu (upsert penduduk inline).
   (Jorong/Korong/…) via `jenisSubUnit`. Form: **field Peran/username/sandi dibuang** (resource warga-
   saja), `role` dipaksa `warga` di CreateUser. Tes diselaraskan (hapus jalur admin-create yang pindah
   ke DesaResource; +tes warga-only list & route-binding). **Suite 173 (171 lulus, 2 skip).**
+- **Pola tabel diseragamkan ke SEMUA halaman admin (koreksi user):** kolom **No.** (rowIndex);
+  **aksi massal/checkbox dibuang** semua (hapus/pulihkan/force per-baris di ⋮ atau header Edit);
+  **klik baris → Edit** (Warga → Lihat) untuk resource ber-form (Desa/Wilayah/Modul/Kuis/Profil UMKM);
+  aksi baris dirapikan ke **⋮ ActionGroup**. Read-only (Diskusi/Antrean Produk/Log Aktivitas) +No. saja.
+  UmkmCategory (modal/ManageRecords) +No. + ⋮ tanpa klik-baris. Desa: guard anti-orphan + arsip admin
+  dipertahankan di ⋮ (Delete/Restore/Force). Kolom Akses UMKM Warga = ikon boolean (centang/silang).
+  Smoke 10 halaman index = 200. **Suite 173 (171 lulus, 2 skip).** Belum di-push.
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

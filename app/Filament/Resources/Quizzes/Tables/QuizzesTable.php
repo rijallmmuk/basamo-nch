@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Quizzes\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\Quizzes\QuizResource;
+use App\Models\Quiz;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -13,7 +14,13 @@ class QuizzesTable
     public static function configure(Table $table): Table
     {
         return $table
+            // Klik baris → buka Edit.
+            ->recordUrl(fn (Quiz $record): string => QuizResource::getUrl('edit', ['record' => $record]))
             ->columns([
+                TextColumn::make('no')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('module.judul')
                     ->label('Modul')
                     ->searchable()
@@ -42,12 +49,9 @@ class QuizzesTable
             ])
             ->filters([])
             ->recordActions([
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                ActionGroup::make([
+                    DeleteAction::make(),
+                ])->tooltip('Aksi'),
             ])
             ->defaultSort('created_at', 'desc');
     }
