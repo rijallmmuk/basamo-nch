@@ -7,7 +7,6 @@ use App\Enums\JenisKelamin;
 use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
-use App\Models\Jabatan;
 use App\Models\Pekerjaan;
 use App\Models\StatusPerkawinan;
 use App\Models\User;
@@ -126,13 +125,6 @@ class UserForm
                             ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
                             ->searchable()
                             ->preload(),
-
-                        Select::make('jabatan_id')
-                            ->label('Jabatan')
-                            ->options(fn (): array => Jabatan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
-                            ->searchable()
-                            ->preload()
-                            ->helperText('Opsional. Untuk aparat/perangkat desa (Kepala Desa, dll).'),
                     ]),
 
                 Section::make('Akses')

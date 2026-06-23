@@ -6,7 +6,7 @@ use App\Enums\JenisKelamin;
 use App\Models\Concerns\BelongsToDesa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -23,13 +23,13 @@ class Penduduk extends Model
 
     protected $fillable = [
         'nik', 'nama', 'desa_id', 'desa_unit_id', 'tempat_lahir', 'tanggal_lahir',
-        'jenis_kelamin', 'agama_id', 'status_perkawinan_id', 'pekerjaan_id', 'jabatan_id',
+        'jenis_kelamin', 'agama_id', 'status_perkawinan_id', 'pekerjaan_id',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nik', 'nama', 'desa_id', 'desa_unit_id', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'agama_id', 'status_perkawinan_id', 'pekerjaan_id', 'jabatan_id'])
+            ->logOnly(['nik', 'nama', 'desa_id', 'desa_unit_id', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'agama_id', 'status_perkawinan_id', 'pekerjaan_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('penduduk');
@@ -44,9 +44,10 @@ class Penduduk extends Model
         ];
     }
 
-    public function user(): HasOne
+    /** Akun(-akun) login milik orang ini. 1 orang boleh punya >1 akun (1 akun = 1 role). */
+    public function users(): HasMany
     {
-        return $this->hasOne(User::class);
+        return $this->hasMany(User::class);
     }
 
     public function desaUnit(): BelongsTo
@@ -67,10 +68,5 @@ class Penduduk extends Model
     public function pekerjaan(): BelongsTo
     {
         return $this->belongsTo(Pekerjaan::class);
-    }
-
-    public function jabatan(): BelongsTo
-    {
-        return $this->belongsTo(Jabatan::class);
     }
 }

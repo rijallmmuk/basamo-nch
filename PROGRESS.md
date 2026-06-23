@@ -14,20 +14,25 @@ Membongkar [[warga-data-master]] sesuai [[penduduk-plan]]. Keputusan user (via A
 UserResource tetap terpadu (upsert penduduk inline).
 
 - **Tabel `penduduk`** (identitas, lapisan 1): nik(unik)/nama/desa_id/desa_unit_id + demografi
-  (tempat_lahir/tanggal_lahir/jenis_kelamin/agama_id/status_perkawinan_id/pekerjaan_id) + **jabatan_id**;
-  softDeletes + LogsActivity + BelongsToDesa. Orang bisa ada tanpa akun.
-- **Referensi `jabatan`** (global, seed inline di migrasi 200558): Kepala Desa, Sekretaris Desa, Kaur,
-  Kasi, Kepala Dusun/Jorong, Bendahara, Staf, Ketua RT/RW. Model `Jabatan`.
-- **`users`** (akun, lapisan 2): +`penduduk_id` (FK nullOnDelete) + `nik` (mirror login). **Drop** 6
-  kolom demografi (pindah ke penduduk). Relasi `User::penduduk()`; relasi agama/status/pekerjaan pindah
-  ke `Penduduk`. LMS/UMKM/XP TETAP di users (tak di-refactor).
+  (tempat_lahir/tanggal_lahir/jenis_kelamin/agama_id/status_perkawinan_id/pekerjaan_id);
+  softDeletes + LogsActivity + BelongsToDesa. Orang bisa ada tanpa akun. Relasi `Penduduk::users()`
+  **hasMany** (penduduk_id non-unik → 1 orang boleh >1 akun).
+- **`users`** (akun, lapisan 2): +`penduduk_id` (FK nullOnDelete, **non-unik**) + `nik` (mirror login).
+  **Drop** 6 kolom demografi (pindah ke penduduk). Relasi `User::penduduk()`; relasi agama/status/
+  pekerjaan pindah ke `Penduduk`. LMS/UMKM/XP TETAP di users. **1 akun = 1 role.**
 - **Akses** (lapisan 3): Spatie+Shield apa adanya (YAGNI; cek role hardcoded belum diubah).
 - **Sinkronisasi**: `PendudukService::syncForUser` (upsert penduduk + mirror nik/nama/desa) dipanggil via
-  trait `InteractsWithPenduduk` di Create/EditUser. UserForm demografi: `relationship()`→`options()`,
-  +Select jabatan. Migrasi 200559 di-rewrite (create penduduk + link users) & di-rename.
+  trait `InteractsWithPenduduk` di Create/EditUser. UserForm demografi: `relationship()`→`options()`.
+  Migrasi 200559 di-rewrite (create penduduk + link users) & di-rename.
 - **DemoSeeder**: buat `penduduk` (demografi acak) lalu tautkan ke user warga. Test `PendudukTest` (3).
-- **Belum (sadar, YAGNI):** PendudukResource mandiri (identitas tanpa akun); authz berbasis permission
-  (ganti cek `role===` saat peran/jabatan baru pertama muncul).
+- **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
+  Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
+  peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`
+  (aditif, gantung di penduduk); kepala desa yg mau LMS = akun warga terpisah. **Tabel `jabatan` +
+  kolom `penduduk.jabatan_id` yang sempat dibuat → DICABUT** (prematur/YAGNI). Temuan audit: RBAC
+  sekarang biner hardcoded (`isSuperAdmin`/`isDesaAdmin`, 0 permission Shield); saat peran baru
+  diaktifkan → pindah gating ke permission-based.
+- **Belum (sadar, YAGNI):** PendudukResource mandiri; tabel jabatan/penugasan; authz permission-based.
 
 ## Sesi 2026-06-23 — Design system "Nagari Creative Hub" + Data master warga (NIK)
 

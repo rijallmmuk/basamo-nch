@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Arsitektur 3 lapisan untuk data warga (pisahkan 3 concern):
  *
- *  1. Identitas → tabel `penduduk` (siapa orangnya): NIK, nama, demografi, jabatan,
+ *  1. Identitas → tabel `penduduk` (siapa orangnya): NIK, nama, demografi,
  *     desa & alamat. Seseorang bisa terdaftar di sini TANPA punya akun.
  *  2. Akun      → tabel `users` (login + aktivitas LMS/UMKM/XP), tertaut via
- *     `users.penduduk_id`. super_admin sistem boleh tanpa penduduk.
- *  3. Akses     → Spatie role + Shield (sudah ada).
+ *     `users.penduduk_id` (sengaja NON-UNIK → 1 orang boleh punya >1 akun, mis. akun
+ *     warga untuk LMS + akun pejabat saat pengembangan jabatan kelak). super_admin
+ *     sistem boleh tanpa penduduk.
+ *  3. Akses     → Spatie role + Shield (sudah ada). 1 akun = 1 role.
  *
  * NIK kanonik ada di `penduduk`; di-mirror ke `users.nik` sebagai kunci login portal
  * (warga login pakai NIK) agar `Auth::attempt` tetap sederhana tanpa custom provider.
@@ -33,7 +35,6 @@ return new class extends Migration
             $table->foreignId('agama_id')->nullable()->constrained('agama')->nullOnDelete();
             $table->foreignId('status_perkawinan_id')->nullable()->constrained('status_perkawinan')->nullOnDelete();
             $table->foreignId('pekerjaan_id')->nullable()->constrained('pekerjaan')->nullOnDelete();
-            $table->foreignId('jabatan_id')->nullable()->constrained('jabatan')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
             $table->index('desa_id');

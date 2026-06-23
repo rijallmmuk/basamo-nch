@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Schema;
  * - `agama`             : 6 agama resmi (Dukcapil).
  * - `status_perkawinan` : 4 status perkawinan resmi.
  * - `pekerjaan`         : 99 jenis pekerjaan resmi (kode 01–99 Dukcapil).
- * - `jabatan`           : jabatan pemerintahan desa (Kepala Desa, aparat, dll) —
- *                         dipakai tabel `penduduk` untuk membedakan aparat dari warga biasa.
  *
  * Himpunan baku & jarang berubah → di-seed langsung di migrasi (sama seperti
  * `jenis_desa`/`jenis_sub_unit`), agar selalu tersedia tanpa menjalankan seeder.
@@ -21,11 +19,6 @@ return new class extends Migration
     private const AGAMA = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
 
     private const STATUS_PERKAWINAN = ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'];
-
-    private const JABATAN = [
-        'Kepala Desa', 'Sekretaris Desa', 'Kepala Urusan (Kaur)', 'Kepala Seksi (Kasi)',
-        'Kepala Dusun/Jorong', 'Bendahara', 'Staf', 'Ketua RT', 'Ketua RW',
-    ];
 
     private const PEKERJAAN = [
         'Belum/Tidak Bekerja', 'Mengurus Rumah Tangga', 'Pelajar/Mahasiswa', 'Pensiunan',
@@ -75,17 +68,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('jabatan', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 100)->unique();
-            $table->unsignedSmallInteger('urutan')->default(0);
-            $table->boolean('aktif')->default(true);
-            $table->timestamps();
-        });
-
         $this->seedSimple('agama', self::AGAMA);
         $this->seedSimple('status_perkawinan', self::STATUS_PERKAWINAN);
-        $this->seedSimple('jabatan', self::JABATAN);
         $this->seedPekerjaan();
     }
 
@@ -124,7 +108,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('jabatan');
         Schema::dropIfExists('pekerjaan');
         Schema::dropIfExists('status_perkawinan');
         Schema::dropIfExists('agama');

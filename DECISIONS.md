@@ -50,6 +50,21 @@ Role = persona stabil: `super_admin`, `nagari_admin`, `warga`. **Tak ada role `u
 **Alasan**: Pemilik UMKM tetap warga (tetap belajar). Role tunggal tak bisa dikomposisi; flag kapabilitas independen → aman saat pilar bertambah (SDGs/IoT). RBAC: role = SIAPA, kapabilitas = APA.
 **Ditolak**: Spatie permission `umkm.manage` (mesin lebih berat tanpa sub-izin); biarkan role `umkm_owner` (menyusahkan saat kapabilitas bertambah).
 
+### Identitas vs akun: 3 lapisan (`penduduk` / `users` / `role`) (2026-06-23)
+Pisahkan **siapa orangnya** dari **akun login** dari **hak akses**:
+- **Identitas → `penduduk`**: NIK (kanonik, unik), nama, demografi (FK `agama`/`status_perkawinan`/`pekerjaan`), `desa_id`, `desa_unit_id`. Orang bisa ada **tanpa akun**. SoftDeletes + LogsActivity + `BelongsToDesa`.
+- **Akun → `users`**: login + aktivitas LMS/UMKM/XP, tertaut `users.penduduk_id` (**nullable, NON-UNIK**). NIK **di-mirror** ke `users.nik` hanya pada akun warga (kunci login portal); akun admin login via `username`. super_admin sistem tanpa penduduk.
+- **Akses → `users.role`** (single, lihat "Kolom role"). **1 akun = 1 role.**
+
+**Alasan**: warga tergandeng erat ke `users` (LMS/UMKM/XP), tapi identitas adalah konsep tersendiri yang reusable. NIK mirror → `Auth::attempt(['nik'=>…])` tanpa custom provider. Demografi = tabel referensi (bukan enum), seragam dgn `jenis_desa`, bisa dikelola admin. Form UserResource tetap **terpadu** (1 langkah): demografi di-upsert ke penduduk via `PendudukService` + trait `InteractsWithPenduduk`.
+
+### Jalur ekspansi peran/jabatan masa depan — DIRANCANG, BELUM DIBANGUN (2026-06-23)
+Sekarang cukup 3 peran (`super_admin`, `desa_admin`, `warga`). Kepala desa/aparat **belum dibuat** (YAGNI). Rancangan dimatangkan agar penambahan nanti **murni aditif** (migrasi/file baru, tak membongkar skema lama):
+- **Peran baru** (`kepala_desa`, `aparat_desa`, …) = **baris data Spatie**, bukan kolom → **nol migrasi**. `users.role` varchar muat string apa pun. Saat itu: buka daftar di `UserForm`/`UsersTable`, tambahkan ke `canAccessPanel`, dan **disarankan pindah gating policy dari `isDesaAdmin()`-hardcoded ke permission Shield** (saat ini 0 permission di DB; Shield terpasang tapi belum dipakai) — sekali refactor, peran ke-N berikutnya nol kode.
+- **1 orang ↔ banyak akun**: `users.penduduk_id` sengaja **non-unik**. Kepala desa yang mau ikut LMS = buat **akun warga terpisah** menunjuk `penduduk` yang sama (relasi `Penduduk::users()` hasMany). Skema sudah mendukung; tak ada perubahan.
+- **Data jabatan & masa menjabat** = tabel baru **`jabatan`** (referensi) + **`penugasan_jabatan`** (`penduduk_id`, `jabatan_id`, `desa_id`, no/tgl/file SK, `mulai`–`selesai`, status). Menggantung di **penduduk** (orang), bukan akun → tak mengubah `penduduk`/`users`. Mendukung riwayat & pergantian pejabat.
+**Ditolak**: bikin tabel `jabatan`/`penugasan_jabatan` sekarang (belum dipakai → tabel kosong); `penduduk.jabatan_id` FK tunggal (tak bisa simpan periode/SK/riwayat); many-to-many role (tak perlu, 1 akun = 1 role).
+
 ### Login admin: username ATAU email
 Satu field `login`; deteksi email via `FILTER_VALIDATE_EMAIL`. Custom `App\Filament\Auth\Login` (di `app/Filament/Auth/`, bukan `Pages/`, agar tak ter-discover sebagai page). Kolom `users.username` nullable+unique.
 

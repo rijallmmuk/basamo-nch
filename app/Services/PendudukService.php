@@ -8,14 +8,14 @@ use App\Models\User;
 /**
  * Menjembatani akun warga (`users`) dengan identitas kependudukannya (`penduduk`).
  * NIK/nama/desa di-mirror dari akun ke penduduk (kanonik di penduduk); demografi
- * & jabatan disimpan hanya di penduduk.
+ * disimpan hanya di penduduk.
  */
 class PendudukService
 {
     /** Field identitas yang dikelola di tabel `penduduk` (dipisah dari kolom akun `users`). */
     public const FIELDS = [
         'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-        'agama_id', 'status_perkawinan_id', 'pekerjaan_id', 'jabatan_id',
+        'agama_id', 'status_perkawinan_id', 'pekerjaan_id',
     ];
 
     /**

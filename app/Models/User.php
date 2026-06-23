@@ -176,7 +176,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         return $this->belongsTo(DesaUnit::class);
     }
 
-    /** Identitas kependudukan pemilik akun (NIK, demografi, jabatan). */
+    /** Identitas kependudukan pemilik akun (NIK, demografi). */
     public function penduduk(): BelongsTo
     {
         return $this->belongsTo(Penduduk::class);
