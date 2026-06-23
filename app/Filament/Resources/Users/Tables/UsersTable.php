@@ -6,23 +6,16 @@ use App\Enums\ActiveStatus;
 use App\Enums\JenisKelamin;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
-use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
@@ -229,34 +222,8 @@ class UsersTable
                     DeleteAction::make(),
                 ])->tooltip('Aksi'),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->before(self::guardSelfInBulk()),
-                    ForceDeleteBulkAction::make()
-                        ->before(self::guardSelfInBulk()),
-                    RestoreBulkAction::make(),
-                ]),
-            ])
+            // Tanpa aksi massal → tak ada checkbox pilih baris. Hapus/pulihkan/hapus
+            // permanen per-baris tersedia via menu ⋮ dan halaman Edit.
             ->defaultSort('created_at', 'desc');
-    }
-
-    /**
-     * Cegah self-lockout pada aksi massal: batalkan bila akun sendiri ikut terpilih.
-     * (Warga bukan akun sendiri, tapi guard dipertahankan sebagai jaring pengaman.)
-     */
-    private static function guardSelfInBulk(): Closure
-    {
-        return function (Collection $records, BulkAction $action): void {
-            if ($records->contains(fn (User $record): bool => $record->getKey() === auth()->id())) {
-                Notification::make()
-                    ->title('Tidak bisa menghapus akun sendiri')
-                    ->body('Lepaskan centang pada akun Anda sebelum menghapus massal.')
-                    ->danger()
-                    ->send();
-
-                $action->halt();
-            }
-        };
     }
 }
