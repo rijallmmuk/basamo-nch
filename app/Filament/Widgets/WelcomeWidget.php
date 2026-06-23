@@ -22,7 +22,6 @@ class WelcomeWidget extends Widget
     protected function getViewData(): array
     {
         $user = auth()->user();
-        $super = (bool) $user?->isSuperAdmin();
         $now = now()->timezone('Asia/Jakarta');
         $hour = (int) $now->format('H');
 
@@ -36,14 +35,9 @@ class WelcomeWidget extends Widget
         $name = $user?->name ?? '';
 
         return [
-            'super' => $super,
             'greeting' => $greeting,
             'name' => $name,
             'initials' => $this->initials($name),
-            'roleBadge' => $super ? 'Super Admin' : 'Admin Desa',
-            'roleLabel' => $super
-                ? 'Akses seluruh desa'
-                : ($user?->desa?->nama_lengkap ?? 'Desa'),
             'dateLabel' => $now->translatedFormat('l, d F Y'),
             'timeLabel' => $now->format('H:i').' WIB',
         ];

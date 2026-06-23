@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use Filament\Actions\Action;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -10,6 +11,19 @@ use SensitiveParameter;
 
 class Login extends BaseLogin
 {
+    /** Subjudul brand — sejajar dengan login portal ("Portal Pembelajaran Warga"). */
+    public function getSubHeading(): ?string
+    {
+        return 'Panel Administrasi';
+    }
+
+    /** Tombol pill + ikon, selaras tombol "Masuk" di login portal. */
+    protected function getAuthenticateFormAction(): Action
+    {
+        return parent::getAuthenticateFormAction()
+            ->icon('heroicon-o-arrow-right-end-on-rectangle');
+    }
+
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('login')

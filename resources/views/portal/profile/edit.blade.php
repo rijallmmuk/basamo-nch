@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    <x-portal.card class="max-w-lg">
+    <x-portal.card class="max-w-[32rem]">
         <form method="POST" action="{{ route('portal.profile.update') }}" enctype="multipart/form-data" class="space-y-5">
             @csrf
 

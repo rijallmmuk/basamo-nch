@@ -3,17 +3,18 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\EnsureAdminPasswordChanged;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -34,13 +35,29 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->profile(isSimple: false)
             ->brandName('Basamo NCH')
+            ->brandLogo(fn (): Htmlable => view('filament.brand'))
+            ->brandLogoHeight('2.25rem')
+            ->font('Plus Jakarta Sans')
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
             ->navigationGroups(['LMS', 'UMKM', 'Pengaturan'])
-            // Palet dasar = Admin Desa (Teal). super_admin di-override ke Indigo via render hook
-            // (lihat superAdminThemeOverride) sebagai pembeda peran.
+            // Palet tunggal NCH untuk semua peran (Deep Blue). Tanpa pembedaan warna
+            // per-peran — identitas peran cukup lewat chip di topbar. Ramp eksplisit
+            // agar shade 600 (warna tombol solid Filament) = NCH Deep Blue #003857.
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => [
+                    50 => '#eef5fa',
+                    100 => '#d2e4f0',
+                    200 => '#a6c9e1',
+                    300 => '#6fa6cd',
+                    400 => '#3a7faf',
+                    500 => '#1b4f72',
+                    600 => '#003857',
+                    700 => '#002d46',
+                    800 => '#002338',
+                    900 => '#001b2b',
+                    950 => '#00111c',
+                ],
                 'gray' => Color::Slate,
                 'info' => Color::Sky,
                 'success' => Color::Emerald,
@@ -76,32 +93,9 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.topbar-role-badge')->render(),
             )
-            // Aksen tema per-peran: super_admin → Indigo (override --primary).
-            ->renderHook(
-                PanelsRenderHook::HEAD_END,
-                fn (): string => static::superAdminThemeOverride(),
-            )
             ->authMiddleware([
                 Authenticate::class,
                 EnsureAdminPasswordChanged::class,
             ]);
-    }
-
-    /**
-     * super_admin memakai aksen Indigo (override variabel --primary) agar berbeda
-     * jelas dari Admin Desa yang memakai Teal. Indigo tetap warna vibran sehingga
-     * tombol solid tetap berteks putih (kontras aman).
-     */
-    protected static function superAdminThemeOverride(): string
-    {
-        if (! auth()->user()?->isSuperAdmin()) {
-            return '';
-        }
-
-        $vars = collect(Color::Indigo)
-            ->map(fn (string $value, int|string $shade): string => "--primary-{$shade}:{$value};")
-            ->implode('');
-
-        return '<style id="super-admin-theme">:root{'.$vars.'}</style>';
     }
 }

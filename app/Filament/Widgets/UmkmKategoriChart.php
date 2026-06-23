@@ -36,7 +36,8 @@ class UmkmKategoriChart extends ApexChartWidget
                 'position' => 'bottom',
                 'labels' => ['fontFamily' => 'inherit'],
             ],
-            'colors' => ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6', '#6b7280'],
+            // Palet kategori bernuansa NCH (tetap kontras antar-kategori).
+            'colors' => ['#003857', '#d4ac0d', '#00572a', '#1b4f72', '#9dcbf4', '#735c00', '#54d280'],
         ];
     }
 }

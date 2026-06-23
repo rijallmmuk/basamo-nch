@@ -1,16 +1,10 @@
-@php
-    // Aksen gradien mengikuti peran (kedua set kelas ditulis literal agar ter-compile).
-    $grad = $super
-        ? 'from-indigo-500 via-indigo-600 to-indigo-800'
-        : 'from-teal-500 via-teal-600 to-teal-800';
-@endphp
-
 <x-filament-widgets::widget>
-    <div class="relative isolate overflow-hidden rounded-xl bg-gradient-to-br {{ $grad }} p-6 shadow-sm ring-1 ring-black/5 sm:p-7">
-        {{-- Ornamen ikon besar transparan --}}
+    {{-- Palet tunggal NCH Deep Blue untuk semua peran (tanpa pembedaan warna). --}}
+    <div class="relative isolate overflow-hidden rounded-xl bg-gradient-to-br from-[#1b4f72] via-[#003857] to-[#002338] p-6 shadow-sm ring-1 ring-black/5 sm:p-7">
+        {{-- Ornamen ikon besar (aksen emas Minang) --}}
         <x-filament::icon
             icon="heroicon-o-academic-cap"
-            class="pointer-events-none absolute -right-6 -top-6 -z-10 h-40 w-40 text-white/10"
+            class="pointer-events-none absolute -right-6 -top-6 -z-10 h-40 w-40 text-[#fed33e]/15"
         />
 
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -23,18 +17,10 @@
                     <p class="text-lg font-bold leading-tight text-white sm:text-xl">
                         {{ $greeting }}, {{ $name }}
                     </p>
-                    <p class="mt-1 truncate text-sm text-white/80">
-                        {{ $roleLabel }}
-                    </p>
                 </div>
             </div>
 
-            <div class="flex flex-col items-start gap-2 sm:items-end">
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/30">
-                    <x-filament::icon icon="heroicon-m-shield-check" class="h-3.5 w-3.5" />
-                    {{ $roleBadge }}
-                </span>
-
+            <div class="flex flex-col items-start sm:items-end">
                 <p class="inline-flex items-center gap-1.5 text-sm text-white/85">
                     <x-filament::icon icon="heroicon-m-calendar-days" class="h-4 w-4" />
                     {{ $dateLabel }} · {{ $timeLabel }}

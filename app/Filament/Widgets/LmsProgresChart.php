@@ -48,7 +48,7 @@ class LmsProgresChart extends ApexChartWidget
             'yaxis' => [
                 'labels' => ['style' => ['fontFamily' => 'inherit']],
             ],
-            'colors' => ['#10b981'],
+            'colors' => ['#003857'],
             'plotOptions' => [
                 'bar' => ['borderRadius' => 4, 'horizontal' => false],
             ],

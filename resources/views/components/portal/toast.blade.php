@@ -21,7 +21,7 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-l-4 border-gray-200 bg-white p-3.5 shadow-lg"
+            class="pointer-events-auto flex w-full max-w-[24rem] items-start gap-3 rounded-xl border border-l-4 border-gray-200 bg-white p-3.5 shadow-lg"
             :class="accent[t.type] || 'border-l-gray-400'"
         >
             <div class="min-w-0 flex-1">

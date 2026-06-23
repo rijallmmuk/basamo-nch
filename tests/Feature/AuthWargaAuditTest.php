@@ -12,7 +12,7 @@ function makeWarga(array $overrides = []): User
 
     return User::factory()->warga()->create(array_merge([
         'desa_id' => $desa->id,
-        'username' => '3201000000000999',
+        'nik' => '3201000000000999',
         'password' => 'rahasia-warga',
         'must_change_password' => false,
     ], $overrides));

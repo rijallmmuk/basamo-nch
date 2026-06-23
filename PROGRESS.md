@@ -50,6 +50,14 @@ UserResource tetap terpadu (upsert penduduk inline).
   Lembaga Tinggi Lainnya") — daftar non-EYD user tidak dipakai; (e) data fondasi: lookup FK
   (agama/status/pekerjaan) **tetap inline di migrasi** (dijamin ada saat migrate), wilayah via seeder.
   Suite 172 (170 lulus, 2 skip).
+- **Audit robustness CRUD warga (admin & super_admin):** verdict robust untuk MVP. Tutup 1 risiko
+  laten — `PendudukService::syncForUser` kini `firstOrNew(['nik'])` (pakai ulang identitas ber-NIK
+  sama, cegah unique violation utk fitur penduduk-mandiri nanti). Sengaja TAK diubah (by-design/
+  kosmetik, hindari over-engineering): force-delete sisakan penduduk (identitas independen),
+  label validasi huruf kecil (default Filament), guard desa_admin tanpa desa_id (state mustahil).
+  +tes: super_admin buat warga, soft-delete sisakan penduduk, reuse penduduk by-NIK. **Suite 175
+  (173 lulus, 2 skip).** Semua pekerjaan sesi ini ter-commit; design-system lintas-sesi + referensi
+  Stitch ikut di-commit & di-push pada penutupan sesi.
 - **Audit RBAC + keputusan ekspansi (user):** kepala desa/aparat **belum dibangun** (cukup 3 peran).
   Rancangan masa depan **dimatangkan & didokumentasikan** (DECISIONS.md "Jalur ekspansi peran/jabatan"):
   peran baru = data Spatie (nol migrasi); data jabatan = tabel baru `jabatan`+`penugasan_jabatan`

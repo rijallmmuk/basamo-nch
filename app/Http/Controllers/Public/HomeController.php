@@ -26,6 +26,18 @@ class HomeController extends Controller
             'modul' => Module::where('status', ModuleStatus::Published)->count(),
         ]);
 
-        return view('public.home', ['stats' => $stats]);
+        // Produk unggulan untuk showcase beranda (4 terbaru yang disetujui).
+        $produkUnggulan = UmkmProduct::query()
+            ->where('status', UmkmProductStatus::Approved)
+            ->whereHas('umkmProfile', fn ($q) => $q->where('status', ActiveStatus::Active))
+            ->with(['umkmProfile.desa', 'media'])
+            ->latest('approved_at')
+            ->take(4)
+            ->get();
+
+        return view('public.home', [
+            'stats' => $stats,
+            'produkUnggulan' => $produkUnggulan,
+        ]);
     }
 }

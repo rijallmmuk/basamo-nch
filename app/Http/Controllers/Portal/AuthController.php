@@ -36,8 +36,8 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        // NIK disimpan di kolom username; email dideteksi via format.
-        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        // Warga login via NIK (kolom `nik`); email dideteksi via format.
+        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
 
         if (! Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);

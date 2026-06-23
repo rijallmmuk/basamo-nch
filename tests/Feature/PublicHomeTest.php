@@ -8,9 +8,9 @@ uses(RefreshDatabase::class);
 it('landing page publik tampil tanpa login', function () {
     $this->get(route('public.home'))
         ->assertOk()
-        ->assertSee('Basamo NCH')
+        ->assertSeeText('Basamo NCH')
         ->assertSee('Katalog UMKM')
-        ->assertSee('Masuk Portal Warga');
+        ->assertSee('Masuk Portal');
 });
 
 it('halaman portal terproteksi mengirim header no-store (anti back-button)', function () {

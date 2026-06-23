@@ -76,7 +76,7 @@ class AktivitasBelajarChart extends ApexChartWidget
             'yaxis' => [
                 'labels' => ['style' => ['fontFamily' => 'inherit']],
             ],
-            'colors' => ['#10b981', '#f59e0b'],
+            'colors' => ['#003857', '#d4ac0d'],
             'stroke' => ['curve' => 'smooth', 'width' => 2],
             'fill' => ['type' => 'gradient', 'gradient' => ['opacityFrom' => 0.4, 'opacityTo' => 0.1]],
             'dataLabels' => ['enabled' => false],

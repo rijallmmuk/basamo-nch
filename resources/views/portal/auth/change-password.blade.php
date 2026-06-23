@@ -8,7 +8,7 @@
 </head>
 <body class="flex min-h-full flex-col items-center justify-center bg-slate-50 px-4 py-12 antialiased">
 
-    <div class="w-full max-w-sm">
+    <div class="w-full max-w-[24rem]">
 
         {{-- Brand --}}
         <div class="mb-8 text-center">

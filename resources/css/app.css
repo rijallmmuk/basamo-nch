@@ -3,7 +3,219 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+ | Design System: "Nagari Creative Hub" — SUMBER KEBENARAN front-end.
+ | Token kanonik dari stitch_nagari_creative_hub_redesign/nagari_creative_hub/DESIGN.md.
+ | Aturan: halaman SELALU pakai token semantik (bg-primary, text-on-surface,
+ | text-display-lg, …), JANGAN hex mentah. Ganti token di sini → seluruh app ikut.
+ | Palet: NCH Deep Blue (primary) · Minang Gold (secondary/accent) · Sustainable
+ | Green (tertiary) · Plus Jakarta Sans. Lihat docs/UI-GUIDE.md.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* ── Primary — NCH Deep Blue ────────────────────────────── */
+    --color-primary: #003857;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #1b4f72;
+    --color-on-primary-container: #92c0e9;
+    --color-primary-fixed: #cce5ff;
+    --color-primary-fixed-dim: #9dcbf4;
+    --color-on-primary-fixed: #001e31;
+    --color-on-primary-fixed-variant: #154b6d;
+    --color-inverse-primary: #9dcbf4;
+    --color-surface-tint: #326286;
+
+    /* ── Secondary — Minang Gold (accent) ───────────────────── */
+    --color-secondary: #735c00;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #fed33e;
+    --color-on-secondary-container: #725b00;
+    --color-secondary-fixed: #ffe085;
+    --color-secondary-fixed-dim: #ecc22c;
+    --color-on-secondary-fixed: #231b00;
+    --color-on-secondary-fixed-variant: #574500;
+
+    /* ── Tertiary — Sustainable Green ───────────────────────── */
+    --color-tertiary: #003d1c;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #00572a;
+    --color-on-tertiary-container: #54d280;
+    --color-tertiary-fixed: #7efba4;
+    --color-tertiary-fixed-dim: #61de8a;
+    --color-on-tertiary-fixed: #00210c;
+    --color-on-tertiary-fixed-variant: #005228;
+
+    /* ── Surfaces & neutrals ────────────────────────────────── */
+    --color-background: #f7f9fb;
+    --color-on-background: #191c1e;
+    --color-surface: #f7f9fb;
+    --color-on-surface: #191c1e;
+    --color-on-surface-variant: #41474e;
+    --color-surface-variant: #e0e3e5;
+    --color-surface-bright: #f7f9fb;
+    --color-surface-dim: #d8dadc;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f2f4f6;
+    --color-surface-container: #eceef0;
+    --color-surface-container-high: #e6e8ea;
+    --color-surface-container-highest: #e0e3e5;
+    --color-inverse-surface: #2d3133;
+    --color-inverse-on-surface: #eff1f3;
+    --color-outline: #72787f;
+    --color-outline-variant: #c1c7cf;
+
+    /* ── Feedback ───────────────────────────────────────────── */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    --color-danger: #ba1a1a; /* alias kompat — markup lama pakai text-danger */
+    --color-info: #2563eb;
+
+    /* ── SDG palette (18 poin, standar internasional) ───────── */
+    --color-sdg-1: #e5243b;
+    --color-sdg-2: #dda63a;
+    --color-sdg-3: #4c9f38;
+    --color-sdg-4: #c5192d;
+    --color-sdg-5: #ff3a21;
+    --color-sdg-6: #26bde2;
+    --color-sdg-7: #fcc30b;
+    --color-sdg-8: #a21942;
+    --color-sdg-9: #fd6925;
+    --color-sdg-10: #dd1367;
+    --color-sdg-11: #fd9d24;
+    --color-sdg-12: #bf8b2e;
+    --color-sdg-13: #3f7e44;
+    --color-sdg-14: #0a97d9;
+    --color-sdg-15: #56c02b;
+    --color-sdg-16: #00689d;
+    --color-sdg-17: #19486a;
+    --color-sdg-18: #4f46e5;
+
+    /* ── Spacing — base 8px (page-level dari DESIGN.md) ─────── */
+    /* Skala 4px (xs–xl) dipertahankan untuk internal komponen lama. */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+    --spacing-gutter: 1.5rem; /* 24px */
+    --spacing-margin-mobile: 1.25rem; /* 20px */
+    --spacing-margin-desktop: 3rem; /* 48px */
+    --spacing-section-gap: 5rem; /* 80px */
+    --spacing-container-max: 80rem; /* 1280px */
+
+    /* ── Typography — Plus Jakarta Sans (DESIGN.md) ─────────── */
+    --text-display-lg: 48px;
+    --text-display-lg--line-height: 1.2;
+    --text-display-lg--font-weight: 800;
+    --text-display-lg--letter-spacing: -0.02em;
+    --text-display-md: 36px;
+    --text-display-md--line-height: 1.2;
+    --text-display-md--font-weight: 700;
+    --text-display-md--letter-spacing: -0.02em;
+    --text-headline-lg: 30px;
+    --text-headline-lg--line-height: 1.3;
+    --text-headline-lg--font-weight: 700;
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 1.4;
+    --text-headline-md--font-weight: 600;
+    --text-headline-sm: 18px; /* kompat — tidak ada di DESIGN.md, dipakai markup lama */
+    --text-headline-sm--line-height: 24px;
+    --text-headline-sm--font-weight: 600;
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 1.6;
+    --text-body-lg--font-weight: 400;
+    --text-body-md: 16px;
+    --text-body-md--line-height: 1.6;
+    --text-body-md--font-weight: 400;
+    --text-label-md: 14px;
+    --text-label-md--line-height: 1.2;
+    --text-label-md--font-weight: 600;
+    --text-label-md--letter-spacing: 0.05em;
+    --text-label-sm: 12px;
+    --text-label-sm--line-height: 1.2;
+    --text-label-sm--font-weight: 500;
+    --text-metric-lg: 32px; /* kompat — angka statistik */
+    --text-metric-lg--line-height: 40px;
+    --text-metric-lg--font-weight: 800;
+}
+
+/*
+ | Motif & elevasi Minangkabau — utility terpusat (jangan copy per halaman).
+ | Diturunkan dari stitch code.html: gonjong, songket, bada mudiak, glass, kartu.
+ */
+@layer utilities {
+    /* Watermark gonjong (atap rumah gadang) — pakai di pojok kartu/section */
+    .gonjong-bg {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23735c00' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
+    }
+
+    /* Titik songket — latar bertekstur halus */
+    .songket-pattern {
+        background-image: radial-gradient(circle at 2px 2px, rgba(115, 92, 0, 0.15) 1px, transparent 0);
+        background-size: 16px 16px;
+    }
+
+    /* Garis ombak "bada mudiak" — pemisah section */
+    .pattern-bada-mudiak {
+        background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(0, 56, 87, 0.05) 10px,
+            rgba(0, 56, 87, 0.05) 20px
+        );
+    }
+
+    .minang-divider {
+        height: 40px;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='40' viewBox='0 0 100 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 Q25 0 50 40 Q75 0 100 40' fill='none' stroke='%23003857' stroke-width='1' opacity='0.2'/%3E%3C/svg%3E");
+        background-repeat: repeat-x;
+    }
+
+    /* Elevasi — Level 1 (kartu) & hover (Level 2) */
+    .card-shadow {
+        box-shadow: 0px 4px 12px rgba(27, 79, 114, 0.06);
+    }
+    .card-hover {
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 24px rgba(27, 79, 114, 0.1);
+    }
+
+    /* Panel kaca — overlay/header dengan blur */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(254, 211, 62, 0.2);
+    }
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Aksen tech — glow biru+emas untuk elemen IoT/hero */
+    .tech-glow {
+        box-shadow:
+            0 0 20px rgba(0, 56, 87, 0.2),
+            0 0 40px rgba(254, 211, 62, 0.1);
+    }
+
+    /* Bentuk gonjong (atap runcing) via clip-path */
+    .gonjong-peak {
+        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+    }
+    .pucuk-rabuang {
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
 }

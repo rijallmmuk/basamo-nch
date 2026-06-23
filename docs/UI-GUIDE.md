@@ -1,188 +1,178 @@
-# UI-GUIDE.md — Smart Learning Center Basamo NCH
+# UI-GUIDE.md — Nagari Creative Hub (Basamo NCH)
 
-> Panduan visual untuk konsistensi tampilan di seluruh platform.
-> Berlaku untuk Admin Panel (Filament theme) dan Portal Warga (custom Tailwind).
+> **Sumber kebenaran tampilan front-end.** Diturunkan dari design Google Stitch
+> (`stitch_nagari_creative_hub_redesign/`). Target kemiripan dengan mockup **>98%**.
+> Berlaku untuk Portal Warga & Frontend Publik (Blade + Tailwind v4).
+> Panel Admin (Filament) mengikuti semangat palet ini sebisanya, bukan pixel-perfect.
 
 ---
 
-## Warna sistem
+## Prinsip konsistensi (wajib)
 
-### Panel Admin (Filament theme color)
-```php
-// AdminPanelProvider.php (panel admin Filament). Portal warga pakai Blade custom.
-->colors([
-    'primary' => Color::Indigo,
-])
-```
+1. **Token, bukan hex.** Selalu pakai class token (`bg-primary`, `text-on-surface`,
+   `text-display-lg`). JANGAN tulis hex/warna mentah di Blade. Semua token ada di
+   `resources/css/app.css` `@theme` — itu satu-satunya tempat ubah palet.
+2. **Komponen, bukan markup ad-hoc.** Rakit halaman dari `resources/views/components/`
+   (`<x-portal.button>`, `<x-portal.card>`, dst). Cek komponen yang ada sebelum bikin baru.
+3. **Motif terpusat.** Pakai utility motif (`gonjong-bg`, `glass-card`, `minang-divider`,
+   `card-shadow`, `card-hover`) — jangan copy CSS per halaman.
+4. **Workflow per-layar.** Untuk tiap screen: buka `code.html` + `screen.png` →
+   port ke Blade pakai token+komponen → bandingkan dengan `screen.png` → revisi sampai cocok.
+5. **Ikon = Heroicons** (lihat tabel pemetaan di bawah). Design pakai Material Symbols;
+   kita map ke Heroicon terdekat sesuai aturan CLAUDE.md.
 
-### Portal Warga (Tailwind CSS variables)
+---
 
-| Peran | Nama | Hex | Tailwind class |
+## Identitas merek
+
+**Visionary · Rooted · Prestigious** — perpaduan *Corporate Modernism* + *Tactile Heritage*.
+Aksen motif Minangkabau (*Pucuk Rabuang* = pertumbuhan, *Bada Mudiak* = harmoni) sebagai
+watermark/divider opacity rendah. Font tunggal: **Plus Jakarta Sans**.
+
+---
+
+## Warna (token semantik)
+
+| Peran | Token | Hex | Catatan |
 |---|---|---|---|
-| Aksi utama | Primary | `#4F46E5` | `indigo-600` |
-| Sukses / selesai | Success | `#16A34A` | `green-600` |
-| Peringatan | Warning | `#D97706` | `amber-600` |
-| Bahaya / error | Danger | `#DC2626` | `red-600` |
-| Informasi | Info | `#2563EB` | `blue-600` |
-| Teks utama | Gray 900 | `#111827` | `gray-900` |
-| Teks sekunder | Gray 500 | `#6B7280` | `gray-500` |
-| Border | Gray 200 | `#E5E7EB` | `gray-200` |
-| Background halaman | Gray 50 | `#F9FAFB` | `gray-50` |
-| Background card | White | `#FFFFFF` | `white` |
+| Aksi utama | `primary` | `#003857` | NCH Deep Blue — stabil, otoritatif |
+| Di atas primary | `on-primary` | `#ffffff` | |
+| Kontainer primary | `primary-container` | `#1b4f72` | |
+| Aksen / CTA tinggi | `secondary-container` | `#fed33e` | **Minang Gold** — hemat, untuk highlight |
+| Label di atas gold | `on-secondary-container` | `#725b00` | |
+| Sukses / tumbuh | `tertiary` | `#003d1c` | Sustainable Green |
+| Kontainer hijau | `tertiary-container` | `#00572a` | |
+| Latar halaman | `background` / `surface` | `#f7f9fb` | off-white, bukan putih murni |
+| Kartu/permukaan | `surface-container-lowest` | `#ffffff` | |
+| Teks utama | `on-surface` | `#191c1e` | |
+| Teks sekunder | `on-surface-variant` | `#41474e` | |
+| Garis/border | `outline-variant` | `#c1c7cf` | |
+| Error | `error` | `#ba1a1a` | |
 
-### Warna SDGs (18 poin — sesuai standar UN)
-```
-SDGs 1  : #E5243B    SDGs 10 : #DD1367
-SDGs 2  : #DDA63A    SDGs 11 : #FD9D24
-SDGs 3  : #4C9F38    SDGs 12 : #BF8B2E
-SDGs 4  : #C5192D    SDGs 13 : #3F7E44
-SDGs 5  : #FF3A21    SDGs 14 : #0A97D9
-SDGs 6  : #26BDE2    SDGs 15 : #56C02B
-SDGs 7  : #FCC30B    SDGs 16 : #00689D
-SDGs 8  : #A21942    SDGs 17 : #19486A
-SDGs 9  : #FD6925
-```
+SDG (18 poin) tetap tersedia: `bg-sdg-1` … `bg-sdg-18` (warna standar UN, lihat `app.css`).
 
 ---
 
-## Tipografi
+## Tipografi (Plus Jakarta Sans)
 
-```css
-/* Font stack — gunakan sistem font, tidak perlu Google Fonts */
-font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+| Token | Ukuran | Weight | Pakai untuk |
+|---|---|---|---|
+| `text-display-lg` | 48px | 800 | Hero judul utama (desktop) |
+| `text-display-md` | 36px | 700 | Judul section besar |
+| `text-headline-lg` | 30px | 700 | Judul halaman |
+| `text-headline-md` | 24px | 600 | Subjudul / judul kartu besar |
+| `text-headline-sm` | 18px | 600 | Judul kartu kecil *(kompat)* |
+| `text-body-lg` | 18px | 400 | Paragraf intro (line-height 1.6) |
+| `text-body-md` | 16px | 400 | Body utama |
+| `text-label-md` | 14px | 600 | Label/metadata, tracking 0.05em (sering uppercase) |
+| `text-label-sm` | 12px | 500 | Caption/chip |
+| `text-metric-lg` | 32px | 800 | Angka statistik *(kompat)* |
 
-/* Scale */
-Heading 1  : text-2xl font-bold     (24px)
-Heading 2  : text-xl font-semibold  (20px)
-Heading 3  : text-lg font-medium    (18px)
-Body       : text-sm                (14px)
-Caption    : text-xs text-gray-500  (12px)
-```
-
----
-
-## Komponen portal warga
-
-### Kartu modul
-
-```html
-<!-- Status: available -->
-<div class="rounded-xl bg-white border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-  <img class="w-full h-32 object-cover rounded-lg mb-3" src="...">
-  <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">Tersedia</span>
-  <h3 class="mt-2 text-sm font-semibold text-gray-900">Nama Modul</h3>
-  <div class="mt-2 w-full bg-gray-100 rounded-full h-1.5">
-    <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 60%"></div>
-  </div>
-  <p class="mt-1 text-xs text-gray-500">60% selesai</p>
-</div>
-
-<!-- Status: locked -->
-<div class="rounded-xl bg-gray-50 border border-gray-200 p-4 opacity-60 cursor-not-allowed">
-  <!-- sama, dengan ikon gembok -->
-  <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">🔒 Terkunci</span>
-</div>
-
-<!-- Status: completed -->
-<div class="rounded-xl bg-white border border-green-200 p-4 shadow-sm">
-  <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">✓ Selesai</span>
-</div>
-```
-
-### Badge status produk UMKM
-
-```html
-<!-- Pending -->
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-  Menunggu Verifikasi
-</span>
-
-<!-- Approved -->
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-  Disetujui
-</span>
-
-<!-- Rejected -->
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-  Ditolak
-</span>
-```
-
-### Kartu sensor IoT
-
-```html
-<!-- Normal -->
-<div class="rounded-lg border border-green-200 bg-green-50 p-3">
-  <div class="flex items-center justify-between">
-    <span class="text-xs text-green-700 font-medium">Suhu</span>
-    <span class="w-2 h-2 rounded-full bg-green-500"></span>  <!-- dot status -->
-  </div>
-  <p class="text-xl font-bold text-green-900 mt-1">32°C</p>
-  <p class="text-xs text-green-600">Normal</p>
-</div>
-
-<!-- Waspada — ganti green → amber -->
-<!-- Bahaya — ganti green → red -->
-```
-
-### Leaderboard item
-
-```html
-<div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50">
-  <!-- Posisi -->
-  <span class="w-6 text-center text-sm font-bold text-gray-400">1</span>
-  <!-- Avatar inisial -->
-  <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700">
-    AB
-  </div>
-  <!-- Nama & modul -->
-  <div class="flex-1">
-    <p class="text-sm font-medium text-gray-900">Andi Budiman</p>
-    <p class="text-xs text-gray-500">5 modul selesai</p>
-  </div>
-  <!-- Poin -->
-  <span class="text-sm font-semibold text-indigo-600">1.240 poin</span>
-</div>
-```
+Heading: weight Bold/ExtraBold + tracking sedikit rapat. Body: line-height 1.6.
 
 ---
 
-## Aturan desain
+## Bentuk, spacing, elevasi
 
-1. **Border radius**: gunakan `rounded-xl` untuk card, `rounded-lg` untuk elemen dalam card, `rounded-full` untuk badge & avatar
-2. **Shadow**: gunakan `shadow-sm` default, `shadow-md` saat hover — jangan pakai shadow besar
-3. **Spacing**: gunakan kelipatan 4px (Tailwind default) — p-2, p-3, p-4, gap-3, dll
-4. **Animasi**: hanya `transition-shadow`, `transition-colors` yang ringan — hindari animasi berat
-5. **Mobile first**: semua layout mulai dari mobile, gunakan `sm:`, `md:`, `lg:` untuk scaling
-6. **Teks tombol**: selalu kapital huruf pertama saja — "Simpan perubahan", bukan "SIMPAN PERUBAHAN"
-7. **Loading state**: selalu ada indikator loading untuk aksi async — gunakan Livewire `wire:loading`
+- **Radius (high circularity):** card besar `rounded-2xl`/`rounded-3xl`, elemen dalam `rounded-xl`,
+  input `rounded-xl`, chip & tombol `rounded-full`.
+  > Skala `rounded-*` dibiarkan default Tailwind (tidak di-override global) agar card lama tidak
+  > membengkak. Terapkan radius eksplisit per komponen sesuai mockup.
+- **Spacing:** base 8px. Padding internal kartu/section besar (≥`p-8`). Gap antar section besar
+  (`section-gap` = 80px). Token halaman: `gutter` 24px, `margin-mobile` 20px, `margin-desktop` 48px.
+
+> ⚠️ **Gotcha `max-w` (penting):** token spacing kustom `--spacing-xs/sm/md/lg/xl` (dipakai
+> `gap-md`, `p-lg`, dll) **menimpa** skala lebar Tailwind, sehingga `max-w-sm/md/lg/xl` jadi nilai
+> mungil (8–24px) dan meng-kolaps konten. **JANGAN pakai `max-w-{sm,md,lg,xl}`.** Pakai
+> `max-w-2xl … max-w-7xl` (tak bentrok) atau arbitrary `max-w-[24rem]`/`max-w-[32rem]`.
+> Untuk grid 2 kolom teks+media gunakan pola `grid-cols-12` + `col-span-*` (bukan `grid-cols-2`).
+- **Elevasi (shadow lembut bertinta biru, hindari hitam pekat):**
+  - Level 1 (kartu/input): `.card-shadow` → `0 4px 12px rgba(27,79,114,.06)` + border 1px `outline-variant`.
+  - Level 2 (hover): `.card-hover` → naik 4px + `0 12px 24px rgba(27,79,114,.1)`.
+  - Overlay/modal: `.glass-card` / `.glass-panel` (backdrop blur).
+
+### Utility motif (di `app.css`)
+`gonjong-bg` · `songket-pattern` · `pattern-bada-mudiak` · `minang-divider` ·
+`card-shadow` · `card-hover` · `glass-card` · `glass-panel` · `tech-glow` ·
+`gonjong-peak` · `pucuk-rabuang`.
+
+---
+
+## Komponen
+
+- **Tombol** — Primary: `bg-primary text-on-primary` pill, hover gelap/gradien.
+  Secondary: outline 1.5px `border-primary`. Accent: `bg-secondary-container` (gold) untuk CTA prioritas.
+- **Kartu** — `bg-surface-container-lowest rounded-2xl` + `card-shadow` + border tipis `outline-variant`;
+  hover `card-hover`. Opsional watermark `gonjong-bg` opacity rendah di pojok.
+- **Input** — default isi `bg-surface-container-low` tanpa border, `rounded-xl`; focus → putih + border 2px gold.
+- **Chip/Tag** — latar soft (opacity ~10% primary/tertiary), label SemiBold.
+- **Divider** — pakai `minang-divider` / `pattern-bada-mudiak`, bukan garis polos.
+
+---
+
+## Pemetaan ikon: Material Symbols (design) → Heroicon (implementasi)
+
+Aturan: pakai komponen `<x-heroicon-o-*>` (outline) untuk nav/aksi, `<x-heroicon-s-*>` (solid)
+untuk state aktif. Untuk yang **tak ada padanan**, pakai Heroicon terdekat *atau* SVG inline custom.
+
+| Material | Heroicon | Material | Heroicon |
+|---|---|---|---|
+| `arrow_forward` | `arrow-right` | `notifications` | `bell` |
+| `arrow_back` | `arrow-left` | `add` | `plus` |
+| `chevron_right` | `chevron-right` | `close` | `x-mark` |
+| `chevron_left` | `chevron-left` | `check` | `check` |
+| `expand_more` | `chevron-down` | `check_circle` | `check-circle` |
+| `more_vert` | `ellipsis-vertical` | `verified` / `workspace_premium` | `check-badge` |
+| `dashboard` | `squares-2x2` | `search` | `magnifying-glass` |
+| `analytics` | `chart-bar` | `trending_up` | `arrow-trending-up` |
+| `school` | `academic-cap` | `settings` | `cog-6-tooth` |
+| `storefront` / `store` | `building-storefront` | `public` | `globe-alt` |
+| `location_on` / `map` | `map-pin` / `map` | `logout` | `arrow-right-start-on-rectangle` |
+| `person` | `user` | `groups` | `user-group` |
+| `favorite` | `heart` | `star` / `stars` | `star` |
+| `forum` / `chat` | `chat-bubble-left-right` | `info` | `information-circle` |
+| `help` | `question-mark-circle` | `warning` | `exclamation-triangle` |
+| `download` | `arrow-down-tray` | `share` | `share` |
+| `menu` | `bars-3` | `lightbulb` | `light-bulb` |
+| `palette` | `swatch` | `laptop_mac` | `computer-desktop` |
+| `table_chart` | `table-cells` | `inventory_2` | `archive-box` |
+| `rocket_launch` | `rocket-launch` | `save` | `bookmark` |
+
+**Tanpa padanan Heroicon (pakai SVG inline custom / terdekat):**
+`handshake` (kemitraan) · `eco` (SDG hijau → `sparkles`/leaf SVG) · `hub` · `account_tree` ·
+`sensors` (IoT → `signal`/`cpu-chip`) · `format_quote` (dekoratif → glyph `"`).
+
+---
+
+## Peta scope front-end
+
+| Layar | Lapisan | Status |
+|---|---|---|
+| Beranda, Tentang NCH, Kemitraan, 4 Pilar | Publik | **Kita kerjakan** |
+| Katalog UMKM (publik) + detail produk | Publik | **Kita kerjakan** |
+| Portal warga (Beranda, Belajar, Peringkat, Notifikasi, Profil) | Portal | **Kita kerjakan** |
+| Kelola/Katalog UMKM | Admin (Filament) | **Kita kerjakan** (best-effort) |
+| Dashboard/Capaian SDGs, Kelola Proyek SDGs | — | Referensi (programmer lain) |
+| Manajemen/Kelola Sensor IoT | — | Referensi (programmer lain) |
 
 ---
 
 ## Filament Admin Panel
 
-### Warna panel
+Palet **tunggal NCH Deep Blue** untuk semua peran — **tanpa pembedaan warna per-peran**
+(super_admin & admin desa identik; identitas peran cukup lewat chip teks di topbar).
+
 ```php
-->colors(['primary' => Color::Indigo])
-->darkMode(false)   // nonaktifkan dark mode untuk kemudahan pengguna awam
+// AdminPanelProvider.php — ramp eksplisit agar shade 600 (tombol solid) = #003857.
+// Color::hex('#003857') TIDAK dipakai: warna gelap itu ditempatkan Filament di shade ~900
+// sehingga tombol (600) jadi biru muda. Beri ramp 50–950 manual, 500=#1b4f72, 600=#003857.
+->colors(['primary' => [ /* 50..950, 600 => '#003857' */ ]])
+->brandLogo(fn (): Htmlable => view('filament.brand'))   // mark gonjong + wordmark (HTMLable, bukan URL)
+->brandLogoHeight('2.25rem')
+->font('Plus Jakarta Sans')
 ```
-
-### Navigation groups (urutan di sidebar)
-```
-Admin Panel:
-  1. Dashboard
-  2. Nagari          (super admin only)
-  3. LMS             → Modul, Kuis, Forum
-  4. SDGs Desa       → Kegiatan, Dokumen
-  5. UMKM            → Profil, Produk, Verifikasi
-  6. IoT Sensor      → Sensor, Pembacaan
-  7. Laporan         → Ekspor PDF, Ekspor Excel
-  8. Pengguna        → Warga, Pemilik UMKM
-  9. Pengaturan      (super admin only)
-
-Portal Warga:
-  1. Dashboard       (progress & leaderboard)
-  2. Belajar         (daftar modul)
-  3. Forum           (diskusi)
-  4. Produk Saya     (pemilik UMKM only)
-```
+- Login Filament direstyle via `theme.css` (`.fi-simple-layout` latar gonjong, `.fi-simple-main`
+  sudut bulat + bayangan) agar senada login portal.
+- View Filament pakai **inline-style** untuk warna/motif (utility custom app.css mis. `gonjong-peak`
+  TIDAK ada di build theme.css). Ikon via `@svg('heroicon-…')` (komponen `<x-icon>` dimatikan panel).
+- Filament tetap Heroicons. Pixel-perfect tidak dikejar; cukup palet & nuansa selaras.

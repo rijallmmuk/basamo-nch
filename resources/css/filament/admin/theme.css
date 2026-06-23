@@ -2,3 +2,61 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+
+/* ── Latar konten panel — motif belah ketupat (gonjong) samar, seperti login ── */
+.fi-main-ctn {
+    background-image: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 0 L56 28 L28 56 L0 28 Z' fill='none' stroke='%23003857' stroke-width='0.6' stroke-opacity='0.12'/%3E%3C/svg%3E");
+}
+
+/* ── Halaman auth (login) — diselaraskan dengan login portal warga ──────── */
+/* Latar off-white + motif gonjong + blob emas/biru (sama seperti portal). */
+.fi-simple-layout {
+    position: relative;
+    overflow: hidden;
+    background-color: #f7f9fb;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23735c00' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
+}
+.fi-simple-layout::before,
+.fi-simple-layout::after {
+    content: '';
+    position: absolute;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 9999px;
+    filter: blur(48px);
+    pointer-events: none;
+    z-index: 0;
+}
+.fi-simple-layout::before { /* blob biru kanan-atas */
+    top: -6rem;
+    right: -6rem;
+    background: rgba(0, 56, 87, 0.06);
+}
+.fi-simple-layout::after { /* blob emas kiri-bawah */
+    bottom: -6rem;
+    left: -6rem;
+    background: rgba(254, 211, 62, 0.18);
+}
+
+/* Kartu login di atas dekorasi + sudut bulat + bayangan lembut bertinta biru. */
+.fi-simple-main {
+    position: relative;
+    z-index: 1;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(27, 79, 114, 0.08);
+}
+
+/* Input ber-fill (abu) + fokus border emas — sesuai spec design & login portal. */
+.fi-simple-main .fi-input-wrp {
+    background-color: #f2f4f6;
+    box-shadow: none !important;
+}
+.fi-simple-main .fi-input-wrp:focus-within {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px #fed33e !important;
+}
+
+/* Tombol "Masuk" pill (selaras tombol portal). */
+.fi-simple-main .fi-btn {
+    border-radius: 9999px;
+}
