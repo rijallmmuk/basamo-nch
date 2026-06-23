@@ -6,6 +6,7 @@ use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use App\Services\UmkmService;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -50,28 +51,30 @@ class UmkmProductsTable
                     ->default('pending'),
             ])
             ->recordActions([
-                Action::make('approve')
-                    ->label('Setujui')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
-                    ->requiresConfirmation()
-                    ->action(fn (UmkmProduct $record) => app(UmkmService::class)
-                        ->verifyProduct($record, UmkmProductStatus::Approved, Auth::id())),
+                ActionGroup::make([
+                    Action::make('approve')
+                        ->label('Setujui')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
+                        ->requiresConfirmation()
+                        ->action(fn (UmkmProduct $record) => app(UmkmService::class)
+                            ->verifyProduct($record, UmkmProductStatus::Approved, Auth::id())),
 
-                Action::make('reject')
-                    ->label('Tolak')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
-                    ->schema([
-                        Textarea::make('alasan_penolakan')
-                            ->label('Alasan penolakan')
-                            ->required()
-                            ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
-                    ])
-                    ->action(fn (UmkmProduct $record, array $data) => app(UmkmService::class)
-                        ->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['alasan_penolakan'])),
+                    Action::make('reject')
+                        ->label('Tolak')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
+                        ->schema([
+                            Textarea::make('alasan_penolakan')
+                                ->label('Alasan penolakan')
+                                ->required()
+                                ->helperText('Disampaikan ke pemilik agar bisa memperbaiki.'),
+                        ])
+                        ->action(fn (UmkmProduct $record, array $data) => app(UmkmService::class)
+                            ->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['alasan_penolakan'])),
+                ])->tooltip('Aksi'),
             ])
             ->defaultSort('created_at', 'asc');
     }

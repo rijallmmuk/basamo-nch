@@ -36,6 +36,11 @@ UserResource tetap terpadu (upsert penduduk inline).
   sekarang biner hardcoded (`isSuperAdmin`/`isDesaAdmin`, 0 permission Shield); saat peran baru
   diaktifkan → pindah gating ke permission-based.
 - **Belum (sadar, YAGNI):** PendudukResource mandiri; tabel jabatan/penugasan; authz permission-based.
+- **Polish UI panel (koreksi user):** (1) ikon toggle sidebar `SIDEBAR_COLLAPSE/EXPAND_BUTTON` →
+  `heroicon-m-bars-3` (hamburger) via `FilamentIcon::register` di `AppServiceProvider` — chevron-ganda
+  default disalahartikan sbg "back". (2) Aksi baris bertumpuk/berlabel panjang dibungkus **`ActionGroup`**
+  (tombol ⋮, item tetap berlabel+ikon) di UsersTable, DiscussionsTable, UmkmProductsTable,
+  ProductsRelationManager — hemat ruang tanpa mengorbankan kejelasan. Tabel beraksi tunggal (Edit) dibiarkan.
 
 ## Sesi 2026-06-23 — Design system "Nagari Creative Hub" + Data master warga (NIK)
 

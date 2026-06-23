@@ -6,6 +6,7 @@ use App\Enums\ActiveStatus;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -128,69 +129,72 @@ class UsersTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                Action::make('resetOtp')
-                    ->label('Reset OTP')
-                    ->icon('heroicon-o-key')
-                    ->color('warning')
-                    ->visible(fn (User $record): bool => $record->isPortalAccount())
-                    ->requiresConfirmation()
-                    ->modalHeading('Terbitkan OTP baru')
-                    ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
-                    ->action(function (User $record): void {
-                        $otp = $record->issueOtp();
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
 
-                        Notification::make()
-                            ->title('OTP baru diterbitkan')
-                            ->body("NIK {$record->nik} · OTP: {$otp}. Sampaikan ke warga.")
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    }),
+                    Action::make('resetOtp')
+                        ->label('Reset OTP')
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->visible(fn (User $record): bool => $record->isPortalAccount())
+                        ->requiresConfirmation()
+                        ->modalHeading('Terbitkan OTP baru')
+                        ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
+                        ->action(function (User $record): void {
+                            $otp = $record->issueOtp();
 
-                Action::make('beriAksesUmkm')
-                    ->label('Beri akses UMKM')
-                    ->icon('heroicon-o-building-storefront')
-                    ->color('success')
-                    ->visible(fn (User $record): bool => $record->role === 'warga' && ! $record->hasUmkmAccess())
-                    ->requiresConfirmation()
-                    ->modalHeading('Beri akses UMKM')
-                    ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
-                    ->action(function (User $record): void {
-                        $record->update(['umkm_access_granted_at' => now()]);
+                            Notification::make()
+                                ->title('OTP baru diterbitkan')
+                                ->body("NIK {$record->nik} · OTP: {$otp}. Sampaikan ke warga.")
+                                ->success()
+                                ->persistent()
+                                ->send();
+                        }),
 
-                        Notification::make()
-                            ->title('Akses UMKM diberikan')
-                            ->body($record->name.' kini bisa mengelola UMKM.')
-                            ->success()
-                            ->send();
-                    }),
+                    Action::make('beriAksesUmkm')
+                        ->label('Beri akses UMKM')
+                        ->icon('heroicon-o-building-storefront')
+                        ->color('success')
+                        ->visible(fn (User $record): bool => $record->role === 'warga' && ! $record->hasUmkmAccess())
+                        ->requiresConfirmation()
+                        ->modalHeading('Beri akses UMKM')
+                        ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
+                        ->action(function (User $record): void {
+                            $record->update(['umkm_access_granted_at' => now()]);
 
-                Action::make('cabutAksesUmkm')
-                    ->label('Cabut akses UMKM')
-                    ->icon('heroicon-o-building-storefront')
-                    ->color('warning')
-                    ->visible(fn (User $record): bool => $record->hasUmkmAccess())
-                    ->requiresConfirmation()
-                    ->modalHeading('Cabut akses UMKM')
-                    ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil usahanya dinonaktifkan (keluar dari katalog publik); data tetap tersimpan dan bisa diaktifkan lagi bila akses dipulihkan.')
-                    ->action(function (User $record): void {
-                        $record->update(['umkm_access_granted_at' => null]);
+                            Notification::make()
+                                ->title('Akses UMKM diberikan')
+                                ->body($record->name.' kini bisa mengelola UMKM.')
+                                ->success()
+                                ->send();
+                        }),
 
-                        // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
-                        $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
+                    Action::make('cabutAksesUmkm')
+                        ->label('Cabut akses UMKM')
+                        ->icon('heroicon-o-building-storefront')
+                        ->color('warning')
+                        ->visible(fn (User $record): bool => $record->hasUmkmAccess())
+                        ->requiresConfirmation()
+                        ->modalHeading('Cabut akses UMKM')
+                        ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil usahanya dinonaktifkan (keluar dari katalog publik); data tetap tersimpan dan bisa diaktifkan lagi bila akses dipulihkan.')
+                        ->action(function (User $record): void {
+                            $record->update(['umkm_access_granted_at' => null]);
 
-                        Notification::make()
-                            ->title('Akses UMKM dicabut')
-                            ->body($record->name.' tidak lagi mengelola UMKM. Lapaknya dinonaktifkan.')
-                            ->success()
-                            ->send();
-                    }),
+                            // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
+                            $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
 
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make()
-                    // Tak boleh menghapus akun sendiri (cegah self-lockout).
-                    ->visible(fn (User $record): bool => $record->getKey() !== auth()->id()),
+                            Notification::make()
+                                ->title('Akses UMKM dicabut')
+                                ->body($record->name.' tidak lagi mengelola UMKM. Lapaknya dinonaktifkan.')
+                                ->success()
+                                ->send();
+                        }),
+
+                    DeleteAction::make()
+                        // Tak boleh menghapus akun sendiri (cegah self-lockout).
+                        ->visible(fn (User $record): bool => $record->getKey() !== auth()->id()),
+                ])->tooltip('Aksi'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
