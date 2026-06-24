@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Desas\Pages;
 
+use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\Desas\DesaResource;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class CreateDesa extends CreateRecord
 {
+    use RedirectsToIndex;
+
     protected static string $resource = DesaResource::class;
 
     /** OTP admin yang diterbitkan saat membuat desa (ditampilkan setelah simpan). */

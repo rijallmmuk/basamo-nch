@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\UmkmProfiles\Pages;
 
+use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateUmkmProfile extends CreateRecord
 {
+    use RedirectsToIndex;
+
     protected static string $resource = UmkmProfileResource::class;
 
     /**

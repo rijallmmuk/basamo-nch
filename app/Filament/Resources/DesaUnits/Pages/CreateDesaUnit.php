@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\DesaUnits\Pages;
 
+use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\DesaUnits\DesaUnitResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDesaUnit extends CreateRecord
 {
+    use RedirectsToIndex;
+
     protected static string $resource = DesaUnitResource::class;
 
     /**

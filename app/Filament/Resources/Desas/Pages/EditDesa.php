@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Desas\Pages;
 
+use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\Desas\DesaResource;
 use App\Models\Desa;
 use Filament\Actions\DeleteAction;
@@ -12,6 +13,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditDesa extends EditRecord
 {
+    use RedirectsToIndex;
+
     protected static string $resource = DesaResource::class;
 
     /**

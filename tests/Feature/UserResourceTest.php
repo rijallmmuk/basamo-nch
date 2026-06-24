@@ -1,7 +1,9 @@
 <?php
 
 use App\Filament\Resources\Users\Pages\CreateUser;
+use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
 use App\Models\Penduduk;
 use App\Models\User;
@@ -112,4 +114,24 @@ it('form tak punya field peran; akun dibuat selalu sebagai warga', function () {
     $warga = User::where('nik', '3201000000000999')->first();
     expect($warga->role)->toBe('warga')
         ->and($warga->desa_id)->toBe($desa->id);
+});
+
+it('berhasil create & edit warga mengarahkan ke halaman index (bukan edit)', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+    $index = UserResource::getUrl('index');
+
+    Livewire::test(CreateUser::class)
+        ->fillForm(wargaFormData($desa, '3201000000000888'))
+        ->call('create')
+        ->assertRedirect($index);
+
+    $warga = User::where('nik', '3201000000000888')->firstOrFail();
+
+    Livewire::test(EditUser::class, ['record' => $warga->getKey()])
+        ->fillForm(['name' => 'Nama Diedit'])
+        ->call('save')
+        ->assertRedirect($index);
+
+    expect($warga->refresh()->name)->toBe('Nama Diedit');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\Users\UserResource;
 use App\Services\WargaProvisioningService;
 use Filament\Actions\DeleteAction;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EditUser extends EditRecord
 {
+    use RedirectsToIndex;
+
     protected static string $resource = UserResource::class;
 
     /**
