@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DesaUnits\Schemas;
 
+use App\Models\Desa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -14,9 +15,13 @@ class DesaUnitForm
 {
     public static function configure(Schema $schema): Schema
     {
+        // Sebutan sub-unit desa konteks (Jorong/Korong/Dusun/…) — dipakai untuk label.
+        $desaId = auth()->user()?->managedDesaId();
+        $sebutan = ($desaId ? Desa::find($desaId)?->jenisSubUnit?->nama : null) ?: 'Wilayah';
+
         return $schema
             ->components([
-                Section::make('Data Wilayah')
+                Section::make("Data {$sebutan}")
                     ->icon(Heroicon::OutlinedMapPin)
                     ->columnSpanFull()
                     ->schema([
@@ -31,10 +36,10 @@ class DesaUnitForm
                             ->columnSpanFull(),
 
                         TextInput::make('nama')
-                            ->label('Nama wilayah')
+                            ->label("Nama {$sebutan}")
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Nama unit wilayah, mis. Jorong Koto Tuo.')
+                            ->helperText("Cukup namanya saja, tanpa kata \"{$sebutan}\". Mis. Koto Tuo.")
                             ->unique(
                                 ignoreRecord: true,
                                 modifyRuleUsing: function (Unique $rule, Get $get): Unique {
