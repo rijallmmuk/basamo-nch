@@ -6,6 +6,41 @@
 
 ---
 
+## Sesi 2026-06-24 — Impor Excel · konsistensi form · Pengaturan Desa+peta · navigasi per-peran + drill-in Warga
+
+Branch `feat/ref-wilayah-sumbar`. Suite **202 (200 lulus, 2 skip)**. Pint bersih. **Di-push** s/d
+`29dfb3f`. Belum merge. Banyak iterasi bersama user (sering ganti arah → "rela mulai dari 0").
+
+- **Impor warga via Excel** (paket baru `maatwebsite/excel`, dicatat DECISIONS): ActionGroup "Impor" di
+  header ListUsers — **Unduh Template** (`WargaTemplateBuilder`: XLSX 3 sheet Data/Petunjuk/Referensi,
+  dropdown enum = persis form create, **tanggal d/m/yyyy**, tooltip tiap kolom) + **Impor** (`WargaImport`
+  hanya sheet pertama → `WargaImportService` per-baris: validasi ketat, transaksi, lapor error per-baris).
+  Guard: blokir bila sebutan/daftar sub-unit belum siap. `WargaImportTest` (16).
+- **Konsistensi form admin**: SEMUA form (Desa/Wilayah/Modul/Kuis/Profil UMKM/Kategori/Warga/Pengaturan
+  Desa) → pola **section bertumpuk full-width + ikon, tanpa deskripsi section** (helperText per-field tetap).
+  Form Warga dikelompokkan ala-KTP (Identitas/Data Sosial/Alamat/Kontak/Akun & Status).
+- **OTP awal**: kolom **tampil default** di index; **Reset OTP** bisa input manual (kosong→auto); field OTP
+  *disabled* **dihapus** dari Edit (ubah OTP via aksi Reset OTP). Paginasi tabel +opsi **"Semua"**.
+- **Pengaturan Desa** (admin desa): editable **penyebutan desa + sebutan sub-unit + logo**; identitas resmi
+  (nama/kode wilayah/prov/kab/kec) **read-only** = header profil (nama + badge kode + breadcrumb). **Peta
+  batas wilayah** di bawah via **endpoint ter-cache** `admin/desa/peta-batas` (`DesaBoundaryController`,
+  ter-scope, `Cache::remember` + `ST_AsGeoJSON` presisi + `Cache-Control`), fetch klien (Leaflet CDN).
+- **Navigasi per-peran** (lihat DECISIONS "Navigasi per-peran + drill-in"): super admin master **Desa+LMS**;
+  admin desa master **Warga**. **LMS (Modul/Kuis/Diskusi) = super-only** → **disembunyikan** dari admin desa
+  (`shouldRegisterNavigation`, akses kode tetap → reversibel, BUKAN dihapus). Kategori UMKM `canAccess` super-only.
+- **Drill-in Warga (kunci)**: aksi **"Kelola Warga"** per-baris di tabel Desa → set **`DesaContext`** (session)
+  → redirect ke halaman Warga desa itu, **100% identik** panel admin desa karena `UserResource` yang SAMA
+  dipakai ulang, di-scope via **`User::managedDesaId()`** (desa_admin→desanya; super→desa konteks). Semua jalur
+  warga (resource/form/tabel/impor/template) ikut `managedDesaId`. Super tanpa konteks **tak bisa** akses Warga
+  (`canAccess` guard); masuk daftar Desa membersihkan konteks; tombol "Kembali ke Desa" + subjudul desa.
+- **`WargaProvisioningService`** (create/update warga + penduduk + OTP) = sumber tunggal; `CreateUser`/`EditUser`
+  delegasi ke sini (refactor DRY, hapus trait `InteractsWithPenduduk`).
+- **Redirect ke index** setelah create/edit (trait `RedirectsToIndex` di 12 halaman) — bukan ke Edit.
+- **Label sub-unit ikut sebutan desa** (`DesaUnitForm`): "Nama Jorong"/"Data Jorong" + helperText benar
+  (isi cukup nama, tanpa awalan — sebutan disimpan terpisah). Data `desa_units.nama` = nama saja.
+- Tes baru: `WargaImportTest`, `SidebarNavigationTest`, `DesaWargaContextTest`, `WargaProvisioningServiceTest`.
+- **Ditunda (sengaja, "itu saja dulu")**: drill-in UMKM/Wilayah/Modul per-desa untuk super admin (baru Warga).
+
 ## Sesi 2026-06-23 (lanjutan) — Refactor 3-lapisan: tabel `penduduk` (identitas / akun / akses)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **170 (168 lulus, 2 skip)**. Pint bersih. Belum merge.
@@ -238,9 +273,10 @@ Belum merge ke main.
 ## Status
 
 **Fase**: MVP. LMS + UMKM (admin/portal/publik) + dashboard admin lengkap. Branch aktif
-**`feat/ref-wilayah-sumbar`** (belum merge ke main): master wilayah + peta, design system NCH,
-data master warga → **refactor 3-lapisan `penduduk`**, dan **UserResource jadi halaman "Warga"**
-(murni warga) + penyeragaman pola tabel semua halaman admin. Suite **173 (171 lulus, 2 skip)**, Pint bersih.
+**`feat/ref-wilayah-sumbar`** (belum merge ke main, **sudah di-push** s/d `29dfb3f`): master wilayah +
+peta, design system NCH, refactor 3-lapisan `penduduk`, **impor warga Excel**, **konsistensi form admin**,
+**Pengaturan Desa + peta**, dan **navigasi per-peran + drill-in Warga** (super admin "Kelola Warga" per
+desa lewat `DesaContext`/`managedDesaId`). Suite **202 (200 lulus, 2 skip)**, Pint bersih.
 **Login demo** (jalankan `php artisan migrate:fresh --seed`):
 - super_admin: email `admin@basamo.nch` (username `superadmin`) / `password`
 - desa_admin: `admin.nch001@basamo.nch` & `admin.nch002@basamo.nch` / `password`
@@ -249,19 +285,24 @@ data master warga → **refactor 3-lapisan `penduduk`**, dan **UserResource jadi
 
 ---
 
-## ⏭️ BERIKUTNYA (sesi baru — 2026-06-24)
-> Konfirmasi arah dulu ke user, lalu kerjakan.
-
-**⚠️ Git tertunda:** branch `feat/ref-wilayah-sumbar` = **5 commit lokal belum di-push**
-(c66f81b warga-only · fdfd037 ikon akses UMKM · 508697f tanpa checkbox · 6723b26 seragamkan tabel ·
-4191727 aksi inline). **Tindakan pertama sesi baru: `git push`** (lalu pertimbangkan PR ke main).
-`gh` terpasang di `~/.local/bin` (cek login).
+## ⏭️ BERIKUTNYA (sesi baru — setelah 2026-06-24)
+> Konfirmasi arah dulu ke user, lalu kerjakan. Branch sudah di-push (s/d `29dfb3f`); tak ada git tertunda.
 
 > Kandidat lanjutan (urut saran):
-1. **Push branch** + (opsional) PR ke main.
-2. **Port halaman portal warga** (modul/materi/kuis/leaderboard) ke token design NCH (sisa redesign).
-3. **Pilar SDGs (M3)** atau **IoT (M5.3)** — chart SDGs radial + panel IoT (dikerjakan programmer lain, lihat memori scope).
-4. **Penyempurnaan UI panel** lanjutan bila ada masukan baru.
+1. **Cek browser** alur drill-in: Desa → "Kelola Warga" → halaman Warga desa (Buat/Ubah/Reset OTP/Impor)
+   → "Kembali ke Desa". Juga peta Pengaturan Desa (Leaflet CDN).
+2. **(Opsional) PR `feat/ref-wilayah-sumbar` → main** bila sudah mantap (banyak fitur menumpuk di branch).
+3. **Drill-in lanjutan super admin** (ditunda sengaja): UMKM / Wilayah(sub-unit) / Modul per-desa — pola
+   sama seperti Warga (`managedDesaId` + aksi di tabel Desa). Tanyakan dulu mana yang diprioritaskan.
+4. **Port halaman portal warga** (modul/materi/kuis/leaderboard) ke token design NCH (sisa redesign).
+5. **Pilar SDGs (M3)** atau **IoT (M5.3)** — dikerjakan programmer lain (lihat memori scope).
+
+> Catatan teknis untuk agent berikut:
+- **Desa-konteks** super admin = `App\Support\DesaContext` (session) + `User::managedDesaId()`. Halaman Warga
+  super admin **hanya** lewat aksi "Kelola Warga" (tanpa konteks → `UserResource::canAccess()` false).
+- **LMS disembunyikan** dari admin desa via `shouldRegisterNavigation` (super-only) — bukan dihapus; mudah
+  dibalik bila admin desa perlu LMS lagi.
+- Verifikasi tampilan (screenshot panel) tidak andal otomatis — minta user cek browser.
 
 ---
 

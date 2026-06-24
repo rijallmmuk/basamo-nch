@@ -8,7 +8,20 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
-- [ ] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — 5 commit lokal belum di-push (tindakan pertama sesi baru).
+- [x] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — sudah di-push (s/d `29dfb3f`). Tak ada git tertunda.
+- [ ] **Cek browser** drill-in: Desa → "Kelola Warga" → halaman Warga desa → "Kembali ke Desa"; peta Pengaturan Desa.
+- [ ] **(Opsional) PR `feat/ref-wilayah-sumbar` → main** bila sudah mantap.
+- [ ] **Drill-in lanjutan super admin** (ditunda): UMKM / Wilayah / Modul per-desa (pola `managedDesaId`).
+      Tanyakan prioritas dulu.
+- [x] **Impor warga via Excel** (2026-06-24) — `maatwebsite/excel`; Unduh Template (XLSX 3 sheet) + Impor
+      per-baris (`WargaTemplateBuilder`/`WargaImport`/`WargaImportService`), guard sub-unit, `WargaImportTest`.
+- [x] **Konsistensi form admin** (2026-06-24) — semua form pola section bertumpuk full-width + ikon.
+- [x] **Pengaturan Desa + peta** (2026-06-24) — editable penyebutan/sub-unit/logo; identitas read-only;
+      peta batas wilayah via endpoint ter-cache `DesaBoundaryController`.
+- [x] **Navigasi per-peran + drill-in Warga** (2026-06-24) — super=Desa+LMS, admin desa=Warga; LMS
+      disembunyikan dari admin desa (akses tetap); aksi "Kelola Warga" → `DesaContext`/`managedDesaId`,
+      `UserResource` 100% dipakai ulang; `WargaProvisioningService`; redirect create/edit→index.
+      Tes `SidebarNavigationTest`/`DesaWargaContextTest`/`WargaProvisioningServiceTest`.
 - [x] **UserResource → halaman "Warga" murni + penyeragaman tabel admin** (2026-06-23/24): warga-only
       (role=warga; admin via form Desa), No. urut, tanpa checkbox/bulk, klik baris→Edit (Warga→Lihat),
       aksi inline kecuali Warga (⋮), kolom toggle demografi, sebutan sub-unit per desa, ikon akses UMKM.
