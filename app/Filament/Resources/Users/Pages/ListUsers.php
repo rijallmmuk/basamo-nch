@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Resources\Desas\DesaResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Imports\WargaImport;
 use App\Models\DesaUnit;
 use App\Models\User;
 use App\Services\WargaImportService;
 use App\Services\WargaTemplateBuilder;
+use App\Support\DesaContext;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
@@ -22,12 +24,34 @@ class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
 
+    /** Saat super admin mengelola desa tertentu, perjelas konteksnya di subjudul. */
+    public function getSubheading(): ?string
+    {
+        $desa = (auth()->user()?->isSuperAdmin() ?? false) ? DesaContext::desa() : null;
+
+        return $desa ? 'Mengelola warga — '.$desa->nama_lengkap : null;
+    }
+
     protected function getHeaderActions(): array
     {
         $actions = [];
 
-        // Impor Excel difokuskan untuk Admin Desa dulu (1 desa per impor, ter-scope).
-        if (auth()->user()?->isDesaAdmin()) {
+        // Super admin dalam konteks desa → tombol keluar (kembali ke daftar Desa).
+        if ((auth()->user()?->isSuperAdmin() ?? false) && DesaContext::id() !== null) {
+            $actions[] = Action::make('kembaliKeDesa')
+                ->label('Kembali ke Desa')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->action(function () {
+                    DesaContext::clear();
+
+                    return redirect(DesaResource::getUrl('index'));
+                });
+        }
+
+        // Impor Excel saat ter-scope ke satu desa (admin desa, atau super admin yang
+        // sedang mengelola sebuah desa). 1 desa per impor.
+        if (auth()->user()?->managedDesaId() !== null) {
             $actions[] = ActionGroup::make([
                 $this->unduhTemplateAction(),
                 $this->imporExcelAction(),
@@ -118,7 +142,7 @@ class ListUsers extends ListRecords
      */
     private function wilayahBelumSiap(): ?string
     {
-        $desa = auth()->user()?->desa;
+        $desa = DesaContext::desa() ?? auth()->user()?->desa;
 
         $kurang = [];
         if ($desa?->jenisSubUnit === null) {

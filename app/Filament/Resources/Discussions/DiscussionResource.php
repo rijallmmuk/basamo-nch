@@ -29,6 +29,12 @@ class DiscussionResource extends Resource
         return 'LMS';
     }
 
+    // LMS difokuskan ke super admin; admin desa cukup disembunyikan dari sidebar.
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Diskusi';

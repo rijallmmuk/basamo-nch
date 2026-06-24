@@ -133,8 +133,10 @@ class WargaImportService
      */
     private function resolveDesa(callable $val, User $actor): array
     {
-        if ($actor->isDesaAdmin()) {
-            return [$actor->desa_id, $actor->desa?->nama ?? 'desa Anda'];
+        // Desa konteks (desa_admin → desanya; super admin → desa yang dikelola).
+        $desaId = $actor->managedDesaId();
+        if ($desaId !== null) {
+            return [$desaId, Desa::find($desaId)?->nama ?? 'desa Anda'];
         }
 
         $nama = $val('desa');

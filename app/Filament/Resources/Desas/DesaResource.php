@@ -25,11 +25,13 @@ class DesaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
-    protected static ?int $navigationSort = 9;
+    // Desa = entitas inti super_admin → tampil di tingkat atas navigasi (hero),
+    // pintu masuk untuk memantau & mengelola tiap desa.
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Pengaturan';
+        return null;
     }
 
     public static function getModelLabel(): string

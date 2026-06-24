@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DesaBoundaryController;
 use App\Http\Controllers\Portal\AuthController;
 use App\Http\Controllers\Portal\DiscussionController;
 use App\Http\Controllers\Portal\HomeController;
@@ -27,6 +28,11 @@ Route::prefix('umkm')->name('public.umkm.')->group(function () {
 
 Route::get('peta', [PublicMapController::class, 'index'])->name('public.peta');
 Route::get('peta/data', [PublicMapController::class, 'data'])->name('public.peta.data');
+
+// Endpoint peta batas desa untuk panel admin (Pengaturan Desa) — ter-scope ke desa admin.
+Route::middleware('auth')
+    ->get('admin/desa/peta-batas', [DesaBoundaryController::class, 'show'])
+    ->name('admin.desa.boundary');
 
 Route::prefix('portal')->name('portal.')->group(function () {
     // Guest only — akun warga dibuat Admin Desa (tanpa self-register).

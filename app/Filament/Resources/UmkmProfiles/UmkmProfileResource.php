@@ -23,11 +23,18 @@ class UmkmProfileResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
         return 'UMKM';
+    }
+
+    // Super admin mengelola UMKM via Detail Desa (per desa). Tetap dapat diakses,
+    // hanya disembunyikan dari sidebar global.
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isDesaAdmin() ?? false;
     }
 
     public static function getModelLabel(): string

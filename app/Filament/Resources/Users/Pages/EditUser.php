@@ -2,18 +2,16 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
-use App\Filament\Resources\Users\Pages\Concerns\InteractsWithPenduduk;
 use App\Filament\Resources\Users\UserResource;
-use App\Services\PendudukService;
+use App\Services\WargaProvisioningService;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class EditUser extends EditRecord
 {
-    use InteractsWithPenduduk;
-
     protected static string $resource = UserResource::class;
 
     /**
@@ -24,15 +22,15 @@ class EditUser extends EditRecord
      */
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($penduduk = $this->record->penduduk) {
-            foreach (PendudukService::FIELDS as $field) {
-                $data[$field] = $field === 'jenis_kelamin'
-                    ? $penduduk->jenis_kelamin?->value
-                    : $penduduk->{$field};
-            }
-        }
+        return array_merge($data, app(WargaProvisioningService::class)->pendudukFormData($this->record));
+    }
 
-        return $data;
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        return app(WargaProvisioningService::class)->update($record, $data);
     }
 
     protected function getHeaderActions(): array
@@ -45,22 +43,5 @@ class EditUser extends EditRecord
                 ->visible(fn (): bool => $this->record->getKey() !== auth()->id()),
             RestoreAction::make(),
         ];
-    }
-
-    /**
-     * Resource khusus warga → tak ada peran untuk diubah. Cukup pisahkan field
-     * identitas agar disimpan ke `penduduk` di afterSave().
-     *
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
-     */
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        return $this->extractPendudukData($data);
-    }
-
-    protected function afterSave(): void
-    {
-        $this->syncPenduduk();
     }
 }

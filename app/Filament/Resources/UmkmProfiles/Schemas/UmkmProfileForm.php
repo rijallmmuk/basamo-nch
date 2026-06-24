@@ -10,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class UmkmProfileForm
 {
@@ -18,7 +19,8 @@ class UmkmProfileForm
         return $schema
             ->components([
                 Section::make('Pemilik')
-                    ->description('UMKM ditautkan ke akun Pemilik UMKM. Desa mengikuti desa pemilik.')
+                    ->icon(Heroicon::OutlinedUserCircle)
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('user_id')
                             ->label('Pemilik UMKM')
@@ -33,6 +35,8 @@ class UmkmProfileForm
                     ]),
 
                 Section::make('Profil Usaha')
+                    ->icon(Heroicon::OutlinedBuildingStorefront)
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('nama_usaha')

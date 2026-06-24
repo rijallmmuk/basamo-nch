@@ -2,61 +2,33 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
-use App\Filament\Resources\Users\Pages\Concerns\InteractsWithPenduduk;
 use App\Filament\Resources\Users\UserResource;
+use App\Services\WargaProvisioningService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateUser extends CreateRecord
 {
-    use InteractsWithPenduduk;
-
     protected static string $resource = UserResource::class;
 
     /**
      * Setiap akun di resource ini = warga. desa_admin → warga ke desanya sendiri;
-     * super_admin → desa dipilih di form. OTP tidak otomatis (lihat di bawah).
+     * super_admin → desa dipilih di form. Provisioning (peran, OTP, penduduk) di service.
      *
      * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
      */
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        $actor = auth()->user();
+        // Desa konteks (desa_admin → desanya; super admin → desa yang dikelola).
+        $desaId = auth()->user()?->managedDesaId() ?? (int) ($data['desa_id'] ?? 0);
 
-        // Resource khusus warga (akun admin dibuat lewat alur lain).
-        $data['role'] = 'warga';
-
-        // desa_admin: warga dipaksa ke desanya. super_admin: desa dipilih di form.
-        if ($actor->isDesaAdmin()) {
-            $data['desa_id'] = $actor->desa_id;
-        }
-
-        // OTP TIDAK di-generate otomatis. Bila admin mengisi OTP manual, itu jadi sandi
-        // awal; bila kosong, akun dibuat tanpa OTP (sandi acak tak terpakai) — OTP
-        // diterbitkan nanti lewat aksi "Reset OTP" saat warga siap login.
-        $otp = $data['initial_otp'] ?? null;
-
-        if (filled($otp)) {
-            $data['password'] = $otp;
-            $data['initial_otp'] = $otp;
-        } else {
-            $data['password'] = Str::random(40); // tak terpakai sampai OTP diterbitkan
-            $data['initial_otp'] = null;
-        }
-
-        $data['must_change_password'] = true;
-
-        // Pisahkan field identitas → disimpan ke `penduduk` di afterCreate().
-        return $this->extractPendudukData($data);
+        return app(WargaProvisioningService::class)->create($data, $desaId);
     }
 
-    /** Simpan identitas penduduk lalu beri tahu admin status OTP-nya. */
+    /** Beri tahu admin status OTP-nya. */
     protected function afterCreate(): void
     {
-        $this->syncPenduduk();
-
         if (! $this->record->isPortalAccount()) {
             return;
         }

@@ -40,7 +40,10 @@ class AdminPanelProvider extends PanelProvider
             ->font('Plus Jakarta Sans')
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
-            ->navigationGroups(['LMS', 'UMKM', 'Pengaturan'])
+            // Urutan grup lintas-peran. Hanya grup yang punya item tampil:
+            //  super admin → LMS, UMKM (Kategori), Sistem (+ Desa di tingkat atas).
+            //  admin desa  → UMKM, Pengaturan (+ Warga di tingkat atas; LMS disembunyikan).
+            ->navigationGroups(['LMS', 'UMKM', 'Sistem', 'Pengaturan'])
             // Palet tunggal NCH untuk semua peran (Deep Blue). Tanpa pembedaan warna
             // per-peran — identitas peran cukup lewat chip di topbar. Ramp eksplisit
             // agar shade 600 (warna tombol solid Filament) = NCH Deep Blue #003857.

@@ -20,13 +20,19 @@ class QuizResource extends Resource
 {
     protected static ?string $model = Quiz::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
     protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {
         return 'LMS';
+    }
+
+    // LMS difokuskan ke super admin; admin desa cukup disembunyikan dari sidebar.
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
     }
 
     public static function getModelLabel(): string

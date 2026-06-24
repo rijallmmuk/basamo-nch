@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ActiveStatus;
 use App\Models\Concerns\BelongsToDesa;
+use App\Support\DesaContext;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -118,6 +119,24 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function isDesaAdmin(): bool
     {
         return $this->role === 'desa_admin';
+    }
+
+    /**
+     * Desa yang sedang dikelola admin ini untuk konteks Warga: desa_admin → desanya
+     * sendiri; super admin → desa yang sedang ia kelola lewat aksi "Kelola Warga"
+     * (lihat {@see DesaContext}); selain itu null.
+     */
+    public function managedDesaId(): ?int
+    {
+        if ($this->isDesaAdmin()) {
+            return $this->desa_id;
+        }
+
+        if ($this->isSuperAdmin()) {
+            return DesaContext::id();
+        }
+
+        return null;
     }
 
     /** Akun portal (warga) yang disediakan admin via NIK + OTP. */

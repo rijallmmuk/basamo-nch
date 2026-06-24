@@ -10,6 +10,7 @@ use App\Filament\Resources\Users\Schemas\UserForm;
 use App\Filament\Resources\Users\Schemas\UserInfolist;
 use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
+use App\Support\DesaContext;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -24,12 +25,19 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    // Menu "Warga" = entitas inti, tampil di tingkat atas navigasi (bukan grup Pengaturan).
+    // Menu "Warga" = entitas inti admin desa, tampil di tingkat atas navigasi.
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
         return null;
+    }
+
+    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
+    // mengelola sebuah desa (masuk lewat aksi "Kelola Warga" di menu Desa).
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
     }
 
     public static function getModelLabel(): string
@@ -77,21 +85,36 @@ class UserResource extends Resource
     }
 
     /**
-     * Resource khusus WARGA: hanya akun ber-peran `warga` yang tampil/teredit di sini
-     * (akun admin dikelola lewat alur lain). desa_admin dibatasi ke desanya sendiri;
-     * super_admin melihat warga semua desa. Dipakai listing & route-model binding.
+     * Resource khusus WARGA: hanya akun ber-peran `warga`. Ter-scope ke desa yang
+     * sedang dikelola: desa_admin → desanya; super admin → desa yang ia kelola lewat
+     * aksi "Kelola Warga". Dipakai listing & route-model binding.
      */
     protected static function scopeToActor(Builder $query): Builder
     {
         $query->where('role', 'warga');
 
-        $user = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
-        if ($user?->isDesaAdmin()) {
-            $query->forDesa($user->desa_id);
+        if ($desaId !== null) {
+            $query->forDesa($desaId);
         }
 
         return $query;
+    }
+
+    /**
+     * desa_admin selalu boleh. super admin hanya saat sedang mengelola sebuah desa
+     * (masuk lewat aksi "Kelola Warga"); akses langsung tanpa konteks → ditolak.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        if ($user?->isDesaAdmin()) {
+            return true;
+        }
+
+        return $user?->isSuperAdmin() && DesaContext::id() !== null;
     }
 
     public static function getRelations(): array

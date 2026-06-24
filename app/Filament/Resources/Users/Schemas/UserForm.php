@@ -18,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 /**
  * Form khusus WARGA. Akun admin (super_admin/desa_admin) dikelola lewat alur lain —
@@ -35,6 +36,7 @@ class UserForm
                 // InteractsWithPenduduk + PendudukService. Pemisahan berdasar nama field,
                 // jadi field demografi boleh berada di section mana pun.
                 Section::make('Identitas')
+                    ->icon(Heroicon::OutlinedIdentification)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -72,6 +74,7 @@ class UserForm
                 // Data sosial → disimpan ke tabel `penduduk`. Wajib lengkap saat create;
                 // longgar saat edit (record lama boleh belum lengkap).
                 Section::make('Data Sosial')
+                    ->icon(Heroicon::OutlinedUsers)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -97,11 +100,13 @@ class UserForm
                     ]),
 
                 Section::make('Alamat')
+                    ->icon(Heroicon::OutlinedMapPin)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        // super_admin memilih desa warga; desa_admin dipaksa ke desanya
-                        // sendiri di halaman Create (field tak tampil untuknya).
+                        // Desa konteks dipaksa: desa_admin → desanya; super admin yang
+                        // mengelola lewat aksi "Kelola Warga" → desa yang dikelola. Field
+                        // hanya tampil bila tak ada desa konteks (mis. super tanpa context).
                         Select::make('desa_id')
                             ->label('Desa')
                             ->relationship('desa', 'nama')
@@ -110,8 +115,8 @@ class UserForm
                             ->live()
                             ->afterStateUpdated(fn (Get $get, callable $set) => $set('desa_unit_id', null))
                             ->placeholder('— Pilih desa —')
-                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
-                            ->required(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                            ->visible(fn (): bool => auth()->user()?->managedDesaId() === null)
+                            ->required(fn (): bool => auth()->user()?->managedDesaId() === null)
                             ->columnSpanFull(),
 
                         Select::make('desa_unit_id')
@@ -147,6 +152,7 @@ class UserForm
                     ]),
 
                 Section::make('Kontak')
+                    ->icon(Heroicon::OutlinedPhone)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -166,6 +172,7 @@ class UserForm
                     ]),
 
                 Section::make('Akun & Status')
+                    ->icon(Heroicon::OutlinedKey)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -196,14 +203,14 @@ class UserForm
         return fn (string $operation): bool => $operation === 'create';
     }
 
-    /** Desa konteks: desa_admin → miliknya; super_admin → pilihan di form. */
+    /**
+     * Desa konteks: desa_admin → miliknya; super admin yang sedang mengelola sebuah
+     * desa → desa itu (managedDesaId); jika tak ada konteks → pilihan di form.
+     */
     protected static function resolveDesaId(Get $get): ?int
     {
-        $actor = auth()->user();
-
-        return $actor?->isDesaAdmin()
-            ? $actor->desa_id
-            : ($get('desa_id') ? (int) $get('desa_id') : null);
+        return auth()->user()?->managedDesaId()
+            ?? ($get('desa_id') ? (int) $get('desa_id') : null);
     }
 
     /** Daftar wilayah untuk desa konteks (untuk Select alamat warga). */

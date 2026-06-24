@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Agama;
+use App\Models\Desa;
 use App\Models\DesaUnit;
 use App\Models\Pekerjaan;
 use App\Models\StatusPerkawinan;
@@ -54,9 +55,10 @@ class WargaTemplateBuilder
 
     public function build(User $actor): Spreadsheet
     {
-        // Sebutan sub-unit mengikuti desa aktor (Jorong/Korong/Dusun/…) — jadi judul kolom
-        // & daftar dropdown-nya khas desa tersebut.
-        $sebutan = $actor->desa?->jenisSubUnit?->nama ?: 'Wilayah';
+        // Desa konteks (desa_admin → desanya; super admin → desa yang dikelola). Sebutan
+        // sub-unit & daftar dropdown wilayah khas desa tersebut.
+        $desaId = $actor->managedDesaId();
+        $sebutan = ($desaId ? Desa::find($desaId)?->jenisSubUnit?->nama : null) ?: 'Wilayah';
 
         $this->refs = [
             'jenis_kelamin' => ['Laki-laki', 'Perempuan'],
@@ -64,8 +66,8 @@ class WargaTemplateBuilder
             'status_perkawinan' => $this->aktifNama(StatusPerkawinan::class),
             'pekerjaan' => $this->aktifNama(Pekerjaan::class),
             'status' => ['Aktif', 'Nonaktif'],
-            'wilayah' => $actor->desa_id
-                ? DesaUnit::where('desa_id', $actor->desa_id)->orderBy('nama')->pluck('nama')->all()
+            'wilayah' => $desaId
+                ? DesaUnit::where('desa_id', $desaId)->orderBy('nama')->pluck('nama')->all()
                 : [],
         ];
 

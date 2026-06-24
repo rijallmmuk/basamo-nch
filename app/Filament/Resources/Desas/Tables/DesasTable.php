@@ -4,7 +4,10 @@ namespace App\Filament\Resources\Desas\Tables;
 
 use App\Enums\ActiveStatus;
 use App\Filament\Resources\Desas\DesaResource;
+use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
+use App\Support\DesaContext;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -18,7 +21,7 @@ class DesasTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Klik baris → buka Edit.
+            // Klik baris → buka Edit (identitas desa).
             ->recordUrl(fn (Desa $record): string => DesaResource::getUrl('edit', ['record' => $record]))
             ->columns([
                 TextColumn::make('no')
@@ -73,6 +76,19 @@ class DesasTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                // Masuk ke halaman Warga desa ini (identik dgn panel admin desa), via
+                // konteks desa di session. Lihat UserResource + DesaContext.
+                Action::make('kelolaWarga')
+                    ->label('Kelola Warga')
+                    ->icon('heroicon-o-users')
+                    ->color('primary')
+                    ->button()
+                    ->action(function (Desa $record) {
+                        DesaContext::set($record->getKey());
+
+                        return redirect(UserResource::getUrl('index'));
+                    }),
+
                 // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
                 DeleteAction::make()
                     ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))

@@ -5,6 +5,7 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Desa;
 use App\Models\Penduduk;
 use App\Models\User;
+use App\Support\DesaContext;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -22,12 +23,14 @@ beforeEach(function () {
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 });
 
-it('super_admin membuat warga lengkap dengan penduduk tertaut', function () {
+it('super admin (konteks desa) membuat warga lengkap dengan penduduk tertaut', function () {
     actingAs(User::factory()->superAdmin()->create());
     $desa = Desa::factory()->create();
 
-    // Pilih desa dulu (memilih desa mereset wilayah), baru wilayahnya — seperti alur nyata.
-    $data = wargaFormData($desa, '3201000000000123', ['desa_id' => $desa->id]);
+    // Masuk konteks desa → desa dipaksa, tanpa pemilih desa (identik panel admin desa).
+    DesaContext::set($desa->id);
+
+    $data = wargaFormData($desa, '3201000000000123');
     $unitId = $data['desa_unit_id'];
     unset($data['desa_unit_id']);
 
@@ -78,18 +81,21 @@ it('hanya warga yang tampil: admin & lintas-desa tak muncul', function () {
         ->assertCanNotSeeTableRecords([$wargaB, $admin]); // beda desa + akun admin tak muncul
 });
 
-it('super_admin melihat warga semua desa, tapi bukan akun admin', function () {
+it('super admin dalam konteks desa hanya melihat warga desa itu (bukan desa lain/admin)', function () {
     $desaA = Desa::factory()->create();
     $desaB = Desa::factory()->create();
-    $super = actingAs(User::factory()->superAdmin()->create());
+    actingAs(User::factory()->superAdmin()->create());
 
     $wargaA = User::factory()->warga()->create(['desa_id' => $desaA->id]);
     $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
     $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
 
+    // Masuk konteks "kelola warga Desa A" (seperti klik aksi "Kelola Warga").
+    DesaContext::set($desaA->id);
+
     Livewire::test(ListUsers::class)
-        ->assertCanSeeTableRecords([$wargaA, $wargaB])
-        ->assertCanNotSeeTableRecords([$admin]);
+        ->assertCanSeeTableRecords([$wargaA])
+        ->assertCanNotSeeTableRecords([$wargaB, $admin]);
 });
 
 it('form tak punya field peran; akun dibuat selalu sebagai warga', function () {

@@ -9,6 +9,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -20,11 +21,18 @@ class UmkmCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 4;
 
     public static function getNavigationGroup(): ?string
     {
         return 'UMKM';
+    }
+
+    // Taksonomi global lintas-desa → hanya super admin (cegah satu desa mengubah
+    // kategori yang dipakai semua desa).
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
     }
 
     public static function getModelLabel(): string
@@ -40,22 +48,29 @@ class UmkmCategoryResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('nama')
-                ->label('Nama kategori')
-                ->required()
-                ->maxLength(100),
+            Section::make('Data Kategori')
+                ->icon(Heroicon::OutlinedTag)
+                ->columnSpanFull()
+                ->columns(2)
+                ->schema([
+                    TextInput::make('nama')
+                        ->label('Nama kategori')
+                        ->required()
+                        ->maxLength(100),
 
-            TextInput::make('icon')
-                ->label('Ikon (Heroicon)')
-                ->placeholder('heroicon-o-cake')
-                ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
-                ->maxLength(60),
+                    TextInput::make('icon')
+                        ->label('Ikon (Heroicon)')
+                        ->placeholder('heroicon-o-cake')
+                        ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
+                        ->maxLength(60),
 
-            TextInput::make('urutan')
-                ->label('Urutan')
-                ->numeric()
-                ->default(0)
-                ->required(),
+                    TextInput::make('urutan')
+                        ->label('Urutan')
+                        ->numeric()
+                        ->default(0)
+                        ->required()
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 

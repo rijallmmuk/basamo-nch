@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use App\Enums\ActiveStatus;
 use App\Enums\JenisKelamin;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Desa;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -23,15 +24,16 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         $actor = auth()->user();
-        $isSuperAdmin = $actor?->isSuperAdmin() ?? false;
 
-        // Kolom & label "Wilayah" pakai sebutan sub-unit yang diatur per desa (Jorong/
-        // Korong/Dusun). Untuk super_admin (lintas-desa) pakai istilah umum "Wilayah".
-        $wilayahLabel = $isSuperAdmin
-            ? 'Wilayah'
-            : ($actor?->desa?->jenisSubUnit?->nama ?: 'Wilayah');
+        // Desa konteks (desa_admin → desanya; super admin → desa yang dikelola).
+        // Saat ter-scope ke satu desa, tabel berperilaku identik dengan panel admin
+        // desa: tanpa kolom/filter Desa, label sub-unit ikut sebutan desa tsb.
+        $desaId = $actor?->managedDesaId();
+        $scopedToDesa = $desaId !== null;
+        $managedDesa = $desaId ? Desa::find($desaId) : null;
 
-        // Filter Desa hanya untuk super_admin (warga desa_admin sudah ter-scope).
+        $wilayahLabel = $managedDesa?->jenisSubUnit?->nama ?: 'Wilayah';
+
         $filters = [
             SelectFilter::make('status')
                 ->label('Status')
@@ -39,7 +41,8 @@ class UsersTable
             TrashedFilter::make(),
         ];
 
-        if ($isSuperAdmin) {
+        // Filter Desa hanya bila tak ter-scope (super admin tanpa konteks).
+        if (! $scopedToDesa) {
             array_unshift(
                 $filters,
                 SelectFilter::make('desa')
@@ -78,7 +81,7 @@ class UsersTable
                     ->badge()
                     ->color('gray')
                     ->sortable()
-                    ->visible($isSuperAdmin),
+                    ->visible(! $scopedToDesa),
 
                 IconColumn::make('umkm_access_granted_at')
                     ->label('Akses UMKM')

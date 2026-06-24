@@ -3,11 +3,11 @@
 namespace App\Filament\Pages;
 
 use App\Models\Desa;
+use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -23,7 +23,7 @@ class PengaturanDesa extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
-    protected static ?int $navigationSort = 90;
+    protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.pengaturan-desa';
 
@@ -65,11 +65,23 @@ class PengaturanDesa extends Page
 
     public function form(Schema $schema): Schema
     {
+        // Identitas resmi (read-only) dirender sebagai kartu header di Blade —
+        // lihat resources/views/filament/pages/pengaturan-desa.blade.php.
         return $schema
             ->components([
-                Section::make('Sebutan & Logo')
+                Section::make('Penyebutan & Logo')
+                    ->icon(Heroicon::OutlinedTag)
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
+                        Select::make('jenis_desa_id')
+                            ->label('Penyebutan desa')
+                            ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->native(false)
+                            ->helperText('Sebutan setingkat desa — mis. Desa / Kelurahan / Nagari.'),
+
                         Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit')
                             ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
@@ -82,28 +94,8 @@ class PengaturanDesa extends Page
                             ->collection('logo')
                             ->image()
                             ->maxSize(2048)
+                            ->columnSpanFull()
                             ->helperText('Opsional. JPG/PNG/WEBP/SVG, maks 2 MB.'),
-                    ]),
-
-                Section::make('Kontak & Koordinat')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('kontak')
-                            ->label('Kontak')
-                            ->tel()
-                            ->maxLength(20),
-
-                        TextInput::make('koordinat_lat')
-                            ->label('Lintang (lat)')
-                            ->numeric()
-                            ->minValue(-90)
-                            ->maxValue(90),
-
-                        TextInput::make('koordinat_lng')
-                            ->label('Bujur (lng)')
-                            ->numeric()
-                            ->minValue(-180)
-                            ->maxValue(180),
                     ]),
             ])
             ->statePath('data')

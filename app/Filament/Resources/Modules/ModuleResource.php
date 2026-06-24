@@ -30,6 +30,13 @@ class ModuleResource extends Resource
         return 'LMS';
     }
 
+    // LMS difokuskan ke super admin. Untuk admin desa cukup disembunyikan dari
+    // sidebar (akses kode tetap ada → reversibel), bukan dihapus.
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Modul';

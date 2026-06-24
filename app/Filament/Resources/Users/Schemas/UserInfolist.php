@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class UserInfolist
 {
@@ -17,6 +18,7 @@ class UserInfolist
                 // Susunan sengaja mengikuti form Edit (UserForm) agar tampilan Lihat & Edit
                 // konsisten: section bertumpuk atas-bawah (full width), judul di atas.
                 Section::make('Identitas')
+                    ->icon(Heroicon::OutlinedIdentification)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -40,6 +42,7 @@ class UserInfolist
                     ]),
 
                 Section::make('Data Sosial')
+                    ->icon(Heroicon::OutlinedUsers)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -55,6 +58,7 @@ class UserInfolist
                     ]),
 
                 Section::make('Alamat')
+                    ->icon(Heroicon::OutlinedMapPin)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -69,6 +73,7 @@ class UserInfolist
                     ]),
 
                 Section::make('Kontak')
+                    ->icon(Heroicon::OutlinedPhone)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -81,6 +86,7 @@ class UserInfolist
                     ]),
 
                 Section::make('Akun & Status')
+                    ->icon(Heroicon::OutlinedKey)
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -95,6 +101,7 @@ class UserInfolist
                     ]),
 
                 Section::make('Aktivitas')
+                    ->icon(Heroicon::OutlinedChartBar)
                     ->columnSpanFull()
                     ->columns(3)
                     ->schema([
