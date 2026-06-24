@@ -14,17 +14,18 @@ class UserInfolist
     {
         return $schema
             ->components([
-                // Identitas dari tabel `penduduk` (hanya akun yang punya penduduk, mis. warga).
-                Section::make('Identitas Kependudukan')
-                    ->visible(fn (User $record): bool => $record->penduduk !== null)
+                // Susunan sengaja mengikuti form Edit (UserForm) agar tampilan Lihat & Edit
+                // konsisten: section bertumpuk atas-bawah (full width), judul di atas.
+                Section::make('Identitas')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
+                        TextEntry::make('penduduk.nama')
+                            ->label('Nama lengkap')
+                            ->placeholder('—'),
                         TextEntry::make('penduduk.nik')
                             ->label('NIK')
                             ->copyable()
-                            ->placeholder('—'),
-                        TextEntry::make('penduduk.nama')
-                            ->label('Nama lengkap')
                             ->placeholder('—'),
                         TextEntry::make('penduduk.tempat_lahir')
                             ->label('Tempat lahir')
@@ -36,6 +37,12 @@ class UserInfolist
                         TextEntry::make('penduduk.jenis_kelamin')
                             ->label('Jenis kelamin')
                             ->formatStateUsing(fn ($state): string => $state instanceof JenisKelamin ? $state->getLabel() : ($state ?: '—')),
+                    ]),
+
+                Section::make('Data Sosial')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         TextEntry::make('penduduk.agama.nama')
                             ->label('Agama')
                             ->placeholder('—'),
@@ -47,20 +54,36 @@ class UserInfolist
                             ->placeholder('—'),
                     ]),
 
-                Section::make('Akun')
+                Section::make('Alamat')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextEntry::make('username')
-                            ->label('Username')
+                        TextEntry::make('desa.nama')
+                            ->label('Desa')
                             ->placeholder('—')
-                            ->visible(fn (User $record): bool => ! $record->isPortalAccount()),
+                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
+                        // Label ikut sebutan sub-unit desa (Jorong/Korong/Dusun) — seperti di tabel & form.
+                        TextEntry::make('desaUnit.nama')
+                            ->label(fn (User $record): string => $record->desa?->jenisSubUnit?->nama ?: 'Wilayah')
+                            ->placeholder('—'),
+                    ]),
+
+                Section::make('Kontak')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         TextEntry::make('email')
                             ->label('Email')
                             ->placeholder('—'),
                         TextEntry::make('phone')
-                            ->label('No. WhatsApp')
-                            ->placeholder('—')
-                            ->visible(fn (User $record): bool => $record->isPortalAccount()),
+                            ->label('No. HP')
+                            ->placeholder('—'),
+                    ]),
+
+                Section::make('Akun & Status')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         TextEntry::make('status')
                             ->label('Status')
                             ->badge(),
@@ -68,18 +91,11 @@ class UserInfolist
                             ->label('OTP awal')
                             ->badge()
                             ->color('warning')
-                            ->placeholder('—')
-                            ->visible(fn (User $record): bool => $record->isPortalAccount()),
-                        TextEntry::make('desa.nama')
-                            ->label('Desa')
-                            ->placeholder('Global')
-                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
-                        TextEntry::make('desaUnit.nama')
-                            ->label('Wilayah')
                             ->placeholder('—'),
                     ]),
 
                 Section::make('Aktivitas')
+                    ->columnSpanFull()
                     ->columns(3)
                     ->schema([
                         TextEntry::make('total_xp')

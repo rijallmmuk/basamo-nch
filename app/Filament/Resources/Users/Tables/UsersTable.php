@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -94,6 +95,17 @@ class UsersTable
                     ->badge()
                     ->sortable(),
 
+                // Tampil default agar admin bisa langsung melihat/menyalin OTP yang masih
+                // tertunda. Kosong (—) berarti warga sudah login & mengganti sandi sendiri.
+                TextColumn::make('initial_otp')
+                    ->label('OTP awal')
+                    ->badge()
+                    ->color('warning')
+                    ->copyable()
+                    ->placeholder('—')
+                    ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
+                    ->toggleable(),
+
                 // — Kolom tambahan (bisa dimunculkan lewat "Kolom") — default tersembunyi —
                 TextColumn::make('email')
                     ->label('Email')
@@ -136,15 +148,6 @@ class UsersTable
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('initial_otp')
-                    ->label('OTP awal')
-                    ->badge()
-                    ->color('warning')
-                    ->copyable()
-                    ->placeholder('—')
-                    ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('total_xp')
                     ->label('XP')
                     ->numeric()
@@ -166,11 +169,20 @@ class UsersTable
                         ->label('Reset OTP')
                         ->icon('heroicon-o-key')
                         ->color('warning')
-                        ->requiresConfirmation()
                         ->modalHeading('Terbitkan OTP baru')
                         ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
-                        ->action(function (User $record): void {
-                            $otp = $record->issueOtp();
+                        ->modalIcon('heroicon-o-key')
+                        ->modalSubmitActionLabel('Terbitkan')
+                        ->schema([
+                            // Admin boleh menetapkan kode sendiri; dikosongkan → 6 digit otomatis.
+                            TextInput::make('otp')
+                                ->label('Kode OTP')
+                                ->helperText('Kosongkan untuk membuat kode 6 digit otomatis.')
+                                ->minLength(4)
+                                ->maxLength(12),
+                        ])
+                        ->action(function (User $record, array $data): void {
+                            $otp = $record->issueOtp($data['otp'] ?? null);
 
                             Notification::make()
                                 ->title('OTP baru diterbitkan')
@@ -224,6 +236,9 @@ class UsersTable
             ])
             // Tanpa aksi massal → tak ada checkbox pilih baris. Hapus/pulihkan/hapus
             // permanen per-baris tersedia via menu ⋮ dan halaman Edit.
+            // Opsi "Semua" aman di sini: warga ter-scope per desa (desa_admin) dan
+            // jumlah penduduk satu nagari terbatas.
+            ->paginated([10, 25, 50, 100, 'all'])
             ->defaultSort('created_at', 'desc');
     }
 }

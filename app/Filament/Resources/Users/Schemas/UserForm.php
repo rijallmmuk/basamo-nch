@@ -30,7 +30,12 @@ class UserForm
     {
         return $schema
             ->components([
+                // Identitas pribadi (KTP). Sebagian disimpan ke `users` (name, nik),
+                // sebagian ke `penduduk` (jenis_kelamin, tempat/tanggal lahir) — lihat
+                // InteractsWithPenduduk + PendudukService. Pemisahan berdasar nama field,
+                // jadi field demografi boleh berada di section mana pun.
                 Section::make('Identitas')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
@@ -45,22 +50,56 @@ class UserForm
                             ->helperText('NIK 16 digit — dipakai warga untuk login portal.')
                             ->unique(User::class, 'nik', ignoreRecord: true),
 
-                        TextInput::make('email')
-                            ->label('Email')
-                            ->email()
-                            ->maxLength(255)
-                            ->unique(User::class, 'email', ignoreRecord: true)
-                            ->columnSpanFull(),
+                        TextInput::make('tempat_lahir')
+                            ->label('Tempat Lahir')
+                            ->maxLength(100)
+                            ->required(static::requiredOnCreate()),
 
-                        TextInput::make('phone')
-                            ->label('No. HP')
-                            ->tel()
-                            ->maxLength(20)
-                            ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…')
-                            // Normalisasi ke format internasional 62xxxx saat simpan.
-                            ->dehydrateStateUsing(fn (?string $state): ?string => PhoneNumber::normalize($state))
-                            ->columnSpanFull(),
+                        DatePicker::make('tanggal_lahir')
+                            ->label('Tanggal Lahir')
+                            ->native(false)
+                            ->displayFormat('d F Y')
+                            ->maxDate(now())
+                            ->required(static::requiredOnCreate()),
 
+                        Select::make('jenis_kelamin')
+                            ->label('Jenis Kelamin')
+                            ->options(JenisKelamin::class)
+                            ->native(false)
+                            ->required(static::requiredOnCreate()),
+                    ]),
+
+                // Data sosial → disimpan ke tabel `penduduk`. Wajib lengkap saat create;
+                // longgar saat edit (record lama boleh belum lengkap).
+                Section::make('Data Sosial')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        Select::make('agama_id')
+                            ->label('Agama')
+                            ->options(fn (): array => Agama::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->searchable()
+                            ->preload()
+                            ->required(static::requiredOnCreate()),
+
+                        Select::make('status_perkawinan_id')
+                            ->label('Status Perkawinan')
+                            ->options(fn (): array => StatusPerkawinan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->native(false)
+                            ->required(static::requiredOnCreate()),
+
+                        Select::make('pekerjaan_id')
+                            ->label('Pekerjaan')
+                            ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->searchable()
+                            ->preload()
+                            ->required(static::requiredOnCreate()),
+                    ]),
+
+                Section::make('Alamat')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         // super_admin memilih desa warga; desa_admin dipaksa ke desanya
                         // sendiri di halaman Create (field tak tampil untuknya).
                         Select::make('desa_id')
@@ -107,51 +146,27 @@ class UserForm
                             ->columnSpanFull(),
                     ]),
 
-                // Demografi → disimpan ke tabel `penduduk` (lihat InteractsWithPenduduk + PendudukService).
-                // Wajib lengkap saat create; longgar saat edit (record lama boleh belum lengkap).
-                Section::make('Data Kependudukan')
+                Section::make('Kontak')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('tempat_lahir')
-                            ->label('Tempat Lahir')
-                            ->maxLength(100)
-                            ->required(static::requiredOnCreate()),
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->maxLength(255)
+                            ->unique(User::class, 'email', ignoreRecord: true),
 
-                        DatePicker::make('tanggal_lahir')
-                            ->label('Tanggal Lahir')
-                            ->native(false)
-                            ->displayFormat('d F Y')
-                            ->maxDate(now())
-                            ->required(static::requiredOnCreate()),
-
-                        Select::make('jenis_kelamin')
-                            ->label('Jenis Kelamin')
-                            ->options(JenisKelamin::class)
-                            ->native(false)
-                            ->required(static::requiredOnCreate()),
-
-                        Select::make('agama_id')
-                            ->label('Agama')
-                            ->options(fn (): array => Agama::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
-                            ->searchable()
-                            ->preload()
-                            ->required(static::requiredOnCreate()),
-
-                        Select::make('status_perkawinan_id')
-                            ->label('Status Perkawinan')
-                            ->options(fn (): array => StatusPerkawinan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
-                            ->native(false)
-                            ->required(static::requiredOnCreate()),
-
-                        Select::make('pekerjaan_id')
-                            ->label('Pekerjaan')
-                            ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
-                            ->searchable()
-                            ->preload()
-                            ->required(static::requiredOnCreate()),
+                        TextInput::make('phone')
+                            ->label('No. HP')
+                            ->tel()
+                            ->maxLength(20)
+                            ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…')
+                            // Normalisasi ke format internasional 62xxxx saat simpan.
+                            ->dehydrateStateUsing(fn (?string $state): ?string => PhoneNumber::normalize($state)),
                     ]),
 
                 Section::make('Akun & Status')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         Select::make('status')
@@ -161,11 +176,12 @@ class UserForm
                             ->required()
                             ->native(false),
 
+                        // Hanya saat Create. Di Edit, OTP diubah lewat aksi "Reset OTP"
+                        // (punya efek samping: set password + flag wajib-ganti), bukan form ini.
                         TextInput::make('initial_otp')
                             ->label('Kode OTP awal')
                             ->maxLength(12)
-                            ->disabled(fn (string $operation): bool => $operation === 'edit')
-                            ->dehydrated(fn (string $operation): bool => $operation === 'create')
+                            ->visible(fn (string $operation): bool => $operation === 'create')
                             ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP" saat warga siap login. Wajib diganti saat login pertama, lalu terhapus.'),
                     ]),
             ]);

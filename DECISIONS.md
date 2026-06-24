@@ -172,6 +172,9 @@ super_admin: CRUD lintas nagari, semua peran (super_admin → nagari_id null). n
 ### Ekspor laporan (rencana, belum dibangun)
 DomPDF (`barryvdh/laravel-dompdf`) untuk laporan LMS/SDGs; Maatwebsite Excel untuk data warga/UMKM.
 
+### Impor warga via Excel — Admin Desa (2026-06-24)
+**Paket**: `maatwebsite/excel` v3.1 (+ transitif `phpoffice/phpspreadsheet` 1.30) — install bersih di Laravel 13; tak menambah advisory (3 advisory yang ada milik guzzle, pra-eksis). · **Keputusan**: aksi `ActionGroup` "Impor" di header `ListUsers`, **hanya untuk desa_admin dulu** (1 desa per impor, ter-scope). Dua aksi: **Unduh Template** (`WargaTemplateBuilder` → XLSX 3 sheet: *Data Warga* berisi header+dropdown, *Petunjuk* penjelasan tiap kolom+opsi, *Referensi* sumber dropdown) & **Impor dari Excel** (`WargaImport` → `WargaImportService` per-baris). · **Keamanan/best-practice**: desa dipaksa server-side ke desa admin (kolom Desa diabaikan); sub-unit wajib milik desa itu; NIK 16-digit, unik DB + unik dalam file; tulis akun+penduduk dalam transaksi (anti-yatim); baris gagal dilaporkan per-nomor tanpa menggagalkan keseluruhan; OTP TIDAK diset (terbit terpisah via "Reset OTP"). · **Enum/opsi template = persis form create** (agama/status kawin/pekerjaan `aktif=true` urut `urutan`; JK Laki-laki/Perempuan; status Aktif/Nonaktif). · **Sub-unit per desa**: judul kolom = sebutan desa (Jorong/Korong/…) & dropdown = daftar `desa_units` desa itu; importer membaca nilai via key ter-slug sebutan (mis. `jorong`), fallback `wilayah`. · Logika inti di Service (bukan Controller/Resource); tervalidasi 11 test (`WargaImportTest`).
+
 ---
 
 ## Data wilayah & peta
