@@ -45,14 +45,17 @@ class ModulePage extends Model
             }
         });
 
-        // Bersihkan kolom yang tak relevan dengan tipe (cegah data basi saat ganti tipe).
+        // Bersihkan kolom media yang tak relevan dengan tipe (cegah data basi saat ganti
+        // tipe). `konten` DIPERTAHANKAN untuk semua tipe: jadi materi utama (text) atau
+        // teks penjelasan/instruksi opsional yang menyertai video/PDF.
         static::saving(function (ModulePage $page) {
-            match ($page->tipe) {
-                ModulePageType::Text => [$page->url_video = null, $page->path_file = null],
-                ModulePageType::Video => [$page->konten = null, $page->path_file = null],
-                ModulePageType::Pdf => [$page->konten = null, $page->url_video = null],
-                default => null,
-            };
+            if ($page->tipe !== ModulePageType::Video) {
+                $page->url_video = null;
+            }
+
+            if ($page->tipe !== ModulePageType::Pdf) {
+                $page->path_file = null;
+            }
         });
 
         // Hapus file PDF lama saat diganti/dikosongkan agar tidak yatim di disk.

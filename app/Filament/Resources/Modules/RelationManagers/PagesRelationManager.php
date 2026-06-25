@@ -42,12 +42,6 @@ class PagesRelationManager extends RelationManager
                     ->live()
                     ->columnSpanFull(),
 
-                RichEditor::make('konten')
-                    ->label('Konten')
-                    ->visible(fn ($get) => $get('tipe') === 'text')
-                    ->required(fn ($get) => $get('tipe') === 'text')
-                    ->columnSpanFull(),
-
                 TextInput::make('url_video')
                     ->label('URL Video')
                     ->url()
@@ -77,6 +71,16 @@ class PagesRelationManager extends RelationManager
                     ->required(fn ($get) => $get('tipe') === 'pdf')
                     ->maxSize(10240) // 10 MB
                     ->helperText('Maksimal 10 MB, format PDF.')
+                    ->columnSpanFull(),
+
+                // Untuk text = materi utama (wajib). Untuk video/pdf = penjelasan/instruksi
+                // opsional yang ditampilkan di atas media untuk warga.
+                RichEditor::make('konten')
+                    ->label(fn ($get): string => $get('tipe') === 'text' ? 'Konten' : 'Penjelasan / Instruksi (opsional)')
+                    ->helperText(fn ($get): ?string => $get('tipe') === 'text'
+                        ? null
+                        : 'Opsional — penjelasan atau instruksi untuk warga, ditampilkan di atas media.')
+                    ->required(fn ($get) => $get('tipe') === 'text')
                     ->columnSpanFull(),
             ]);
     }

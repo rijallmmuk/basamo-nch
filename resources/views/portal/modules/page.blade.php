@@ -109,6 +109,11 @@
                             {!! str($page->konten)->sanitizeHtml() !!}
                         </div>
                     @elseif($page->tipe->value === 'video')
+                        @if($page->konten)
+                            <div class="prose prose-sm mb-5 max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
+                                {!! str($page->konten)->sanitizeHtml() !!}
+                            </div>
+                        @endif
                         @php
                             $videoId = null;
                             $driveId = null;
@@ -142,6 +147,11 @@
                             </div>
                         @endif
                     @elseif($page->tipe->value === 'pdf' && $page->path_file)
+                        @if($page->konten)
+                            <div class="prose prose-sm mb-5 max-w-none leading-relaxed text-gray-700 prose-headings:text-gray-900 prose-a:text-indigo-600 prose-img:rounded-xl sm:prose-base">
+                                {!! str($page->konten)->sanitizeHtml() !!}
+                            </div>
+                        @endif
                         @php $pdfUrl = Storage::disk(config('media-library.disk_name'))->url($page->path_file); @endphp
                         <div class="overflow-hidden rounded-xl border border-gray-200">
                             <embed src="{{ $pdfUrl }}" type="application/pdf" class="w-full" style="height: min(70vh, 650px)">

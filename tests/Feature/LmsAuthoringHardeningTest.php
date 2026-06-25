@@ -92,3 +92,36 @@ it('M3: URL video YouTube https dirender sebagai iframe embed', function () {
         ->assertOk()
         ->assertSee('youtube.com/embed/abcdefghijk', false);
 });
+
+// ── Penjelasan/instruksi opsional untuk video & PDF ──────────────────
+it('halaman video bisa punya teks penjelasan opsional (tersimpan & tampil)', function () {
+    $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+    $module = makeModule();
+    $page = ModulePage::create([
+        'module_id' => $module->id, 'judul' => 'Video', 'tipe' => 'video',
+        'url_video' => 'https://youtu.be/abcdefghijk',
+        'konten' => '<p>Tonton lalu catat poin penting.</p>',
+        'urutan' => 1,
+    ]);
+
+    // konten dipertahankan untuk video (tidak di-null saving hook).
+    expect($page->refresh()->konten)->toContain('catat poin penting');
+
+    actingAs($warga)
+        ->get(route('portal.modules.pages.show', [$module, $page]))
+        ->assertOk()
+        ->assertSee('catat poin penting');
+});
+
+it('saving membersihkan media silang tapi mempertahankan konten', function () {
+    $page = ModulePage::create([
+        'module_id' => makeModule()->id, 'judul' => 'V', 'tipe' => 'video',
+        'url_video' => 'https://youtu.be/abcdefghijk', 'path_file' => 'lama.pdf',
+        'konten' => '<p>nota</p>', 'urutan' => 1,
+    ]);
+
+    expect($page->refresh())
+        ->path_file->toBeNull()       // bukan pdf → dibersihkan
+        ->and($page->url_video)->not->toBeNull()
+        ->and($page->konten)->toContain('nota');
+});
