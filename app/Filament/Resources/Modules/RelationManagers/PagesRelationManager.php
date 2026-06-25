@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Modules\RelationManagers;
 
 use App\Enums\ModulePageType;
 use App\Enums\ModuleStatus;
+use Closure;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -50,6 +51,14 @@ class PagesRelationManager extends RelationManager
                 TextInput::make('url_video')
                     ->label('URL Video')
                     ->url()
+                    // Hanya skema http/https (cegah javascript:/data: yang dirender di tautan).
+                    ->rule(static function (): Closure {
+                        return function (string $attribute, $value, Closure $fail): void {
+                            if (filled($value) && ! in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true)) {
+                                $fail('URL video harus diawali http:// atau https://.');
+                            }
+                        };
+                    })
                     ->placeholder('https://www.youtube.com/watch?v=...')
                     ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
                     ->visible(fn ($get) => $get('tipe') === 'video')

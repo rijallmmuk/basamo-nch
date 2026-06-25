@@ -25,6 +25,15 @@ class Module extends Model implements HasMedia
 {
     use BelongsToDesa, HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
 
+    protected static function booted(): void
+    {
+        // Hapus permanen modul → bersihkan file PDF tiap halaman lewat model (cascade DB
+        // tak memicu event ModulePage::deleted, jadi file bisa yatim). Soft delete tak terdampak.
+        static::forceDeleting(function (self $module): void {
+            $module->pages()->get()->each->delete();
+        });
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

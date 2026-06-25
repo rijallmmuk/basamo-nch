@@ -131,7 +131,8 @@
                                 <iframe src="https://drive.google.com/file/d/{{ $driveId }}/preview"
                                     allow="autoplay" allowfullscreen class="h-full w-full"></iframe>
                             </div>
-                        @elseif($page->url_video)
+                        @elseif($page->url_video && \Illuminate\Support\Str::startsWith(strtolower($page->url_video), ['http://', 'https://']))
+                            {{-- Hanya tautkan URL http/https (defense-in-depth: cegah javascript:/data:) --}}
                             <div class="flex items-center justify-center rounded-xl bg-gray-50 py-14">
                                 <a href="{{ $page->url_video }}" target="_blank" rel="noopener"
                                     class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700">

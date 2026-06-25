@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class QuizResource extends Resource
 {
@@ -61,12 +62,16 @@ class QuizResource extends Resource
             parent::getEloquentQuery()
                 ->with('module')
                 ->withCount('questions')
+                ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return static::scopeToDesa(parent::getRecordRouteBindingEloquentQuery());
+        return static::scopeToDesa(
+            parent::getRecordRouteBindingEloquentQuery()
+                ->withoutGlobalScopes([SoftDeletingScope::class])
+        );
     }
 
     /**
