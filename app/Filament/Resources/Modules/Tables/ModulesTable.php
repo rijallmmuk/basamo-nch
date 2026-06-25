@@ -3,9 +3,8 @@
 namespace App\Filament\Resources\Modules\Tables;
 
 use App\Enums\ModuleStatus;
-use App\Filament\Resources\Modules\ModuleResource;
-use App\Models\Module;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\IconColumn;
@@ -20,8 +19,8 @@ class ModulesTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Klik baris → buka Edit.
-            ->recordUrl(fn (Module $record): string => ModuleResource::getUrl('edit', ['record' => $record]))
+            // Baris TIDAK dapat diklik — buka Ubah lewat aksi (sejajar, tak digabung ⋮).
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -66,14 +65,24 @@ class ModulesTable
                     ->formatStateUsing(fn (?int $state): string => $state ? $state.' mnt' : '—')
                     ->toggleable(),
 
+                // — Kolom sekunder (default tersembunyi, muncul lewat "Kolom") —
+                // Urutan: pengurutan sudah terlihat dari susunan baris (drag/defaultSort),
+                // jadi angkanya tak perlu tampil default.
                 TextColumn::make('urutan')
                     ->label('Urutan')
                     ->numeric()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                // Prasyarat: relevan utk LMS (dependensi modul), tapi sering kosong → sekunder.
+                TextColumn::make('prerequisite.judul')
+                    ->label('Prasyarat')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('creator.name')
                     ->label('Dibuat oleh')
+                    ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
@@ -95,6 +104,8 @@ class ModulesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                EditAction::make()
+                    ->color('warning'),
                 DeleteAction::make(),
                 RestoreAction::make(),
                 ForceDeleteAction::make(),

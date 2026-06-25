@@ -72,7 +72,8 @@ class DesaUnitsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->color('warning'),
                 DeleteAction::make()
                     ->before(fn (DesaUnit $record, DeleteAction $action) => DesaUnitResource::guardAgainstWarga($record, $action)),
                 RestoreAction::make(),

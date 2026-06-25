@@ -60,7 +60,7 @@ class ModuleResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
-            ->with(['desa', 'creator', 'media'])
+            ->with(['desa', 'creator', 'media', 'prerequisite'])
             ->withCount('pages')
             ->withExists('quiz')
             ->withoutGlobalScopes([
