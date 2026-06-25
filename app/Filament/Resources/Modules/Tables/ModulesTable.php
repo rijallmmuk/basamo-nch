@@ -41,8 +41,8 @@ class ModulesTable
 
                 TextColumn::make('desa.nama')
                     ->label('Desa')
-                    ->default('Global')
-                    ->icon(fn ($state): ?string => $state === 'Global' ? 'heroicon-o-globe-alt' : null)
+                    ->default('Semua')
+                    ->icon(fn ($state): ?string => $state === 'Semua' ? 'heroicon-o-globe-alt' : null)
                     ->sortable()
                     ->badge()
                     ->color('info'),
@@ -51,29 +51,11 @@ class ModulesTable
                     ->label('Status')
                     ->badge(),
 
-                TextColumn::make('pages_count')
-                    ->label('Materi')
-                    ->badge()
-                    ->color('gray'),
-
                 IconColumn::make('quiz_exists')
                     ->label('Kuis')
                     ->boolean(),
 
-                TextColumn::make('estimasi_menit')
-                    ->label('Durasi')
-                    ->formatStateUsing(fn (?int $state): string => $state ? $state.' mnt' : '—')
-                    ->toggleable(),
-
                 // — Kolom sekunder (default tersembunyi, muncul lewat "Kolom") —
-                // Urutan: pengurutan sudah terlihat dari susunan baris (drag/defaultSort),
-                // jadi angkanya tak perlu tampil default.
-                TextColumn::make('urutan')
-                    ->label('Urutan')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 // Prasyarat: relevan utk LMS (dependensi modul), tapi sering kosong → sekunder.
                 TextColumn::make('prerequisite.judul')
                     ->label('Prasyarat')
@@ -99,7 +81,7 @@ class ModulesTable
                 SelectFilter::make('desa')
                     ->label('Desa')
                     ->relationship('desa', 'nama')
-                    ->placeholder('Semua (termasuk global)'),
+                    ->placeholder('Semua (termasuk semua-desa)'),
 
                 TrashedFilter::make(),
             ])

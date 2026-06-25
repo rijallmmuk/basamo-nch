@@ -40,7 +40,7 @@
                     <div class="mb-3 flex flex-wrap items-center gap-2">
                         <x-portal.status-badge :status="$status" />
                         @unless($module->desa_id)
-                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Modul Global</span>
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">Semua Desa</span>
                         @endunless
                         @if($module->estimasi_menit)
                             <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">

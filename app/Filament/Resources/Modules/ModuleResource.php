@@ -61,7 +61,6 @@ class ModuleResource extends Resource
     {
         $query = parent::getEloquentQuery()
             ->with(['desa', 'creator', 'media', 'prerequisite'])
-            ->withCount('pages')
             ->withExists('quiz')
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,

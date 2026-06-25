@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\Quizzes\Tables;
 
-use App\Filament\Resources\Quizzes\QuizResource;
-use App\Models\Quiz;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
@@ -16,8 +15,8 @@ class QuizzesTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Klik baris → buka Edit.
-            ->recordUrl(fn (Quiz $record): string => QuizResource::getUrl('edit', ['record' => $record]))
+            // Baris TIDAK dapat diklik — buka Ubah lewat aksi (sejajar, tak digabung ⋮).
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -53,6 +52,8 @@ class QuizzesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                EditAction::make()
+                    ->color('warning'),
                 DeleteAction::make(),
                 RestoreAction::make(),
                 ForceDeleteAction::make(),

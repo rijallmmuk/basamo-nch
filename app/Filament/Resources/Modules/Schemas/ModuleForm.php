@@ -51,7 +51,7 @@ class ModuleForm
                         Select::make('desa_id')
                             ->label('Desa')
                             ->relationship('desa', 'nama')
-                            ->placeholder('— Global (semua desa) —')
+                            ->placeholder('— Semua desa —')
                             ->nullable()
                             ->searchable()
                             ->preload()

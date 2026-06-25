@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -57,6 +58,8 @@ class DiscussionsTable
         }
 
         return $table
+            // Baris tidak dapat diklik (moderasi read-only; aksi lewat tombol).
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -114,6 +117,39 @@ class DiscussionsTable
             ])
             ->filters($filters)
             ->recordActions([
+                // Admin (super/desa, sesuai scope) bisa menjawab pertanyaan warga.
+                // Balasan ditulis atas nama admin yang login; hanya pada pertanyaan
+                // (top-level) yang belum dihapus.
+                Action::make('balas')
+                    ->label('Balas')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('info')
+                    ->visible(fn (Discussion $record): bool => $record->parent_id === null
+                        && ! $record->trashed()
+                        && auth()->user()->can('update', $record))
+                    ->modalHeading('Balas pertanyaan')
+                    ->modalSubmitActionLabel('Kirim balasan')
+                    ->schema([
+                        Textarea::make('isi')
+                            ->label('Balasan')
+                            ->required()
+                            ->minLength(2)
+                            ->maxLength(2000)
+                            ->rows(4),
+                    ])
+                    ->action(function (Discussion $record, array $data): void {
+                        $record->replies()->create([
+                            'module_id' => $record->module_id,
+                            'user_id' => auth()->id(),
+                            'isi' => $data['isi'],
+                        ]);
+
+                        Notification::make()
+                            ->title('Balasan terkirim')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('togglePin')
                     ->label(fn (Discussion $record): string => $record->is_pinned ? 'Lepas sematan' : 'Sematkan')
                     ->icon(fn (Discussion $record): string => $record->is_pinned ? 'heroicon-o-bookmark-slash' : 'heroicon-o-bookmark')
