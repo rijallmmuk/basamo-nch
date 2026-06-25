@@ -6,6 +6,42 @@
 
 ---
 
+## Sesi 2026-06-25 — Hardening menyeluruh admin (Warga/Desa/Wilayah/UMKM) + audit LMS + model akun/OTP seragam
+
+Branch `feat/ref-wilayah-sumbar`. Suite **235 (233 lulus, 2 skip)**. Pint bersih. **6 commit di-push akhir
+sesi** (`df16ac5 · 0474827 · 37aa422 · dd40bf9 · 6922780 · 57c2709`). Belum merge. Sesi panjang, audit
+per-fitur (user minta robust & production-ready).
+
+- **Warga (admin desa) — hardening**: hapus dead trait `InteractsWithPenduduk`; aksi custom (resetOtp/UMKM)
+  digate `! trashed() && can('update')`; cabut UMKM transaksional; email lowercase; NIK editable + validasi
+  anti-bentrok identitas penduduk; **impor Excel → queue** (`App\Jobs\ImportWarga` + notifikasi DB; panel
+  `->databaseNotifications()`); `WargaImportService`/`WargaImport` terima `Desa` eksplisit (fix bug super-admin).
+- **Wilayah (sub-unit) & Desa — audit+fix**: guard anti-orphan hapus sub-unit berpenghuni; **unique ramah
+  soft-delete** untuk `desa_units`, `desas.wilayah_kode`, `users.username`, `quizzes.module_id` (semua
+  `(col, deleted_at)`; migrasi: tambah komposit DULU baru drop unique lama karena FK); EditDesa transaksional.
+- **Drill-in super admin** (DesaContext/managedDesaId): kini **Warga + Wilayah + UMKM** lewat satu dropdown
+  **"Kelola ▾"** di tabel Desa. LMS sengaja TANPA drill-in (modul terpusat global/per-desa).
+- **Akun admin desa = paralel 100% warga**: username OTOMATIS = digit kode nagari (`Desa::usernameFromKode`),
+  nama FIX "Admin {nama_lengkap}", **OTP model tunda** (blank→ditunda, bukan auto-gen), Reset OTP di **tabel**
+  Desa. OTP warga↔admin konsisten (satu jalur `issueOtp`). Email & No.HP admin = opsional.
+- **Login pertama (ganti sandi) bisa lengkapi kontak**: warga (No.HP+email di form portal) & admin (profil
+  Filament custom `App\Filament\Auth\EditProfile` — **tanpa field Nama** karena nama fix, +No.HP).
+- **Konsistensi istilah UI** lintas panel + **glosarium di `CONVENTIONS.md`** (sub-unit fallback "Wilayah",
+  "Penyebutan desa", "No. HP", "No. WhatsApp" khusus UMKM, kosakata "Hapus/Dihapus"). Copyable NIK & Kode Wilayah.
+- **LMS — audit + hardening**: penyelesaian materi kini **eksplisit** (tombol "Tandai selesai" POST, bukan
+  auto saat GET); guard modul published tak boleh tanpa materi; **Quiz SoftDeletes** (Restore/Force/Trashed);
+  kuis submit transaksi + lockForUpdate; force-delete modul bersihkan PDF yatim; url_video dibatasi http/https;
+  buang aksi massal di relation manager Soal/Materi. **Materi video/PDF kini bisa diberi teks penjelasan/
+  instruksi opsional** (kolom `konten` utk semua tipe, tampil disanitasi di atas media).
+- **BUG penting diperbaiki**: field materi kondisional (url_video/path_file/label konten) tak muncul saat ganti
+  tipe — `Select::options(EnumClass)` membuat `$get('tipe')` = instance enum dibanding string → selalu false.
+  Fix helper `isType()`. **PELAJARAN: jangan `$get('field') === 'string'` utk Select ber-options enum.** Disapu
+  seluruh app: tak ada kasus serupa lain. Fidelity teks RichEditor→warga PERSIS (sanitizeHtml mempertahankan style).
+- **CATATAN demo**: login admin desa demo kini **username = kode nagari** (sandi `password`), berlaku setelah
+  `migrate:fresh --seed`. Verdict: Warga + Desa + Wilayah + LMS = robust & production-ready.
+
+---
+
 ## Sesi 2026-06-24 — Impor Excel · konsistensi form · Pengaturan Desa+peta · navigasi per-peran + drill-in Warga
 
 Branch `feat/ref-wilayah-sumbar`. Suite **202 (200 lulus, 2 skip)**. Pint bersih. **Di-push** s/d
