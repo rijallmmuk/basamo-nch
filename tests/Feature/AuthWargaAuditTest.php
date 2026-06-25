@@ -116,14 +116,26 @@ it('login pertama bisa sekalian mengisi No. HP & email (opsional, dinormalkan)',
         ->and($warga->email)->toBe('warga.baru@example.com'); // huruf kecil
 });
 
-// ── A6: kebijakan sandi minimal (huruf + angka) ──────────────────────
-it('menolak sandi baru yang terlalu lemah', function () {
+// ── A6: kebijakan sandi minimal 8 karakter (bebas, tanpa syarat huruf/angka) ──
+it('menolak sandi baru yang kurang dari 8 karakter', function () {
     $warga = makeWarga(['must_change_password' => true]);
 
     $this->actingAs($warga)
         ->post(route('portal.password.update'), [
-            'password' => 'aaaaaaaa', // tanpa angka
-            'password_confirmation' => 'aaaaaaaa',
+            'password' => 'pendek', // 6 karakter
+            'password_confirmation' => 'pendek',
         ])
         ->assertSessionHasErrors('password');
+});
+
+it('menerima sandi 8+ karakter walau tanpa angka', function () {
+    $warga = makeWarga(['must_change_password' => true]);
+
+    $this->actingAs($warga)
+        ->post(route('portal.password.update'), [
+            'password' => 'rahasiabaru', // huruf saja, ≥8
+            'password_confirmation' => 'rahasiabaru',
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('portal.home'));
 });

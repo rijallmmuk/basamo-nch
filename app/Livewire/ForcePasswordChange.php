@@ -5,13 +5,17 @@ namespace App\Livewire;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
 
 /**
  * Modal pemblokir ganti sandi untuk admin yang masih memakai sandi awal (OTP).
  * Dirender lewat render hook panel (BODY_END) saat `must_change_password`, menutupi
- * layar sampai sandi diganti. No. HP & email opsional (TIDAK wajib).
+ * layar sampai sandi diganti. No. HP & email opsional (TIDAK wajib). Sandi bebas,
+ * cukup minimal 8 karakter.
+ *
+ * Setelah berhasil TIDAK langsung dilempar ke login: panel memakai AuthenticateSession
+ * sehingga ganti sandi membatalkan sesi. Maka tampilkan langkah sukses + tombol "Masuk
+ * lagi" agar admin paham harus login ulang dengan sandi baru (bukan logout senyap).
  */
 class ForcePasswordChange extends Component
 {
@@ -23,10 +27,14 @@ class ForcePasswordChange extends Component
 
     public string $email = '';
 
+    /** Sandi sudah diganti → tampilkan pesan "silakan masuk lagi". */
+    public bool $saved = false;
+
     public function save(): void
     {
         $data = $this->validate([
-            'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
+            // Sandi bebas, cukup minimal 8 karakter (tanpa syarat huruf/angka).
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore(auth()->id())],
         ]);
@@ -46,7 +54,8 @@ class ForcePasswordChange extends Component
         // Hook User::saving menghapus initial_otp & melepas must_change_password.
         $user->forceFill($attributes)->save();
 
-        $this->redirect(route('filament.admin.pages.dashboard'));
+        // Jangan redirect senyap — tampilkan konfirmasi + arahan login ulang di modal.
+        $this->saved = true;
     }
 
     public function render()

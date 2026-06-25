@@ -50,16 +50,28 @@ it('modal: ganti sandi melepas must_change; email & No.HP opsional', function ()
     actingAs($admin->fresh());
 
     Livewire::test(ForcePasswordChange::class)
-        ->set('password', 'rahasia-baru-1')
-        ->set('password_confirmation', 'rahasia-baru-1')
+        ->set('password', 'rahasiabaru') // bebas, tanpa angka, ≥8 karakter
+        ->set('password_confirmation', 'rahasiabaru')
         ->call('save')
         ->assertHasNoErrors()
-        ->assertRedirect(route('filament.admin.pages.dashboard'));
+        ->assertSet('saved', true); // tampil langkah sukses, BUKAN redirect senyap
 
     $admin->refresh();
     expect($admin->must_change_password)->toBeFalse()
-        ->and(Hash::check('rahasia-baru-1', $admin->password))->toBeTrue()
+        ->and(Hash::check('rahasiabaru', $admin->password))->toBeTrue()
         ->and($admin->email)->toBeNull(); // email tak wajib
+});
+
+it('modal: sandi terlalu pendek (<8) ditolak', function () {
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id]);
+    $admin->issueOtp();
+    actingAs($admin->fresh());
+
+    Livewire::test(ForcePasswordChange::class)
+        ->set('password', 'pendek')
+        ->set('password_confirmation', 'pendek')
+        ->call('save')
+        ->assertHasErrors(['password']);
 });
 
 it('modal: kontak terisi → No.HP dinormalkan & email huruf kecil', function () {

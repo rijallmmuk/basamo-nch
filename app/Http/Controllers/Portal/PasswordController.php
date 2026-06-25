@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class PasswordController extends Controller
@@ -27,7 +26,8 @@ class PasswordController extends Controller
         // Ganti sandi biasa: wajib verifikasi sandi lama (cegah sesi dibajak mengganti sandi).
         // Sekalian lengkapi kontak (opsional) — terutama berguna saat login pertama.
         $rules = [
-            'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
+            // Sandi bebas, cukup minimal 8 karakter (tanpa syarat huruf/angka).
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:20'],
         ];
