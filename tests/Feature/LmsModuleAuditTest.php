@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\ModulePage;
 use App\Models\User;
 use App\Models\UserModuleProgress;
+use App\Services\LmsPointService;
 use App\Services\LmsProgressService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -55,6 +56,52 @@ it('konten materi disanitasi dari script saat ditampilkan ke warga', function ()
         ->assertOk()
         ->assertSee('Konten aman')
         ->assertDontSee('alert(1)');
+});
+
+// ── Penyelesaian materi = EKSPLISIT (tombol "Tandai selesai", POST) ──
+it('membuka halaman materi (GET) tidak lagi menandai selesai', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $module = makeModuleWithPages(2, $desa->id);
+    $page = $module->pages()->orderBy('urutan')->first();
+
+    $this->actingAs($warga)
+        ->get(route('portal.modules.pages.show', [$module, $page]))
+        ->assertOk();
+
+    expect(UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->exists())->toBeFalse();
+});
+
+it('POST tandai-selesai menandai halaman & mengarahkan ke halaman berikutnya', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $module = makeModuleWithPages(2, $desa->id);
+    $pages = $module->pages()->orderBy('urutan')->get();
+
+    $this->actingAs($warga)
+        ->post(route('portal.modules.pages.complete', [$module, $pages[0]]))
+        ->assertRedirect(route('portal.modules.pages.show', [$module, $pages[1]]));
+
+    $progress = UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->first();
+    expect($progress->halaman_selesai)->toContain($pages[0]->id)
+        ->and($progress->status->value)->toBe('in_progress');
+});
+
+it('menandai halaman terakhir menyelesaikan modul + beri XP, arahkan ke modul', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $module = makeModuleWithPages(2, $desa->id);
+    $pages = $module->pages()->orderBy('urutan')->get();
+
+    app(LmsProgressService::class)->markPageCompleted($warga, $module, $pages[0]);
+
+    $this->actingAs($warga)
+        ->post(route('portal.modules.pages.complete', [$module, $pages[1]]))
+        ->assertRedirect(route('portal.modules.show', $module));
+
+    $progress = UserModuleProgress::where('user_id', $warga->id)->where('module_id', $module->id)->first();
+    expect($progress->status->value)->toBe('completed')
+        ->and($warga->refresh()->total_xp)->toBe(LmsPointService::MODULE_XP);
 });
 
 // ── #3/#4 Penyelesaian: rekonsiliasi setelah halaman dihapus ──────────

@@ -41,18 +41,34 @@
             @endforeach
         </div>
 
-        @if($nextPage)
-            <a href="{{ route('portal.modules.pages.show', [$module, $nextPage]) }}"
-                class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
-                <span class="hidden sm:inline">Selanjutnya</span>
-                <x-heroicon-o-arrow-right class="h-4 w-4" />
-            </a>
+        @php $currentDone = in_array($page->id, $pagesCompleted); @endphp
+
+        @if($currentDone)
+            {{-- Sudah ditandai selesai → navigasi biasa (tanpa menulis ulang) --}}
+            @if($nextPage)
+                <a href="{{ route('portal.modules.pages.show', [$module, $nextPage]) }}"
+                    class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700">
+                    <span class="hidden sm:inline">Lanjut</span>
+                    <x-heroicon-o-arrow-right class="h-4 w-4" />
+                </a>
+            @else
+                <a href="{{ route('portal.modules.show', $module) }}"
+                    class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                    <span class="hidden sm:inline">Ke Modul</span>
+                    <x-heroicon-s-check-circle class="h-4 w-4" />
+                </a>
+            @endif
         @else
-            <a href="{{ route('portal.modules.show', $module) }}"
-                class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
-                <span class="hidden sm:inline">Selesai</span>
-                <x-heroicon-s-check-circle class="h-4 w-4" />
-            </a>
+            {{-- Tandai selesai (eksplisit, POST) lalu lanjut / kembali ke modul --}}
+            <form method="POST" action="{{ route('portal.modules.pages.complete', [$module, $page]) }}">
+                @csrf
+                <button type="submit"
+                    class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-colors {{ $nextPage ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700' }}">
+                    <x-heroicon-s-check-circle class="h-4 w-4" />
+                    <span class="hidden sm:inline">{{ $nextPage ? 'Tandai selesai & lanjut' : 'Tandai selesai' }}</span>
+                    <span class="sm:hidden">Selesai</span>
+                </button>
+            </form>
         @endif
     </div>
 </div>

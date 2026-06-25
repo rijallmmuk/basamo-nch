@@ -9,6 +9,7 @@ use App\Models\QuizAttempt;
 use App\Notifications\QuizCompleted;
 use App\Services\LmsPointService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -148,16 +149,38 @@ class QuizPlayer extends Component
         $percentage = $totalQuestions > 0 ? (int) round(($scoreSum / $totalQuestions) * 100) : 0;
         $passed = $percentage >= $this->quiz->nilai_lulus;
 
-        // Auto-grade sinkron: simpan attempt langsung berstatus final (tanpa state transien).
-        $attempt = QuizAttempt::create([
-            'user_id' => auth()->id(),
-            'quiz_id' => $this->quiz->id,
-            'nilai' => $percentage,
-            'status' => $passed ? QuizAttemptStatus::Passed : QuizAttemptStatus::Failed,
-            'submitted_at' => now(),
-        ]);
+        // Auto-grade sinkron + atomik + anti-race: kunci attempt user+quiz, re-cek
+        // kelayakan di bawah kunci, lalu simpan attempt + jawaban dalam satu transaksi.
+        // Mencegah submit paralel (multi-tab) melewati batas percobaan / data jawaban parsial.
+        $attempt = DB::transaction(function () use ($percentage, $passed, $answerRows): ?QuizAttempt {
+            QuizAttempt::where('user_id', auth()->id())
+                ->where('quiz_id', $this->quiz->id)
+                ->lockForUpdate()
+                ->get();
 
-        $attempt->answers()->createMany($answerRows);
+            if (! $this->canAttempt()) {
+                return null;
+            }
+
+            $attempt = QuizAttempt::create([
+                'user_id' => auth()->id(),
+                'quiz_id' => $this->quiz->id,
+                'nilai' => $percentage,
+                'status' => $passed ? QuizAttemptStatus::Passed : QuizAttemptStatus::Failed,
+                'submitted_at' => now(),
+            ]);
+
+            $attempt->answers()->createMany($answerRows);
+
+            return $attempt;
+        });
+
+        // Kelayakan gugur saat dikunci (mis. submit paralel mendahului) → batalkan.
+        if ($attempt === null) {
+            $this->quizErrors = ['Kamu tidak dapat mengerjakan kuis ini lagi.'];
+
+            return;
+        }
 
         $this->resultStatus = $passed ? 'passed' : 'failed';
         $this->resultScore = $percentage;

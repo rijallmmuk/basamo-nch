@@ -16,6 +16,16 @@
         ['label' => $module->judul],
     ]" />
 
+    {{-- Perayaan saat modul baru saja tuntas (di-flash dari PageController::complete) --}}
+    @if($c = session('celebrate'))
+        <script>
+            window.addEventListener('load', () => {
+                window.fireConfetti?.();
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'xp', title: @json($c['title']), message: @json($c['message']) } }));
+            });
+        </script>
+    @endif
+
     <div class="grid gap-5 lg:grid-cols-3">
 
         {{-- LEFT --}}

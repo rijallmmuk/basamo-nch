@@ -63,6 +63,8 @@ Route::prefix('portal')->name('portal.')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('index');
             Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');
             Route::get('{module:slug}/pages/{page}', [PageController::class, 'show'])->name('pages.show');
+            // Tandai materi selesai (eksplisit, POST) — bukan otomatis saat dibuka.
+            Route::post('{module:slug}/pages/{page}/selesai', [PageController::class, 'complete'])->name('pages.complete');
             Route::get('{module:slug}/quiz', [QuizController::class, 'show'])->name('quiz');
 
             // Forum diskusi per modul

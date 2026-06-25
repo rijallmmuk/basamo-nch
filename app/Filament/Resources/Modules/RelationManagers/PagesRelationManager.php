@@ -3,15 +3,15 @@
 namespace App\Filament\Resources\Modules\RelationManagers;
 
 use App\Enums\ModulePageType;
-use Filament\Actions\BulkActionGroup;
+use App\Enums\ModuleStatus;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -99,12 +99,22 @@ class PagesRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                // Cegah modul published jadi tanpa materi (warga akan lihat modul kosong
+                // & tak bisa menyelesaikannya). Turunkan ke draft dulu untuk mengosongkan.
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action): void {
+                        $module = $this->getOwnerRecord();
+
+                        if ($module->status === ModuleStatus::Published && $module->pages()->count() <= 1) {
+                            Notification::make()
+                                ->title('Tidak bisa menghapus materi terakhir')
+                                ->body('Modul ini sudah dipublish. Tambah materi lain dulu, atau ubah status modul ke Draft sebelum menghapus materi terakhir.')
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ]);
     }
 }
