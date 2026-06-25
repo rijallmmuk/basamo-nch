@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\ActiveStatus;
 use App\Enums\JenisKelamin;
-use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -55,8 +54,8 @@ class UsersTable
         }
 
         return $table
-            // Klik baris membuka detail (aksi "Lihat" tak perlu lagi).
-            ->recordUrl(fn (User $record): string => UserResource::getUrl('view', ['record' => $record]))
+            // Baris TIDAK dapat diklik — buka Ubah lewat aksi di menu ⋮.
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')

@@ -2,7 +2,6 @@
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
-use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
@@ -80,7 +79,7 @@ it('mengedit warga memperbarui penduduk yang sama (tanpa duplikat)', function ()
         ->and($penduduk->fresh()->tempat_lahir)->toBe('Padang');
 });
 
-it('halaman lihat warga menampilkan identitas penduduk', function () {
+it('halaman ubah warga memuat identitas penduduk ke form', function () {
     $desa = Desa::factory()->create();
     $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
 
@@ -90,11 +89,13 @@ it('halaman lihat warga menampilkan identitas penduduk', function () {
     ]);
     $warga->forceFill(['penduduk_id' => $penduduk->id])->save();
 
-    Livewire::test(ViewUser::class, ['record' => $warga->getRouteKey()])
+    Livewire::test(EditUser::class, ['record' => $warga->getRouteKey()])
         ->assertOk()
-        ->assertSee('Warga Lihat')
-        ->assertSee('3201010101010005')
-        ->assertSee('Solok');
+        ->assertFormSet([
+            'name' => 'Warga Lihat',
+            'nik' => '3201010101010005',
+            'tempat_lahir' => 'Solok',
+        ]);
 });
 
 it('sync memakai ulang penduduk ber-NIK sama (tanpa duplikat / unique violation)', function () {

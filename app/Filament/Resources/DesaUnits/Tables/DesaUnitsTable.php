@@ -6,6 +6,7 @@ use App\Filament\Resources\DesaUnits\DesaUnitResource;
 use App\Models\Desa;
 use App\Models\DesaUnit;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
@@ -27,8 +28,8 @@ class DesaUnitsTable
         $sebutan = ($desaId ? Desa::find($desaId)?->jenisSubUnit?->nama : null) ?: 'Wilayah';
 
         return $table
-            // Klik baris → buka Edit.
-            ->recordUrl(fn (DesaUnit $record): string => DesaUnitResource::getUrl('edit', ['record' => $record]))
+            // Baris TIDAK dapat diklik — buka Ubah lewat aksi (sejajar, tak digabung ⋮).
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -71,6 +72,7 @@ class DesaUnitsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                EditAction::make(),
                 DeleteAction::make()
                     ->before(fn (DesaUnit $record, DeleteAction $action) => DesaUnitResource::guardAgainstWarga($record, $action)),
                 RestoreAction::make(),
