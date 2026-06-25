@@ -12,6 +12,7 @@ use App\Support\DesaContext;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
@@ -25,8 +26,8 @@ class DesasTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Klik baris → buka Edit (identitas desa).
-            ->recordUrl(fn (Desa $record): string => DesaResource::getUrl('edit', ['record' => $record]))
+            // Baris TIDAK dapat diklik — buka Ubah lewat aksi di menu ⋮.
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -100,9 +101,11 @@ class DesasTable
             ])
             // Semua aksi baris dalam satu menu ⋮ (pola sama dgn halaman Warga). "Kelola"
             // = pintu masuk konteks desa (DesaContext) ke resource yang dipakai-ulang dari
-            // panel admin desa. Klik baris tetap membuka Edit (lihat recordUrl).
+            // panel admin desa. Baris tak dapat diklik → Ubah lewat aksi di menu ini.
             ->recordActions([
                 ActionGroup::make([
+                    EditAction::make(),
+
                     Action::make('kelolaWarga')
                         ->label('Kelola Warga')
                         ->icon('heroicon-o-users')

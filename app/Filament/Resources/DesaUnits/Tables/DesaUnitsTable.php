@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DesaUnits\Tables;
 
 use App\Filament\Resources\DesaUnits\DesaUnitResource;
+use App\Models\Desa;
 use App\Models\DesaUnit;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -18,7 +19,12 @@ class DesaUnitsTable
     {
         // Ter-scope ke satu desa (desa_admin, atau super admin via "Kelola Wilayah")
         // → kolom & filter Desa tak relevan.
-        $scopedToDesa = auth()->user()?->managedDesaId() !== null;
+        $desaId = auth()->user()?->managedDesaId();
+        $scopedToDesa = $desaId !== null;
+
+        // Sebutan sub-unit desa konteks (Jorong/Korong/Dusun/…) — diprefiks ke nama
+        // di kolom agar jelas, mis. "Jorong Koto Tuo" (data hanya simpan namanya saja).
+        $sebutan = ($desaId ? Desa::find($desaId)?->jenisSubUnit?->nama : null) ?: 'Wilayah';
 
         return $table
             // Klik baris → buka Edit.
@@ -30,6 +36,9 @@ class DesaUnitsTable
 
                 TextColumn::make('nama')
                     ->label('Nama')
+                    // Prefiks sebutan agar jelas (mis. "Jorong Koto Tuo"); pencarian &
+                    // pengurutan tetap memakai nilai `nama` mentah.
+                    ->formatStateUsing(fn (string $state): string => "{$sebutan} {$state}")
                     ->searchable()
                     ->sortable(),
 
