@@ -31,11 +31,12 @@ class UserResource extends Resource
         return null;
     }
 
-    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
-    // mengelola sebuah desa (masuk lewat aksi "Kelola Warga" di menu Desa).
+    // Hanya admin desa yang melihat menu "Warga" di sidebar. Super admin masuk lewat
+    // aksi "Kelola Warga" di tabel Desa (DesaContext) — halaman tetap dapat diakses
+    // (lihat canAccess), tapi TIDAK ditampilkan di sidebar agar tetap bersih.
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canAccess();
+        return (bool) auth()->user()?->isDesaAdmin();
     }
 
     public static function getModelLabel(): string

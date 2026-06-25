@@ -27,9 +27,10 @@ it('super admin dengan konteks desa boleh akses Warga & ter-scope ke desa itu', 
 
     DesaContext::set($desa->id);
 
+    // Dapat diakses (via aksi "Kelola Warga"), tapi TIDAK muncul di sidebar super admin.
     expect(UserResource::canAccess())->toBeTrue()
         ->and(auth()->user()->managedDesaId())->toBe($desa->id)
-        ->and(UserResource::shouldRegisterNavigation())->toBeTrue();
+        ->and(UserResource::shouldRegisterNavigation())->toBeFalse();
 });
 
 it('admin desa: managedDesaId selalu desanya sendiri (tanpa konteks session)', function () {
@@ -57,9 +58,10 @@ it('super admin: akses Wilayah butuh konteks desa (tanpa konteks ditolak)', func
 
     expect(DesaUnitResource::canAccess())->toBeFalse();
 
+    // Dapat diakses (via aksi "Kelola Wilayah"), tapi TIDAK muncul di sidebar super admin.
     DesaContext::set($desa->id);
     expect(DesaUnitResource::canAccess())->toBeTrue()
-        ->and(DesaUnitResource::shouldRegisterNavigation())->toBeTrue();
+        ->and(DesaUnitResource::shouldRegisterNavigation())->toBeFalse();
 });
 
 it('aksi "Kelola Wilayah" menyetel konteks desa lalu mengalihkan ke halaman Wilayah', function () {
@@ -79,9 +81,10 @@ it('super admin: akses UMKM butuh konteks desa (tanpa konteks ditolak)', functio
 
     expect(UmkmProfileResource::canAccess())->toBeFalse();
 
+    // Dapat diakses (via aksi "Kelola › UMKM"), tapi TIDAK muncul di sidebar super admin.
     DesaContext::set($desa->id);
     expect(UmkmProfileResource::canAccess())->toBeTrue()
-        ->and(UmkmProfileResource::shouldRegisterNavigation())->toBeTrue();
+        ->and(UmkmProfileResource::shouldRegisterNavigation())->toBeFalse();
 });
 
 it('aksi "Kelola › UMKM" menyetel konteks desa lalu mengalihkan ke halaman Profil UMKM', function () {

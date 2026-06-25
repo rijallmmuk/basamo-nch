@@ -32,11 +32,12 @@ class DesaUnitResource extends Resource
         return 'Pengaturan';
     }
 
-    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
-    // mengelola sebuah desa (masuk lewat aksi "Kelola Wilayah" di menu Desa).
+    // Hanya admin desa yang melihat menu "Wilayah" di sidebar. Super admin masuk lewat
+    // aksi "Kelola Wilayah" di tabel Desa (DesaContext) — halaman tetap dapat diakses
+    // (lihat canAccess), tapi TIDAK ditampilkan di sidebar agar tetap bersih.
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canAccess();
+        return (bool) auth()->user()?->isDesaAdmin();
     }
 
     /**

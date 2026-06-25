@@ -31,11 +31,12 @@ class UmkmProfileResource extends Resource
         return 'UMKM';
     }
 
-    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
-    // mengelola sebuah desa (masuk lewat aksi "Kelola › UMKM" di menu Desa).
+    // Hanya admin desa yang melihat menu UMKM di sidebar. Super admin masuk lewat
+    // aksi "Kelola › UMKM" di tabel Desa (DesaContext) — halaman tetap dapat diakses
+    // (lihat canAccess), tapi TIDAK ditampilkan di sidebar agar tetap bersih.
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canAccess();
+        return (bool) auth()->user()?->isDesaAdmin();
     }
 
     /**
