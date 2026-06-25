@@ -56,6 +56,8 @@ class DesaForm
                             ->required()
                             ->searchable()
                             ->native(false)
+                            // Live agar pratinjau "Nama admin (otomatis)" ikut berubah.
+                            ->live()
                             ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
 
                         Select::make('jenis_sub_unit_id')
