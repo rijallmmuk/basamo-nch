@@ -93,10 +93,11 @@ class DesaForm
                             ->defaultItems(0) // mulai kosong → create tanpa sub-unit tetap valid
                             ->addActionLabel(fn (Get $get): string => 'Tambah '.(self::subUnitName($get) ?: 'sub-unit'))
                             ->schema([
+                                // Di DALAM repeater → pakai path '../../' agar baca sebutan di level form.
                                 TextInput::make('nama')
-                                    ->label(fn (Get $get): string => 'Nama '.(self::subUnitName($get) ?: 'sub-unit'))
+                                    ->label(fn (Get $get): string => 'Nama '.(self::subUnitName($get, '../../jenis_sub_unit_id') ?: 'sub-unit'))
                                     // Prefix sebutan → jelas tak perlu mengetik awalannya lagi.
-                                    ->prefix(fn (Get $get): string => self::subUnitName($get) ?: 'Sub-unit')
+                                    ->prefix(fn (Get $get): string => self::subUnitName($get, '../../jenis_sub_unit_id') ?: 'Sub-unit')
                                     ->required()
                                     ->maxLength(255)
                                     ->placeholder('mis. Koto Tuo'),
@@ -252,10 +253,13 @@ class DesaForm
         $set('admin_username_display', Desa::usernameFromKode($kode));
     }
 
-    /** Sebutan sub-unit terpilih (Jorong/Dusun/…) dari state form, untuk label dinamis. */
-    protected static function subUnitName(Get $get): ?string
+    /**
+     * Sebutan sub-unit terpilih (Jorong/Dusun/…) untuk label dinamis. `$path` perlu
+     * `../../jenis_sub_unit_id` saat dipanggil dari DALAM Repeater (state ter-scope ke item).
+     */
+    protected static function subUnitName(Get $get, string $path = 'jenis_sub_unit_id'): ?string
     {
-        $id = $get('jenis_sub_unit_id');
+        $id = $get($path);
 
         return $id ? JenisSubUnit::find($id)?->nama : null;
     }
