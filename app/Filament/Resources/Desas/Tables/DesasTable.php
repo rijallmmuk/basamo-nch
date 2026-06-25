@@ -98,13 +98,13 @@ class DesasTable
 
                 TrashedFilter::make(),
             ])
+            // Semua aksi baris dalam satu menu ⋮ (pola sama dgn halaman Warga). "Kelola"
+            // = pintu masuk konteks desa (DesaContext) ke resource yang dipakai-ulang dari
+            // panel admin desa. Klik baris tetap membuka Edit (lihat recordUrl).
             ->recordActions([
-                // Pintu masuk "kelola desa X": tiap aksi menyetel konteks desa (session)
-                // lalu mengalihkan ke resource terkait yang dipakai-ulang dari panel admin
-                // desa. Lihat UserResource/DesaUnitResource/UmkmProfileResource + DesaContext.
                 ActionGroup::make([
                     Action::make('kelolaWarga')
-                        ->label('Warga')
+                        ->label('Kelola Warga')
                         ->icon('heroicon-o-users')
                         ->action(function (Desa $record) {
                             DesaContext::set($record->getKey());
@@ -113,7 +113,7 @@ class DesasTable
                         }),
 
                     Action::make('kelolaWilayah')
-                        ->label('Wilayah')
+                        ->label('Kelola Wilayah')
                         ->icon('heroicon-o-map-pin')
                         ->action(function (Desa $record) {
                             DesaContext::set($record->getKey());
@@ -122,48 +122,45 @@ class DesasTable
                         }),
 
                     Action::make('kelolaUmkm')
-                        ->label('UMKM')
+                        ->label('Kelola UMKM')
                         ->icon('heroicon-o-building-storefront')
                         ->action(function (Desa $record) {
                             DesaContext::set($record->getKey());
 
                             return redirect(UmkmProfileResource::getUrl('index'));
                         }),
-                ])
-                    ->label('Kelola')
-                    ->icon('heroicon-o-squares-2x2')
-                    ->button()
-                    ->color('primary'),
 
-                // Reset OTP admin desa — penempatan & perilaku identik aksi "Reset OTP"
-                // warga (blank → 6 digit otomatis; isi → kustom). Muncul bila admin ada.
-                Action::make('resetOtpAdmin')
-                    ->label('Reset OTP Admin')
-                    ->icon('heroicon-o-key')
-                    ->color('warning')
-                    ->visible(fn (Desa $record): bool => $record->desaAdmin()->exists())
-                    ->modalHeading('Terbitkan OTP baru')
-                    ->modalDescription('Sandi lama admin desa tidak berlaku lagi. Admin login dengan OTP baru lalu wajib menggantinya.')
-                    ->modalIcon('heroicon-o-key')
-                    ->modalSubmitActionLabel('Terbitkan')
-                    ->schema([
-                        TextInput::make('otp')
-                            ->label('Kode OTP')
-                            ->helperText('Kosongkan untuk membuat kode 6 digit otomatis.')
-                            ->minLength(4)
-                            ->maxLength(12),
-                    ])
-                    ->action(fn (Desa $record, array $data) => DesaResource::resetAdminOtp($record, $data['otp'] ?? null)),
+                    // Reset OTP admin — perilaku identik aksi "Reset OTP" warga
+                    // (blank → 6 digit otomatis; isi → kustom). Muncul bila admin ada.
+                    Action::make('resetOtpAdmin')
+                        ->label('Reset OTP Admin')
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->visible(fn (Desa $record): bool => $record->desaAdmin()->exists())
+                        ->modalHeading('Terbitkan OTP baru')
+                        ->modalDescription('Sandi lama admin desa tidak berlaku lagi. Admin login dengan OTP baru lalu wajib menggantinya.')
+                        ->modalIcon('heroicon-o-key')
+                        ->modalSubmitActionLabel('Terbitkan')
+                        ->schema([
+                            TextInput::make('otp')
+                                ->label('Kode OTP')
+                                ->helperText('Kosongkan untuk membuat kode 6 digit otomatis.')
+                                ->minLength(4)
+                                ->maxLength(12),
+                        ])
+                        ->action(fn (Desa $record, array $data) => DesaResource::resetAdminOtp($record, $data['otp'] ?? null)),
 
-                // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
-                DeleteAction::make()
-                    ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
-                    ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
-                RestoreAction::make()
-                    ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
-                ForceDeleteAction::make()
-                    ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
+                    // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
+                    DeleteAction::make()
+                        ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
+                        ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
+                    RestoreAction::make()
+                        ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
+                    ForceDeleteAction::make()
+                        ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
+                ])->tooltip('Aksi'),
             ])
+            ->paginated([10, 25, 50, 100])
             ->defaultSort('nama');
     }
 }

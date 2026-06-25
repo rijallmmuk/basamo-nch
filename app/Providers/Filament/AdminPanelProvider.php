@@ -101,6 +101,11 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.topbar-role-badge')->render(),
             )
+            // Modal pemblokir ganti sandi saat admin masih pakai OTP awal (must_change_password).
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.force-password-change-hook')->render(),
+            )
             ->authMiddleware([
                 Authenticate::class,
                 EnsureAdminPasswordChanged::class,

@@ -64,6 +64,25 @@ it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', 
         ->and($admin->initial_otp)->toBeNull();
 });
 
+it('membuat desa sekaligus sub-unit awal (dedupe nama, abai kosong)', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+
+    Livewire::test(CreateDesa::class)
+        ->fillForm(['wilayah_kode' => '13.06.01.2001', 'jenis_desa_id' => $jenis->id])
+        ->set('data.sub_units', [
+            'k1' => ['nama' => 'Jorong A'],
+            'k2' => ['nama' => 'jorong a'], // duplikat (abai huruf besar/kecil)
+            'k3' => ['nama' => 'Jorong B'],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $desa = Desa::where('wilayah_kode', '13.06.01.2001')->first();
+    expect($desa->desaUnits()->pluck('nama')->sort()->values()->all())->toBe(['Jorong A', 'Jorong B']);
+});
+
 it('membuat desa dengan OTP admin awal eksplisit (konsisten model warga)', function () {
     actingAs(User::factory()->superAdmin()->create());
     $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);

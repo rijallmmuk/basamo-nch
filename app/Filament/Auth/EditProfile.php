@@ -10,8 +10,9 @@ use Illuminate\Support\Str;
 
 /**
  * Profil admin desa. Nama admin FIX ("Admin {nama desa}", dikelola super admin lewat
- * form Desa) → field Nama sengaja dihilangkan agar tak bisa diubah. Tersedia Email,
- * No. HP (opsional), dan ganti sandi — termasuk paksa-ganti saat login pertama.
+ * form Desa) → field Nama sengaja dihilangkan agar tak bisa diubah. Email & No. HP
+ * OPSIONAL (tak wajib), plus ganti sandi. Login pertama dipaksa lewat modal pemblokir
+ * (lihat App\Livewire\ForcePasswordChange), bukan halaman ini.
  * No. HP dinormalkan 62xxx & email huruf kecil, konsisten dgn warga.
  */
 class EditProfile extends BaseEditProfile
@@ -21,6 +22,7 @@ class EditProfile extends BaseEditProfile
         return $schema
             ->components([
                 $this->getEmailFormComponent()
+                    ->required(false) // email admin opsional
                     ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::lower(trim($state)) : null),
 
                 TextInput::make('phone')

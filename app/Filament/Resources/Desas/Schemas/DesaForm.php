@@ -9,6 +9,7 @@ use App\Models\JenisSubUnit;
 use App\Models\RefWilayah;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -50,6 +51,23 @@ class DesaForm
                             // Pilih desa → isi otomatis nama, kode internal, wilayah, koordinat.
                             ->afterStateUpdated(fn (Set $set, ?string $state) => self::applyWilayah($set, $state)),
 
+                        // Tampilkan kode wilayah resmi + lokasi setelah desa dipilih (read-only, live).
+                        Placeholder::make('wilayah_info')
+                            ->label('Kode wilayah')
+                            ->content(function (Get $get): string {
+                                $kode = $get('wilayah_kode');
+
+                                if (! $kode) {
+                                    return '— pilih desa dulu —';
+                                }
+
+                                $lokasi = collect([$get('kecamatan'), $get('kabupaten'), $get('provinsi')])
+                                    ->filter()->implode(', ');
+
+                                return $lokasi ? "{$kode} · {$lokasi}" : $kode;
+                            })
+                            ->columnSpanFull(),
+
                         Select::make('jenis_desa_id')
                             ->label('Penyebutan desa')
                             ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
@@ -74,6 +92,30 @@ class DesaForm
                         Hidden::make('kecamatan'),
                         Hidden::make('koordinat_lat'),
                         Hidden::make('koordinat_lng'),
+                    ]),
+
+                // Sekalian buat sub-unit awal saat membuat desa. Hanya saat CREATE; setelah
+                // itu dikelola via "Kelola Wilayah" (agar guard anti-orphan tetap berlaku).
+                // Tak dehidrasi → diproses manual di CreateDesa::handleRecordCreation.
+                Section::make('Wilayah / Sub-unit')
+                    ->icon(Heroicon::OutlinedMapPin)
+                    ->columnSpanFull()
+                    ->visible(fn (string $operation): bool => $operation === 'create')
+                    ->schema([
+                        Repeater::make('sub_units')
+                            ->label('Sub-unit awal (opsional)')
+                            ->helperText('Daftar awal sub-unit (Jorong/Dusun/…). Bisa ditambah atau diubah nanti lewat "Kelola Wilayah".')
+                            ->dehydrated(false)
+                            ->defaultItems(0) // mulai kosong → create tanpa sub-unit tetap valid
+                            ->addActionLabel('Tambah sub-unit')
+                            ->schema([
+                                TextInput::make('nama')
+                                    ->label('Nama')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('mis. Koto Tuo'),
+                            ])
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Akun admin desa')
