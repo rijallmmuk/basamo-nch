@@ -38,6 +38,8 @@ class DesaUnitForm
 
                         TextInput::make('nama')
                             ->label("Nama {$sebutan}")
+                            // Prefix sebutan di awal field → jelas tak perlu mengetik "{$sebutan}" lagi.
+                            ->prefix($sebutan)
                             ->required()
                             ->maxLength(255)
                             ->helperText("Cukup namanya saja, tanpa kata \"{$sebutan}\". Mis. Koto Tuo.")

@@ -34,6 +34,9 @@ class EditDesa extends EditRecord
 
         // Username read-only ditampilkan dari admin yang ada, atau diturunkan dari kode.
         $data['admin_username_display'] = $admin?->username ?? $this->record->defaultAdminUsername();
+        // OTP read-only: tampilkan OTP yang masih tertunda (bila ada); kosong = sudah
+        // diganti / belum diterbitkan (placeholder field yang menjelaskan).
+        $data['admin_otp_current'] = $admin?->initial_otp;
         $data['admin_email'] = $admin?->email;
         $data['admin_kontak'] = $admin?->phone;
 

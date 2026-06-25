@@ -95,6 +95,8 @@ class DesaForm
                             ->schema([
                                 TextInput::make('nama')
                                     ->label(fn (Get $get): string => 'Nama '.(self::subUnitName($get) ?: 'sub-unit'))
+                                    // Prefix sebutan → jelas tak perlu mengetik awalannya lagi.
+                                    ->prefix(fn (Get $get): string => self::subUnitName($get) ?: 'Sub-unit')
                                     ->required()
                                     ->maxLength(255)
                                     ->placeholder('mis. Koto Tuo'),
@@ -120,6 +122,27 @@ class DesaForm
                             ->placeholder('Otomatis dari nama desa')
                             ->helperText('Otomatis dari kode nagari — dipakai admin untuk login. Tak bisa diubah.'),
 
+                        // Sebelah username (kolom kedua). Saat akun admin BELUM ada → editable
+                        // "Kode OTP awal"; logika identik "Kode OTP awal" warga.
+                        TextInput::make('admin_otp')
+                            ->label('Kode OTP awal')
+                            ->minLength(4)
+                            ->maxLength(12)
+                            ->dehydrated(false)
+                            ->prefixIcon(Heroicon::OutlinedKey)
+                            ->visible(fn (?Model $record): bool => ! ($record instanceof Desa && $record->desaAdmin()->exists()))
+                            ->helperText('Opsional. Isi untuk menetapkan OTP sekarang; kosongkan & terbitkan nanti lewat aksi "Reset OTP Admin". Wajib diganti saat login pertama.'),
+
+                        // Saat admin SUDAH ada (edit) → tampil read-only; reset lewat aksi.
+                        TextInput::make('admin_otp_current')
+                            ->label('Kode OTP')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->prefixIcon(Heroicon::OutlinedKey)
+                            ->placeholder('Sudah diganti / belum diterbitkan')
+                            ->visible(fn (?Model $record): bool => $record instanceof Desa && $record->desaAdmin()->exists())
+                            ->helperText('Read-only. Untuk menerbitkan OTP baru, gunakan aksi "Reset OTP Admin" (menu aksi di daftar Desa).'),
+
                         TextInput::make('admin_email')
                             ->label('Email admin')
                             ->email()
@@ -138,18 +161,6 @@ class DesaForm
                             ->dehydrated(false)
                             ->prefixIcon(Heroicon::OutlinedPhone)
                             ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…'),
-
-                        // Hanya saat akun admin BELUM ada (buat desa, atau edit desa yang
-                        // belum punya admin). Admin yang sudah ada → reset lewat aksi
-                        // "Reset OTP Admin". Logika identik dgn "Kode OTP awal" warga.
-                        TextInput::make('admin_otp')
-                            ->label('Kode OTP awal')
-                            ->minLength(4)
-                            ->maxLength(12)
-                            ->dehydrated(false)
-                            ->prefixIcon(Heroicon::OutlinedKey)
-                            ->visible(fn (?Model $record): bool => ! ($record instanceof Desa && $record->desaAdmin()->exists()))
-                            ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP Admin" saat admin siap login. Wajib diganti saat login pertama.'),
                     ]),
 
                 Section::make('Status')
