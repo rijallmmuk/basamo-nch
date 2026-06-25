@@ -6,6 +6,39 @@
 
 ---
 
+## Sesi 2026-06-26 — Polish UX tabel admin (non-klik + aksi), drill-in sidebar, kurasi kolom, balas diskusi
+
+Branch `feat/ref-wilayah-sumbar`. Suite **242 (240 lulus, 2 skip)**. Pint bersih. **5 commit, di-push**
+(`c4bc352 · d98b056 · cd76e3a · 4dfdc77 · c03a141`). Belum merge. Sesi banyak iterasi UI bersama user.
+
+- **Pola tabel baru (REVISI user, ganti pola lama "klik baris → edit/view"):** baris tabel **TIDAK dapat
+  diklik** (`->recordUrl(null)`) di **Desa, Warga, Wilayah, Modul, Quiz, Diskusi** → buka **Ubah lewat
+  tombol aksi**. Aksi: **Desa & Warga = menu ⋮ (ActionGroup)** (aksi banyak); **Wilayah/Modul/Quiz =
+  inline/sejajar** (sedikit). **Aksi Ubah inline diberi warna kuning** (`->color('warning')`) di
+  Wilayah/Modul/Quiz (permintaan user). Lihat [[admin-ui-conventions]] (sudah diperbarui).
+- **Halaman Lihat DIHAPUS** untuk **Desa** (ViewDesa/DesaInfolist) & **Warga** (ViewUser/UserInfolist) →
+  resource hanya index/create/edit. Tes `PendudukTest` "halaman lihat warga" dialihkan ke `EditUser`
+  (assertFormSet identitas penduduk termuat). CATATAN ITERASI (dibatalkan, JANGAN diulang): sempat dicoba
+  kelola sub-unit INLINE di form Desa + DesaInfolist + halaman Lihat read-only Desa/Warga — semua dihapus.
+- **Drill-in: menu per-desa DISEMBUNYIKAN dari sidebar super admin** (commit 4dfdc77). Dulu masuk konteks
+  desa (Kelola Warga/Wilayah/UMKM) → DesaContext aktif → ketiga menu muncul di sidebar (membingungkan).
+  Fix: `shouldRegisterNavigation()` di UserResource/DesaUnitResource/UmkmProfileResource = **hanya
+  `isDesaAdmin()`** (dipisah dari `canAccess()` yg tetap izinkan super admin saat konteks). Sidebar super
+  admin tetap bersih (Desa+LMS); navigasi per-desa via aksi tabel Desa + "Kembali ke Desa".
+- **Tabel Wilayah:** nama sub-unit **diprefiks sebutan** (mis. "Jorong Koto Tuo") via `formatStateUsing`
+  (search/sort tetap pakai `nama` mentah).
+- **Kurasi kolom Modul (permintaan user):** **hapus kolom Materi/Durasi/Urutan** (buang `withCount('pages')`).
+  Default: No./Cover/Judul/Desa/Status/Kuis; sekunder (toggle "Kolom"): Prasyarat (eager-load
+  `prerequisite`)/Dibuat oleh/Dibuat. Pengurutan modul tetap (drag, field `urutan` ada).
+- **Diskusi: aksi "Balas"** — admin (super & desa, gate `can('update')`) menjawab pertanyaan warga;
+  balasan via `$record->replies()->create([module_id,user_id=auth,isi])` atas nama admin, hanya pada
+  pertanyaan top-level belum dihapus, TANPA XP. Tes baru di `DiscussionModerationTest`.
+- **Label "Global" → "Semua"** se-aplikasi (user): kolom Desa modul="Semua", placeholder form="— Semua
+  desa —", badge portal="Semua Desa" (perlu `npm run build`), filter="Semua (termasuk semua-desa)".
+  Komentar kode & `withoutGlobalScopes` dibiarkan (bukan teks user-facing).
+
+---
+
 ## Sesi 2026-06-25 — Hardening menyeluruh admin (Warga/Desa/Wilayah/UMKM) + audit LMS + model akun/OTP seragam
 
 Branch `feat/ref-wilayah-sumbar`. Suite **235 (233 lulus, 2 skip)**. Pint bersih. **6 commit di-push akhir

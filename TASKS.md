@@ -8,8 +8,14 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
-- [x] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — sudah di-push (s/d `29dfb3f`). Tak ada git tertunda.
-- [ ] **Cek browser** drill-in: Desa → "Kelola Warga" → halaman Warga desa → "Kembali ke Desa"; peta Pengaturan Desa.
+- [x] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — di-push s/d `c03a141` (sesi 2026-06-26).
+- [x] **Polish UX tabel admin (2026-06-26)** — semua tabel (Desa/Warga/Wilayah/Modul/Quiz/Diskusi) baris
+      non-klik + Ubah via aksi (kuning di Wilayah/Modul/Quiz); hapus halaman Lihat Desa/Warga; menu per-desa
+      disembunyikan dari sidebar super admin; kurasi kolom Modul; aksi Balas diskusi (admin); Global→Semua.
+- [ ] **Cek browser (NEXT)** — (a) semua tabel: baris tak bisa diklik, Ubah lewat aksi; (b) sidebar super
+      admin bersih saat masuk konteks "Kelola …"; (c) Diskusi: aksi "Balas" admin → muncul di thread portal;
+      (d) badge portal "Semua Desa" (jalankan `npm run build` dulu); (e) peta Pengaturan Desa.
+- [ ] **Konfirmasi: aksi "Balas" diskusi** — kini super & desa admin; user mungkin mau khusus super admin.
 - [ ] **(Opsional) PR `feat/ref-wilayah-sumbar` → main** bila sudah mantap.
 - [ ] **Drill-in lanjutan super admin** (ditunda): UMKM / Wilayah / Modul per-desa (pola `managedDesaId`).
       Tanyakan prioritas dulu.
