@@ -8,7 +8,6 @@ use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use App\Models\RefWilayah;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -46,27 +45,10 @@ class DesaForm
                             // boleh dipakai ulang (lihat migrasi unique wilayah_kode + deleted_at).
                             ->unique(Desa::class, 'wilayah_kode', ignoreRecord: true, modifyRuleUsing: fn (Unique $rule): Unique => $rule->withoutTrashed())
                             ->prefixIcon(Heroicon::OutlinedMagnifyingGlass)
-                            ->helperText('Mulai ketik nama desa untuk mencari.')
+                            ->helperText('Mulai ketik nama desa untuk mencari. Kode wilayah ikut tampil pada pilihan.')
                             ->columnSpanFull()
                             // Pilih desa → isi otomatis nama, kode internal, wilayah, koordinat.
                             ->afterStateUpdated(fn (Set $set, ?string $state) => self::applyWilayah($set, $state)),
-
-                        // Tampilkan kode wilayah resmi + lokasi setelah desa dipilih (read-only, live).
-                        Placeholder::make('wilayah_info')
-                            ->label('Kode wilayah')
-                            ->content(function (Get $get): string {
-                                $kode = $get('wilayah_kode');
-
-                                if (! $kode) {
-                                    return '— pilih desa dulu —';
-                                }
-
-                                $lokasi = collect([$get('kecamatan'), $get('kabupaten'), $get('provinsi')])
-                                    ->filter()->implode(', ');
-
-                                return $lokasi ? "{$kode} · {$lokasi}" : $kode;
-                            })
-                            ->columnSpanFull(),
 
                         Select::make('jenis_desa_id')
                             ->label('Penyebutan desa')
@@ -83,6 +65,8 @@ class DesaForm
                             ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
                             ->searchable()
                             ->native(false)
+                            // Live agar judul & label section sub-unit ikut sebutan terpilih.
+                            ->live()
                             ->helperText('Bagian dalam desa — mis. Jorong / Dusun / Lingkungan. Boleh dikosongkan; admin desa dapat mengaturnya sendiri.'),
 
                         // Diisi otomatis dari pilihan desa (disimpan denormalized untuk display cepat).
@@ -97,20 +81,20 @@ class DesaForm
                 // Sekalian buat sub-unit awal saat membuat desa. Hanya saat CREATE; setelah
                 // itu dikelola via "Kelola Wilayah" (agar guard anti-orphan tetap berlaku).
                 // Tak dehidrasi → diproses manual di CreateDesa::handleRecordCreation.
-                Section::make('Wilayah / Sub-unit')
+                Section::make(fn (Get $get): string => self::subUnitName($get) ?: 'Wilayah / Sub-unit')
                     ->icon(Heroicon::OutlinedMapPin)
                     ->columnSpanFull()
                     ->visible(fn (string $operation): bool => $operation === 'create')
                     ->schema([
                         Repeater::make('sub_units')
-                            ->label('Sub-unit awal (opsional)')
-                            ->helperText('Daftar awal sub-unit (Jorong/Dusun/…). Bisa ditambah atau diubah nanti lewat "Kelola Wilayah".')
+                            ->label(fn (Get $get): string => ($s = self::subUnitName($get)) ? "Daftar {$s} (opsional)" : 'Sub-unit awal (opsional)')
+                            ->helperText(fn (Get $get): string => 'Daftar awal '.(self::subUnitName($get) ?: 'sub-unit').'. Bisa ditambah atau diubah nanti lewat "Kelola Wilayah".')
                             ->dehydrated(false)
                             ->defaultItems(0) // mulai kosong → create tanpa sub-unit tetap valid
-                            ->addActionLabel('Tambah sub-unit')
+                            ->addActionLabel(fn (Get $get): string => 'Tambah '.(self::subUnitName($get) ?: 'sub-unit'))
                             ->schema([
                                 TextInput::make('nama')
-                                    ->label('Nama')
+                                    ->label(fn (Get $get): string => 'Nama '.(self::subUnitName($get) ?: 'sub-unit'))
                                     ->required()
                                     ->maxLength(255)
                                     ->placeholder('mis. Koto Tuo'),
@@ -124,34 +108,17 @@ class DesaForm
                     ->collapsible()
                     ->columns(2)
                     ->schema([
-                        // Username & Nama admin FIX & OTOMATIS (tak bisa diubah): username =
-                        // kode nagari (analog warga login pakai NIK), nama = "Admin {nama desa}".
-                        // Read-only, ikut pilihan "Nama desa" di atas (live).
-                        Placeholder::make('admin_username_display')
-                            ->label('Username admin (otomatis)')
-                            ->content(function (?Model $record, Get $get): string {
-                                $kode = $record instanceof Desa ? $record->wilayah_kode : $get('wilayah_kode');
-
-                                return Desa::usernameFromKode($kode) ?: '— pilih nama desa dulu —';
-                            }),
-
-                        Placeholder::make('admin_name_display')
-                            ->label('Nama admin (otomatis)')
-                            ->content(function (?Model $record, Get $get): string {
-                                if ($record instanceof Desa) {
-                                    return 'Admin '.$record->nama_lengkap;
-                                }
-
-                                $nama = $get('nama');
-                                if (! $nama) {
-                                    return '— pilih nama desa dulu —';
-                                }
-
-                                // Susun nama_lengkap untuk pratinjau saat create (jenis + nama).
-                                $jenis = JenisDesa::find($get('jenis_desa_id'))?->nama;
-
-                                return 'Admin '.trim(($jenis ? $jenis.' ' : '').$nama);
-                            }),
+                        // Username admin OTOMATIS & FIX dari kode nagari (analog warga login
+                        // pakai NIK). Ditampilkan sebagai field read-only (disabled) yang ikut
+                        // berubah saat "Nama desa" dipilih (di-set di applyWilayah / saat edit).
+                        // Nama admin tak ditampilkan (otomatis "Admin {nama desa}" di server).
+                        TextInput::make('admin_username_display')
+                            ->label('Username admin')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->prefixIcon(Heroicon::OutlinedAtSymbol)
+                            ->placeholder('Otomatis dari nama desa')
+                            ->helperText('Otomatis dari kode nagari — dipakai admin untuk login. Tak bisa diubah.'),
 
                         TextInput::make('admin_email')
                             ->label('Email admin')
@@ -229,12 +196,13 @@ class DesaForm
             ->limit(50)
             ->get(['d.kode', 'd.nama', 'kec.nama as kec_nama', 'kab.nama as kab_nama'])
             ->mapWithKeys(fn (object $r): array => [
-                $r->kode => "{$r->nama} · {$r->kec_nama}, {$r->kab_nama}",
+                // Sertakan kode wilayah pada label agar ikut tampil di field "Nama desa".
+                $r->kode => "{$r->nama} · {$r->kec_nama}, {$r->kab_nama} — {$r->kode}",
             ])
             ->all();
     }
 
-    /** Label desa terpilih (untuk hidrasi saat edit). */
+    /** Label desa terpilih (untuk hidrasi saat edit) — termasuk kode wilayah. */
     protected static function desaLabel(?string $kode): ?string
     {
         if (! $kode) {
@@ -250,7 +218,7 @@ class DesaForm
         $kec = RefWilayah::find(self::ancestor($kode, 3))?->nama;
         $kab = RefWilayah::find(self::ancestor($kode, 2))?->nama;
 
-        return "{$desa->nama} · {$kec}, {$kab}";
+        return "{$desa->nama} · {$kec}, {$kab} — {$kode}";
     }
 
     /** Isi field tersembunyi dari desa terpilih: nama, wilayah, koordinat. */
@@ -268,6 +236,17 @@ class DesaForm
         $geo = DB::table('wilayah_boundaries')->where('kode', $kode)->first(['lat', 'lng']);
         $set('koordinat_lat', $geo->lat ?? null);
         $set('koordinat_lng', $geo->lng ?? null);
+
+        // Pratinjau username admin (read-only) ikut kode terpilih.
+        $set('admin_username_display', Desa::usernameFromKode($kode));
+    }
+
+    /** Sebutan sub-unit terpilih (Jorong/Dusun/…) dari state form, untuk label dinamis. */
+    protected static function subUnitName(Get $get): ?string
+    {
+        $id = $get('jenis_sub_unit_id');
+
+        return $id ? JenisSubUnit::find($id)?->nama : null;
     }
 
     /** Kode leluhur pada `n` segmen pertama (1=prov, 2=kab, 3=kec). */

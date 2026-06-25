@@ -32,6 +32,8 @@ class EditDesa extends EditRecord
     {
         $admin = $this->record->desaAdmin()->first();
 
+        // Username read-only ditampilkan dari admin yang ada, atau diturunkan dari kode.
+        $data['admin_username_display'] = $admin?->username ?? $this->record->defaultAdminUsername();
         $data['admin_email'] = $admin?->email;
         $data['admin_kontak'] = $admin?->phone;
 

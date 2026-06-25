@@ -241,7 +241,9 @@ class UsersTable
                         }),
 
                     DeleteAction::make(),
-                ])->tooltip('Aksi'),
+                ])
+                    ->icon('heroicon-m-squares-2x2')
+                    ->tooltip('Aksi'),
             ])
             // Tanpa aksi massal → tak ada checkbox pilih baris. Hapus/pulihkan/hapus
             // permanen per-baris tersedia via menu ⋮ dan halaman Edit.

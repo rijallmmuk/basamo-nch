@@ -158,7 +158,9 @@ class DesasTable
                         ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
                     ForceDeleteAction::make()
                         ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
-                ])->tooltip('Aksi'),
+                ])
+                    ->icon('heroicon-m-squares-2x2')
+                    ->tooltip('Aksi'),
             ])
             ->paginated([10, 25, 50, 100])
             ->defaultSort('nama');
