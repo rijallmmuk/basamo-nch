@@ -4,10 +4,8 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Desas\DesaResource;
 use App\Filament\Resources\Users\UserResource;
-use App\Imports\WargaImport;
+use App\Jobs\ImportWarga;
 use App\Models\DesaUnit;
-use App\Models\User;
-use App\Services\WargaImportService;
 use App\Services\WargaTemplateBuilder;
 use App\Support\DesaContext;
 use Filament\Actions\Action;
@@ -17,7 +15,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ListUsers extends ListRecords
@@ -94,7 +91,7 @@ class ListUsers extends ListRecords
             ->icon('heroicon-o-arrow-up-tray')
             ->color('gray')
             ->modalHeading('Impor Warga dari Excel')
-            ->modalDescription('Unggah file sesuai template. Tiap baris dibuat sebagai warga baru di desa terkait. OTP diterbitkan terpisah lewat aksi "Reset OTP".')
+            ->modalDescription('Unggah file sesuai template. Tiap baris dibuat sebagai warga baru di desa terkait. Diproses di latar belakang; hasilnya muncul di lonceng notifikasi. OTP diterbitkan terpisah lewat aksi "Reset OTP".')
             ->modalSubmitActionLabel('Impor')
             ->schema([
                 FileUpload::make('file')
@@ -111,7 +108,6 @@ class ListUsers extends ListRecords
                     ->required(),
             ])
             ->action(function (array $data): void {
-                /** @var User $actor */
                 $actor = auth()->user();
                 $path = $data['file'];
 
@@ -123,16 +119,15 @@ class ListUsers extends ListRecords
                     return;
                 }
 
-                $import = new WargaImport($actor, app(WargaImportService::class));
+                // Proses di latar belakang (queue) → file besar tak mem-block / timeout.
+                // Desa diteruskan eksplisit; job tak punya konteks sesi.
+                ImportWarga::dispatch($path, (int) $actor->managedDesaId(), $actor->getKey());
 
-                try {
-                    Excel::import($import, $path, 'local');
-                } finally {
-                    // Berkas unggahan bersifat sementara — selalu bersihkan.
-                    Storage::disk('local')->delete($path);
-                }
-
-                $this->notifyResult($import);
+                Notification::make()
+                    ->title('Impor sedang diproses')
+                    ->body('Warga ditambahkan di latar belakang. Hasilnya akan muncul di lonceng notifikasi saat selesai.')
+                    ->info()
+                    ->send();
             });
     }
 
@@ -165,35 +160,6 @@ class ListUsers extends ListRecords
         Notification::make()
             ->title('Lengkapi data Wilayah dulu')
             ->body($pesan)
-            ->warning()
-            ->persistent()
-            ->send();
-    }
-
-    private function notifyResult(WargaImport $import): void
-    {
-        if ($import->errors === []) {
-            Notification::make()
-                ->title('Impor selesai')
-                ->body("{$import->imported} warga berhasil ditambahkan.")
-                ->success()
-                ->send();
-
-            return;
-        }
-
-        $preview = collect($import->errors)
-            ->take(10)
-            ->map(fn (array $e): string => "Baris {$e['baris']}: {$e['pesan']}")
-            ->implode("\n");
-
-        $sisa = count($import->errors) - 10;
-        $body = "{$import->imported} berhasil, ".count($import->errors)." gagal.\n".$preview
-            .($sisa > 0 ? "\n…dan {$sisa} baris lain." : '');
-
-        Notification::make()
-            ->title('Impor selesai dengan sebagian gagal')
-            ->body($body)
             ->warning()
             ->persistent()
             ->send();

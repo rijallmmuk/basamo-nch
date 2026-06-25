@@ -1,6 +1,8 @@
 <?php
 
 use App\Filament\Resources\Desas\Pages\ListDesas;
+use App\Filament\Resources\DesaUnits\DesaUnitResource;
+use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
 use App\Models\User;
@@ -45,6 +47,50 @@ it('aksi "Kelola Warga" menyetel konteks desa lalu mengalihkan ke halaman Warga'
     Livewire::test(ListDesas::class)
         ->callTableAction('kelolaWarga', $desa)
         ->assertRedirect(UserResource::getUrl('index'));
+
+    expect(DesaContext::id())->toBe($desa->id);
+});
+
+it('super admin: akses Wilayah butuh konteks desa (tanpa konteks ditolak)', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->superAdmin()->create());
+
+    expect(DesaUnitResource::canAccess())->toBeFalse();
+
+    DesaContext::set($desa->id);
+    expect(DesaUnitResource::canAccess())->toBeTrue()
+        ->and(DesaUnitResource::shouldRegisterNavigation())->toBeTrue();
+});
+
+it('aksi "Kelola Wilayah" menyetel konteks desa lalu mengalihkan ke halaman Wilayah', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->superAdmin()->create());
+
+    Livewire::test(ListDesas::class)
+        ->callTableAction('kelolaWilayah', $desa)
+        ->assertRedirect(DesaUnitResource::getUrl('index'));
+
+    expect(DesaContext::id())->toBe($desa->id);
+});
+
+it('super admin: akses UMKM butuh konteks desa (tanpa konteks ditolak)', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->superAdmin()->create());
+
+    expect(UmkmProfileResource::canAccess())->toBeFalse();
+
+    DesaContext::set($desa->id);
+    expect(UmkmProfileResource::canAccess())->toBeTrue()
+        ->and(UmkmProfileResource::shouldRegisterNavigation())->toBeTrue();
+});
+
+it('aksi "Kelola › UMKM" menyetel konteks desa lalu mengalihkan ke halaman Profil UMKM', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->superAdmin()->create());
+
+    Livewire::test(ListDesas::class)
+        ->callTableAction('kelolaUmkm', $desa)
+        ->assertRedirect(UmkmProfileResource::getUrl('index'));
 
     expect(DesaContext::id())->toBe($desa->id);
 });

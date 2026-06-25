@@ -203,6 +203,32 @@ it('admin nagari tidak bisa lihat data nagari lain', function () {
 
 ---
 
+## Glosarium istilah UI (wajib konsisten)
+
+> Satu konsep = satu kata di SELURUH antarmuka. Jangan pakai sinonim beda halaman.
+> Saat menambah label/teks baru, cek tabel ini dulu.
+
+| Konsep | Kata kanonik (UI) | JANGAN pakai |
+|---|---|---|
+| Bagian dalam desa (Jorong/Korong/Dusun) | sebutan dinamis dari `jenis_sub_unit`; **fallback "Wilayah"** | "Sub-Unit Wilayah", "Sub-unit" (sbg label tampil), "Daerah" |
+| Field jenis penyebutan setingkat desa | **"Penyebutan desa"** | "Penyebutan wilayah", "Jenis desa" |
+| Field jenis sebutan sub-unit | **"Sebutan sub-unit"** | "Sebutan sub-unit (opsional)", "Jenis wilayah" |
+| Akun penduduk di panel | **"Warga"** | "Penduduk", "Pengguna", "User" (Penduduk = istilah internal tabel identitas saja) |
+| Nomor telepon personal (warga & admin) | **"No. HP"** | "No HP", "Telepon", "Kontak admin" |
+| Nomor kontak bisnis UMKM | **"No. WhatsApp"** (field `whatsapp`, KHUSUS UMKM) | "No. HP" (UMKM sengaja terpisah: nomor bisnis warga) |
+| Soft delete (hapus + bisa dipulihkan) | kosakata **"Hapus" / "Dihapus"** (ikuti default Filament) | "Arsip", "Arsipkan", "Diarsipkan" |
+| Penyebutan administratif desa | per-desa via field `jenis_desa` (Desa/Nagari/Kelurahan) | jangan hardcode "Desa" di teks identitas desa |
+
+Catatan:
+- Fallback "Wilayah" muncul bila admin desa belum mengatur `jenis_sub_unit`. Begitu
+  diatur (mis. "Jorong"), label otomatis mengikuti — termasuk menu, form, tabel,
+  infolist Warga, dan judul kolom template impor.
+- Nomor HP personal (warga & admin desa) disimpan di `users.phone` dengan format
+  ternormalisasi `62xxx` (`PhoneNumber::normalize`). Nomor WhatsApp UMKM (`umkm_profiles.whatsapp`)
+  adalah field bisnis terpisah — warga bisa pakai nomor berbeda untuk usahanya.
+
+---
+
 ## Git
 
 ```bash

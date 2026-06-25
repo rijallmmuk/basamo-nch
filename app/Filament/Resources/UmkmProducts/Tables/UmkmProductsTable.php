@@ -16,6 +16,10 @@ class UmkmProductsTable
 {
     public static function configure(Table $table): Table
     {
+        // Ter-scope ke satu desa (desa_admin, atau super admin via "Kelola › UMKM")
+        // → kolom Desa tak relevan.
+        $scopedToDesa = auth()->user()?->managedDesaId() !== null;
+
         return $table
             ->columns([
                 TextColumn::make('no')
@@ -32,7 +36,7 @@ class UmkmProductsTable
 
                 TextColumn::make('umkmProfile.desa.nama')
                     ->label('Desa')
-                    ->visible(fn () => auth()->user()?->isSuperAdmin()),
+                    ->visible(! $scopedToDesa),
 
                 TextColumn::make('harga')
                     ->label('Harga')

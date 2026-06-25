@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\User;
+use App\Models\Desa;
 use App\Services\WargaImportService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -32,7 +32,7 @@ class WargaImport implements ToCollection, WithHeadingRow, WithMultipleSheets
     private array $seenNik = [];
 
     public function __construct(
-        private User $actor,
+        private Desa $desa,
         private WargaImportService $service,
     ) {}
 
@@ -50,7 +50,7 @@ class WargaImport implements ToCollection, WithHeadingRow, WithMultipleSheets
             }
 
             try {
-                $this->service->createFromRow($data, $this->actor, $this->seenNik);
+                $this->service->createFromRow($data, $this->desa, $this->seenNik);
                 $this->imported++;
             } catch (Throwable $e) {
                 $this->errors[] = ['baris' => $rowNumber, 'pesan' => $e->getMessage()];

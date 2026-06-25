@@ -41,10 +41,27 @@ class Desa extends Model implements HasMedia
         return trim(($jenis ? $jenis.' ' : '').$this->nama);
     }
 
-    /** Sebutan sub-unit desa ini; fallback umum bila belum diatur admin desa. */
+    /** Sebutan sub-unit desa ini; fallback umum "Wilayah" bila belum diatur admin desa. */
     public function subUnitLabel(): string
     {
-        return $this->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah';
+        return $this->jenisSubUnit?->nama ?: 'Wilayah';
+    }
+
+    /**
+     * Username login admin desa = digit kode nagari (tanpa simbol),
+     * mis. "13.06.01.2001" → "1306012001". Analog warga login pakai NIK.
+     */
+    public static function usernameFromKode(?string $kode): ?string
+    {
+        $digits = preg_replace('/\D/', '', (string) $kode);
+
+        return $digits !== '' ? $digits : null;
+    }
+
+    /** Username admin desa ini, diturunkan dari kode nagari (null bila kode kosong). */
+    public function defaultAdminUsername(): ?string
+    {
+        return static::usernameFromKode($this->wilayah_kode);
     }
 
     public function getActivitylogOptions(): LogOptions

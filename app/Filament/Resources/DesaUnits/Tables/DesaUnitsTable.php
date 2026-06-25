@@ -16,6 +16,10 @@ class DesaUnitsTable
 {
     public static function configure(Table $table): Table
     {
+        // Ter-scope ke satu desa (desa_admin, atau super admin via "Kelola Wilayah")
+        // → kolom & filter Desa tak relevan.
+        $scopedToDesa = auth()->user()?->managedDesaId() !== null;
+
         return $table
             // Klik baris → buka Edit.
             ->recordUrl(fn (DesaUnit $record): string => DesaUnitResource::getUrl('edit', ['record' => $record]))
@@ -34,9 +38,9 @@ class DesaUnitsTable
                     ->badge()
                     ->color('info')
                     ->sortable()
-                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
+                    ->visible(! $scopedToDesa),
 
-                TextColumn::make('users_count')
+                TextColumn::make('warga_count')
                     ->label('Warga')
                     ->badge()
                     ->color('gray'),
@@ -53,14 +57,16 @@ class DesaUnitsTable
                     ->relationship('desa', 'nama')
                     ->searchable()
                     ->preload()
-                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
+                    ->visible(! $scopedToDesa),
 
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->before(fn (DesaUnit $record, DeleteAction $action) => DesaUnitResource::guardAgainstWarga($record, $action)),
                 RestoreAction::make(),
-                ForceDeleteAction::make(),
+                ForceDeleteAction::make()
+                    ->before(fn (DesaUnit $record, ForceDeleteAction $action) => DesaUnitResource::guardAgainstWarga($record, $action, includeTrashed: true)),
             ])
             ->defaultSort('nama', 'asc');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\EditProfile;
 use App\Filament\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\EnsureAdminPasswordChanged;
@@ -33,13 +34,17 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)
-            ->profile(isSimple: false)
+            ->profile(EditProfile::class, isSimple: false)
             ->brandName('Basamo NCH')
             ->brandLogo(fn (): Htmlable => view('filament.brand'))
             ->brandLogoHeight('2.25rem')
             ->font('Plus Jakarta Sans')
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
+            // Lonceng notifikasi: dipakai untuk melaporkan hasil impor warga yang
+            // diproses di latar belakang (queue). Lihat App\Jobs\ImportWarga.
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             // Urutan grup lintas-peran. Hanya grup yang punya item tampil:
             //  super admin → LMS, UMKM (Kategori), Sistem (+ Desa di tingkat atas).
             //  admin desa  → UMKM, Pengaturan (+ Warga di tingkat atas; LMS disembunyikan).

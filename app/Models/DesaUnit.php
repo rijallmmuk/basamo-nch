@@ -32,4 +32,10 @@ class DesaUnit extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /** Warga (akun penduduk) yang beralamat di sub-unit ini — tak termasuk admin. */
+    public function warga(): HasMany
+    {
+        return $this->hasMany(User::class)->where('role', 'warga');
+    }
 }

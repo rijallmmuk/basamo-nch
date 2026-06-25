@@ -11,6 +11,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Notifications\UmkmProductVerified;
+use App\Support\DesaContext;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -27,6 +28,22 @@ it('desa_admin hanya melihat profil UMKM desanya', function () {
     $lain = UmkmProfile::factory()->create(['desa_id' => $desaB->id]);
 
     $this->actingAs($admin);
+
+    Livewire::test(ListUmkmProfiles::class)
+        ->assertCanSeeTableRecords([$milik])
+        ->assertCanNotSeeTableRecords([$lain]);
+});
+
+it('super admin dalam konteks desa hanya melihat UMKM desa itu', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $this->actingAs(User::factory()->superAdmin()->create());
+
+    $milik = UmkmProfile::factory()->create(['desa_id' => $desaA->id]);
+    $lain = UmkmProfile::factory()->create(['desa_id' => $desaB->id]);
+
+    // Masuk konteks "kelola UMKM Desa A" (seperti klik aksi "Kelola › UMKM").
+    DesaContext::set($desaA->id);
 
     Livewire::test(ListUmkmProfiles::class)
         ->assertCanSeeTableRecords([$milik])

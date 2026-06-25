@@ -8,6 +8,7 @@ use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
 use App\Models\Pekerjaan;
+use App\Models\Penduduk;
 use App\Models\StatusPerkawinan;
 use App\Models\User;
 use App\Support\PhoneNumber;
@@ -19,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Str;
 
 /**
  * Form khusus WARGA. Akun admin (super_admin/desa_admin) dikelola lewat alur lain —
@@ -32,9 +34,9 @@ class UserForm
         return $schema
             ->components([
                 // Identitas pribadi (KTP). Sebagian disimpan ke `users` (name, nik),
-                // sebagian ke `penduduk` (jenis_kelamin, tempat/tanggal lahir) — lihat
-                // InteractsWithPenduduk + PendudukService. Pemisahan berdasar nama field,
-                // jadi field demografi boleh berada di section mana pun.
+                // sebagian ke `penduduk` (jenis_kelamin, tempat/tanggal lahir) — pemisahan
+                // dilakukan WargaProvisioningService berdasar nama field, jadi field
+                // demografi boleh berada di section mana pun.
                 Section::make('Identitas')
                     ->icon(Heroicon::OutlinedIdentification)
                     ->columnSpanFull()
@@ -50,7 +52,23 @@ class UserForm
                             ->required()
                             ->rules(['digits:16'])
                             ->helperText('NIK 16 digit — dipakai warga untuk login portal.')
-                            ->unique(User::class, 'nik', ignoreRecord: true),
+                            ->unique(User::class, 'nik', ignoreRecord: true)
+                            // NIK boleh dikoreksi saat edit, tapi tak boleh bentrok dengan
+                            // identitas penduduk lain (1 NIK = 1 orang). Saat create, NIK yang
+                            // sama dengan penduduk tanpa akun sengaja dipakai-ulang (lihat
+                            // PendudukService) — jadi aturan ini hanya berlaku ketika mengedit.
+                            ->rule(
+                                fn (?User $record): Closure => function (string $attribute, $value, Closure $fail) use ($record): void {
+                                    $exists = Penduduk::where('nik', $value)
+                                        ->when($record?->penduduk_id, fn ($q) => $q->whereKeyNot($record->penduduk_id))
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('NIK ini sudah terpakai oleh identitas warga lain.');
+                                    }
+                                },
+                                fn (string $operation): bool => $operation === 'edit',
+                            ),
 
                         TextInput::make('tempat_lahir')
                             ->label('Tempat Lahir')
@@ -160,6 +178,8 @@ class UserForm
                             ->label('Email')
                             ->email()
                             ->maxLength(255)
+                            // Simpan selalu huruf kecil agar konsisten & cegah duplikat beda kapital.
+                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::lower(trim($state)) : null)
                             ->unique(User::class, 'email', ignoreRecord: true),
 
                         TextInput::make('phone')
@@ -187,6 +207,7 @@ class UserForm
                         // (punya efek samping: set password + flag wajib-ganti), bukan form ini.
                         TextInput::make('initial_otp')
                             ->label('Kode OTP awal')
+                            ->minLength(4)
                             ->maxLength(12)
                             ->visible(fn (string $operation): bool => $operation === 'create')
                             ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP" saat warga siap login. Wajib diganti saat login pertama, lalu terhapus.'),
@@ -234,7 +255,7 @@ class UserForm
         $desaId = static::resolveDesaId($get);
 
         return $desaId
-            ? (Desa::find($desaId)?->jenisSubUnit?->nama ?: 'Sub-Unit Wilayah')
-            : 'Sub-Unit Wilayah';
+            ? (Desa::find($desaId)?->jenisSubUnit?->nama ?: 'Wilayah')
+            : 'Wilayah';
     }
 }

@@ -8,8 +8,9 @@ use App\Models\Desa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class EditDesa extends EditRecord
 {
@@ -17,8 +18,12 @@ class EditDesa extends EditRecord
 
     protected static string $resource = DesaResource::class;
 
+    /** @var array{created: bool, otp: ?string}|null Hasil provisioning admin. */
+    protected ?array $adminResult = null;
+
     /**
-     * Isi field admin (`admin_*`, tak dehidrasi) dari akun admin yang ada.
+     * Isi field admin (`admin_*`, tak dehidrasi) dari akun admin yang ada. Username
+     * tak diisi (otomatis dari kode); OTP direset lewat aksi di tabel Desa.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -27,31 +32,38 @@ class EditDesa extends EditRecord
     {
         $admin = $this->record->desaAdmin()->first();
 
-        $data['admin_name'] = $admin?->name;
-        $data['admin_username'] = $admin?->username;
+        $data['admin_email'] = $admin?->email;
         $data['admin_kontak'] = $admin?->phone;
-        $data['admin_otp'] = null;
 
         return $data;
     }
 
+    /**
+     * Perbarui desa + sinkron akun admin dalam satu transaksi (simetris dgn Create)
+     * agar tak ada keadaan setengah-jadi bila sinkron admin gagal.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        return DB::transaction(function () use ($record, $data): Model {
+            $record->update($data);
+            $this->adminResult = DesaResource::syncAdmin($record, $this->data);
+
+            return $record;
+        });
+    }
+
     protected function afterSave(): void
     {
-        $otp = DesaResource::syncAdmin($this->record, $this->data);
-
-        if (filled($otp)) {
-            Notification::make()
-                ->title('OTP admin diperbarui')
-                ->body("Username: {$this->record->desaAdmin()->first()->username} · OTP: {$otp}. Sampaikan ke admin desa.")
-                ->success()
-                ->persistent()
-                ->send();
-        }
+        // Bila akun admin baru dibuat lewat edit (desa lama yang belum punya admin).
+        DesaResource::notifyAdminProvisioned($this->adminResult ?? ['created' => false, 'otp' => null], $this->record);
     }
 
     protected function getHeaderActions(): array
     {
         return [
+            // Reset OTP admin ada di TABEL Desa (paralel dgn aksi "Reset OTP" warga).
             DeleteAction::make()
                 ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
                 ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),

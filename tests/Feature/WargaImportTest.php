@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Imports\WargaImport;
+use App\Jobs\ImportWarga;
 use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\DesaUnit;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Services\WargaImportService;
 use App\Services\WargaTemplateBuilder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -50,7 +52,7 @@ beforeEach(function () {
 });
 
 it('membuat warga + penduduk dari baris valid, ter-scope ke desa admin', function () {
-    $user = $this->service->createFromRow(wargaRow(), $this->admin, $this->seen);
+    $user = $this->service->createFromRow(wargaRow(), $this->desa, $this->seen);
 
     expect($user->role)->toBe('warga')
         ->and($user->desa_id)->toBe($this->desa->id)
@@ -66,12 +68,12 @@ it('membuat warga + penduduk dari baris valid, ter-scope ke desa admin', functio
         ->and($penduduk->desa_id)->toBe($this->desa->id);
 });
 
-it('mengabaikan kolom desa dari file untuk desa_admin (paksa desanya sendiri)', function () {
+it('mengabaikan kolom desa dari file (paksa desa konteks)', function () {
     $lain = Desa::factory()->create(['nama' => 'Desa Lain']);
 
     $user = $this->service->createFromRow(
         wargaRow(['desa' => 'Desa Lain']),
-        $this->admin,
+        $this->desa,
         $this->seen,
     );
 
@@ -79,40 +81,40 @@ it('mengabaikan kolom desa dari file untuk desa_admin (paksa desanya sendiri)', 
 });
 
 it('menolak NIK bukan 16 digit', function () {
-    $this->service->createFromRow(wargaRow(['nik' => '123']), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(['nik' => '123']), $this->desa, $this->seen);
 })->throws(RuntimeException::class, '16 digit');
 
 it('menolak NIK yang sudah terdaftar', function () {
     // Sudah ada di DB sebelum impor (file lain / sesi lain) → seen array baru.
-    $this->service->createFromRow(wargaRow(), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(), $this->desa, $this->seen);
 
     $seenBaru = [];
-    $this->service->createFromRow(wargaRow(['nama' => 'Orang Lain']), $this->admin, $seenBaru);
+    $this->service->createFromRow(wargaRow(['nama' => 'Orang Lain']), $this->desa, $seenBaru);
 })->throws(RuntimeException::class, 'sudah terdaftar');
 
 it('menolak wilayah di luar desa (cegah lintas-desa)', function () {
     $lain = Desa::factory()->create(['nama' => 'Desa Lain']);
     DesaUnit::create(['desa_id' => $lain->id, 'nama' => 'Jorong Z']);
 
-    $this->service->createFromRow(wargaRow(['wilayah' => 'Jorong Z']), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(['wilayah' => 'Jorong Z']), $this->desa, $this->seen);
 })->throws(RuntimeException::class, 'terdaftar di desa');
 
 it('menolak nilai enum/lookup yang tak dikenal', function () {
-    $this->service->createFromRow(wargaRow(['agama' => 'Jedi']), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(['agama' => 'Jedi']), $this->desa, $this->seen);
 })->throws(RuntimeException::class, 'tidak dikenali');
 
 it('menerima tanggal lahir format d/m/Y', function () {
-    $user = $this->service->createFromRow(wargaRow(['tanggal_lahir' => '17/05/1990']), $this->admin, $this->seen);
+    $user = $this->service->createFromRow(wargaRow(['tanggal_lahir' => '17/05/1990']), $this->desa, $this->seen);
 
     expect($user->refresh()->penduduk->tanggal_lahir->toDateString())->toBe('1990-05-17');
 });
 
 it('menolak tanggal lahir di masa depan', function () {
-    $this->service->createFromRow(wargaRow(['tanggal_lahir' => '2090-01-01']), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(['tanggal_lahir' => '2090-01-01']), $this->desa, $this->seen);
 })->throws(RuntimeException::class, 'masa depan');
 
 it('menolak tanggal lahir format ngawur', function () {
-    $this->service->createFromRow(wargaRow(['tanggal_lahir' => '32 something']), $this->admin, $this->seen);
+    $this->service->createFromRow(wargaRow(['tanggal_lahir' => '32 something']), $this->desa, $this->seen);
 })->throws(RuntimeException::class, 'tidak dikenali');
 
 it('membaca sub-unit dari kolom bernama sebutan desa (mis. "jorong")', function () {
@@ -123,25 +125,28 @@ it('membaca sub-unit dari kolom bernama sebutan desa (mis. "jorong")', function 
 
     $row = wargaRow(['wilayah' => null, 'jorong' => 'Jorong A']);
 
-    $user = $this->service->createFromRow($row, $this->admin->refresh(), $this->seen);
+    $user = $this->service->createFromRow($row, $this->desa->refresh(), $this->seen);
 
     expect($user->desa_unit_id)->toBe($this->unit->id);
 });
 
-it('super_admin memetakan desa dari kolom by-nama', function () {
-    $super = User::factory()->superAdmin()->create();
+it('job impor memproses berkas, membuat warga & mengirim notifikasi hasil ke admin', function () {
+    $header = 'nama,nik,jenis_kelamin,tempat_lahir,tanggal_lahir,agama,status_perkawinan,pekerjaan,wilayah,email,no_hp,status';
+    $baris = 'Budi Santoso,3201010101010001,Laki-laki,Padang,17/05/1990,Islam,Belum Kawin,Petani/Pekebun,Jorong A,,,';
+    $path = 'imports/warga/test.csv';
+    Storage::disk('local')->put($path, $header."\n".$baris."\n");
 
-    $user = $this->service->createFromRow(
-        wargaRow(['desa' => 'Sungai Lansek']),
-        $super,
-        $this->seen,
-    );
+    // Jalankan job langsung (sinkron & deterministik) lewat container.
+    (new ImportWarga($path, $this->desa->id, $this->admin->id))
+        ->handle(app(WargaImportService::class));
 
-    expect($user->desa_id)->toBe($this->desa->id);
+    expect(User::where('nik', '3201010101010001')->where('desa_id', $this->desa->id)->exists())->toBeTrue()
+        ->and($this->admin->notifications()->count())->toBe(1)            // hasil dilaporkan ke admin
+        ->and(Storage::disk('local')->exists($path))->toBeFalse();        // berkas sementara dibersihkan
 });
 
 it('WargaImport mengumpulkan baris berhasil & gagal dengan nomor baris', function () {
-    $import = new WargaImport($this->admin, $this->service);
+    $import = new WargaImport($this->desa, $this->service);
 
     $import->collection(collect([
         collect(wargaRow()),                                   // baris 2: valid
@@ -155,7 +160,7 @@ it('WargaImport mengumpulkan baris berhasil & gagal dengan nomor baris', functio
 });
 
 it('mendeteksi NIK duplikat di dalam file', function () {
-    $import = new WargaImport($this->admin, $this->service);
+    $import = new WargaImport($this->desa, $this->service);
 
     $import->collection(collect([
         collect(wargaRow()),                       // baris 2: valid

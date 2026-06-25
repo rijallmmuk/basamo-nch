@@ -19,7 +19,7 @@ it('nama lengkap menggabungkan jenis administratif dengan nama', function () {
 it('sebutan sub-unit punya fallback saat belum diatur', function () {
     $desa = Desa::factory()->subUnit(null)->create();
 
-    expect($desa->subUnitLabel())->toBe('Sub-Unit Wilayah');
+    expect($desa->subUnitLabel())->toBe('Wilayah');
 
     $jorong = JenisSubUnit::firstOrCreate(['nama' => 'Jorong']);
     $desa->update(['jenis_sub_unit_id' => $jorong->id]);

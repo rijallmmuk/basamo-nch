@@ -83,7 +83,7 @@ class WargaTemplateBuilder
             ['Pekerjaan', true, 'Pilih dari dropdown.', 'pekerjaan'],
             [$sebutan, true, "Sub-unit ({$sebutan}) tempat tinggal — pilih dari dropdown.", 'wilayah'],
             ['Email', false, 'Opsional. Email valid & unik. Boleh dikosongkan.', null],
-            ['No HP', false, 'Opsional. Tulis 08.../+62.../62... — otomatis disimpan sebagai 62...', null],
+            ['No. HP', false, 'Opsional. Tulis 08.../+62.../62... — otomatis disimpan sebagai 62...', null],
             ['Status', false, 'Opsional. Kosongkan = otomatis Aktif. Pilihan: Aktif / Nonaktif.', 'status'],
         ];
 
@@ -154,7 +154,7 @@ class WargaTemplateBuilder
         // Kolom yang harus tetap teks apa adanya: NIK/No HP (angka panjang jangan jadi
         // notasi ilmiah / hilang nol depan) & Tanggal Lahir (hindari auto-konversi tanggal
         // sesuai locale Excel yang bikin salah-parse / "masa depan").
-        foreach (['NIK', 'No HP', 'Tanggal Lahir'] as $textCol) {
+        foreach (['NIK', 'No. HP', 'Tanggal Lahir'] as $textCol) {
             $idx = $this->columnIndex($textCol);
             if ($idx !== null) {
                 $letter = Coordinate::stringFromColumnIndex($idx + 1);

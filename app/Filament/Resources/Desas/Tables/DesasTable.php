@@ -4,13 +4,17 @@ namespace App\Filament\Resources\Desas\Tables;
 
 use App\Enums\ActiveStatus;
 use App\Filament\Resources\Desas\DesaResource;
+use App\Filament\Resources\DesaUnits\DesaUnitResource;
+use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
 use App\Support\DesaContext;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -38,6 +42,7 @@ class DesasTable
                     ->label('Kode Wilayah')
                     ->badge()
                     ->color('gray')
+                    ->copyable()
                     ->searchable()
                     ->sortable(),
 
@@ -62,6 +67,24 @@ class DesasTable
                     ->badge()
                     ->sortable(),
 
+                // Login admin desa = kode nagari (paralel kolom NIK warga).
+                TextColumn::make('desaAdmin.username')
+                    ->label('Username Admin')
+                    ->copyable()
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                // OTP awal admin yang masih tertunda (paralel kolom "OTP awal" warga).
+                // Kosong (—) berarti admin sudah login & ganti sandi, atau OTP belum terbit.
+                TextColumn::make('desaAdmin.initial_otp')
+                    ->label('OTP Admin')
+                    ->badge()
+                    ->color('warning')
+                    ->copyable()
+                    ->placeholder('—')
+                    ->tooltip('Sandi sementara admin — wajib diganti saat login pertama')
+                    ->toggleable(),
+
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
@@ -76,18 +99,61 @@ class DesasTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                // Masuk ke halaman Warga desa ini (identik dgn panel admin desa), via
-                // konteks desa di session. Lihat UserResource + DesaContext.
-                Action::make('kelolaWarga')
-                    ->label('Kelola Warga')
-                    ->icon('heroicon-o-users')
-                    ->color('primary')
-                    ->button()
-                    ->action(function (Desa $record) {
-                        DesaContext::set($record->getKey());
+                // Pintu masuk "kelola desa X": tiap aksi menyetel konteks desa (session)
+                // lalu mengalihkan ke resource terkait yang dipakai-ulang dari panel admin
+                // desa. Lihat UserResource/DesaUnitResource/UmkmProfileResource + DesaContext.
+                ActionGroup::make([
+                    Action::make('kelolaWarga')
+                        ->label('Warga')
+                        ->icon('heroicon-o-users')
+                        ->action(function (Desa $record) {
+                            DesaContext::set($record->getKey());
 
-                        return redirect(UserResource::getUrl('index'));
-                    }),
+                            return redirect(UserResource::getUrl('index'));
+                        }),
+
+                    Action::make('kelolaWilayah')
+                        ->label('Wilayah')
+                        ->icon('heroicon-o-map-pin')
+                        ->action(function (Desa $record) {
+                            DesaContext::set($record->getKey());
+
+                            return redirect(DesaUnitResource::getUrl('index'));
+                        }),
+
+                    Action::make('kelolaUmkm')
+                        ->label('UMKM')
+                        ->icon('heroicon-o-building-storefront')
+                        ->action(function (Desa $record) {
+                            DesaContext::set($record->getKey());
+
+                            return redirect(UmkmProfileResource::getUrl('index'));
+                        }),
+                ])
+                    ->label('Kelola')
+                    ->icon('heroicon-o-squares-2x2')
+                    ->button()
+                    ->color('primary'),
+
+                // Reset OTP admin desa — penempatan & perilaku identik aksi "Reset OTP"
+                // warga (blank → 6 digit otomatis; isi → kustom). Muncul bila admin ada.
+                Action::make('resetOtpAdmin')
+                    ->label('Reset OTP Admin')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->visible(fn (Desa $record): bool => $record->desaAdmin()->exists())
+                    ->modalHeading('Terbitkan OTP baru')
+                    ->modalDescription('Sandi lama admin desa tidak berlaku lagi. Admin login dengan OTP baru lalu wajib menggantinya.')
+                    ->modalIcon('heroicon-o-key')
+                    ->modalSubmitActionLabel('Terbitkan')
+                    ->schema([
+                        TextInput::make('otp')
+                            ->label('Kode OTP')
+                            ->helperText('Kosongkan untuk membuat kode 6 digit otomatis.')
+                            ->minLength(4)
+                            ->maxLength(12),
+                    ])
+                    ->action(fn (Desa $record, array $data) => DesaResource::resetAdminOtp($record, $data['otp'] ?? null)),
 
                 // Hapus per-record agar guard anti-orphan (warga/modul) berjalan.
                 DeleteAction::make()

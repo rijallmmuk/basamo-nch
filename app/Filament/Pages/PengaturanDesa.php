@@ -15,9 +15,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * Self-service admin desa atas detail lokal desanya sendiri: sebutan sub-unit,
- * logo desa, kontak, koordinat. Identitas & atribut resmi (nama/jenis/wilayah
- * induk/logo kabupaten) tetap ranah super_admin via DesaResource.
+ * Self-service admin desa atas detail lokal desanya sendiri: penyebutan desa
+ * (Desa/Nagari/Kelurahan), sebutan sub-unit (Jorong/Korong/…), dan logo. Identitas
+ * & atribut resmi yang terikat data wilayah (nama, kode wilayah induk, prov/kab/kec,
+ * koordinat, status, logo kabupaten) tetap ranah super_admin via DesaResource.
  */
 class PengaturanDesa extends Page
 {
@@ -80,14 +81,14 @@ class PengaturanDesa extends Page
                             ->required()
                             ->searchable()
                             ->native(false)
-                            ->helperText('Sebutan setingkat desa — mis. Desa / Kelurahan / Nagari.'),
+                            ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
 
                         Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit')
                             ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
                             ->searchable()
                             ->native(false)
-                            ->helperText('Sebutan bagian dalam desa ini — mis. Jorong / Dusun / Lingkungan. Dipakai di seluruh aplikasi.'),
+                            ->helperText('Bagian dalam desa — mis. Jorong / Dusun / Lingkungan. Dipakai di seluruh aplikasi.'),
 
                         SpatieMediaLibraryFileUpload::make('logo')
                             ->label('Logo '.($this->desa?->jenisDesa?->nama ?? 'desa'))

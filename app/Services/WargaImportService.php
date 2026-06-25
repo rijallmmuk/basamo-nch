@@ -34,12 +34,15 @@ class WargaImportService
     public function __construct(private PendudukService $penduduk) {}
 
     /**
+     * Buat satu warga untuk $desa (desa yang sedang dikelola — selalu ditentukan
+     * server-side; kolom "Desa" pada file diabaikan, cegah bocor lintas-desa).
+     *
      * @param  array<string, mixed>  $row  baris ber-heading (key sudah ter-slug oleh WithHeadingRow)
      * @param  array<string, true>  $seenNik  NIK yang sudah diproses pada file ini (diteruskan by-ref)
      *
      * @throws RuntimeException bila baris tidak valid
      */
-    public function createFromRow(array $row, User $actor, array &$seenNik): User
+    public function createFromRow(array $row, Desa $desa, array &$seenNik): User
     {
         $val = fn (string $key): string => trim((string) ($row[$key] ?? ''));
 
@@ -59,22 +62,20 @@ class WargaImportService
             throw new RuntimeException("NIK {$nik} sudah terdaftar.");
         }
 
-        [$desaId, $desaNama] = $this->resolveDesa($val, $actor);
-
         // Judul kolom sub-unit pada template mengikuti sebutan desa (mis. "Jorong"),
         // jadi key barisnya ikut ter-slug ("jorong"). Fallback ke "wilayah".
-        $sebutan = $actor->desa?->jenisSubUnit?->nama ?: 'Wilayah';
+        $sebutan = $desa->jenisSubUnit?->nama ?: 'Wilayah';
         $wilayah = $this->wilayahValue($row, $sebutan);
 
         if ($wilayah === '') {
             throw new RuntimeException("Kolom \"{$sebutan}\" wajib diisi.");
         }
 
-        $unit = DesaUnit::where('desa_id', $desaId)
+        $unit = DesaUnit::where('desa_id', $desa->id)
             ->whereRaw('LOWER(nama) = ?', [Str::lower($wilayah)])
             ->first();
         if (! $unit) {
-            throw new RuntimeException("\"{$wilayah}\" bukan {$sebutan} terdaftar di desa {$desaNama}.");
+            throw new RuntimeException("\"{$wilayah}\" bukan {$sebutan} terdaftar di desa {$desa->nama}.");
         }
 
         $jenisKelamin = $this->resolveJenisKelamin($val('jenis_kelamin'));
@@ -94,14 +95,14 @@ class WargaImportService
         $phone = PhoneNumber::normalize($val('no_hp')) ?: null;
         $status = $this->resolveStatus($val('status'));
 
-        $user = DB::transaction(function () use ($nama, $nik, $email, $phone, $desaId, $unit, $status, $tempatLahir, $tanggalLahir, $jenisKelamin, $agamaId, $statusKawinId, $pekerjaanId): User {
+        $user = DB::transaction(function () use ($nama, $nik, $email, $phone, $desa, $unit, $status, $tempatLahir, $tanggalLahir, $jenisKelamin, $agamaId, $statusKawinId, $pekerjaanId): User {
             // Sandi acak tak terpakai; OTP login diterbitkan terpisah lewat aksi "Reset OTP".
             $user = User::create([
                 'name' => $nama,
                 'nik' => $nik,
                 'email' => $email,
                 'phone' => $phone,
-                'desa_id' => $desaId,
+                'desa_id' => $desa->id,
                 'desa_unit_id' => $unit->id,
                 'role' => 'warga',
                 'status' => $status,
@@ -125,31 +126,6 @@ class WargaImportService
         $seenNik[$nik] = true;
 
         return $user;
-    }
-
-    /**
-     * @param  callable(string): string  $val
-     * @return array{0:int,1:string} [desa_id, nama desa]
-     */
-    private function resolveDesa(callable $val, User $actor): array
-    {
-        // Desa konteks (desa_admin → desanya; super admin → desa yang dikelola).
-        $desaId = $actor->managedDesaId();
-        if ($desaId !== null) {
-            return [$desaId, Desa::find($desaId)?->nama ?? 'desa Anda'];
-        }
-
-        $nama = $val('desa');
-        if ($nama === '') {
-            throw new RuntimeException('Kolom "Desa" wajib diisi.');
-        }
-
-        $desa = Desa::whereRaw('LOWER(nama) = ?', [Str::lower($nama)])->first();
-        if (! $desa) {
-            throw new RuntimeException("Desa \"{$nama}\" tidak ditemukan.");
-        }
-
-        return [$desa->id, $desa->nama];
     }
 
     /**
@@ -207,6 +183,9 @@ class WargaImportService
         if ($value === '') {
             return null;
         }
+
+        // Selalu huruf kecil — konsisten dengan form & cegah duplikat beda kapital.
+        $value = Str::lower($value);
 
         if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new RuntimeException("Email \"{$value}\" tidak valid.");

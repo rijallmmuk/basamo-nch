@@ -116,6 +116,48 @@ it('form tak punya field peran; akun dibuat selalu sebagai warga', function () {
         ->and($warga->desa_id)->toBe($desa->id);
 });
 
+it('aksi reset OTP & UMKM tersembunyi untuk warga yang sudah dihapus (soft delete)', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $warga->delete();
+
+    Livewire::test(ListUsers::class)
+        ->filterTable('trashed', 'with') // tampilkan record terhapus
+        ->assertTableActionHidden('resetOtp', $warga)
+        ->assertTableActionHidden('beriAksesUmkm', $warga);
+});
+
+it('menyimpan email selalu dalam huruf kecil', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    Livewire::test(CreateUser::class)
+        ->fillForm(wargaFormData($desa, '3201000000000777', ['email' => 'Budi.Santoso@Example.COM']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(User::where('nik', '3201000000000777')->value('email'))->toBe('budi.santoso@example.com');
+});
+
+it('menolak ubah NIK ke milik identitas penduduk lain saat edit', function () {
+    $desa = Desa::factory()->create();
+    actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    // Identitas orang lain (punya penduduk, belum tentu punya akun).
+    Penduduk::create(['nik' => '3201000000000010', 'nama' => 'Orang Lain', 'desa_id' => $desa->id]);
+
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'nik' => '3201000000000011']);
+    $penduduk = Penduduk::create(['nik' => '3201000000000011', 'nama' => $warga->name, 'desa_id' => $desa->id]);
+    $warga->forceFill(['penduduk_id' => $penduduk->id])->save();
+
+    Livewire::test(EditUser::class, ['record' => $warga->getKey()])
+        ->fillForm(['nik' => '3201000000000010']) // NIK milik identitas lain
+        ->call('save')
+        ->assertHasFormErrors(['nik']);
+});
+
 it('berhasil create & edit warga mengarahkan ke halaman index (bukan edit)', function () {
     $desa = Desa::factory()->create();
     actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));

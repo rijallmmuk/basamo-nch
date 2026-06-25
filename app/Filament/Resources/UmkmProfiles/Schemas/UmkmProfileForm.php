@@ -79,18 +79,19 @@ class UmkmProfileForm
     }
 
     /**
-     * Opsi pemilik = warga yang sudah diberi akses UMKM. desa_admin hanya desanya.
+     * Opsi pemilik = warga yang sudah diberi akses UMKM, ter-scope ke desa yang sedang
+     * dikelola (desa_admin → desanya; super admin → desa konteks).
      *
      * @return array<int, string>
      */
     protected static function ownerOptions(): array
     {
-        $actor = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
         return User::query()
             ->where('role', 'warga')
             ->whereNotNull('umkm_access_granted_at')
-            ->when($actor?->isDesaAdmin(), fn ($q) => $q->where('desa_id', $actor->desa_id))
+            ->when($desaId, fn ($q) => $q->where('desa_id', $desaId))
             ->orderBy('name')
             ->pluck('name', 'id')
             ->all();

@@ -112,8 +112,9 @@ class DemoSeeder extends Seeder
             ['email' => 'admin.'.$slug.'@basamo.nch'],
             [
                 'name' => 'Admin '.$desa->nama,
-                'username' => 'admin_'.$slug,
-                'password' => Hash::make('password'),
+                // Username = kode nagari (selaras alur produksi); fallback bila kode kosong.
+                'username' => $desa->defaultAdminUsername() ?? 'admin_'.$slug,
+                'password' => Hash::make('password'), // demo: bisa langsung login (bukan alur OTP)
                 'desa_id' => $desa->id,
                 'role' => 'desa_admin',
                 'status' => 'active',

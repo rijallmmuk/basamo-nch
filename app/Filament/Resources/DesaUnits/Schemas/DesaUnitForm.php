@@ -25,14 +25,15 @@ class DesaUnitForm
                     ->icon(Heroicon::OutlinedMapPin)
                     ->columnSpanFull()
                     ->schema([
-                        // Hanya super_admin memilih desa; desa_admin dipaksa ke desanya (CreateDesaUnit).
+                        // Pemilih desa hanya muncul bila tak ada desa konteks (super admin
+                        // tanpa "Kelola Wilayah"). Dalam konteks, desa dipaksa di CreateDesaUnit.
                         Select::make('desa_id')
                             ->label('Desa')
                             ->relationship('desa', 'nama')
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                            ->visible(fn (): bool => auth()->user()?->managedDesaId() === null)
                             ->columnSpanFull(),
 
                         TextInput::make('nama')
@@ -43,11 +44,11 @@ class DesaUnitForm
                             ->unique(
                                 ignoreRecord: true,
                                 modifyRuleUsing: function (Unique $rule, Get $get): Unique {
-                                    $desaId = auth()->user()?->isDesaAdmin()
-                                        ? auth()->user()->desa_id
-                                        : $get('desa_id');
+                                    $desaId = auth()->user()?->managedDesaId() ?? $get('desa_id');
 
-                                    return $rule->where('desa_id', $desaId);
+                                    // Hanya bentrok dengan sub-unit AKTIF; nama bekas yang
+                                    // sudah dihapus boleh dipakai ulang (lihat migrasi unique).
+                                    return $rule->where('desa_id', $desaId)->withoutTrashed();
                                 },
                             )
                             ->columnSpanFull(),

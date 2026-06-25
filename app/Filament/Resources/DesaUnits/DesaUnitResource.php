@@ -7,8 +7,12 @@ use App\Filament\Resources\DesaUnits\Pages\EditDesaUnit;
 use App\Filament\Resources\DesaUnits\Pages\ListDesaUnits;
 use App\Filament\Resources\DesaUnits\Schemas\DesaUnitForm;
 use App\Filament\Resources\DesaUnits\Tables\DesaUnitsTable;
+use App\Models\Desa;
 use App\Models\DesaUnit;
+use App\Support\DesaContext;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -28,11 +32,26 @@ class DesaUnitResource extends Resource
         return 'Pengaturan';
     }
 
-    // Super admin mengelola sub-unit via Detail Desa (per desa). Tetap dapat diakses,
-    // hanya disembunyikan dari sidebar global.
+    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
+    // mengelola sebuah desa (masuk lewat aksi "Kelola Wilayah" di menu Desa).
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->isDesaAdmin() ?? false;
+        return static::canAccess();
+    }
+
+    /**
+     * desa_admin selalu boleh. super admin hanya saat sedang mengelola sebuah desa
+     * (masuk lewat aksi "Kelola Wilayah"); akses langsung tanpa konteks → ditolak.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        if ($user?->isDesaAdmin()) {
+            return true;
+        }
+
+        return $user?->isSuperAdmin() && DesaContext::id() !== null;
     }
 
     public static function getModelLabel(): string
@@ -46,16 +65,15 @@ class DesaUnitResource extends Resource
     }
 
     /**
-     * Sebutan menu/label mengikuti jenis sub-unit yang diatur per desa (Jorong/Korong/
-     * Dusun, dll). super_admin lintas-desa → istilah umum "Wilayah".
+     * Sebutan menu/label mengikuti jenis sub-unit desa yang sedang dikelola
+     * (Jorong/Korong/Dusun, dll): desa_admin → desanya; super admin → desa konteks.
+     * Tanpa konteks (super admin lintas-desa) → istilah umum "Wilayah".
      */
     protected static function subUnitLabel(): string
     {
-        $actor = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
-        return $actor?->isDesaAdmin()
-            ? ($actor->desa?->jenisSubUnit?->nama ?: 'Wilayah')
-            : 'Wilayah';
+        return ($desaId ? Desa::find($desaId)?->jenisSubUnit?->nama : null) ?: 'Wilayah';
     }
 
     public static function form(Schema $schema): Schema
@@ -73,8 +91,35 @@ class DesaUnitResource extends Resource
         return static::scopeToDesa(
             parent::getEloquentQuery()
                 ->with('desa')
-                ->withCount('users')
+                // Hitung khusus warga (bukan akun admin) — dipakai kolom & guard hapus.
+                ->withCount('warga')
         );
+    }
+
+    /**
+     * Cegah hapus sub-unit yang masih dihuni warga: FK `desa_unit_id` ber-ON DELETE
+     * SET NULL, jadi hapus permanen akan melucuti alamat warga/penduduk secara senyap;
+     * soft delete menyisakan id menggantung. Konsisten dgn DesaResource::guardAgainstDependents.
+     */
+    public static function guardAgainstWarga(DesaUnit $record, Action $action, bool $includeTrashed = false): void
+    {
+        $warga = $record->warga();
+
+        if ($includeTrashed) {
+            $warga->withTrashed();
+        }
+
+        if ($warga->exists()) {
+            $sebutan = $record->desa?->jenisSubUnit?->nama ?: 'Wilayah';
+
+            Notification::make()
+                ->title("{$sebutan} tidak bisa dihapus")
+                ->body("Masih ada warga yang beralamat di sini. Pindahkan warga ke {$sebutan} lain lebih dulu (lewat menu Warga), baru hapus.")
+                ->danger()
+                ->send();
+
+            $action->halt();
+        }
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
@@ -83,15 +128,16 @@ class DesaUnitResource extends Resource
     }
 
     /**
-     * desa_admin hanya mengelola wilayah desanya sendiri.
-     * super_admin melihat semua (dilewatkan via Gate::before untuk policy).
+     * Ter-scope ke desa yang sedang dikelola: desa_admin → desanya; super admin →
+     * desa yang ia kelola lewat aksi "Kelola Wilayah" (DesaContext). Tanpa konteks,
+     * super admin tak bisa mengakses resource ini (lihat canAccess).
      */
     protected static function scopeToDesa(Builder $query): Builder
     {
-        $user = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
-        if ($user?->isDesaAdmin()) {
-            $query->forDesa($user->desa_id);
+        if ($desaId !== null) {
+            $query->forDesa($desaId);
         }
 
         return $query;

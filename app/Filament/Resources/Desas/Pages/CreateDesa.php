@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Desas\Pages;
 
 use App\Filament\Resources\Concerns\RedirectsToIndex;
 use App\Filament\Resources\Desas\DesaResource;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +14,8 @@ class CreateDesa extends CreateRecord
 
     protected static string $resource = DesaResource::class;
 
-    /** OTP admin yang diterbitkan saat membuat desa (ditampilkan setelah simpan). */
-    protected ?string $issuedOtp = null;
+    /** @var array{created: bool, otp: ?string}|null Hasil provisioning admin. */
+    protected ?array $adminResult = null;
 
     /**
      * Buat desa + akun admin desanya dalam satu transaksi. Field `admin_*` tidak
@@ -28,7 +27,7 @@ class CreateDesa extends CreateRecord
     {
         return DB::transaction(function () use ($data): Model {
             $desa = static::getModel()::create($data);
-            $this->issuedOtp = DesaResource::syncAdmin($desa, $this->data);
+            $this->adminResult = DesaResource::syncAdmin($desa, $this->data);
 
             return $desa;
         });
@@ -36,15 +35,6 @@ class CreateDesa extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $admin = $this->record->desaAdmin()->first();
-
-        if ($admin && filled($this->issuedOtp)) {
-            Notification::make()
-                ->title('Desa & akun admin dibuat')
-                ->body("Username: {$admin->username} · OTP: {$this->issuedOtp}. Sampaikan ke admin desa; wajib diganti saat login pertama.")
-                ->success()
-                ->persistent()
-                ->send();
-        }
+        DesaResource::notifyAdminProvisioned($this->adminResult ?? ['created' => false, 'otp' => null], $this->record);
     }
 }

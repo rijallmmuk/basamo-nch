@@ -8,7 +8,7 @@ use App\Filament\Resources\Desas\Pages\ListDesas;
 use App\Filament\Resources\Desas\Schemas\DesaForm;
 use App\Filament\Resources\Desas\Tables\DesasTable;
 use App\Models\Desa;
-use App\Models\User;
+use App\Support\PhoneNumber;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class DesaResource extends Resource
 {
@@ -57,7 +58,7 @@ class DesaResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('jenisDesa')
+            ->with(['jenisDesa', 'desaAdmin'])
             ->withCount(['warga'])
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
@@ -87,8 +88,8 @@ class DesaResource extends Resource
 
         if ($dependents->exists() || $modules->exists()) {
             Notification::make()
-                ->title('Desa tidak bisa diarsipkan')
-                ->body('Masih ada warga atau modul yang terhubung. Pindahkan/hapus dulu, atau cukup nonaktifkan status desa. Akun admin desa akan ikut diarsipkan otomatis.')
+                ->title('Desa tidak bisa dihapus')
+                ->body('Masih ada warga atau modul yang terhubung. Pindahkan/hapus dulu, atau cukup nonaktifkan status desa. Akun admin desa akan ikut terhapus otomatis.')
                 ->danger()
                 ->send();
 
@@ -115,48 +116,113 @@ class DesaResource extends Resource
     }
 
     /**
-     * Buat/perbarui akun admin desa dari data form (field `admin_*`, tak dehidrasi).
-     * Mengembalikan OTP plain bila baru diterbitkan (untuk ditampilkan), atau null.
+     * Provisioning akun admin desa — paralel 100% dengan akun warga: tiap desa OTOMATIS
+     * punya satu akun admin (username = kode nagari, seperti warga ber-NIK). OTP mengikuti
+     * model warga: blank → DITUNDA (sandi acak, tanpa OTP), isi → OTP awal. Reset OTP
+     * dilakukan lewat aksi "Reset OTP Admin" di tabel Desa (bukan form), persis warga.
      *
-     * @param  array<string, mixed>  $formState
+     * @param  array<string, mixed>  $formState  field `admin_*` (tak dehidrasi)
+     * @return array{created: bool, otp: ?string} created=akun admin baru dibuat;
+     *                                            otp=OTP awal yang ditetapkan (null = ditunda).
      */
-    public static function syncAdmin(Desa $desa, array $formState): ?string
+    public static function syncAdmin(Desa $desa, array $formState): array
     {
-        $username = $formState['admin_username'] ?? null;
+        $username = $desa->defaultAdminUsername();
 
-        if (blank($username)) {
-            return null;
+        // Tanpa kode wilayah, username tak bisa diturunkan (mis. data uji) → lewati.
+        if ($username === null) {
+            return ['created' => false, 'otp' => null];
         }
 
-        $name = filled($formState['admin_name'] ?? null)
-            ? $formState['admin_name']
-            : 'Admin '.$desa->nama;
-        $phone = $formState['admin_kontak'] ?? null;
-        $otpInput = $formState['admin_otp'] ?? null;
+        // Nama admin FIX (tak bisa diubah): selalu "Admin {nama desa}".
+        $name = 'Admin '.$desa->nama_lengkap;
+        // Normalisasi ke 62xxx — konsisten dgn No. HP warga (kolom users.phone sama).
+        $phone = PhoneNumber::normalize($formState['admin_kontak'] ?? null);
+        // Email opsional, selalu huruf kecil — konsisten dgn email warga.
+        $email = filled($formState['admin_email'] ?? null) ? Str::lower(trim($formState['admin_email'])) : null;
 
         $admin = $desa->desaAdmin()->first();
 
         if (! $admin) {
-            $otp = filled($otpInput) ? $otpInput : User::generateOtp();
+            // Konsisten dgn WargaProvisioningService: blank → ditunda (sandi acak tak
+            // terpakai sampai OTP diterbitkan), isi → OTP awal. TIDAK auto-generate.
+            $otp = filled($formState['admin_otp'] ?? null) ? $formState['admin_otp'] : null;
 
             $desa->users()->create([
                 'name' => $name,
                 'username' => $username,
+                'email' => $email,
                 'phone' => $phone,
                 'role' => 'desa_admin',
                 'status' => 'active',
-                'password' => $otp,          // di-hash via cast
-                'initial_otp' => $otp,       // tersimpan & terlihat sampai sandi diganti
+                'password' => filled($otp) ? $otp : Str::random(40),
+                'initial_otp' => $otp,
                 'must_change_password' => true,
             ]);
 
-            return $otp;
+            return ['created' => true, 'otp' => $otp];
         }
 
-        $admin->forceFill(['name' => $name, 'username' => $username, 'phone' => $phone])->save();
+        // Admin sudah ada → perbarui identitas + selaraskan username ke kode terkini.
+        // OTP via aksi "Reset OTP Admin". Invariant: username = kode nagari.
+        $admin->forceFill(['name' => $name, 'username' => $username, 'email' => $email, 'phone' => $phone])->save();
 
-        // OTP diisi → terbitkan ulang (reset sandi admin). Kosong → biarkan sandi lama.
-        return filled($otpInput) ? $admin->issueOtp($otpInput) : null;
+        return ['created' => false, 'otp' => null];
+    }
+
+    /**
+     * Reset/terbitkan OTP admin desa — dipakai aksi "Reset OTP Admin" di tabel Desa.
+     * Blank → 6 digit otomatis; isi → kustom. Identik perilaku aksi "Reset OTP" warga.
+     */
+    public static function resetAdminOtp(Desa $desa, ?string $code): void
+    {
+        $admin = $desa->desaAdmin()->first();
+
+        if (! $admin) {
+            return;
+        }
+
+        $otp = $admin->issueOtp($code);
+
+        Notification::make()
+            ->title('OTP baru diterbitkan')
+            ->body("Username: {$admin->username} · OTP: {$otp}. Sampaikan ke admin desa.")
+            ->success()
+            ->persistent()
+            ->send();
+    }
+
+    /**
+     * Beri tahu hasil provisioning akun admin (dipakai Create & Edit Desa) — selaras
+     * dengan notifikasi pembuatan warga di CreateUser.
+     *
+     * @param  array{created: bool, otp: ?string}  $result
+     */
+    public static function notifyAdminProvisioned(array $result, Desa $desa): void
+    {
+        if (! $result['created']) {
+            return;
+        }
+
+        $admin = $desa->desaAdmin()->first();
+
+        if (filled($result['otp'])) {
+            Notification::make()
+                ->title('Desa & akun admin dibuat — OTP awal')
+                ->body("Username: {$admin->username} · OTP: {$result['otp']}. Sampaikan ke admin desa; wajib diganti saat login pertama.")
+                ->success()
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title('Akun admin dibuat — OTP belum diterbitkan')
+            ->body("Username: {$admin->username}. Terbitkan OTP lewat aksi \"Reset OTP Admin\" saat admin siap login.")
+            ->info()
+            ->persistent()
+            ->send();
     }
 
     public static function getRelations(): array

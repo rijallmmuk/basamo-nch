@@ -39,8 +39,7 @@ it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', 
         ->fillForm([
             'wilayah_kode' => '13.06.01.2001',
             'jenis_desa_id' => $jenis->id,
-            'admin_name' => 'Budi',
-            'admin_username' => 'admin_tiku',
+            'admin_email' => 'Admin.Tiku@Example.COM',
             'admin_kontak' => '081234567890',
         ])
         ->call('create')
@@ -54,15 +53,51 @@ it('membuat desa dari pilihan resmi: kode=kode wilayah + akun admin terbentuk', 
 
     $admin = $desa->desaAdmin()->first();
     expect($admin)->not->toBeNull()
-        ->and($admin->username)->toBe('admin_tiku')
-        ->and($admin->name)->toBe('Budi')
-        ->and($admin->phone)->toBe('081234567890')
+        // Username & Nama admin FIX otomatis dari desa.
+        ->and($admin->username)->toBe('1306012001')      // = digit kode nagari
+        ->and($admin->name)->toBe('Admin Desa Tiku Selatan') // = "Admin {nama_lengkap}"
+        ->and($admin->email)->toBe('admin.tiku@example.com') // opsional, disimpan huruf kecil
+        ->and($admin->phone)->toBe('6281234567890') // dinormalkan 62xxx, konsisten dgn warga
         ->and($admin->role)->toBe('desa_admin')
         ->and($admin->must_change_password)->toBeTrue()
-        ->and($admin->initial_otp)->not->toBeNull();
+        // Konsisten dgn warga: OTP DITUNDA saat blank (bukan auto-generate).
+        ->and($admin->initial_otp)->toBeNull();
 });
 
-it('membuat desa tanpa akun admin (opsional)', function () {
+it('membuat desa dengan OTP admin awal eksplisit (konsisten model warga)', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+
+    Livewire::test(CreateDesa::class)
+        ->fillForm([
+            'wilayah_kode' => '13.06.01.2001',
+            'jenis_desa_id' => $jenis->id,
+            'admin_otp' => '1234',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $admin = Desa::where('wilayah_kode', '13.06.01.2001')->first()->desaAdmin()->first();
+    expect($admin->initial_otp)->toBe('1234')
+        ->and($admin->username)->toBe('1306012001') // tetap otomatis dari kode
+        ->and($admin->must_change_password)->toBeTrue();
+});
+
+it('aksi Reset OTP Admin (di tabel Desa) menerbitkan OTP baru', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+    $desa = Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id, 'initial_otp' => null]);
+
+    Livewire::test(ListDesas::class)
+        ->callTableAction('resetOtpAdmin', $desa, ['otp' => '5678']);
+
+    expect($admin->refresh()->initial_otp)->toBe('5678')
+        ->and($admin->must_change_password)->toBeTrue();
+});
+
+it('setiap desa otomatis punya akun admin (username = kode nagari, OTP ditunda)', function () {
     actingAs(User::factory()->superAdmin()->create());
 
     $jenis = JenisDesa::firstOrCreate(['nama' => 'Desa']);
@@ -76,9 +111,10 @@ it('membuat desa tanpa akun admin (opsional)', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $desa = Desa::where('wilayah_kode', '13.06.01.2001')->first();
-    expect($desa)->not->toBeNull()
-        ->and($desa->desaAdmin()->exists())->toBeFalse();
+    $admin = Desa::where('wilayah_kode', '13.06.01.2001')->first()->desaAdmin()->first();
+    expect($admin)->not->toBeNull()
+        ->and($admin->username)->toBe('1306012001')
+        ->and($admin->initial_otp)->toBeNull(); // ditunda sampai Reset OTP
 });
 
 it('form edit desa memuat data akun admin yang ada', function () {
@@ -88,16 +124,29 @@ it('form edit desa memuat data akun admin yang ada', function () {
     $desa = Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
     User::factory()->desaAdmin()->create([
         'desa_id' => $desa->id,
-        'username' => 'admin_tiku',
-        'name' => 'Budi',
+        'username' => '1306012001',
+        'phone' => '6281234567890',
     ]);
 
+    // Username & nama admin tampil read-only; hanya No. HP yang termuat sebagai field.
     Livewire::test(EditDesa::class, ['record' => $desa->getRouteKey()])
         ->assertFormSet([
             'wilayah_kode' => '13.06.01.2001',
-            'admin_username' => 'admin_tiku',
-            'admin_name' => 'Budi',
+            'admin_kontak' => '6281234567890',
         ]);
+});
+
+it('kode wilayah desa yang sudah diarsipkan boleh dipakai ulang', function () {
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+
+    $first = Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
+    $first->delete(); // arsipkan (soft delete)
+
+    // Kode sama dipakai lagi → tak melanggar unique (deleted_at disertakan).
+    Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
+
+    expect(Desa::where('wilayah_kode', '13.06.01.2001')->count())->toBe(1)             // hanya yang aktif
+        ->and(Desa::withTrashed()->where('wilayah_kode', '13.06.01.2001')->count())->toBe(2);
 });
 
 it('hitungan warga tidak menyertakan akun admin desa', function () {

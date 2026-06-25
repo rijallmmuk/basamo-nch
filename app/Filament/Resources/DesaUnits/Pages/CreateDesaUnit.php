@@ -13,17 +13,18 @@ class CreateDesaUnit extends CreateRecord
     protected static string $resource = DesaUnitResource::class;
 
     /**
-     * desa_admin tidak melihat field desa — wilayah dipaksa ke desanya.
+     * Dalam konteks desa (desa_admin → desanya; super admin → desa yang dikelola),
+     * desa dipaksa server-side — field pemilih desa disembunyikan.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $actor = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
-        if ($actor->isDesaAdmin()) {
-            $data['desa_id'] = $actor->desa_id;
+        if ($desaId !== null) {
+            $data['desa_id'] = $desaId;
         }
 
         return $data;

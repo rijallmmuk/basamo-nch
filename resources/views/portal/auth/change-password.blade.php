@@ -74,6 +74,39 @@
                         placeholder="••••••••">
                 </div>
 
+                {{-- Kontak (opsional) — lengkapi sekalian saat login pertama --}}
+                <div class="border-t border-gray-100 pt-4">
+                    <p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">Kontak (opsional)</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="phone" class="mb-1.5 block text-sm font-medium text-gray-700">No. HP</label>
+                            <input type="tel" id="phone" name="phone"
+                                value="{{ old('phone', auth()->user()->phone) }}"
+                                class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
+                                       @error('phone') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
+                                       @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                                placeholder="0812xxxxxxxx">
+                            @error('phone')
+                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" name="email"
+                                value="{{ old('email', auth()->user()->email) }}"
+                                class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
+                                       @error('email') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
+                                       @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                                placeholder="nama@contoh.com">
+                            @error('email')
+                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit"
                     class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 active:scale-[0.99]">
                     Simpan Sandi Baru

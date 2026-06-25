@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class UsersTable
 {
@@ -172,6 +173,8 @@ class UsersTable
                         ->label('Reset OTP')
                         ->icon('heroicon-o-key')
                         ->color('warning')
+                        // Hanya untuk warga aktif (bukan yang dihapus) & yang boleh dikelola.
+                        ->visible(fn (User $record): bool => ! $record->trashed() && auth()->user()->can('update', $record))
                         ->modalHeading('Terbitkan OTP baru')
                         ->modalDescription('Sandi lama warga tidak berlaku lagi. Warga login dengan OTP baru lalu wajib menggantinya.')
                         ->modalIcon('heroicon-o-key')
@@ -199,7 +202,7 @@ class UsersTable
                         ->label('Beri akses UMKM')
                         ->icon('heroicon-o-building-storefront')
                         ->color('success')
-                        ->visible(fn (User $record): bool => ! $record->hasUmkmAccess())
+                        ->visible(fn (User $record): bool => ! $record->trashed() && ! $record->hasUmkmAccess() && auth()->user()->can('update', $record))
                         ->requiresConfirmation()
                         ->modalHeading('Beri akses UMKM')
                         ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
@@ -217,15 +220,18 @@ class UsersTable
                         ->label('Cabut akses UMKM')
                         ->icon('heroicon-o-building-storefront')
                         ->color('warning')
-                        ->visible(fn (User $record): bool => $record->hasUmkmAccess())
+                        ->visible(fn (User $record): bool => ! $record->trashed() && $record->hasUmkmAccess() && auth()->user()->can('update', $record))
                         ->requiresConfirmation()
                         ->modalHeading('Cabut akses UMKM')
                         ->modalDescription('Warga tidak lagi bisa mengelola UMKM. Profil usahanya dinonaktifkan (keluar dari katalog publik); data tetap tersimpan dan bisa diaktifkan lagi bila akses dipulihkan.')
                         ->action(function (User $record): void {
-                            $record->update(['umkm_access_granted_at' => null]);
+                            // Atomik: cabut akses + nonaktifkan lapak harus berhasil bersama.
+                            DB::transaction(function () use ($record): void {
+                                $record->update(['umkm_access_granted_at' => null]);
 
-                            // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
-                            $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
+                                // Nonaktifkan lapaknya agar tak jadi konten publik yang tak terkelola.
+                                $record->umkmProfile?->update(['status' => ActiveStatus::Inactive]);
+                            });
 
                             Notification::make()
                                 ->title('Akses UMKM dicabut')

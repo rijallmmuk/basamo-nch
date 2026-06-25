@@ -6,6 +6,7 @@ use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Models\Desa;
 use App\Models\DesaUnit;
 use App\Models\User;
+use App\Support\DesaContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -32,17 +33,36 @@ it('nama wilayah unik per desa, boleh sama antar desa', function () {
 
     $this->actingAs(User::factory()->superAdmin()->create());
 
+    // Super admin mengelola per-desa lewat konteks (aksi "Kelola Wilayah").
     // Nama sama di desa berbeda → boleh.
+    DesaContext::set($b->id);
     Livewire::test(CreateDesaUnit::class)
-        ->fillForm(['desa_id' => $b->id, 'nama' => 'Dusun Satu'])
+        ->fillForm(['nama' => 'Dusun Satu'])
         ->call('create')
         ->assertHasNoFormErrors();
 
     // Duplikat di desa yang sama → gagal.
+    DesaContext::set($a->id);
     Livewire::test(CreateDesaUnit::class)
-        ->fillForm(['desa_id' => $a->id, 'nama' => 'Dusun Satu'])
+        ->fillForm(['nama' => 'Dusun Satu'])
         ->call('create')
         ->assertHasFormErrors(['nama']);
+});
+
+it('nama wilayah yang sudah dihapus boleh dipakai ulang', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+
+    $unit = DesaUnit::create(['desa_id' => $desa->id, 'nama' => 'Jorong Lama']);
+    $unit->delete(); // soft delete
+
+    // Nama bekas yang sudah dihapus → boleh dibuat lagi (unique menyertakan deleted_at).
+    Livewire::test(CreateDesaUnit::class)
+        ->fillForm(['nama' => 'Jorong Lama'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(DesaUnit::where('desa_id', $desa->id)->where('nama', 'Jorong Lama')->count())->toBe(1);
 });
 
 it('desa_admin hanya melihat wilayah desanya', function () {
@@ -56,6 +76,42 @@ it('desa_admin hanya melihat wilayah desanya', function () {
     Livewire::test(ListDesaUnits::class)
         ->assertCanSeeTableRecords(DesaUnit::where('desa_id', $a->id)->get())
         ->assertCanNotSeeTableRecords(DesaUnit::where('desa_id', $b->id)->get());
+});
+
+it('wilayah yang masih dihuni warga tidak bisa dihapus', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+    $unit = DesaUnit::create(['desa_id' => $desa->id, 'nama' => 'Jorong Huni']);
+    User::factory()->warga()->create(['desa_id' => $desa->id, 'desa_unit_id' => $unit->id]);
+
+    Livewire::test(ListDesaUnits::class)
+        ->callTableAction('delete', $unit);
+
+    expect($unit->fresh()->trashed())->toBeFalse(); // guard meng-halt hapus
+});
+
+it('wilayah kosong bisa dihapus (soft delete)', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+    $unit = DesaUnit::create(['desa_id' => $desa->id, 'nama' => 'Jorong Kosong']);
+
+    Livewire::test(ListDesaUnits::class)
+        ->callTableAction('delete', $unit);
+
+    expect($unit->fresh()->trashed())->toBeTrue();
+});
+
+it('kolom Warga hanya menghitung warga, bukan akun admin', function () {
+    $desa = Desa::factory()->create();
+    $this->actingAs(User::factory()->desaAdmin()->create(['desa_id' => $desa->id]));
+    $unit = DesaUnit::create(['desa_id' => $desa->id, 'nama' => 'Jorong Hitung']);
+
+    User::factory()->warga()->create(['desa_id' => $desa->id, 'desa_unit_id' => $unit->id]);
+    User::factory()->warga()->create(['desa_id' => $desa->id, 'desa_unit_id' => $unit->id]);
+    // Akun admin yang kebetulan beralamat di sub-unit ini tak boleh ikut terhitung.
+    User::factory()->desaAdmin()->create(['desa_id' => $desa->id, 'desa_unit_id' => $unit->id]);
+
+    expect(DesaUnit::withCount('warga')->find($unit->id)->warga_count)->toBe(2);
 });
 
 it('warga bisa diberi wilayah desanya, wilayah desa lain ditolak', function () {

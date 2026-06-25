@@ -9,6 +9,7 @@ use App\Filament\Resources\UmkmProfiles\RelationManagers\ProductsRelationManager
 use App\Filament\Resources\UmkmProfiles\Schemas\UmkmProfileForm;
 use App\Filament\Resources\UmkmProfiles\Tables\UmkmProfilesTable;
 use App\Models\UmkmProfile;
+use App\Support\DesaContext;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -30,11 +31,26 @@ class UmkmProfileResource extends Resource
         return 'UMKM';
     }
 
-    // Super admin mengelola UMKM via Detail Desa (per desa). Tetap dapat diakses,
-    // hanya disembunyikan dari sidebar global.
+    // Tampil di sidebar untuk admin desa; untuk super admin hanya saat sedang
+    // mengelola sebuah desa (masuk lewat aksi "Kelola › UMKM" di menu Desa).
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->isDesaAdmin() ?? false;
+        return static::canAccess();
+    }
+
+    /**
+     * desa_admin selalu boleh. super admin hanya saat sedang mengelola sebuah desa
+     * (DesaContext, lewat aksi "Kelola › UMKM"); akses langsung tanpa konteks ditolak.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        if ($user?->isDesaAdmin()) {
+            return true;
+        }
+
+        return $user?->isSuperAdmin() && DesaContext::id() !== null;
     }
 
     public static function getModelLabel(): string
@@ -74,13 +90,16 @@ class UmkmProfileResource extends Resource
         );
     }
 
-    /** desa_admin hanya UMKM di desanya; super_admin melihat semua. */
+    /**
+     * Ter-scope ke desa yang sedang dikelola: desa_admin → desanya; super admin →
+     * desa konteks (DesaContext). Tanpa konteks, super admin tak bisa akses (canAccess).
+     */
     protected static function scopeToActor(Builder $query): Builder
     {
-        $user = auth()->user();
+        $desaId = auth()->user()?->managedDesaId();
 
-        if ($user?->isDesaAdmin()) {
-            $query->forDesa($user->desa_id);
+        if ($desaId !== null) {
+            $query->forDesa($desaId);
         }
 
         return $query;

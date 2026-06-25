@@ -7,19 +7,20 @@ use App\Models\Desa;
 use App\Models\JenisDesa;
 use App\Models\JenisSubUnit;
 use App\Models\RefWilayah;
-use App\Models\User;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 class DesaForm
 {
@@ -33,14 +34,16 @@ class DesaForm
                     ->columns(2)
                     ->schema([
                         Select::make('wilayah_kode')
-                            ->label('Nama desa/kelurahan')
+                            ->label('Nama desa')
                             ->required()
                             ->searchable()
                             ->native(false)
                             ->live()
                             ->getSearchResultsUsing(fn (string $search): array => self::searchDesa($search))
                             ->getOptionLabelUsing(fn (?string $value): ?string => self::desaLabel($value))
-                            ->unique(Desa::class, 'wilayah_kode', ignoreRecord: true)
+                            // Bentrok hanya dgn desa AKTIF; kode desa yang sudah diarsipkan
+                            // boleh dipakai ulang (lihat migrasi unique wilayah_kode + deleted_at).
+                            ->unique(Desa::class, 'wilayah_kode', ignoreRecord: true, modifyRuleUsing: fn (Unique $rule): Unique => $rule->withoutTrashed())
                             ->prefixIcon(Heroicon::OutlinedMagnifyingGlass)
                             ->helperText('Mulai ketik nama desa untuk mencari.')
                             ->columnSpanFull()
@@ -48,7 +51,7 @@ class DesaForm
                             ->afterStateUpdated(fn (Set $set, ?string $state) => self::applyWilayah($set, $state)),
 
                         Select::make('jenis_desa_id')
-                            ->label('Penyebutan wilayah')
+                            ->label('Penyebutan desa')
                             ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
                             ->required()
                             ->searchable()
@@ -56,11 +59,11 @@ class DesaForm
                             ->helperText('Sebutan administratif setingkat desa — mis. Desa / Kelurahan / Nagari.'),
 
                         Select::make('jenis_sub_unit_id')
-                            ->label('Sebutan sub-unit (opsional)')
+                            ->label('Sebutan sub-unit')
                             ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
                             ->searchable()
                             ->native(false)
-                            ->helperText('Boleh dikosongkan — admin desa dapat mengaturnya sendiri.'),
+                            ->helperText('Bagian dalam desa — mis. Jorong / Dusun / Lingkungan. Boleh dikosongkan; admin desa dapat mengaturnya sendiri.'),
 
                         // Diisi otomatis dari pilihan desa (disimpan denormalized untuk display cepat).
                         Hidden::make('nama'),
@@ -77,49 +80,65 @@ class DesaForm
                     ->collapsible()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('admin_name')
-                            ->label('Nama admin')
-                            ->maxLength(255)
-                            ->dehydrated(false)
-                            ->helperText('Boleh dikosongkan — otomatis "Admin {nama desa}".'),
+                        // Username & Nama admin FIX & OTOMATIS (tak bisa diubah): username =
+                        // kode nagari (analog warga login pakai NIK), nama = "Admin {nama desa}".
+                        // Read-only, ikut pilihan "Nama desa" di atas (live).
+                        Placeholder::make('admin_username_display')
+                            ->label('Username admin (otomatis)')
+                            ->content(function (?Model $record, Get $get): string {
+                                $kode = $record instanceof Desa ? $record->wilayah_kode : $get('wilayah_kode');
 
-                        TextInput::make('admin_username')
-                            ->label('Username admin')
+                                return Desa::usernameFromKode($kode) ?: '— pilih nama desa dulu —';
+                            }),
+
+                        Placeholder::make('admin_name_display')
+                            ->label('Nama admin (otomatis)')
+                            ->content(function (?Model $record, Get $get): string {
+                                if ($record instanceof Desa) {
+                                    return 'Admin '.$record->nama_lengkap;
+                                }
+
+                                $nama = $get('nama');
+                                if (! $nama) {
+                                    return '— pilih nama desa dulu —';
+                                }
+
+                                // Susun nama_lengkap untuk pratinjau saat create (jenis + nama).
+                                $jenis = JenisDesa::find($get('jenis_desa_id'))?->nama;
+
+                                return 'Admin '.trim(($jenis ? $jenis.' ' : '').$nama);
+                            }),
+
+                        TextInput::make('admin_email')
+                            ->label('Email admin')
+                            ->email()
                             ->maxLength(255)
-                            ->rules(['alpha_dash'])
                             ->dehydrated(false)
-                            ->prefixIcon(Heroicon::OutlinedAtSymbol)
-                            ->rule(fn (?Model $record) => Rule::unique('users', 'username')->ignore(self::adminId($record)))
-                            ->helperText('Opsional. Tanpa spasi. Kosongkan bila belum ingin membuat akun admin.'),
+                            ->prefixIcon(Heroicon::OutlinedEnvelope)
+                            // Unik lintas users; abaikan akun admin desa ini sendiri saat edit.
+                            ->rule(fn (?Model $record) => Rule::unique('users', 'email')
+                                ->ignore($record instanceof Desa ? $record->desaAdmin()->value('id') : null))
+                            ->helperText('Opsional. Disimpan huruf kecil.'),
 
                         TextInput::make('admin_kontak')
-                            ->label('Kontak admin')
+                            ->label('No. HP admin')
                             ->tel()
                             ->maxLength(20)
                             ->dehydrated(false)
                             ->prefixIcon(Heroicon::OutlinedPhone)
-                            ->helperText('No. WhatsApp/HP admin (opsional).'),
+                            ->helperText('Opsional. Boleh tulis 0812…, +62…, atau 62… — disimpan sebagai 62…'),
 
+                        // Hanya saat akun admin BELUM ada (buat desa, atau edit desa yang
+                        // belum punya admin). Admin yang sudah ada → reset lewat aksi
+                        // "Reset OTP Admin". Logika identik dgn "Kode OTP awal" warga.
                         TextInput::make('admin_otp')
-                            ->label('Kode OTP')
+                            ->label('Kode OTP awal')
+                            ->minLength(4)
                             ->maxLength(12)
                             ->dehydrated(false)
                             ->prefixIcon(Heroicon::OutlinedKey)
-                            ->helperText(fn (?Model $record): string => $record
-                                ? 'Isi untuk menerbitkan OTP baru (reset sandi admin). Kosongkan bila tak ingin mengubah.'
-                                : 'Kosongkan untuk OTP otomatis, atau isi kode sendiri.'),
-
-                        Placeholder::make('admin_otp_current')
-                            ->label('Kode OTP saat ini')
-                            ->columnSpanFull()
-                            ->visible(fn (?Model $record): bool => $record instanceof Desa && $record->desaAdmin()->exists())
-                            ->content(function (?Model $record): string {
-                                $admin = $record instanceof Desa ? $record->desaAdmin()->first() : null;
-
-                                return filled($admin?->initial_otp)
-                                    ? $admin->initial_otp.' — belum diganti admin'
-                                    : 'Sudah diganti admin (OTP tak berlaku lagi).';
-                            }),
+                            ->visible(fn (?Model $record): bool => ! ($record instanceof Desa && $record->desaAdmin()->exists()))
+                            ->helperText('Opsional. Isi bila ingin menetapkan OTP sekarang; kosongkan dan terbitkan nanti lewat aksi "Reset OTP Admin" saat admin siap login. Wajib diganti saat login pertama.'),
                     ]),
 
                 Section::make('Status')
@@ -205,16 +224,6 @@ class DesaForm
         $geo = DB::table('wilayah_boundaries')->where('kode', $kode)->first(['lat', 'lng']);
         $set('koordinat_lat', $geo->lat ?? null);
         $set('koordinat_lng', $geo->lng ?? null);
-    }
-
-    /** ID akun admin desa saat ini (untuk pengecualian unique username), bila ada. */
-    protected static function adminId(?Model $record): ?int
-    {
-        if (! $record instanceof Desa) {
-            return null;
-        }
-
-        return User::where('desa_id', $record->id)->where('role', 'desa_admin')->value('id');
     }
 
     /** Kode leluhur pada `n` segmen pertama (1=prov, 2=kab, 3=kec). */

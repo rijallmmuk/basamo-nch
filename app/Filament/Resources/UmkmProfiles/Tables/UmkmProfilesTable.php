@@ -17,6 +17,10 @@ class UmkmProfilesTable
 {
     public static function configure(Table $table): Table
     {
+        // Ter-scope ke satu desa (desa_admin, atau super admin via "Kelola › UMKM")
+        // → kolom Desa tak relevan.
+        $scopedToDesa = auth()->user()?->managedDesaId() !== null;
+
         return $table
             // Klik baris → buka Edit.
             ->recordUrl(fn (UmkmProfile $record): string => UmkmProfileResource::getUrl('edit', ['record' => $record]))
@@ -42,7 +46,7 @@ class UmkmProfilesTable
                 TextColumn::make('desa.nama')
                     ->label('Desa')
                     ->sortable()
-                    ->visible(fn () => auth()->user()?->isSuperAdmin()),
+                    ->visible(! $scopedToDesa),
 
                 TextColumn::make('products_count')
                     ->label('Produk')

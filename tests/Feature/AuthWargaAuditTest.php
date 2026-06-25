@@ -99,6 +99,23 @@ it('paksa-ganti login pertama tidak butuh sandi lama (sudah autentik via OTP)', 
         ->and(Hash::check('sandi-baru-123', $warga->password))->toBeTrue();
 });
 
+it('login pertama bisa sekalian mengisi No. HP & email (opsional, dinormalkan)', function () {
+    $warga = makeWarga(['must_change_password' => true]);
+
+    $this->actingAs($warga)
+        ->post(route('portal.password.update'), [
+            'password' => 'sandi-baru-123',
+            'password_confirmation' => 'sandi-baru-123',
+            'phone' => '0812 3456 7890',
+            'email' => 'Warga.Baru@Example.COM',
+        ])
+        ->assertRedirect(route('portal.home'));
+
+    $warga->refresh();
+    expect($warga->phone)->toBe('6281234567890')          // dinormalkan 62xxx
+        ->and($warga->email)->toBe('warga.baru@example.com'); // huruf kecil
+});
+
 // ── A6: kebijakan sandi minimal (huruf + angka) ──────────────────────
 it('menolak sandi baru yang terlalu lemah', function () {
     $warga = makeWarga(['must_change_password' => true]);
