@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -55,8 +56,8 @@ class PagesRelationManager extends RelationManager
                     })
                     ->placeholder('https://www.youtube.com/watch?v=...')
                     ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
-                    ->visible(fn ($get) => $get('tipe') === 'video')
-                    ->required(fn ($get) => $get('tipe') === 'video')
+                    ->visible(fn (Get $get) => $this->isType($get, ModulePageType::Video))
+                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Video))
                     ->maxLength(500)
                     ->columnSpanFull(),
 
@@ -67,8 +68,8 @@ class PagesRelationManager extends RelationManager
                     ->disk(config('media-library.disk_name'))
                     ->directory('modules/pages/pdf')
                     ->visibility('public')
-                    ->visible(fn ($get) => $get('tipe') === 'pdf')
-                    ->required(fn ($get) => $get('tipe') === 'pdf')
+                    ->visible(fn (Get $get) => $this->isType($get, ModulePageType::Pdf))
+                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Pdf))
                     ->maxSize(10240) // 10 MB
                     ->helperText('Maksimal 10 MB, format PDF.')
                     ->columnSpanFull(),
@@ -76,13 +77,25 @@ class PagesRelationManager extends RelationManager
                 // Untuk text = materi utama (wajib). Untuk video/pdf = penjelasan/instruksi
                 // opsional yang ditampilkan di atas media untuk warga.
                 RichEditor::make('konten')
-                    ->label(fn ($get): string => $get('tipe') === 'text' ? 'Konten' : 'Penjelasan / Instruksi (opsional)')
-                    ->helperText(fn ($get): ?string => $get('tipe') === 'text'
+                    ->label(fn (Get $get): string => $this->isType($get, ModulePageType::Text) ? 'Konten' : 'Penjelasan / Instruksi (opsional)')
+                    ->helperText(fn (Get $get): ?string => $this->isType($get, ModulePageType::Text)
                         ? null
                         : 'Opsional — penjelasan atau instruksi untuk warga, ditampilkan di atas media.')
-                    ->required(fn ($get) => $get('tipe') === 'text')
+                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Text))
                     ->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * Cocokkan tipe terpilih ke enum — tahan terhadap state berupa enum (saat edit/
+     * hidrasi dari model ber-cast) MAUPUN string. `$get('tipe') === 'video'` saja gagal
+     * karena Select ber-options enum mengembalikan instance ModulePageType.
+     */
+    private function isType(Get $get, ModulePageType $type): bool
+    {
+        $value = $get('tipe');
+
+        return $value instanceof ModulePageType ? $value === $type : $value === $type->value;
     }
 
     public function table(Table $table): Table
