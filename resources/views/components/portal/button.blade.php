@@ -7,10 +7,11 @@
 
 @php
     $variants = [
-        'primary' => 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm',
-        'secondary' => 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-        'ghost' => 'text-gray-600 hover:bg-gray-100',
-        'danger' => 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+        'primary' => 'bg-primary text-on-primary hover:bg-surface-tint shadow-sm',
+        'secondary' => 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest',
+        'ghost' => 'text-on-surface-variant hover:bg-surface-container-high',
+        'accent' => 'bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim shadow-sm',
+        'danger' => 'bg-error text-on-error hover:bg-on-error-container shadow-sm',
     ];
     $sizes = [
         'sm' => 'gap-1.5 px-3 py-2 text-sm',

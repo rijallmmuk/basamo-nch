@@ -4,11 +4,11 @@
     'subtitle' => null,
 ])
 
-<div {{ $attributes->merge(['class' => 'flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center']) }}>
-    <x-dynamic-component :component="$icon" class="h-10 w-10 text-gray-300" />
-    <p class="mt-4 font-semibold text-gray-700">{{ $title }}</p>
+<div {{ $attributes->merge(['class' => 'flex flex-col items-center justify-center rounded-2xl border border-dashed border-outline-variant bg-surface-container-lowest px-6 py-16 text-center']) }}>
+    <x-dynamic-component :component="$icon" class="h-10 w-10 text-outline-variant" />
+    <p class="mt-4 font-semibold text-on-surface">{{ $title }}</p>
     @if($subtitle)
-        <p class="mt-1 text-sm text-gray-400">{{ $subtitle }}</p>
+        <p class="mt-1 text-sm text-on-surface-variant">{{ $subtitle }}</p>
     @endif
     @if(trim($slot))
         <div class="mt-5">{{ $slot }}</div>

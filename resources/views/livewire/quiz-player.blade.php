@@ -4,27 +4,27 @@
     @if($submitted)
         @php
             $resultMap = [
-                'passed' => ['ring' => 'border-emerald-200', 'bg' => 'bg-emerald-100', 'fg' => 'text-emerald-600', 'icon' => 'heroicon-s-check-circle', 'title' => 'Selamat, Kamu Lulus!', 'titleColor' => 'text-emerald-700'],
-                'failed' => ['ring' => 'border-red-200', 'bg' => 'bg-red-100', 'fg' => 'text-red-500', 'icon' => 'heroicon-s-x-circle', 'title' => 'Belum Lulus', 'titleColor' => 'text-red-600'],
+                'passed' => ['ring' => 'border-sdg-3/30', 'bg' => 'bg-sdg-3/10', 'fg' => 'text-sdg-3', 'icon' => 'heroicon-s-check-circle', 'title' => 'Selamat, Kamu Lulus!', 'titleColor' => 'text-sdg-3'],
+                'failed' => ['ring' => 'border-error/30', 'bg' => 'bg-error-container', 'fg' => 'text-error', 'icon' => 'heroicon-s-x-circle', 'title' => 'Belum Lulus', 'titleColor' => 'text-error'],
             ];
             $r = $resultMap[$resultStatus] ?? $resultMap['failed'];
         @endphp
 
-        <div class="flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-14 text-center shadow-sm {{ $r['ring'] }}">
+        <div class="flex flex-col items-center justify-center rounded-2xl border bg-surface-container-lowest px-6 py-14 text-center shadow-sm {{ $r['ring'] }}">
             <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-full {{ $r['bg'] }}">
                 <x-dynamic-component :component="$r['icon']" class="h-12 w-12 {{ $r['fg'] }}" />
             </div>
             <h2 class="text-2xl font-bold {{ $r['titleColor'] }}">{{ $r['title'] }}</h2>
 
-            <p class="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">Nilai kamu</p>
+            <p class="mt-3 text-xs font-medium uppercase tracking-wide text-on-surface-variant">Nilai kamu</p>
             <p class="text-4xl font-bold {{ $r['fg'] }}">{{ $resultScore }}</p>
-            <p class="mt-1 text-sm text-gray-400">Nilai minimum lulus: {{ $quiz->nilai_lulus }}</p>
+            <p class="mt-1 text-sm text-on-surface-variant">Nilai minimum lulus: {{ $quiz->nilai_lulus }}</p>
             @if($resultStatus === 'failed')
-                <p class="mt-2 text-sm text-gray-500">Pelajari kembali materi lalu coba lagi.</p>
+                <p class="mt-2 text-sm text-on-surface-variant">Pelajari kembali materi lalu coba lagi.</p>
             @endif
 
             <a href="{{ route('portal.modules.show', $module) }}"
-                class="mt-7 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
+                class="mt-7 inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-lowest px-6 py-3 text-sm font-bold text-on-surface-variant shadow-sm transition-colors hover:bg-surface-container-low">
                 <x-heroicon-o-arrow-left class="h-5 w-5" />
                 Kembali ke Modul
             </a>
@@ -39,9 +39,9 @@
         @endphp
 
         {{-- Header + progress --}}
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-            <h1 class="text-lg font-bold text-gray-900 sm:text-xl">{{ $quiz->title }}</h1>
-            <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500">
+        <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm sm:p-6">
+            <h1 class="text-lg font-bold text-on-surface sm:text-xl">{{ $quiz->title }}</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-on-surface-variant">
                 <span class="inline-flex items-center gap-1.5">
                     <x-heroicon-o-clipboard-document-list class="h-4 w-4" /> {{ $totalQ }} soal
                 </span>
@@ -57,11 +57,11 @@
 
             <div class="mt-4">
                 <div class="mb-1.5 flex items-center justify-between text-xs">
-                    <span class="font-medium text-gray-500">{{ $answeredQ }} dari {{ $totalQ }} soal terjawab</span>
-                    <span class="font-bold text-indigo-600">{{ $answeredPct }}%</span>
+                    <span class="font-medium text-on-surface-variant">{{ $answeredQ }} dari {{ $totalQ }} soal terjawab</span>
+                    <span class="font-bold text-primary">{{ $answeredPct }}%</span>
                 </div>
-                <div class="h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div class="h-full rounded-full bg-indigo-500 transition-all duration-300" style="width: {{ $answeredPct }}%"></div>
+                <div class="h-2 overflow-hidden rounded-full bg-surface-container-high">
+                    <div class="h-full rounded-full bg-primary transition-all duration-300" style="width: {{ $answeredPct }}%"></div>
                 </div>
             </div>
         </div>
@@ -69,12 +69,12 @@
         {{-- Error banner --}}
         @if(! empty($quizErrors))
             <div x-data x-init="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                class="mt-5 overflow-hidden rounded-xl border border-red-200 bg-red-50">
-                <div class="flex items-center gap-2 border-b border-red-100 px-4 py-3 text-sm font-semibold text-red-700">
+                class="mt-5 overflow-hidden rounded-xl border border-error/30 bg-error-container">
+                <div class="flex items-center gap-2 border-b border-error/20 px-4 py-3 text-sm font-semibold text-on-error-container">
                     <x-heroicon-s-exclamation-triangle class="h-5 w-5 shrink-0" />
                     Ada soal yang belum dijawab
                 </div>
-                <ul class="px-4 py-2 text-sm text-red-600">
+                <ul class="px-4 py-2 text-sm text-on-error-container">
                     @foreach($quizErrors as $error)
                         <li class="py-0.5">{{ $error }}</li>
                     @endforeach
@@ -89,17 +89,17 @@
                     $isUnanswered = ! empty($quizErrors) && empty($answers[$question->id]);
                     $isMulti = $question->options->where('is_correct', true)->count() > 1;
                 @endphp
-                <div class="overflow-hidden rounded-2xl border bg-white shadow-sm {{ $isUnanswered ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200' }}">
+                <div class="overflow-hidden rounded-2xl border bg-surface-container-lowest shadow-sm {{ $isUnanswered ? 'border-error ring-1 ring-error/20' : 'border-outline-variant' }}">
 
                     {{-- Question header --}}
-                    <div class="flex items-start gap-3 border-b border-gray-100 px-5 py-4 sm:px-6">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white">
+                    <div class="flex items-start gap-3 border-b border-outline-variant px-5 py-4 sm:px-6">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">
                             {{ $loop->iteration }}
                         </span>
                         <div class="flex-1">
-                            <p class="text-[15px] font-semibold leading-relaxed text-gray-900">{{ $question->pertanyaan }}</p>
+                            <p class="text-[15px] font-semibold leading-relaxed text-on-surface">{{ $question->pertanyaan }}</p>
                             @if($isMulti)
-                                <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
+                                <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary">
                                     <x-heroicon-o-check-circle class="h-3.5 w-3.5" />
                                     Pilih semua jawaban yang benar
                                 </p>
@@ -118,10 +118,10 @@
                                         : ($sel !== null && $sel == $option->id);
                                 @endphp
                                 <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all
-                                    {{ $isSelected ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
+                                    {{ $isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-outline-variant hover:border-outline hover:bg-surface-container-low' }}">
                                     <input type="{{ $isMulti ? 'checkbox' : 'radio' }}" wire:model.live="answers.{{ $question->id }}" value="{{ $option->id }}"
-                                        class="h-5 w-5 shrink-0 accent-indigo-600 {{ $isMulti ? 'rounded' : '' }}">
-                                    <span class="text-sm leading-relaxed text-gray-800">{{ $option->teks_opsi }}</span>
+                                        class="h-5 w-5 shrink-0 accent-primary {{ $isMulti ? 'rounded' : '' }}">
+                                    <span class="text-sm leading-relaxed text-on-surface">{{ $option->teks_opsi }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -131,14 +131,20 @@
         </div>
 
         {{-- Submit --}}
-        <div class="mt-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-            <p class="mb-4 text-sm leading-relaxed text-gray-500">
-                Pastikan semua soal sudah dijawab. <strong class="text-gray-700">Jawaban tidak dapat diubah setelah dikumpulkan.</strong>
+        <div class="mt-5 rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm sm:p-6">
+            <p class="mb-4 text-sm leading-relaxed text-on-surface-variant">
+                Pastikan semua soal sudah dijawab. <strong class="text-on-surface">Jawaban tidak dapat diubah setelah dikumpulkan.</strong>
             </p>
-            <button wire:click="submit"
-                wire:confirm="Yakin ingin mengumpulkan jawaban? Tindakan ini tidak dapat dibatalkan."
+            <x-portal.confirm-dialog
+                title="Kumpulkan jawaban?"
+                message="Pastikan semua soal sudah dijawab. Jawaban tidak dapat diubah setelah dikumpulkan."
+                confirm-label="Ya, Kumpulkan"
+                cancel-label="Periksa Lagi"
+                icon="heroicon-o-paper-airplane"
+                on-confirm="$wire.submit()"
                 wire:loading.attr="disabled"
-                class="flex w-full items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-60">
+                wire:target="submit"
+                trigger-class="flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary shadow-sm transition-colors hover:bg-surface-tint disabled:opacity-60">
                 <span wire:loading.remove wire:target="submit" class="flex items-center gap-2.5">
                     <x-heroicon-o-paper-airplane class="h-5 w-5" />
                     Kumpulkan Jawaban
@@ -150,7 +156,7 @@
                     </svg>
                     Memproses...
                 </span>
-            </button>
+            </x-portal.confirm-dialog>
         </div>
     @endif
 </div>

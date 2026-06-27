@@ -22,21 +22,16 @@
     {{-- ── DESKTOP SIDEBAR (lg+) ───────────────────────────────────── --}}
     <aside class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-64 lg:flex-col rounded-r-xl bg-surface-container-low p-lg shadow-sm">
         {{-- Brand --}}
-        <div class="mb-xl flex items-center gap-md px-lg pt-1">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary shadow-sm">
-                <x-heroicon-s-academic-cap class="h-5 w-5 text-on-primary" />
+        <div class="mb-xl flex items-center gap-sm px-1 pt-1">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center bg-primary gonjong-peak">
+                <x-heroicon-s-academic-cap class="h-5 w-5 text-secondary-container" />
             </div>
-            <div class="leading-tight">
-                <p class="text-headline-sm font-bold text-sdg-17">Basamo NCH</p>
-                <p class="text-label-md text-on-surface-variant">Smart Learning Center</p>
+            <div class="leading-none">
+                {{-- Wordmark jadi acuan lebar; subtitle di-justify agar kedua baris sama panjang. --}}
+                <p class="w-fit whitespace-nowrap text-xl font-extrabold text-primary">Basamo <span class="text-secondary">NCH</span></p>
+                <p class="mt-1 text-[11px] font-medium text-on-surface-variant" style="text-align: justify; text-align-last: justify;">Smart Learning Center</p>
             </div>
         </div>
-
-        {{-- CTA --}}
-        <a href="{{ route('portal.modules.index') }}"
-            class="mb-xl block rounded-lg bg-primary py-md text-center text-headline-sm font-bold text-on-primary shadow-sm transition-colors hover:bg-surface-tint">
-            Mulai Belajar
-        </a>
 
         {{-- Nav --}}
         <nav class="flex-1 space-y-sm">
@@ -50,11 +45,7 @@
                 <x-dynamic-component :component="$onModule ? 'heroicon-s-book-open' : 'heroicon-o-book-open'" class="h-5 w-5" />
                 Belajar
             </a>
-            <a href="{{ route('portal.leaderboard') }}"
-                class="flex items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium transition-all duration-200 active:translate-x-1 {{ request()->routeIs('portal.leaderboard') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high' }}">
-                <x-dynamic-component :component="request()->routeIs('portal.leaderboard') ? 'heroicon-s-trophy' : 'heroicon-o-trophy'" class="h-5 w-5" />
-                Peringkat
-            </a>
+            {{-- "Peringkat" tak lagi di nav — diakses lewat kartu interaktif di beranda. --}}
             @if($isUmkmOwner)
                 <a href="{{ route('portal.umkm.index') }}"
                     class="flex items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium transition-all duration-200 active:translate-x-1 {{ $onUmkm ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high' }}">
@@ -64,22 +55,7 @@
             @endif
         </nav>
 
-        {{-- Bottom --}}
-        <div class="mt-auto space-y-sm border-t border-outline-variant pt-lg">
-            <a href="{{ route('portal.profile.edit') }}"
-                class="flex items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium text-on-surface-variant transition-all duration-200 hover:bg-surface-container-high active:translate-x-1">
-                <x-heroicon-o-user-circle class="h-5 w-5" />
-                Profil Saya
-            </a>
-            <form method="POST" action="{{ route('portal.logout') }}">
-                @csrf
-                <button type="submit"
-                    class="flex w-full items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium text-danger transition-all duration-200 hover:bg-error-container active:translate-x-1">
-                    <x-heroicon-o-arrow-right-on-rectangle class="h-5 w-5" />
-                    Keluar
-                </button>
-            </form>
-        </div>
+        {{-- Profil & Keluar tersedia di menu pengguna (pojok kanan atas) — tak diduplikasi di sini. --}}
     </aside>
 
     {{-- ── CONTENT (offset by sidebar on lg) ───────────────────────── --}}
@@ -90,11 +66,11 @@
             <div class="flex h-16 items-center justify-between px-margin-mobile sm:px-6 lg:px-margin-desktop">
                 {{-- Brand (mobile) / spacer (desktop) --}}
                 <a href="{{ route('portal.home') }}" class="flex items-center gap-md lg:hidden">
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary shadow-sm">
-                        <x-heroicon-s-academic-cap class="h-5 w-5 text-on-primary" />
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center bg-primary gonjong-peak">
+                        <x-heroicon-s-academic-cap class="h-5 w-5 text-secondary-container" />
                     </div>
                     <div class="leading-tight">
-                        <p class="text-headline-sm font-bold text-primary">Basamo NCH</p>
+                        <p class="text-headline-sm font-bold text-primary">Basamo <span class="text-secondary">NCH</span></p>
                         <p class="text-label-md text-on-surface-variant">{{ $user->desa?->nama_lengkap ?? 'Portal Warga' }}</p>
                     </div>
                 </a>
@@ -157,34 +133,33 @@
             </div>
         </header>
 
-        {{-- Flash --}}
-        @if(session('error') || session('info') || session('success'))
-            <div class="mx-auto w-full max-w-5xl px-margin-mobile pt-lg sm:px-6 lg:px-margin-desktop">
-                <div class="space-y-sm">
-                    @if(session('success'))
-                        <div class="flex items-start gap-sm rounded-xl border border-secondary-container bg-secondary-container/30 px-4 py-3 text-body-md text-on-secondary-container">
-                            <x-heroicon-s-check-circle class="mt-0.5 h-4 w-4 shrink-0" /> {{ session('success') }}
-                        </div>
-                    @endif
-                    @if(session('info'))
-                        <div class="flex items-start gap-sm rounded-xl border border-primary-fixed bg-primary-fixed/40 px-4 py-3 text-body-md text-primary">
-                            <x-heroicon-s-information-circle class="mt-0.5 h-4 w-4 shrink-0" /> {{ session('info') }}
-                        </div>
-                    @endif
-                    @if(session('error'))
-                        <div class="flex items-start gap-sm rounded-xl border border-error-container bg-error-container/40 px-4 py-3 text-body-md text-on-error-container">
-                            <x-heroicon-s-exclamation-triangle class="mt-0.5 h-4 w-4 shrink-0" /> {{ session('error') }}
-                        </div>
-                    @endif
-                </div>
-            </div>
+        {{-- Flash → toast: satu kanal alert (animasi, berikon, bisa ditutup). Error tampil
+             lebih lama (panduan navigasi tak boleh terlewat). Lihat x-portal.toast. --}}
+        @php
+            $flashToasts = collect(['success', 'info', 'error'])
+                ->filter(fn ($type) => filled(session($type)))
+                ->map(fn ($type) => ['type' => $type, 'message' => session($type)])
+                ->values();
+        @endphp
+        @if($flashToasts->isNotEmpty())
+            <script>
+                window.addEventListener('load', () => {
+                    @foreach($flashToasts as $f)
+                        window.dispatchEvent(new CustomEvent('toast', { detail: {
+                            type: @json($f['type']),
+                            title: @json($f['message']),
+                            timeout: {{ $f['type'] === 'error' ? 6000 : 4000 }},
+                        } }));
+                    @endforeach
+                });
+            </script>
         @endif
 
         {{-- Hero --}}
         @yield('hero')
 
         {{-- Main --}}
-        <main class="mx-auto w-full max-w-5xl px-margin-mobile @yield('main-class', 'py-6 pb-28 lg:pb-10') sm:px-6 lg:px-margin-desktop">
+        <main class="mx-auto w-full @yield('main-width', 'max-w-[120rem]') px-margin-mobile @yield('main-class', 'py-6 pb-28 lg:pb-10') sm:px-6 lg:px-margin-desktop">
             @yield('content')
         </main>
     </div>
@@ -203,11 +178,7 @@
                 <x-dynamic-component :component="$onModule ? 'heroicon-s-book-open' : 'heroicon-o-book-open'" class="h-6 w-6" />
                 <span class="text-[10px] font-semibold">Belajar</span>
             </a>
-            <a href="{{ route('portal.leaderboard') }}"
-                class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ request()->routeIs('portal.leaderboard') ? 'text-primary' : 'text-on-surface-variant' }}">
-                <x-dynamic-component :component="request()->routeIs('portal.leaderboard') ? 'heroicon-s-trophy' : 'heroicon-o-trophy'" class="h-6 w-6" />
-                <span class="text-[10px] font-semibold">Peringkat</span>
-            </a>
+            {{-- "Peringkat" tak lagi di nav — diakses lewat kartu interaktif di beranda. --}}
             @if($isUmkmOwner)
                 <a href="{{ route('portal.umkm.index') }}"
                     class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onUmkm ? 'text-primary' : 'text-on-surface-variant' }}">

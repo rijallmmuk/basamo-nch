@@ -7,7 +7,8 @@ import confetti from 'canvas-confetti';
 window.fireConfetti = function () {
     const duration = 1200;
     const end = Date.now() + duration;
-    const colors = ['#6366f1', '#8b5cf6', '#22c55e', '#f59e0b'];
+    // Palet Nagari Creative Hub: deep blue, Minang gold, hijau SDG-3, biru SDG-14.
+    const colors = ['#003857', '#fed33e', '#4c9f38', '#0a97d9'];
 
     (function frame() {
         confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors });

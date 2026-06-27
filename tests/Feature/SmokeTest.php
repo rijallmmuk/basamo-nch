@@ -35,6 +35,7 @@ it('halaman portal warga terbuka tanpa error', function (string $name) {
     'portal.home',
     'portal.modules.index',
     'portal.leaderboard',
+    'portal.xp',
     'portal.notifications',
     'portal.profile.edit',
     'portal.password.edit',

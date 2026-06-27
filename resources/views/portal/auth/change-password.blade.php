@@ -6,118 +6,123 @@
     <title>Ganti Sandi — Basamo NCH</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="flex min-h-full flex-col items-center justify-center bg-slate-50 px-4 py-12 antialiased">
+<body class="relative flex min-h-full flex-col items-center justify-center overflow-hidden bg-background px-margin-mobile py-12 antialiased">
 
-    <div class="w-full max-w-[24rem]">
+    {{-- Latar dekoratif Minangkabau (selaras halaman login) --}}
+    <div class="gonjong-bg pointer-events-none absolute inset-0 opacity-60"></div>
+    <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/5 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-secondary-container/20 blur-3xl"></div>
+
+    @php
+        $inputClass = 'block w-full rounded-xl border-2 px-4 py-3 text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/50';
+        $inputState = fn (string $field) => $errors->has($field)
+            ? 'border-error bg-error-container/30 focus:border-error'
+            : 'border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest';
+    @endphp
+
+    <div class="relative z-10 w-full max-w-[24rem]">
 
         {{-- Brand --}}
         <div class="mb-8 text-center">
-            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg">
-                <span class="text-xl font-bold text-white">B</span>
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center bg-primary gonjong-peak shadow-lg">
+                <x-heroicon-s-academic-cap class="h-7 w-7 text-secondary-container" />
             </div>
-            <h1 class="text-2xl font-bold text-gray-900">Basamo NCH</h1>
-            <p class="mt-1 text-sm text-gray-500">Portal Pembelajaran Warga</p>
+            <h1 class="text-headline-lg font-extrabold tracking-tight text-primary">Basamo <span class="text-secondary">NCH</span></h1>
+            <p class="mt-1 text-body-md text-on-surface-variant">Portal Pembelajaran Warga</p>
         </div>
 
         {{-- Card --}}
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 class="text-base font-semibold text-gray-800">Buat kata sandi baru</h2>
-            <p class="mb-5 mt-1 text-sm text-gray-500">
+        <div class="rounded-3xl border border-outline-variant/50 bg-surface-container-lowest p-8 card-shadow">
+            <h2 class="text-headline-sm font-bold text-on-surface">Buat kata sandi baru</h2>
+            <p class="mb-6 mt-1 text-body-md text-on-surface-variant">
                 Demi keamanan, ganti sandi sementara (OTP) Anda dengan sandi pribadi.
             </p>
 
-            <form method="POST" action="{{ route('portal.password.update') }}" class="space-y-4">
+            <form method="POST" action="{{ route('portal.password.update') }}" class="space-y-5">
                 @csrf
 
                 {{-- Sandi lama — hanya untuk ganti sandi biasa (bukan paksa-ganti login pertama) --}}
                 @unless(auth()->user()->must_change_password)
                     <div>
-                        <label for="current_password" class="mb-1.5 block text-sm font-medium text-gray-700">
+                        <label for="current_password" class="mb-2 block text-body-md font-semibold text-on-surface">
                             Kata Sandi Saat Ini
                         </label>
                         <input type="password" id="current_password" name="current_password"
                             autocomplete="current-password"
-                            class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
-                                   @error('current_password') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
-                                   @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                            class="{{ $inputClass }} {{ $inputState('current_password') }}"
                             placeholder="••••••••">
                         @error('current_password')
-                            <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                         @enderror
                     </div>
                 @endunless
 
                 {{-- Password baru --}}
                 <div>
-                    <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700">
+                    <label for="password" class="mb-2 block text-body-md font-semibold text-on-surface">
                         Kata Sandi Baru
                     </label>
                     <input type="password" id="password" name="password"
                         autocomplete="new-password" autofocus
-                        class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
-                               @error('password') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
-                               @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                        class="{{ $inputClass }} {{ $inputState('password') }}"
                         placeholder="Minimal 8 karakter">
                     @error('password')
-                        <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                        <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Konfirmasi --}}
                 <div>
-                    <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-gray-700">
+                    <label for="password_confirmation" class="mb-2 block text-body-md font-semibold text-on-surface">
                         Ulangi Kata Sandi
                     </label>
                     <input type="password" id="password_confirmation" name="password_confirmation"
                         autocomplete="new-password"
-                        class="block w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                        class="{{ $inputClass }} border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest"
                         placeholder="••••••••">
                 </div>
 
                 {{-- Kontak (opsional) — lengkapi sekalian saat login pertama --}}
-                <div class="border-t border-gray-100 pt-4">
-                    <p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">Kontak (opsional)</p>
+                <div class="border-t border-outline-variant pt-5">
+                    <p class="mb-3 text-label-md font-medium uppercase tracking-wide text-on-surface-variant">Kontak (opsional)</p>
 
                     <div class="space-y-4">
                         <div>
-                            <label for="phone" class="mb-1.5 block text-sm font-medium text-gray-700">No. HP</label>
+                            <label for="phone" class="mb-2 block text-body-md font-semibold text-on-surface">No. HP</label>
                             <input type="tel" id="phone" name="phone"
                                 value="{{ old('phone', auth()->user()->phone) }}"
-                                class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
-                                       @error('phone') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
-                                       @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                                class="{{ $inputClass }} {{ $inputState('phone') }}"
                                 placeholder="0812xxxxxxxx">
                             @error('phone')
-                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+                            <label for="email" class="mb-2 block text-body-md font-semibold text-on-surface">Email</label>
                             <input type="email" id="email" name="email"
                                 value="{{ old('email', auth()->user()->email) }}"
-                                class="block w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300
-                                       @error('email') border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100
-                                       @else border-gray-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @enderror"
+                                class="{{ $inputClass }} {{ $inputState('email') }}"
                                 placeholder="nama@contoh.com">
                             @error('email')
-                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
                 </div>
 
                 <button type="submit"
-                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 active:scale-[0.99]">
+                    class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-body-md font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]">
+                    <x-heroicon-s-check-circle class="h-5 w-5" />
                     Simpan Sandi Baru
                 </button>
             </form>
         </div>
 
         {{-- Logout --}}
-        <form method="POST" action="{{ route('portal.logout') }}" class="mt-5 text-center">
+        <form method="POST" action="{{ route('portal.logout') }}" class="mt-6 text-center">
             @csrf
-            <button type="submit" class="text-xs text-gray-400 transition-colors hover:text-gray-600 hover:underline">
+            <button type="submit" class="text-label-md text-on-surface-variant/70 transition-colors hover:text-on-surface-variant hover:underline">
                 Keluar
             </button>
         </form>

@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" role="img" aria-label="Modul Pembelajaran Basamo NCH">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#4f46e5"/>
-      <stop offset="1" stop-color="#7c3aed"/>
+      <stop offset="0" stop-color="#003857"/>
+      <stop offset="1" stop-color="#1b4f72"/>
     </linearGradient>
   </defs>
   <rect width="800" height="450" fill="url(#bg)"/>
-  <circle cx="660" cy="70" r="140" fill="#ffffff" opacity="0.06"/>
+  <circle cx="660" cy="70" r="140" fill="#fed33e" opacity="0.12"/>
   <circle cx="120" cy="400" r="110" fill="#ffffff" opacity="0.06"/>
   <g transform="translate(320,96) scale(6.6667)" fill="#ffffff" opacity="0.95">
     <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.949 49.949 0 0 0-9.902 3.912l-.003.002a.75.75 0 0 1-.69 0 50.878 50.878 0 0 0-2.736-1.314v-.224c0-.131.067-.248.172-.311a54.616 54.616 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.857 1.857 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z"/>

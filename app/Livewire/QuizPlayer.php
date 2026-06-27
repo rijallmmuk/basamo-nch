@@ -33,6 +33,15 @@ class QuizPlayer extends Component
     {
         $this->quiz = $quiz;
         $this->module = $quiz->module;
+
+        // Pra-inisialisasi struktur jawaban. Soal multi-jawaban WAJIB bertipe
+        // array agar Livewire memperlakukan tiap checkbox sebagai anggota array.
+        // Tanpa ini property tetap skalar, sehingga mencentang satu checkbox
+        // mengubahnya jadi boolean true dan membuat seluruh checkbox ikut tercentang.
+        foreach ($this->questions as $question) {
+            $isMulti = $question->options->where('is_correct', true)->count() > 1;
+            $this->answers[$question->id] = $isMulti ? [] : null;
+        }
     }
 
     #[Computed]

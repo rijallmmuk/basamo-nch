@@ -67,6 +67,42 @@ class LmsProgressService
             ->first();
     }
 
+    /**
+     * Materi wajib dibaca berurutan: sebuah halaman hanya boleh diakses bila SEMUA
+     * halaman sebelumnya (berdasar urutan) sudah ditandai selesai. Halaman pertama
+     * selalu terbuka; halaman yang sudah selesai tetap bisa dibuka untuk ditinjau.
+     *
+     * @param  array<int, int>  $pagesCompleted
+     */
+    public function isPageAccessible(Module $module, ModulePage $page, array $pagesCompleted): bool
+    {
+        $ids = $module->pages->pluck('id')->all();
+        $targetIdx = array_search($page->id, $ids, true);
+
+        if ($targetIdx === false) {
+            return false;
+        }
+
+        for ($i = 0; $i < $targetIdx; $i++) {
+            if (! in_array($ids[$i], $pagesCompleted, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Halaman pertama yang belum selesai (titik "lanjut belajar") — selalu dapat diakses
+     * karena semua halaman sebelumnya pasti sudah selesai. Null bila seluruh modul tuntas.
+     *
+     * @param  array<int, int>  $pagesCompleted
+     */
+    public function firstIncompletePage(Module $module, array $pagesCompleted): ?ModulePage
+    {
+        return $module->pages->first(fn (ModulePage $p) => ! in_array($p->id, $pagesCompleted, true));
+    }
+
     public function getModuleStatus(User $user, Module $module): string
     {
         if (! $this->isModuleAccessible($user, $module)) {

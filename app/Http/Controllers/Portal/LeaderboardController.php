@@ -23,8 +23,16 @@ class LeaderboardController extends Controller
             ->orderBy('name')
             ->paginate(20);
 
+        // Top 3 untuk podium (ditampilkan hanya di halaman pertama).
+        $podium = $this->wargaQuery($user)
+            ->orderByDesc('total_xp')
+            ->orderBy('name')
+            ->limit(3)
+            ->get();
+
         return view('portal.leaderboard.index', [
             'warga' => $warga,
+            'podium' => $podium,
             'ranks' => $this->competitionRanks($user, $warga),
             'myRank' => $this->rankOf($user),
             'totalWarga' => $this->wargaQuery($user)->count(),

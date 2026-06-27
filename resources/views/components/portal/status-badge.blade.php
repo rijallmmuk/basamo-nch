@@ -1,11 +1,13 @@
 @props(['status' => 'available'])
 
 @php
+    // Warna status kanonik (selaras home.blade.php): selesai=hijau sdg-3,
+    // sedang=primary, terkunci=surface, belum=biru sdg-14.
     $map = [
-        'completed' => ['label' => 'Selesai', 'icon' => 'heroicon-s-check-circle', 'class' => 'bg-emerald-100 text-emerald-700'],
-        'in_progress' => ['label' => 'Sedang Dipelajari', 'icon' => 'heroicon-s-play-circle', 'class' => 'bg-indigo-100 text-indigo-700'],
-        'locked' => ['label' => 'Terkunci', 'icon' => 'heroicon-s-lock-closed', 'class' => 'bg-gray-100 text-gray-500'],
-        'available' => ['label' => 'Belum Dimulai', 'icon' => 'heroicon-s-book-open', 'class' => 'bg-sky-50 text-sky-700'],
+        'completed' => ['label' => 'Selesai', 'icon' => 'heroicon-s-check-circle', 'class' => 'bg-sdg-3/10 text-sdg-3'],
+        'in_progress' => ['label' => 'Sedang Dipelajari', 'icon' => 'heroicon-s-play-circle', 'class' => 'bg-primary/10 text-primary'],
+        'locked' => ['label' => 'Terkunci', 'icon' => 'heroicon-s-lock-closed', 'class' => 'bg-surface-container-high text-outline'],
+        'available' => ['label' => 'Belum Dimulai', 'icon' => 'heroicon-s-book-open', 'class' => 'bg-sdg-14/10 text-sdg-14'],
     ];
     $c = $map[$status] ?? $map['available'];
 @endphp

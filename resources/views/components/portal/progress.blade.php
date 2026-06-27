@@ -1,4 +1,4 @@
-@props(['value' => 0, 'color' => 'bg-indigo-500', 'track' => 'bg-gray-100'])
+@props(['value' => 0, 'color' => 'bg-primary', 'track' => 'bg-surface-container-high'])
 
 @php $pct = max(0, min(100, (int) $value)); @endphp
 

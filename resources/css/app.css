@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -217,5 +218,30 @@
     }
     .pucuk-rabuang {
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+}
+
+/*
+ | Tipografi konten materi (@tailwindcss/typography) di-brand ke token NCH.
+ | Dipakai oleh blok 'teks' (RichEditor admin) & deskripsi modul lewat kelas `prose`.
+ */
+@layer components {
+    .prose {
+        --tw-prose-body: var(--color-on-surface-variant);
+        --tw-prose-headings: var(--color-on-surface);
+        --tw-prose-lead: var(--color-on-surface-variant);
+        --tw-prose-links: var(--color-primary);
+        --tw-prose-bold: var(--color-on-surface);
+        --tw-prose-counters: var(--color-on-surface-variant);
+        --tw-prose-bullets: var(--color-primary);
+        --tw-prose-hr: var(--color-outline-variant);
+        --tw-prose-quotes: var(--color-on-surface-variant);
+        --tw-prose-quote-borders: var(--color-secondary-container);
+        --tw-prose-captions: var(--color-on-surface-variant);
+        --tw-prose-code: var(--color-on-surface);
+        --tw-prose-pre-code: var(--color-on-surface-variant);
+        --tw-prose-pre-bg: var(--color-surface-container-high);
+        --tw-prose-th-borders: var(--color-outline-variant);
+        --tw-prose-td-borders: var(--color-outline-variant);
     }
 }

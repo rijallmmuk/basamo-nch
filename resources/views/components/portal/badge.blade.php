@@ -1,13 +1,15 @@
 @props(['color' => 'gray'])
 
 @php
+    // Nama warna lama (gray/indigo/…) dipetakan ke token semantik NCH agar pemanggil
+    // lama tetap jalan tanpa ubah API.
     $map = [
-        'gray' => 'bg-gray-100 text-gray-600',
-        'indigo' => 'bg-indigo-100 text-indigo-700',
-        'emerald' => 'bg-emerald-100 text-emerald-700',
-        'amber' => 'bg-amber-100 text-amber-700',
-        'sky' => 'bg-sky-100 text-sky-700',
-        'red' => 'bg-red-100 text-red-700',
+        'gray' => 'bg-surface-container-high text-on-surface-variant',
+        'indigo' => 'bg-primary/10 text-primary',
+        'emerald' => 'bg-sdg-3/10 text-sdg-3',
+        'amber' => 'bg-secondary-container text-on-secondary-container',
+        'sky' => 'bg-sdg-14/10 text-sdg-14',
+        'red' => 'bg-error-container text-on-error-container',
     ];
 @endphp
 

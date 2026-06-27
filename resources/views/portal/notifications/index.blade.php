@@ -4,8 +4,8 @@
 
 @section('content')
     <div class="mb-5">
-        <h1 class="text-xl font-bold text-gray-900 sm:text-2xl">Notifikasi</h1>
-        <p class="mt-1 text-sm text-gray-500">Info modul baru dan hasil kuis kamu.</p>
+        <h1 class="text-xl font-bold text-on-surface sm:text-2xl">Notifikasi</h1>
+        <p class="mt-1 text-sm text-on-surface-variant">Info modul baru dan hasil kuis kamu.</p>
     </div>
 
     @if($notifications->isEmpty())
@@ -22,23 +22,25 @@
                     $icon = $data['icon'] ?? 'heroicon-s-bell';
                 @endphp
                 <a href="{{ $data['url'] ?? route('portal.home') }}"
-                    class="flex items-start gap-3 rounded-2xl border bg-white p-4 shadow-sm transition-colors hover:bg-slate-50
-                        {{ $isUnread ? 'border-indigo-200 bg-indigo-50/40' : 'border-gray-200' }}">
+                    class="flex items-start gap-3 rounded-2xl border p-4 shadow-sm transition-colors
+                        {{ $isUnread
+                            ? 'border-primary/20 bg-primary/5 hover:bg-primary/10'
+                            : 'border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low' }}">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-                        {{ $isUnread ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400' }}">
+                        {{ $isUnread ? 'bg-primary/10 text-primary' : 'bg-surface-container-high text-on-surface-variant' }}">
                         <x-dynamic-component :component="$icon" class="h-5 w-5" />
                     </span>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-start justify-between gap-2">
-                            <p class="text-[15px] font-semibold text-gray-900">{{ $data['title'] ?? 'Notifikasi' }}</p>
+                            <p class="text-[15px] font-semibold text-on-surface">{{ $data['title'] ?? 'Notifikasi' }}</p>
                             @if($isUnread)
-                                <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-indigo-500"></span>
+                                <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary"></span>
                             @endif
                         </div>
                         @if(! empty($data['body']))
-                            <p class="mt-0.5 text-sm text-gray-600">{{ $data['body'] }}</p>
+                            <p class="mt-0.5 text-sm text-on-surface-variant">{{ $data['body'] }}</p>
                         @endif
-                        <p class="mt-1 text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</p>
+                        <p class="mt-1 text-xs text-on-surface-variant">{{ $notification->created_at->diffForHumans() }}</p>
                     </div>
                 </a>
             @endforeach

@@ -25,7 +25,7 @@ class HomeController extends Controller
                 $q->whereNull('desa_id')
                     ->orWhere('desa_id', $user->desa_id);
             })
-            ->with(['progress' => fn ($q) => $q->where('user_id', $user->id), 'prerequisite'])
+            ->with(['progress' => fn ($q) => $q->where('user_id', $user->id), 'prerequisite', 'media'])
             ->withCount('pages')
             ->orderBy('urutan')
             ->orderBy('id')
@@ -44,11 +44,15 @@ class HomeController extends Controller
 
         $priorityOrder = ['in_progress' => 0, 'available' => 1, 'completed' => 2, 'locked' => 3];
 
-        $featured = $modules->sortBy(function ($m) use ($statusMap, $priorityOrder) {
-            $priority = $priorityOrder[$statusMap[$m->id] ?? 'available'] ?? 4;
+        // "Lanjutkan Belajar": 5 modul aktif (kecuali terkunci), urut prioritas
+        // sedang-dipelajari → belum dimulai → selesai, lalu urutan modul menaik.
+        $featured = $modules
+            ->reject(fn ($m) => ($statusMap[$m->id] ?? 'available') === 'locked')
+            ->sortBy(function ($m) use ($statusMap, $priorityOrder) {
+                $priority = $priorityOrder[$statusMap[$m->id] ?? 'available'] ?? 4;
 
-            return [$priority, $m->urutan];
-        })->take(4)->values();
+                return [$priority, $m->urutan];
+            })->take(5)->values();
 
         // Progres keseluruhan (berbasis halaman materi yang selesai)
         $totalPages = $modules->sum('pages_count');
