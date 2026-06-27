@@ -137,6 +137,11 @@ Tombol "Hubungi via WhatsApp" (`UmkmProfile::whatsappUrl()`, normalisasi 08→62
 Konsistensi via `components/portal/` sendiri (breadcrumb/button/card/badge/progress/stat/toast + avatar/status-badge/content-badge/empty), bukan UI-kit eksternal. Satu dependency baru: **canvas-confetti** (~6 KB, perayaan lulus kuis/modul). Toast = Alpine+Livewire `dispatch('toast')`.
 **Ditolak**: Flux/WireUI/Mary/daisyUI (bawa design-system, bentrok); Toastr/SweetAlert2 (dilarang/gaya beda).
 
+### Render konten materi: `@tailwindcss/typography` (prose) di-brand token NCH
+Output RichEditor admin (heading/list/kutipan/tautan/tabel) dirender via plugin **`@tailwindcss/typography`** (devDep, di-load `@plugin` di `app.css`). Var `--tw-prose-*` di-override ke token NCH (`@layer components .prose`) → on-brand tanpa modifier `prose-*` bertebaran. Dipakai blok 'teks' & deskripsi modul. **Alasan**: tanpa plugin, kelas `prose` tak berefek → teks kaya tampil datar (tanpa bullet/heading). **Ditolak**: CSS tipografi buatan sendiri (kalah lengkap & rawan luput kasus).
+
+> Catatan kebijakan: sejak 2026-06-26 user mengizinkan pasang dependency yang diperlukan tanpa persetujuan per-kasus (tetap dicatat di sini).
+
 ### Standar lain
 - **Heroicons** satu-satunya icon set (built-in Filament).
 - **Filament Notifications** untuk toast admin + database notification (pusat notifikasi in-app portal; notif fan-out modul/kuis `ShouldQueue` + `chunkById`).

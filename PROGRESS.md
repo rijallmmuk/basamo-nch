@@ -6,6 +6,198 @@
 
 ---
 
+## Sesi 2026-06-26 (lanjutan 16) — Reader: margin konsisten, tombol disederhanakan, scope badge dihapus
+
+Suite **260 (258 lulus, 2 skip)**. Pint bersih.
+- **Margin reader konsisten**: `page.blade.php` hapus override `max-w-7xl` → ikut default `max-w-[120rem]`
+  (sama dgn halaman lain). Isi kartu dipusatkan `mx-auto max-w-[52rem]` (header+body sejajar) agar full-width
+  tetap nyaman dibaca. Bottom bar ikut `max-w-[120rem]` + `lg:px-margin-desktop`.
+- **Tombol reader disederhanakan** (sesuai permintaan): kiri = `Sebelumnya`/`Ke Modul`; kanan =
+  `Selanjutnya`/`Selesaikan` (terakhir, hijau sdg-3 + centang). Hilang istilah "Tandai selesai"/"Lanjut"
+  (perilaku POST-menandai-selesai tetap di balik tombol saat materi belum selesai).
+- **Scope dihapus dari modul**: badge "Semua Desa" dibuang dari `show.blade.php` (hero) & `index.blade.php`
+  (kartu) — warga tak perlu lihat info global/desa.
+- **Pematangan isian opsional kosong** (`module-block.blade.php`): blok teks `konten` kosong tidak dirender;
+  caption video hanya tampil bila ada video valid (`$hasVideo`). Deskripsi/estimasi/cover/kuis sudah ter-guard.
+
+## Sesi 2026-06-26 (lanjutan 15) — Reader materi: baca berurutan + semua tipe + typography
+
+Suite **260 (258 lulus, 2 skip)**. Pint bersih.
+- **Materi WAJIB berurutan** (anti-skip): `LmsProgressService::isPageAccessible()` (semua materi sebelum
+  target harus selesai) + `firstIncompletePage()`. `PageController::show` & `complete` menolak halaman
+  yang dilewati → `show` mengalihkan ke materi yang seharusnya (flash error), `complete` tolak ke modul.
+  Test `SequentialPageAccessTest` (6) — service + HTTP (akses langsung URL & POST loncat).
+- **UI terkunci**: di `show.blade.php` (daftar materi) & `page.blade.php` (sidebar reader), materi setelah
+  titik "lanjut" tampil ikon gembok, non-klik, redup, label "Terkunci".
+- **Dependency baru**: **`@tailwindcss/typography`** (devDep) — plugin diaktifkan `@plugin` di `app.css`,
+  var `--tw-prose-*` di-override ke token NCH (`@layer components .prose`). Sebelumnya kelas `prose`
+  tak berefek (plugin belum ada) → heading/list/kutipan materi tampil datar. Blok 'teks' kini
+  `prose prose-base max-w-none sm:prose-lg`. (DECISIONS.md diperbarui; user izinkan install dep.)
+- **Semua 6 tipe blok terverifikasi render** (teks kaya, video YouTube/Drive embed, gambar+caption,
+  PDF preview+unduh, audio player, lampiran unduh) via modul uji sementara → screenshot → dihapus.
+
+## Sesi 2026-06-26 (lanjutan 14) — Rombak halaman detail modul (CTA jelas, 1 kolom fokus)
+
+Masalah lama: tombol "Mulai Belajar" terdampar di sidebar kanan → user bingung di mana mulai;
+di mobile CTA jatuh jauh ke bawah. `portal/modules/show.blade.php` dirombak:
+- **Lebar penuh konsisten** (`max-w-[120rem]` default, TANPA override) = sama dgn Beranda/Peringkat/dst
+  → jaga konsistensi margin kiri-kanan (sempat sempat keliru pakai `max-w-4xl` terpusat, sudah dibatalkan).
+- **Tata letak 2 kolom** (mirip Beranda): kiri (col-span-2) Hero+CTA, Kuis, Diskusi; kanan Daftar Materi.
+  Penempatan grid eksplisit (`lg:col-start-3 lg:row-span-2 lg:self-start`) agar **urutan mobile** tetas
+  benar: Hero+CTA → Materi → Kuis → Diskusi.
+- **CTA utama tepat di bawah judul** di hero: tombol "Mulai Belajar"/"Lanjutkan Belajar" (full-width mobile,
+  `sm:w-fit` desktop) + hint "Mulai/Lanjut dari materi: {judul}". State **selesai**: badge "sudah kamu
+  selesaikan" + tombol sekunder "Tinjau Ulang Materi".
+- **Materi banyak tidak memanjangkan halaman (desktop)**: kartu Daftar Materi `lg:sticky lg:top-20`, daftar
+  `lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto` → scroll di dalam kartu. Diverifikasi DOM (1440×720:
+  OL clientH 576 < scrollH 1004 = scroll internal; tinggi dokumen tetap ~822, tak ikut memanjang).
+- Item berikutnya **disorot** (bg primary, nomor terisi, pill "MULAI/LANJUT"); selesai = ceklis hijau
+  "Selesai dibaca"; belum dibaca tampil label tipe blok (Teks·Video via `ModuleBlockType`).
+- Verifikasi visual: belum-dimulai, selesai, materi-banyak; desktop+mobile. Test modul 34 + smoke 12 hijau.
+
+## Sesi 2026-06-26 (lanjutan 13) — Label "Peringkat" tanpa sebutan + kartu KPI desktop diperkecil
+
+- Kartu KPI **"Peringkat {sebutan}" → "Peringkat"** (hapus `$sebutanDesa`, kini tak terpakai).
+- **Desktop (sm+) kartu KPI diperkecil sedikit** (`home.blade.php`): value `sm:text-metric-lg`(32px)→
+  `sm:text-2xl`(24px); ikon tile tak lagi membesar (`sm:h-10 sm:w-10` dihapus, tetap `h-9 w-9`); label
+  header `text-headline-sm`(18px)→`text-sm font-semibold`; padding `sm:p-lg`→`sm:p-4`; margin `sm:mb-md`→
+  `sm:mb-2.5`. Mobile (kotak kecil) tak berubah. Smoke 12 lulus; verifikasi visual desktop+mobile.
+
+## Sesi 2026-06-26 (lanjutan 12) — Beranda mobile (kotak KPI kecil, modul dulu)
+
+- **Kartu KPI beranda responsif** (`home.blade.php`): mobile = 3 kotak kecil (`grid-cols-3 gap-3`, kartu
+  kompak `p-3`, header-label & chevron disembunyikan, value text-xl, label ringkas `line-clamp-2`);
+  sm+ = kartu penuh seperti semula (`sm:p-lg`, label di header, chevron, value `sm:text-metric-lg`).
+- **Urutan beranda**: `lg:order-*` → `order-*` (berlaku semua ukuran) → di mobile **modul (Lanjutkan
+  Belajar) tampil dulu, baru Peringkat**; desktop tetap Lanjutkan kiri-lebar + Peringkat kanan.
+
+## Sesi 2026-06-26 (lanjutan 11) — Hapus nav Peringkat, kartu KPI interaktif, halaman XP baru
+
+Suite **254 (252 lulus, 2 skip)**. Pint bersih.
+- **"Peringkat" dihapus dari nav** (sidebar desktop + bottom nav mobile) di `portal/layouts/app.blade.php`;
+  rute & halaman `portal.leaderboard` TETAP. Diakses lewat kartu KPI interaktif.
+- **3 kartu KPI beranda jadi link** (`<div>`→`<a>` + chevron indikator): Modul Selesai→modules.index,
+  Poin Terkumpul→**portal.xp** (baru), Peringkat→leaderboard.
+- **Halaman XP baru**: rute `portal.xp` → `Portal\XpController` → `portal/xp/index.blade.php`. Tampilkan
+  ledger `XpLog` user (sumber module/quiz/discussion; judul di-resolve massal anti-N+1; `Quiz::title` =
+  accessor "Kuis: <judul modul>", butuh eager-load module). Banner total + breakdown +50/+100/+20.
+  Test: `XpLogPageTest` (render judul sumber + isolasi antar-user) + smoke `portal.xp`.
+  Lebar halaman XP disamakan dgn leaderboard: full-width (hapus override `max-w-3xl`), banner `p-5 mb-5`.
+  Ikon entri XP: HANYA entri 'module' (Menyelesaikan modul) pakai **cover modul asli** (`$module->coverUrl()`,
+  fallback default svg), ukuran tetap h-11 w-11; 'quiz' & 'discussion' tetap ikon tile masing-masing
+  (clipboard-check / chat). Controller resolve modul tiap entri (kuis via `quiz.module_id`), eager-load `media`.
+
+## Sesi 2026-06-26 (lanjutan 10) — Rapikan label & kartu peringkat beranda
+
+- Kartu peringkat beranda: judul "Peringkat 5 Teratas Warga {sebutan}" → **"Peringkat 5 Teratas"**;
+  kembalikan **baris posisi-Anda** (top 5 + baris Anda = 6 baris bila di luar 5 besar) → mengisi kartu,
+  jarak antar-baris lebih rapat (atasi keluhan "terlalu jarak antar vertikal").
+- KPI card **"Peringkat Desa" → "Peringkat {sebutan}"** (mis. "Peringkat Nagari", `$sebutanDesa` di top @php).
+- Link kartu Lanjutkan Belajar: "Lihat Semua Modul" → **"Lihat Semua"**.
+
+## Sesi 2026-06-26 (lanjutan 9) — Inisial avatar 2 huruf konsisten
+
+- **Komponen `x-portal.avatar`**: inisial fallback dari 1 huruf → **2 huruf** (huruf depan 2 kata pertama,
+  mis. "Nurul Hidayah"→"NH"; nama 1 kata tetap 1 huruf). Kini SAMA dgn kartu peringkat beranda yang sudah
+  pakai helper `$initials`. Berlaku ke semua avatar tanpa foto: header, profil, leaderboard, podium, diskusi.
+
+## Sesi 2026-06-26 (lanjutan 8) — Logo 2-baris sama-lebar, kartu beranda sejajar
+
+- **Logo sidebar**: subtitle "Smart Learning Center" di-`justify` (text-align-last:justify, wordmark `w-fit`
+  jadi acuan lebar) → kedua baris SAMA PANJANG (rata kiri & kanan). Lihat [[portal-design-tokens]].
+- **Kartu Lanjutkan Belajar**: link "Semua" → "Lihat Semua Modul".
+- **Kartu peringkat beranda**: judul "Peringkat Warga Desa" → "Peringkat 5 Teratas Warga {sebutan}"
+  (`$user->desa?->jenisDesa?->nama` mis. "Nagari"); tabel diganti daftar flex, tampil TEPAT 5 teratas
+  (baris posisi-Anda tambahan dihapus).
+- **Sejajarkan 2 kartu**: header keduanya `text-headline-sm` + truncate (tinggi sama); body `flex flex-1
+  flex-col`, tiap baris `flex-1` → 5 modul & 5 peringkat tinggi baris identik (grid stretch samakan tinggi kartu).
+
+## Sesi 2026-06-26 (lanjutan 7) — Logo 1-baris + thumbnail Lanjutkan Belajar
+
+- **Brand sidebar**: "Basamo NCH" diperbesar (text-xl, mark h-10) & subtitle "Smart Learning Center"
+  diperkecil (text-[11px]); keduanya `whitespace-nowrap` + padding dikecilkan → masing-masing 1 baris.
+- **Kartu Lanjutkan Belajar**: kini 5 modul dgn THUMBNAIL asli (`$module->coverUrl()`, fallback default
+  SVG) ganti ikon-tile; badge centang utk selesai. `HomeController`: `take(4)`→`take(5)`, buang terkunci
+  (`->reject(... === 'locked')`), eager-load `media`. Urutan prioritas TETAP: in_progress→available→completed, lalu urutan.
+
+## Sesi 2026-06-26 (lanjutan 6) — Fix timezone (sapaan salah)
+
+- **Bug sapaan "Selamat pagi" jam 15:00 WIB** = `app.timezone` masih `UTC` → `now()->hour` pakai UTC
+  (15 WIB = 08 UTC → rentang pagi). Fix: `config/app.php` `'timezone' => env('APP_TIMEZONE','Asia/Jakarta')`
+  + `APP_TIMEZONE=Asia/Jakarta` di `.env` & `.env.example`. Verifikasi: now()=15:07 → "Selamat sore". Suite tetap 249 lulus.
+  CATATAN: timestamp lama (disimpan saat UTC) akan dibaca sbg WIB (geser 7 jam) — sembuh saat migrate:fresh --seed.
+
+## Sesi 2026-06-26 (lanjutan 5) — Samakan logo portal dgn brand kanonik
+
+- **Logo portal diperbaiki** (sidebar desktop + header mobile di `portal/layouts/app.blade.php`): dari
+  LINGKARAN biasa + ikon putih → **gonjong-peak** (clip-path atap, bg deep-blue) + academic-cap EMAS
+  (`text-secondary-container`) + wordmark "Basamo <span text-secondary>NCH</span>". Kini SAMA dgn publik
+  (`public/layouts/app.blade.php`), admin (`filament/brand.blade.php`), dan login. Lihat [[portal-design-tokens]].
+- Konfirmasi: sapaan beranda DINAMIS per jam (pagi/siang/sore/malam) — `home.blade.php` match($hour).
+- (Belum diubah) 3 kartu KPI beranda (Modul Selesai/Poin/Peringkat Desa): "Peringkat Desa" redundan
+  dgn kartu Peringkat Warga Desa — menunggu keputusan user apakah dipangkas.
+
+## Sesi 2026-06-26 (lanjutan 4) — Podium leaderboard, sidebar bersih, ukuran kartu beranda
+
+Suite 251 (249 lulus, 2 skip). Diverifikasi Playwright @1920px.
+- **Beranda tukar UKURAN kartu** (lanjutan dari swap posisi): "Lanjutkan Belajar" kini KIRI+LEBAR
+  (`lg:order-1 lg:col-span-2`), "Peringkat Warga Desa" KANAN+SEMPIT (`lg:order-2`).
+- **Sidebar dibersihkan dari tombol duplikat**: hapus CTA "Mulai Belajar" (= nav Belajar) + blok bawah
+  "Profil Saya"/"Keluar" (sudah ada di dropdown menu pengguna pojok kanan atas). Sidebar = brand + nav saja.
+- **Leaderboard redesign PODIUM top-3**: `LeaderboardController` kirim `$podium` (top 3). View baru:
+  podium emas/perak/perunggu (sdg-2 / on-surface / sdg-12), juara 1 tengah+trofi+tertinggi, urut tampil
+  [2,1,3], tumpuan tinggi beda + garis lantai (`border-b-2`); daftar peringkat 4+ di bawah (penuh).
+  Podium ter-center `max-w-3xl`, banner+daftar full-width (minim margin).
+
+## Sesi 2026-06-26 (lanjutan 3) — Lebarkan portal (minim margin), tukar kartu beranda
+
+View-only. Diverifikasi Playwright @1920px.
+- **Minim margin kiri-kanan SEMUA halaman portal**: default `<main>` `max-w-5xl`→`max-w-[120rem]`
+  (≈full-width pada layar lebar, sisa hanya padding `margin-desktop` 48px). Hero beranda diselaraskan.
+  Reader `max-w-6xl`→`max-w-7xl` (+ nav bawah). CATATAN: `max-w-[120rem]` arbitrer (skala nama pecah, lihat [[portal-design-tokens]]).
+- **Tukar posisi kartu beranda** (via `lg:order-1/2`): "Lanjutkan Belajar" kini KIRI (sempit),
+  "Peringkat Warga Desa" KANAN (lebar col-span-2).
+- **Modul index**: `md:grid-cols-2`→`+xl:grid-cols-3` (lebih padat di layar lebar).
+
+## Sesi 2026-06-26 (lanjutan 2) — Hilangkan dialog native, modal konfirmasi, perbesar reader, verifikasi visual
+
+Suite 251 (249 lulus, 2 skip). View/JS/SVG-only. **Diverifikasi langsung via Playwright + google-chrome**
+(screenshot login/home/reader/leaderboard/quiz/modal/cover, desktop+mobile).
+
+- **Ganti SEMUA dialog native browser** ("localhost:8000 says…") → komponen `x-portal.confirm-dialog`
+  (Alpine + x-teleport, bertema NCH, ikon+overlay-blur, tombol Batal/Konfirmasi). Dipakai di: submit
+  kuis (`quiz-player`, dulu `wire:confirm`) & hapus produk UMKM (`umkm/index`, dulu `onsubmit confirm()`).
+  Komponen dukung prop `form="id"` (submit form by-id) atau `on-confirm="ekspresiAlpine"`.
+- **Perbesar laman baca materi**: layout `<main>` kini override-able via `@yield('main-width')`;
+  `modules/page` → `max-w-6xl` + header/padding lebih lega + prose `module-block` naik ke base/lg.
+- **Cover modul default** (`public/images/default-module-cover.svg`): gradient indigo→violet diganti
+  deep-blue NCH (#003857→#1b4f72) + aksen Minang gold.
+- **⚠️ GOTCHA (lihat [[portal-design-tokens]]):** `max-w-sm` PECAH jadi 8px karena proyek redefinisi
+  skala nama sm/md/lg/xl. Util max-width WAJIB nilai arbitrer (`max-w-[26rem]`). Ketahuan saat lihat
+  screenshot modal kolaps — bukti pentingnya verifikasi visual.
+
+## Sesi 2026-06-26 (lanjutan) — Audit & konsistensi front-end Portal Warga + fix kuis multi-jawaban
+
+Suite **251 (249 lulus, 2 skip)**. View-only, belum di-commit.
+
+- **Fix bug kuis multi-jawaban** (`QuizPlayer::mount`): pra-inisialisasi `answers[questionId]` = `[]`
+  untuk soal multi (else skalar `null`). Tanpa ini Livewire perlakukan grup checkbox sebagai boolean
+  tunggal → mencentang satu mencentang semua.
+- **Rebrand 7 halaman portal off-brand → token NCH** (sebelumnya pakai indigo/violet/gray/emerald/amber/
+  slate mentah): `notifications/index`, `leaderboard/index` (gradient indigo→violet diganti `bg-primary`
+  + medali sdg-2/sdg-12), `profile/edit`, `umkm/index`, `umkm/product-form`, `umkm/profile`,
+  `auth/change-password` (disamakan dgn login: gonjong-peak + academic-cap). Scan grep: 0 warna mentah tersisa.
+- **Hapus flash sukses ganda** di `profile/edit` (layout sudah render flash global).
+- **Seragamkan sapaan**: leaderboard `(kamu)`→`(Anda)`, judul "Peringkat XP"→"Peringkat".
+- Penempatan tombol & "duplikat" (Profil/Keluar di sidebar + dropdown header) ditinjau = konvensional, dipertahankan.
+- **Satukan sistem alert → 1 kanal toast.** Dulu ada 2: banner flash statis (polos, monoton) + toast.
+  Banner flash di `portal/layouts/app.blade.php` DIHAPUS, diganti skrip jembatan flash→`CustomEvent('toast')`
+  (success/info/error; error timeout 6s, lainnya 4s). Komponen `toast.blade.php` kini berikon per-tipe
+  (check/info/exclamation/sparkles) + ukuran naik (max-w-26rem, p-4, rounded-2xl) + tombol tutup lebih besar.
+  Confetti `app.js` diwarnai ulang ke palet NCH (#003857/#fed33e/#4c9f38/#0a97d9).
+  Catatan: alert "Kata sandi berhasil diperbarui" di dashboard pasca ganti-OTP = flash `info` by design (bukan bug).
+- ⚠️ Perlu `npm run dev`/`build` agar utility token baru ter-compile (sudah `npm run build` di sesi ini).
+
 ## Sesi 2026-06-26 — Polish UX tabel admin (non-klik + aksi), drill-in sidebar, kurasi kolom, balas diskusi
 
 Branch `feat/ref-wilayah-sumbar`. Suite **242 (240 lulus, 2 skip)**. Pint bersih. **5 commit, di-push**
