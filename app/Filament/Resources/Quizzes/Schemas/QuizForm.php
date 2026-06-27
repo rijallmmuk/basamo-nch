@@ -47,6 +47,13 @@ class QuizForm
                             ->searchable()
                             ->preload()
                             ->required()
+                            // Modul kuis dikunci setelah dibuat: 1 modul = 1 kuis, dan kuis bisa
+                            // sudah punya soal/percobaan warga. Untuk memindah → hapus & buat ulang.
+                            // Field disabled tak terdehidrasi → module_id tak berubah saat simpan.
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit'
+                                ? 'Modul tidak bisa diubah setelah kuis dibuat.'
+                                : null)
                             // Pertahanan server-side (modifyQueryUsing hanya membatasi opsi yang tampil):
                             // desa_admin tak boleh menempelkan kuis ke modul desa lain / modul global.
                             ->rule(fn (): Closure => function (string $attribute, $value, Closure $fail) {

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('desa_id')->nullable()->constrained()->nullOnDelete();
             $table->string('judul');
-            $table->string('slug')->unique();
+            $table->string('slug');
             $table->text('deskripsi')->nullable();
             $table->unsignedSmallInteger('urutan')->default(0);
             $table->unsignedSmallInteger('estimasi_menit')->nullable(); // estimasi durasi belajar
@@ -30,19 +30,21 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('desa_id');
             $table->index('status');
             $table->index('urutan');
+            // Slug unik PER DESA (global = desa_id NULL): dua desa/global boleh judul
+            // sama. Bentrok dalam ruang yang sama → Spatie HasSlug auto-suffix (extraScope
+            // per desa, cek termasuk yang ter-arsip). Prefix kiri desa_id = index FK.
+            $table->unique(['desa_id', 'slug']);
         });
 
+        // Halaman materi = unit penyelesaian; isinya array blok bertipe (teks/video/
+        // pdf/gambar/audio/lampiran) pada kolom JSON `blocks` — lihat App\Enums\ModuleBlockType.
         Schema::create('module_pages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->string('judul');
-            $table->string('tipe');
-            $table->longText('konten')->nullable();
-            $table->string('url_video', 500)->nullable();
-            $table->string('path_file', 500)->nullable();
+            $table->json('blocks')->nullable();
             $table->unsignedSmallInteger('urutan')->default(0);
             $table->timestamps();
 

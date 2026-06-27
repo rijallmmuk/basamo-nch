@@ -40,7 +40,10 @@ return new class extends Migration
 
             $table->foreign('wilayah_kode')->references('kode')->on('ref_wilayah')->nullOnDelete();
             // UNIQUE nullable: 1 desa resmi = 1 tenant (banyak NULL tetap diizinkan).
-            $table->unique('wilayah_kode');
+            // Sertakan deleted_at agar kode desa bisa dipakai ulang setelah desa diarsip;
+            // keunikan antar baris AKTIF dijaga di aplikasi (DesaForm ->withoutTrashed()).
+            // Prefix kiri wilayah_kode tetap memenuhi index FK ke ref_wilayah.
+            $table->unique(['wilayah_kode', 'deleted_at']);
         });
 
         Schema::create('desa_units', function (Blueprint $table) {
@@ -51,7 +54,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('desa_id');
-            $table->unique(['desa_id', 'nama']); // nama unik dalam satu desa
+            // Sertakan deleted_at agar nama sub-unit bisa dipakai ulang setelah dihapus;
+            // keunikan antar baris AKTIF dijaga di aplikasi (DesaUnitForm ->withoutTrashed()).
+            $table->unique(['desa_id', 'nama', 'deleted_at']);
         });
 
         // FK users → desas/desa_units (kolom dibuat lebih dulu di migrasi users).

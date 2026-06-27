@@ -38,34 +38,43 @@ function createPageAction(Module $module, array $data): Testable
         ->callMountedTableAction();
 }
 
-// Regresi bug: ganti tipe tak memunculkan field karena $get('tipe') = enum, dibanding string.
-it('tipe video: field url_video tampil, wajib, & tersimpan', function () {
+it('menyimpan halaman dengan satu blok teks', function () {
     $module = moduleForPages();
 
-    createPageAction($module, ['judul' => 'Video', 'tipe' => 'video', 'url_video' => 'https://youtu.be/abcdefghijk'])
-        ->assertHasNoTableActionErrors();
+    createPageAction($module, [
+        'judul' => 'Teks',
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => '<p>materi</p>']]],
+    ])->assertHasNoTableActionErrors();
 
-    expect($module->pages()->where('tipe', 'video')->value('url_video'))->toBe('https://youtu.be/abcdefghijk');
+    $page = $module->pages()->first();
+    expect($page->blocks)->toHaveCount(1)
+        ->and($page->blocks[0]['type'])->toBe('teks')
+        ->and($page->blocks[0]['data']['konten'])->toContain('materi');
 });
 
-it('tipe video tanpa url_video → error wajib (required kondisional aktif)', function () {
-    createPageAction(moduleForPages(), ['judul' => 'Video', 'tipe' => 'video'])
-        ->assertHasTableActionErrors(['url_video']);
-});
-
-it('tipe text tanpa konten → error wajib', function () {
-    createPageAction(moduleForPages(), ['judul' => 'Teks', 'tipe' => 'text'])
-        ->assertHasTableActionErrors(['konten']);
-});
-
-it('tipe text: konten tersimpan, url_video & path_file null', function () {
+it('menyimpan halaman campuran teks + video terurut', function () {
     $module = moduleForPages();
 
-    createPageAction($module, ['judul' => 'Teks', 'tipe' => 'text', 'konten' => '<p>materi</p>'])
-        ->assertHasNoTableActionErrors();
+    createPageAction($module, [
+        'judul' => 'Campuran',
+        'blocks' => [
+            ['type' => 'teks', 'data' => ['konten' => '<p>tonton dulu</p>']],
+            ['type' => 'video', 'data' => ['url' => 'https://youtu.be/abcdefghijk', 'caption' => null]],
+        ],
+    ])->assertHasNoTableActionErrors();
 
-    $page = $module->pages()->where('tipe', 'text')->first();
-    expect($page->konten)->toContain('materi')
-        ->and($page->url_video)->toBeNull()
-        ->and($page->path_file)->toBeNull();
+    $page = $module->pages()->first();
+    expect($page->blocks)->toHaveCount(2)
+        ->and($page->blocks[0]['type'])->toBe('teks')
+        ->and($page->blocks[1]['type'])->toBe('video')
+        ->and($page->blocks[1]['data']['url'])->toBe('https://youtu.be/abcdefghijk');
+});
+
+it('menolak halaman tanpa blok sama sekali (minItems)', function () {
+    $module = moduleForPages();
+
+    createPageAction($module, ['judul' => 'Kosong', 'blocks' => []])
+        ->assertHasTableActionErrors();
+
+    expect($module->pages()->count())->toBe(0);
 });

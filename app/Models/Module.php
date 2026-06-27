@@ -92,7 +92,36 @@ class Module extends Model implements HasMedia
             ->generateSlugsFrom('judul')
             ->saveSlugsTo('slug')
             // Slug stabil: tidak berubah saat judul diedit (URL/bookmark tetap valid).
-            ->doNotGenerateSlugsOnUpdate();
+            ->doNotGenerateSlugsOnUpdate()
+            // Keunikan slug di-scope PER DESA (global = desa_id NULL) → dua desa boleh
+            // punya judul sama. Bentrok dalam ruang yang sama → auto-suffix (-1, -2, …).
+            // Spatie sudah memperhitungkan baris ter-arsip, jadi slug modul yang dihapus
+            // tak akan dipakai ulang & aman saat modul lama dipulihkan.
+            ->extraScope(fn ($query) => $query->where('desa_id', $this->desa_id));
+    }
+
+    /**
+     * Resolusi route binding URL portal `{module:slug}`. Karena slug unik PER DESA
+     * (modul global & modul desa bisa ber-slug sama), batasi ke modul yang terlihat
+     * user (global + desanya) dan UTAMAKAN modul desa-sendiri agar URL tak ambigu —
+     * modul desa "menutupi" modul global ber-slug sama. Field selain `slug` (mis. `id`
+     * untuk panel admin) memakai resolusi default tanpa scope.
+     */
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        if ($field !== 'slug') {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        $desaId = auth()->user()?->desa_id;
+
+        return $this->newQuery()
+            ->where($field, $value)
+            ->where(fn ($query) => $query
+                ->whereNull('desa_id')
+                ->when($desaId, fn ($q) => $q->orWhere('desa_id', $desaId)))
+            ->orderByRaw('desa_id IS NULL') // desa-sendiri (non-null) dulu, lalu global
+            ->first();
     }
 
     public function creator(): BelongsTo

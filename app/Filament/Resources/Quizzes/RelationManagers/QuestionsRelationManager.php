@@ -76,7 +76,8 @@ class QuestionsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('urutan')
                     ->label('#')
-                    ->width('40px'),
+                    ->width('40px')
+                    ->alignCenter(),
 
                 TextColumn::make('pertanyaan')
                     ->label('Soal')
@@ -88,7 +89,8 @@ class QuestionsRelationManager extends RelationManager
                     ->counts('options')
                     ->label('Pilihan')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->alignCenter(),
             ])
             ->filters([])
             ->headerActions([

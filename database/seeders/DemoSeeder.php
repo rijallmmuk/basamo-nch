@@ -168,9 +168,20 @@ class DemoSeeder extends Seeder
 
         if ($module->pages()->doesntExist()) {
             $module->pages()->createMany([
-                ['judul' => 'Pengantar', 'tipe' => 'text', 'konten' => '<p>Selamat datang di modul <strong>'.$title.'</strong>. Mari kita mulai belajar bersama.</p>'],
-                ['judul' => 'Materi Utama', 'tipe' => 'text', 'konten' => '<p>'.$desc.' Pelajari poin-poin penting berikut dengan saksama.</p><ul><li>Poin pertama</li><li>Poin kedua</li><li>Poin ketiga</li></ul>'],
-                ['judul' => 'Video Pembelajaran', 'tipe' => 'video', 'url_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
+                [
+                    'judul' => 'Pengantar',
+                    'blocks' => [
+                        ['type' => 'teks', 'data' => ['konten' => '<p>Selamat datang di modul <strong>'.$title.'</strong>. Mari kita mulai belajar bersama.</p>']],
+                    ],
+                ],
+                [
+                    // Halaman campuran: teks penjelasan + video pendukung dalam satu halaman.
+                    'judul' => 'Materi Utama',
+                    'blocks' => [
+                        ['type' => 'teks', 'data' => ['konten' => '<p>'.$desc.' Pelajari poin-poin penting berikut dengan saksama.</p><ul><li>Poin pertama</li><li>Poin kedua</li><li>Poin ketiga</li></ul>']],
+                        ['type' => 'video', 'data' => ['url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'caption' => 'Video pendukung materi.']],
+                    ],
+                ],
             ]);
         }
 

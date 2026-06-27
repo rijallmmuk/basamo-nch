@@ -14,7 +14,7 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-/** Modul published + N halaman teks. */
+/** Modul published + N halaman, tiap halaman satu blok teks. */
 function makeModuleWithPages(int $pageCount, ?int $desaId = null): Module
 {
     $module = Module::create([
@@ -29,8 +29,7 @@ function makeModuleWithPages(int $pageCount, ?int $desaId = null): Module
         ModulePage::create([
             'module_id' => $module->id,
             'judul' => "Materi $i",
-            'tipe' => 'text',
-            'konten' => "Isi materi $i.",
+            'blocks' => [['type' => 'teks', 'data' => ['konten' => "Isi materi $i."]]],
             'urutan' => $i,
         ]);
     }
@@ -47,8 +46,9 @@ it('konten materi disanitasi dari script saat ditampilkan ke warga', function ()
         'judul' => 'Modul XSS', 'slug' => 'modul-xss', 'status' => 'published', 'urutan' => 1,
     ]);
     $page = ModulePage::create([
-        'module_id' => $module->id, 'judul' => 'Materi', 'tipe' => 'text',
-        'konten' => '<script>alert(1)</script><p>Konten aman</p>', 'urutan' => 1,
+        'module_id' => $module->id, 'judul' => 'Materi',
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => '<script>alert(1)</script><p>Konten aman</p>']]],
+        'urutan' => 1,
     ]);
 
     $this->actingAs($warga)
@@ -210,34 +210,41 @@ it('mengizinkan prasyarat global untuk modul global', function () {
         ->assertHasNoFormErrors();
 });
 
-// ── #7/#8 Bersih-bersih file & kolom basi ────────────────────────────
-it('mengosongkan kolom tak relevan saat tipe halaman berubah', function () {
-    Storage::fake('public');
-    $module = makeModuleWithPages(1);
+// ── #7/#8 Bersih-bersih berkas blok ──────────────────────────────────
+it('menghapus berkas blok yang dibuang saat halaman diperbarui', function () {
+    $disk = config('media-library.disk_name');
+    Storage::fake($disk);
+    Storage::disk($disk)->put('modules/blocks/pdf/a.pdf', '%PDF-1.4');
 
+    $module = makeModuleWithPages(1);
     $page = ModulePage::create([
-        'module_id' => $module->id, 'judul' => 'PDF', 'tipe' => 'pdf',
-        'path_file' => 'modules/pages/pdf/a.pdf', 'urutan' => 5,
+        'module_id' => $module->id, 'judul' => 'PDF', 'urutan' => 5,
+        'blocks' => [['type' => 'pdf', 'data' => ['file' => 'modules/blocks/pdf/a.pdf', 'judul' => null]]],
     ]);
 
-    $page->update(['tipe' => 'text', 'konten' => 'Sekarang teks']);
+    // Ganti isi halaman jadi teks saja → blok PDF (beserta berkasnya) dibuang.
+    $page->update(['blocks' => [['type' => 'teks', 'data' => ['konten' => 'Sekarang teks']]]]);
 
-    expect($page->refresh()->path_file)->toBeNull()
-        ->and($page->url_video)->toBeNull()
-        ->and($page->konten)->toBe('Sekarang teks');
+    Storage::disk($disk)->assertMissing('modules/blocks/pdf/a.pdf');
 });
 
-it('menghapus file PDF dari disk saat halaman dihapus', function () {
-    Storage::fake('public');
-    Storage::disk('public')->put('modules/pages/pdf/b.pdf', 'dummy');
-    $module = makeModuleWithPages(1);
+it('menghapus semua berkas blok dari disk saat halaman dihapus', function () {
+    $disk = config('media-library.disk_name');
+    Storage::fake($disk);
+    Storage::disk($disk)->put('modules/blocks/pdf/b.pdf', 'dummy');
+    Storage::disk($disk)->put('modules/blocks/gambar/c.jpg', 'dummy');
 
+    $module = makeModuleWithPages(1);
     $page = ModulePage::create([
-        'module_id' => $module->id, 'judul' => 'PDF', 'tipe' => 'pdf',
-        'path_file' => 'modules/pages/pdf/b.pdf', 'urutan' => 5,
+        'module_id' => $module->id, 'judul' => 'Campuran', 'urutan' => 5,
+        'blocks' => [
+            ['type' => 'pdf', 'data' => ['file' => 'modules/blocks/pdf/b.pdf']],
+            ['type' => 'gambar', 'data' => ['file' => 'modules/blocks/gambar/c.jpg']],
+        ],
     ]);
 
     $page->delete();
 
-    Storage::disk('public')->assertMissing('modules/pages/pdf/b.pdf');
+    Storage::disk($disk)->assertMissing('modules/blocks/pdf/b.pdf');
+    Storage::disk($disk)->assertMissing('modules/blocks/gambar/c.jpg');
 });

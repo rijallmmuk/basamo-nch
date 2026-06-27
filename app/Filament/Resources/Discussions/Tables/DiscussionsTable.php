@@ -63,13 +63,15 @@ class DiscussionsTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('parent_id')
                     ->label('Tipe')
                     ->badge()
                     ->formatStateUsing(fn ($state): string => $state ? 'Balasan' : 'Pertanyaan')
-                    ->color(fn ($state): string => $state ? 'gray' : 'info'),
+                    ->color(fn ($state): string => $state ? 'gray' : 'info')
+                    ->alignCenter(),
 
                 TextColumn::make('module.judul')
                     ->label('Modul')
@@ -85,6 +87,7 @@ class DiscussionsTable
                     ->label('Desa')
                     ->badge()
                     ->color('gray')
+                    ->alignCenter()
                     ->visible($isSuperAdmin),
 
                 TextColumn::make('isi')
@@ -98,22 +101,26 @@ class DiscussionsTable
                     ->label('Balasan')
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn ($state, Discussion $record): string => $record->parent_id ? '—' : (string) $state),
+                    ->formatStateUsing(fn ($state, Discussion $record): string => $record->parent_id ? '—' : (string) $state)
+                    ->alignCenter(),
 
                 IconColumn::make('is_pinned')
                     ->label('Disematkan')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('deleted_at')
                     ->label('Dihapus')
                     ->dateTime('d M Y H:i')
                     ->placeholder('—')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->alignCenter(),
             ])
             ->filters($filters)
             ->recordActions([

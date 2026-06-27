@@ -33,7 +33,8 @@ class DesaUnitsTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('nama')
                     ->label('Nama')
@@ -48,18 +49,21 @@ class DesaUnitsTable
                     ->badge()
                     ->color('info')
                     ->sortable()
+                    ->alignCenter()
                     ->visible(! $scopedToDesa),
 
                 TextColumn::make('warga_count')
                     ->label('Warga')
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('desa')

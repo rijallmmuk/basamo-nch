@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Enums\ModuleStatus;
 use App\Models\Module;
+use App\Models\ModulePage;
 use App\Models\User;
 use App\Notifications\NewModulePublished;
 use Illuminate\Support\Facades\Notification;
@@ -22,10 +23,15 @@ class ModuleObserver
     public function deleting(Module $module): void
     {
         // Force-delete men-cascade module_pages di level DB (lewati event Eloquent),
-        // jadi bersihkan file PDF-nya di sini sebelum baris terhapus.
+        // jadi bersihkan berkas blok (PDF/gambar/audio/lampiran) di sini sebelum baris terhapus.
         if ($module->isForceDeleting()) {
-            $module->pages()->whereNotNull('path_file')->pluck('path_file')
-                ->each(fn ($path) => Storage::disk('public')->delete($path));
+            $disk = Storage::disk(config('media-library.disk_name'));
+
+            $module->pages()->get()->each(function (ModulePage $page) use ($disk) {
+                foreach (ModulePage::filePathsFromBlocks($page->blocks) as $path) {
+                    $disk->delete($path);
+                }
+            });
         }
     }
 

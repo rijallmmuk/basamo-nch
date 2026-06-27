@@ -27,7 +27,8 @@ class UmkmProfilesTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('nama_usaha')
                     ->label('Nama usaha')
@@ -41,7 +42,8 @@ class UmkmProfilesTable
                 TextColumn::make('category.nama')
                     ->label('Kategori')
                     ->badge()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('desa.nama')
                     ->label('Desa')
@@ -52,20 +54,23 @@ class UmkmProfilesTable
                     ->label('Produk')
                     ->counts('products')
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignCenter(),
 
                 TextColumn::make('whatsapp')
                     ->label('WhatsApp')
                     ->toggleable(),
 
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('umkm_category_id')

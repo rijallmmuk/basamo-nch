@@ -3,10 +3,14 @@
 namespace App\Filament\Resources\Modules\Tables;
 
 use App\Enums\ModuleStatus;
+use App\Filament\Resources\Modules\ModuleResource;
+use App\Models\Module;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -19,25 +23,32 @@ class ModulesTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Baris TIDAK dapat diklik — buka Ubah lewat aksi (sejajar, tak digabung ⋮).
-            ->recordUrl(null)
+            // Klik baris → buka Edit.
+            ->recordUrl(fn (Module $record): string => ModuleResource::getUrl('edit', ['record' => $record]))
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 SpatieMediaLibraryImageColumn::make('cover')
                     ->label('Cover')
                     ->collection('cover')
                     ->conversion('card')
                     ->height(36)
-                    ->defaultImageUrl(asset('images/default-module-cover.svg')),
+                    ->defaultImageUrl(asset('images/default-module-cover.svg'))
+                    ->alignCenter(),
 
                 TextColumn::make('judul')
                     ->label('Judul')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    // Penanda baris terhapus — terlihat sekilas saat filter "termasuk terhapus" aktif.
+                    ->icon(fn (Module $record): ?string => $record->trashed() ? 'heroicon-m-trash' : null)
+                    ->iconColor('danger')
+                    ->iconPosition(IconPosition::After)
+                    ->tooltip(fn (Module $record): ?string => $record->trashed() ? 'Dihapus '.$record->deleted_at?->translatedFormat('d M Y') : null),
 
                 TextColumn::make('desa.nama')
                     ->label('Desa')
@@ -45,15 +56,18 @@ class ModulesTable
                     ->icon(fn ($state): ?string => $state === 'Semua' ? 'heroicon-o-globe-alt' : null)
                     ->sortable()
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->alignCenter(),
 
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
 
                 IconColumn::make('quiz_exists')
                     ->label('Kuis')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
 
                 // — Kolom sekunder (default tersembunyi, muncul lewat "Kolom") —
                 // Prasyarat: relevan utk LMS (dependensi modul), tapi sering kosong → sekunder.
@@ -71,7 +85,8 @@ class ModulesTable
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -85,12 +100,16 @@ class ModulesTable
 
                 TrashedFilter::make(),
             ])
+            // Semua aksi baris dalam satu menu ⋮ (pola sama dgn halaman Desa).
             ->recordActions([
-                EditAction::make()
-                    ->color('warning'),
-                DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
+                ])
+                    ->icon('heroicon-m-squares-2x2')
+                    ->tooltip('Aksi'),
             ])
             ->reorderable('urutan')
             ->defaultSort('urutan', 'asc');

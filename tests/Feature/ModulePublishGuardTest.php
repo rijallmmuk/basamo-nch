@@ -21,8 +21,7 @@ function moduleWithOnePage(string $status): array
     $page = ModulePage::create([
         'module_id' => $module->id,
         'judul' => 'Materi 1',
-        'tipe' => 'text',
-        'konten' => 'Isi.',
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => 'Isi.']]],
         'urutan' => 1,
     ]);
 
@@ -52,8 +51,7 @@ it('bisa publish modul yang sudah punya materi', function () {
     ModulePage::create([
         'module_id' => $module->id,
         'judul' => 'Materi 1',
-        'tipe' => 'text',
-        'konten' => 'Isi materi.',
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => 'Isi materi.']]],
         'urutan' => 1,
     ]);
 

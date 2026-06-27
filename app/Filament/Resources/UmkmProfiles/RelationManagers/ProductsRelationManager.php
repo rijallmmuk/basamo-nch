@@ -36,17 +36,20 @@ class ProductsRelationManager extends RelationManager
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
 
                 TextColumn::make('jumlah_dilihat')
                     ->label('Dilihat')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->dateTime('d M Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('status')

@@ -80,7 +80,8 @@ class UmkmCategoryResource extends Resource
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('nama')
                     ->label('Nama')
@@ -101,11 +102,13 @@ class UmkmCategoryResource extends Resource
                     ->label('UMKM')
                     ->counts('profiles')
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignCenter(),
 
                 TextColumn::make('urutan')
                     ->label('Urutan')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
             ])
             ->defaultSort('urutan')
             ->recordActions([

@@ -20,7 +20,8 @@ class QuizzesTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('module.judul')
                     ->label('Modul')
@@ -31,22 +32,26 @@ class QuizzesTable
                 TextColumn::make('questions_count')
                     ->label('Soal')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->alignCenter(),
 
                 TextColumn::make('nilai_lulus')
                     ->label('Nilai Lulus')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('maks_percobaan')
                     ->label('Maks. Coba')
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state === 0 ? '∞' : $state),
+                    ->formatStateUsing(fn ($state) => $state === 0 ? '∞' : $state)
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters([
                 TrashedFilter::make(),

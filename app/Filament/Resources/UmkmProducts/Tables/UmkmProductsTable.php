@@ -24,7 +24,8 @@ class UmkmProductsTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('nama_produk')
                     ->label('Produk')
@@ -45,12 +46,14 @@ class UmkmProductsTable
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->dateTime('d M Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('status')

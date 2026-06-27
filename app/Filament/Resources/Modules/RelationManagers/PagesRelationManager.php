@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources\Modules\RelationManagers;
 
-use App\Enums\ModulePageType;
+use App\Enums\ModuleBlockType;
 use App\Enums\ModuleStatus;
+use App\Models\ModulePage;
 use Closure;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -35,67 +36,154 @@ class PagesRelationManager extends RelationManager
                     ->maxLength(255)
                     ->columnSpanFull(),
 
-                Select::make('tipe')
-                    ->label('Tipe Konten')
-                    ->options(ModulePageType::class)
+                Builder::make('blocks')
+                    ->label('Isi Materi')
+                    ->helperText('Susun materi dari blok-blok. Satu halaman bisa mencampur teks, video, PDF, gambar, audio, & lampiran — seret untuk mengurutkan.')
+                    ->blocks(self::blocks())
+                    ->addActionLabel('Tambah blok')
+                    ->collapsible()
+                    ->blockNumbers(false)
+                    ->minItems(1)
                     ->required()
-                    ->default('text')
-                    ->live()
-                    ->columnSpanFull(),
-
-                TextInput::make('url_video')
-                    ->label('URL Video')
-                    ->url()
-                    // Hanya skema http/https (cegah javascript:/data: yang dirender di tautan).
-                    ->rule(static function (): Closure {
-                        return function (string $attribute, $value, Closure $fail): void {
-                            if (filled($value) && ! in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true)) {
-                                $fail('URL video harus diawali http:// atau https://.');
-                            }
-                        };
-                    })
-                    ->placeholder('https://www.youtube.com/watch?v=...')
-                    ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
-                    ->visible(fn (Get $get) => $this->isType($get, ModulePageType::Video))
-                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Video))
-                    ->maxLength(500)
-                    ->columnSpanFull(),
-
-                FileUpload::make('path_file')
-                    ->label('File PDF')
-                    ->acceptedFileTypes(['application/pdf'])
-                    // Disk unggahan publik (MEDIA_DISK) — portabel ke R2 di produksi.
-                    ->disk(config('media-library.disk_name'))
-                    ->directory('modules/pages/pdf')
-                    ->visibility('public')
-                    ->visible(fn (Get $get) => $this->isType($get, ModulePageType::Pdf))
-                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Pdf))
-                    ->maxSize(10240) // 10 MB
-                    ->helperText('Maksimal 10 MB, format PDF.')
-                    ->columnSpanFull(),
-
-                // Untuk text = materi utama (wajib). Untuk video/pdf = penjelasan/instruksi
-                // opsional yang ditampilkan di atas media untuk warga.
-                RichEditor::make('konten')
-                    ->label(fn (Get $get): string => $this->isType($get, ModulePageType::Text) ? 'Konten' : 'Penjelasan / Instruksi (opsional)')
-                    ->helperText(fn (Get $get): ?string => $this->isType($get, ModulePageType::Text)
-                        ? null
-                        : 'Opsional — penjelasan atau instruksi untuk warga, ditampilkan di atas media.')
-                    ->required(fn (Get $get) => $this->isType($get, ModulePageType::Text))
                     ->columnSpanFull(),
             ]);
     }
 
     /**
-     * Cocokkan tipe terpilih ke enum — tahan terhadap state berupa enum (saat edit/
-     * hidrasi dari model ber-cast) MAUPUN string. `$get('tipe') === 'video'` saja gagal
-     * karena Select ber-options enum mengembalikan instance ModulePageType.
+     * Definisi blok konten. Berkas tersimpan di disk media (portabel ke R2) di
+     * direktori per-tipe; pembersihan berkas yatim ditangani model ModulePage.
+     *
+     * @return array<int, Block>
      */
-    private function isType(Get $get, ModulePageType $type): bool
+    private static function blocks(): array
     {
-        $value = $get('tipe');
+        $disk = config('media-library.disk_name');
 
-        return $value instanceof ModulePageType ? $value === $type : $value === $type->value;
+        return [
+            Block::make('teks')
+                ->label('Teks')
+                ->icon(ModuleBlockType::Teks->getIcon())
+                ->schema([
+                    RichEditor::make('konten')
+                        ->label('Teks')
+                        ->required()
+                        ->columnSpanFull(),
+                ]),
+
+            Block::make('video')
+                ->label('Video')
+                ->icon(ModuleBlockType::Video->getIcon())
+                ->schema([
+                    TextInput::make('url')
+                        ->label('URL Video')
+                        ->url()
+                        ->required()
+                        ->rule(self::httpOnlyRule())
+                        ->placeholder('https://www.youtube.com/watch?v=...')
+                        ->helperText('Tempel link YouTube atau Google Drive biasa — otomatis di-embed.')
+                        ->maxLength(500)
+                        ->columnSpanFull(),
+                    TextInput::make('caption')
+                        ->label('Keterangan (opsional)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                ]),
+
+            Block::make('pdf')
+                ->label('PDF / Dokumen')
+                ->icon(ModuleBlockType::Pdf->getIcon())
+                ->schema([
+                    FileUpload::make('file')
+                        ->label('File PDF')
+                        ->acceptedFileTypes(['application/pdf'])
+                        ->disk($disk)
+                        ->directory('modules/blocks/pdf')
+                        ->visibility('public')
+                        ->required()
+                        ->maxSize(10240)
+                        ->helperText('Maksimal 10 MB, format PDF.')
+                        ->columnSpanFull(),
+                    TextInput::make('judul')
+                        ->label('Judul dokumen (opsional)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                ]),
+
+            Block::make('gambar')
+                ->label('Gambar')
+                ->icon(ModuleBlockType::Gambar->getIcon())
+                ->schema([
+                    FileUpload::make('file')
+                        ->label('Gambar')
+                        ->image()
+                        ->disk($disk)
+                        ->directory('modules/blocks/gambar')
+                        ->visibility('public')
+                        ->required()
+                        ->maxSize(4096)
+                        ->helperText('Maksimal 4 MB (JPG/PNG/WebP).')
+                        ->columnSpanFull(),
+                    TextInput::make('alt')
+                        ->label('Teks alternatif (aksesibilitas)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                    TextInput::make('caption')
+                        ->label('Keterangan (opsional)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                ]),
+
+            Block::make('audio')
+                ->label('Audio')
+                ->icon(ModuleBlockType::Audio->getIcon())
+                ->schema([
+                    FileUpload::make('file')
+                        ->label('File Audio')
+                        ->acceptedFileTypes(['audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/x-wav', 'audio/ogg'])
+                        ->disk($disk)
+                        ->directory('modules/blocks/audio')
+                        ->visibility('public')
+                        ->required()
+                        ->maxSize(20480)
+                        ->helperText('Maksimal 20 MB (MP3/M4A/WAV/OGG).')
+                        ->columnSpanFull(),
+                    TextInput::make('caption')
+                        ->label('Keterangan (opsional)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                ]),
+
+            Block::make('lampiran')
+                ->label('Lampiran')
+                ->icon(ModuleBlockType::Lampiran->getIcon())
+                ->schema([
+                    FileUpload::make('file')
+                        ->label('Berkas')
+                        ->disk($disk)
+                        ->directory('modules/blocks/lampiran')
+                        ->visibility('public')
+                        ->required()
+                        ->maxSize(20480)
+                        ->helperText('Maksimal 20 MB. Berkas yang bisa diunduh warga (mis. DOCX, slide, gambar).')
+                        ->columnSpanFull(),
+                    TextInput::make('label')
+                        ->label('Nama tampilan (opsional)')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                ]),
+        ];
+    }
+
+    /** Hanya skema http/https (cegah javascript:/data: yang dirender di tautan). */
+    private static function httpOnlyRule(): Closure
+    {
+        return static function (): Closure {
+            return function (string $attribute, $value, Closure $fail): void {
+                if (filled($value) && ! in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true)) {
+                    $fail('URL video harus diawali http:// atau https://.');
+                }
+            };
+        };
     }
 
     public function table(Table $table): Table
@@ -107,16 +195,26 @@ class PagesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('urutan')
                     ->label('#')
-                    ->width('50px'),
+                    ->width('50px')
+                    ->alignCenter(),
 
                 TextColumn::make('judul')
                     ->label('Judul')
                     ->searchable()
                     ->wrap(),
 
-                TextColumn::make('tipe')
-                    ->label('Tipe')
-                    ->badge(),
+                // Ringkasan isi: badge per tipe blok yang dipakai halaman ini.
+                TextColumn::make('blocks')
+                    ->label('Isi')
+                    ->badge()
+                    ->state(fn (ModulePage $record): array => collect($record->blocks ?? [])
+                        ->map(fn ($block) => ModuleBlockType::tryFrom($block['type'] ?? '')?->getLabel())
+                        ->filter()
+                        ->countBy()
+                        ->map(fn (int $count, string $label) => $count > 1 ? "{$label} ×{$count}" : $label)
+                        ->values()
+                        ->all())
+                    ->placeholder('—'),
             ])
             ->filters([])
             ->headerActions([

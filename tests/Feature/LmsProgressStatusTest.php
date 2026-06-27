@@ -25,8 +25,7 @@ function progressModule(): Module
     ModulePage::create([
         'module_id' => $module->id,
         'judul' => 'Materi',
-        'tipe' => 'text',
-        'konten' => 'Isi.',
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => 'Isi.']]],
         'urutan' => 1,
     ]);
 

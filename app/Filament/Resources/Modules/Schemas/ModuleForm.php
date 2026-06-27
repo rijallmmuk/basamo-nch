@@ -39,13 +39,13 @@ class ModuleForm
                             })
                             ->columnSpan(1),
 
+                        // Slug ditetapkan model (Spatie HasSlug, unik per desa + auto-suffix).
+                        // Field ini hanya pratinjau read-only; tak dikirim ke server.
                         TextInput::make('slug')
                             ->label('Slug URL')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(Module::class, 'slug', ignoreRecord: true)
+                            ->helperText('Otomatis dari judul. Bila bentrok di desa yang sama, ditambah akhiran (mis. -1).')
                             ->readOnly()
-                            ->dehydrated()
+                            ->dehydrated(false)
                             ->columnSpan(1),
 
                         Select::make('desa_id')

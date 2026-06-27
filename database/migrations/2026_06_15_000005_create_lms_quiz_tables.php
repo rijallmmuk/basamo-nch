@@ -17,12 +17,18 @@ return new class extends Migration
     public function up(): void
     {
         // Judul kuis diturunkan dari modulnya: "Kuis: {judul modul}".
+        // SoftDeletes: "Hapus" = arsip (tak melenyapkan attempt/jawaban warga). Unique
+        // (module_id, deleted_at) → modul bisa diberi kuis baru setelah kuis lama diarsip;
+        // prefix kiri module_id sekaligus memenuhi index FK.
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('module_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('nilai_lulus')->default(70);
             $table->unsignedTinyInteger('maks_percobaan')->default(3);
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['module_id', 'deleted_at']);
         });
 
         Schema::create('quiz_questions', function (Blueprint $table) {

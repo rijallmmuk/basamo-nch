@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -59,12 +60,18 @@ class UsersTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    // Penanda baris terhapus — terlihat sekilas saat filter "termasuk terhapus" aktif.
+                    ->icon(fn (User $record): ?string => $record->trashed() ? 'heroicon-m-trash' : null)
+                    ->iconColor('danger')
+                    ->iconPosition(IconPosition::After)
+                    ->tooltip(fn (User $record): ?string => $record->trashed() ? 'Dihapus '.$record->deleted_at?->translatedFormat('d M Y') : null),
 
                 TextColumn::make('nik')
                     ->label('NIK')
@@ -81,6 +88,7 @@ class UsersTable
                     ->badge()
                     ->color('gray')
                     ->sortable()
+                    ->alignCenter()
                     ->visible(! $scopedToDesa),
 
                 IconColumn::make('umkm_access_granted_at')
@@ -91,12 +99,14 @@ class UsersTable
                     ->boolean()
                     ->trueColor('success')
                     ->falseColor('gray')
+                    ->alignCenter()
                     ->tooltip(fn (User $record): string => $record->hasUmkmAccess() ? 'Pemilik UMKM' : 'Belum diberi akses'),
 
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 // Tampil default agar admin bisa langsung melihat/menyalin OTP yang masih
                 // tertunda. Kosong (—) berarti warga sudah login & mengganti sandi sendiri.
@@ -107,7 +117,8 @@ class UsersTable
                     ->copyable()
                     ->placeholder('—')
                     ->tooltip('Sandi sementara — warga wajib mengganti saat login pertama')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->alignCenter(),
 
                 // — Kolom tambahan (bisa dimunculkan lewat "Kolom") — default tersembunyi —
                 TextColumn::make('email')
@@ -149,19 +160,22 @@ class UsersTable
                     ->label('Tanggal Lahir')
                     ->date('d M Y')
                     ->placeholder('—')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
 
                 TextColumn::make('total_xp')
                     ->label('XP')
                     ->numeric()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters($filters)
             ->recordActions([

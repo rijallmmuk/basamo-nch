@@ -21,12 +21,14 @@ class ActivityLogsTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Waktu')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('causer.name')
                     ->label('Pelaku')
@@ -37,7 +39,8 @@ class ActivityLogsTable
                     ->label('Objek')
                     ->badge()
                     ->color('info')
-                    ->formatStateUsing(fn (?string $state): string => ucfirst((string) $state)),
+                    ->formatStateUsing(fn (?string $state): string => ucfirst((string) $state))
+                    ->alignCenter(),
 
                 TextColumn::make('event')
                     ->label('Aksi')
@@ -49,11 +52,13 @@ class ActivityLogsTable
                         'deleted' => 'danger',
                         'restored' => 'info',
                         default => 'gray',
-                    }),
+                    })
+                    ->alignCenter(),
 
                 TextColumn::make('subject_id')
                     ->label('ID Objek')
-                    ->formatStateUsing(fn ($state): string => $state ? '#'.$state : '—'),
+                    ->formatStateUsing(fn ($state): string => $state ? '#'.$state : '—')
+                    ->alignCenter(),
 
                 TextColumn::make('properties')
                     ->label('Perubahan')

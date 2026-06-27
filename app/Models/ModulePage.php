@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\ModulePageType;
+use App\Enums\ModuleBlockType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -14,15 +14,14 @@ class ModulePage extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'module_id', 'judul', 'tipe', 'konten',
-        'url_video', 'path_file', 'urutan',
+        'module_id', 'judul', 'blocks', 'urutan',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
-            'tipe' => ModulePageType::class,
+            'blocks' => 'array',
             'urutan' => 'integer',
         ];
     }
@@ -30,7 +29,7 @@ class ModulePage extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['judul', 'tipe', 'module_id', 'urutan'])
+            ->logOnly(['judul', 'module_id', 'urutan'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('materi');
@@ -45,33 +44,51 @@ class ModulePage extends Model
             }
         });
 
-        // Bersihkan kolom media yang tak relevan dengan tipe (cegah data basi saat ganti
-        // tipe). `konten` DIPERTAHANKAN untuk semua tipe: jadi materi utama (text) atau
-        // teks penjelasan/instruksi opsional yang menyertai video/PDF.
-        static::saving(function (ModulePage $page) {
-            if ($page->tipe !== ModulePageType::Video) {
-                $page->url_video = null;
-            }
-
-            if ($page->tipe !== ModulePageType::Pdf) {
-                $page->path_file = null;
-            }
-        });
-
-        // Hapus file PDF lama saat diganti/dikosongkan agar tidak yatim di disk.
+        // Hapus berkas yang sudah tak dirujuk blok mana pun saat halaman disimpan ulang
+        // (mis. blok PDF/gambar/audio/lampiran dibuang atau berkasnya diganti).
         static::updating(function (ModulePage $page) {
-            $original = $page->getOriginal('path_file');
-            if ($original && $page->path_file !== $original) {
-                Storage::disk(config('media-library.disk_name'))->delete($original);
-            }
+            $removed = array_diff(
+                static::filePathsFromBlocks($page->getOriginal('blocks')),
+                static::filePathsFromBlocks($page->blocks),
+            );
+
+            static::deleteFiles($removed);
         });
 
-        // Hapus file PDF saat halaman dihapus.
+        // Hapus semua berkas blok saat halaman dihapus.
         static::deleted(function (ModulePage $page) {
-            if ($page->path_file) {
-                Storage::disk(config('media-library.disk_name'))->delete($page->path_file);
-            }
+            static::deleteFiles(static::filePathsFromBlocks($page->blocks));
         });
+    }
+
+    /**
+     * Kumpulkan path berkas terunggah dari array blok (PDF/gambar/audio/lampiran).
+     *
+     * @param  array<int, array<string, mixed>>|string|null  $blocks
+     * @return array<int, string>
+     */
+    public static function filePathsFromBlocks(array|string|null $blocks): array
+    {
+        if (is_string($blocks)) {
+            $blocks = json_decode($blocks, true) ?: [];
+        }
+
+        return collect($blocks ?? [])
+            ->filter(fn ($block) => ModuleBlockType::tryFrom($block['type'] ?? '')?->storesFile())
+            ->pluck('data.file')
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /** @param  array<int, string>  $paths */
+    private static function deleteFiles(array $paths): void
+    {
+        $disk = Storage::disk(config('media-library.disk_name'));
+
+        foreach ($paths as $path) {
+            $disk->delete($path);
+        }
     }
 
     public function module(): BelongsTo

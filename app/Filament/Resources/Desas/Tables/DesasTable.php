@@ -16,6 +16,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -31,13 +32,19 @@ class DesasTable
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter(),
 
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->formatStateUsing(fn (Desa $record): string => $record->nama_lengkap)
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    // Penanda baris terhapus — terlihat sekilas saat filter "termasuk terhapus" aktif.
+                    ->icon(fn (Desa $record): ?string => $record->trashed() ? 'heroicon-m-trash' : null)
+                    ->iconColor('danger')
+                    ->iconPosition(IconPosition::After)
+                    ->tooltip(fn (Desa $record): ?string => $record->trashed() ? 'Dihapus '.$record->deleted_at?->translatedFormat('d M Y') : null),
 
                 TextColumn::make('wilayah_kode')
                     ->label('Kode Wilayah')
@@ -45,7 +52,8 @@ class DesasTable
                     ->color('gray')
                     ->copyable()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('kabupaten')
                     ->label('Kabupaten/Kota')
@@ -61,12 +69,14 @@ class DesasTable
                     ->counts('warga')
                     ->badge()
                     ->color('info')
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
 
                 // Login admin desa = kode nagari (paralel kolom NIK warga).
                 TextColumn::make('desaAdmin.username')
@@ -84,13 +94,15 @@ class DesasTable
                     ->copyable()
                     ->placeholder('—')
                     ->tooltip('Sandi sementara admin — wajib diganti saat login pertama')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->alignCenter(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('status')
