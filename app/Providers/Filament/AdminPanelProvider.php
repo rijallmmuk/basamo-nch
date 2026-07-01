@@ -2,10 +2,11 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Auth\EditProfile;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Profil;
 use App\Http\Middleware\EnsureAdminPasswordChanged;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -34,13 +35,23 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             // Login bawaan Filament dimatikan — semua peran login lewat halaman gabungan
             // (route `login`). Tamu yang membuka /admin diarahkan ke sana oleh auth handler.
-            ->profile(EditProfile::class, isSimple: false)
+            // Profil bawaan Filament diganti halaman kustom (read-only + modal Ubah) → App\Filament\Pages\Profil.
+            // Key 'profile' (bukan 'profil') sengaja: menimpa item akun default Filament yang
+            // memunculkan header nama di dropdown → dropdown cukup "Profil" + "Keluar".
+            ->userMenuItems([
+                'profile' => Action::make('profile')
+                    ->label('Profil')
+                    ->icon('heroicon-o-user-circle')
+                    ->url(fn (): string => Profil::getUrl()),
+            ])
             ->brandName('Basamo NCH')
             ->brandLogo(fn (): Htmlable => view('filament.brand'))
             ->brandLogoHeight('2.25rem')
             ->font('Plus Jakarta Sans')
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
+            // Palet tunggal NCH (mode terang) → tanpa switcher tema di menu pengguna.
+            ->darkMode(false)
             // Lonceng notifikasi: dipakai untuk melaporkan hasil impor warga yang
             // diproses di latar belakang (queue). Lihat App\Jobs\ImportWarga.
             ->databaseNotifications()

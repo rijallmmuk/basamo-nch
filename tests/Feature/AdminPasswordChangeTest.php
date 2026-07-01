@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Auth\EditProfile;
+use App\Filament\Pages\Profil;
 use App\Livewire\ForcePasswordChange;
 use App\Models\Desa;
 use App\Models\User;
@@ -34,7 +34,7 @@ it('admin desa dgn OTP awal: dikunci di dashboard + modal ganti sandi tampil', f
         ->assertSee('Ganti Kata Sandi');
 
     // Halaman lain (mis. profil) dialihkan ke dashboard sampai sandi diganti.
-    $this->get(route('filament.admin.auth.profile'))
+    $this->get(route('filament.admin.pages.profil'))
         ->assertRedirect(route('filament.admin.pages.dashboard'));
 });
 
@@ -44,8 +44,8 @@ it('admin tanpa flag wajib-ganti tidak dialihkan', function () {
     $this->get('/admin')->assertSuccessful();
 });
 
-it('modal: ganti sandi melepas must_change; email & No.HP opsional', function () {
-    $admin = User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id, 'email' => null]);
+it('modal: ganti sandi melepas must_change (hanya sandi, tanpa field kontak)', function () {
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id]);
     $admin->issueOtp();
     actingAs($admin->fresh());
 
@@ -56,10 +56,8 @@ it('modal: ganti sandi melepas must_change; email & No.HP opsional', function ()
         ->assertHasNoErrors()
         ->assertSet('saved', true); // tampil langkah sukses, BUKAN redirect senyap
 
-    $admin->refresh();
-    expect($admin->must_change_password)->toBeFalse()
-        ->and(Hash::check('rahasiabaru', $admin->password))->toBeTrue()
-        ->and($admin->email)->toBeNull(); // email tak wajib
+    expect($admin->refresh()->must_change_password)->toBeFalse()
+        ->and(Hash::check('rahasiabaru', $admin->password))->toBeTrue();
 });
 
 it('modal: sandi terlalu pendek (<8) ditolak', function () {
@@ -74,51 +72,84 @@ it('modal: sandi terlalu pendek (<8) ditolak', function () {
         ->assertHasErrors(['password']);
 });
 
-it('modal: kontak terisi → No.HP dinormalkan & email huruf kecil', function () {
-    $admin = User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id, 'email' => null]);
-    $admin->issueOtp();
-    actingAs($admin->fresh());
-
-    Livewire::test(ForcePasswordChange::class)
-        ->set('password', 'rahasia-baru-1')
-        ->set('password_confirmation', 'rahasia-baru-1')
-        ->set('phone', '0812 3456 7890')
-        ->set('email', 'Admin.X@Example.COM')
-        ->call('save')
-        ->assertHasNoErrors();
-
-    $admin->refresh();
-    expect($admin->phone)->toBe('6281234567890')
-        ->and($admin->email)->toBe('admin.x@example.com');
-});
-
-it('modal: email yang sudah dipakai akun lain ditolak', function () {
-    User::factory()->create(['email' => 'taken@example.com']);
-    $admin = User::factory()->desaAdmin()->create(['desa_id' => Desa::factory()->create()->id, 'email' => null]);
-    $admin->issueOtp();
-    actingAs($admin->fresh());
-
-    Livewire::test(ForcePasswordChange::class)
-        ->set('password', 'rahasia-baru-1')
-        ->set('password_confirmation', 'rahasia-baru-1')
-        ->set('email', 'taken@example.com')
-        ->call('save')
-        ->assertHasErrors(['email']);
-});
-
-it('profil admin: tanpa field Nama (fix), bisa isi No. HP (dinormalkan)', function () {
+it('profil admin desa: aksi Ubah Profil isi kontak (HP dinormalkan), nama tetap fix', function () {
     $admin = User::factory()->desaAdmin()->create([
         'desa_id' => Desa::factory()->create()->id,
         'name' => 'Admin Nagari X',
     ]);
     actingAs($admin);
 
-    Livewire::test(EditProfile::class)
-        ->assertFormFieldDoesNotExist('name') // nama admin fix → tak bisa diubah di profil
-        ->fillForm(['phone' => '0812 3456 7890'])
-        ->call('save')
-        ->assertHasNoFormErrors();
+    Livewire::test(Profil::class)
+        ->callAction('ubahProfil', data: ['email' => 'kontak@desa.test', 'phone' => '0812 3456 7890'])
+        ->assertHasNoActionErrors();
 
-    expect($admin->refresh()->phone)->toBe('6281234567890') // dinormalkan 62xxx
-        ->and($admin->name)->toBe('Admin Nagari X');        // nama tak berubah
+    $admin->refresh();
+    expect($admin->phone)->toBe('6281234567890')          // dinormalkan 62xxx
+        ->and($admin->email)->toBe('kontak@desa.test')
+        ->and($admin->name)->toBe('Admin Nagari X');       // nama admin desa fix (field name absen)
+});
+
+it('profil super admin: aksi Ubah Profil bisa ganti nama', function () {
+    $super = User::factory()->superAdmin()->create(['name' => 'Super Lama']);
+    actingAs($super);
+
+    Livewire::test(Profil::class)
+        ->callAction('ubahProfil', data: ['name' => 'Super Baru'])
+        ->assertHasNoActionErrors();
+
+    expect($super->refresh()->name)->toBe('Super Baru');
+});
+
+it('keamanan: ganti sandi wajib sandi lama benar', function () {
+    $admin = User::factory()->desaAdmin()->create([
+        'desa_id' => Desa::factory()->create()->id,
+        'password' => Hash::make('sandilama'),
+    ]);
+    actingAs($admin);
+
+    // Sandi lama salah → ditolak
+    Livewire::test(Profil::class)
+        ->callAction('ubahKeamanan', data: [
+            'current_password' => 'salah',
+            'password' => 'sandibaru123',
+            'password_confirmation' => 'sandibaru123',
+        ])
+        ->assertHasActionErrors(['current_password']);
+
+    // Sandi lama benar → berhasil
+    Livewire::test(Profil::class)
+        ->callAction('ubahKeamanan', data: [
+            'current_password' => 'sandilama',
+            'password' => 'sandibaru123',
+            'password_confirmation' => 'sandibaru123',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(Hash::check('sandibaru123', $admin->refresh()->password))->toBeTrue();
+});
+
+it('keamanan: super admin bisa ubah username; admin desa tidak', function () {
+    $super = User::factory()->superAdmin()->create([
+        'username' => 'superlama',
+        'password' => Hash::make('sandilama'),
+    ]);
+    actingAs($super);
+
+    Livewire::test(Profil::class)
+        ->callAction('ubahKeamanan', data: ['current_password' => 'sandilama', 'username' => 'superbaru'])
+        ->assertHasNoActionErrors();
+
+    expect($super->refresh()->username)->toBe('superbaru');
+});
+
+it('halaman profil admin terbuka: data read-only + tombol Ubah tampil', function () {
+    $super = User::factory()->superAdmin()->create(['name' => 'Pak Super', 'username' => 'supx']);
+    actingAs($super);
+
+    $this->get(route('filament.admin.pages.profil'))
+        ->assertOk()
+        ->assertSee('Pak Super')     // data read-only
+        ->assertSee('supx')
+        ->assertSee('Ubah Profil')   // aksi header
+        ->assertSee('Ubah Keamanan');
 });

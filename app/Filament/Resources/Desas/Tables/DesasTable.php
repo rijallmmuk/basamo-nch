@@ -51,6 +51,8 @@ class DesasTable
                     ->badge()
                     ->color('gray')
                     ->copyable()
+                    // Tampil dgn titik (mis. 13.71.01.1001) tapi yang tersalin hanya angka.
+                    ->copyableState(fn (?string $state): string => preg_replace('/\D/', '', (string) $state))
                     ->searchable()
                     ->sortable()
                     ->alignCenter(),

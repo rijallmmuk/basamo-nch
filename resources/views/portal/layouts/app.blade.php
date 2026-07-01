@@ -197,28 +197,20 @@
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-xl bg-surface-container-lowest p-1.5 shadow-lg ring-1 ring-black/5">
-                            <div class="flex items-center gap-md px-3 py-3">
-                                <x-portal.avatar :name="$user->name" :src="$user->avatarUrl()" variant="solid" size="lg" />
-                                <div class="min-w-0">
-                                    <p class="truncate text-body-md font-semibold text-on-surface">{{ $user->name }}</p>
-                                </div>
-                            </div>
-                            <div class="border-t border-outline-variant pt-1.5">
-                                <a href="{{ route('portal.profile.edit') }}"
-                                    class="flex w-full items-center gap-md rounded-xl px-3 py-2.5 text-body-md font-medium text-on-surface transition-colors hover:bg-surface-container-high">
-                                    <x-heroicon-o-user-circle class="h-5 w-5 shrink-0 text-on-surface-variant" />
-                                    Profil Saya
-                                </a>
-                                <form method="POST" action="{{ route('portal.logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="flex w-full items-center gap-md rounded-xl px-3 py-2.5 text-body-md font-medium text-on-surface transition-colors hover:bg-error-container hover:text-danger">
-                                        <x-heroicon-o-arrow-right-on-rectangle class="h-5 w-5 shrink-0 text-on-surface-variant" />
-                                        Keluar
-                                    </button>
-                                </form>
-                            </div>
+                            class="absolute right-0 top-full z-50 mt-2 w-48 origin-top-right rounded-xl bg-surface-container-lowest p-1.5 shadow-lg ring-1 ring-black/5">
+                            <a href="{{ route('portal.profile.edit') }}"
+                                class="flex w-full items-center gap-md rounded-xl px-3 py-2.5 text-body-md font-medium text-on-surface transition-colors hover:bg-surface-container-high">
+                                <x-heroicon-o-user-circle class="h-5 w-5 shrink-0 text-on-surface-variant" />
+                                Profil
+                            </a>
+                            <form method="POST" action="{{ route('portal.logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="flex w-full items-center gap-md rounded-xl px-3 py-2.5 text-body-md font-medium text-on-surface transition-colors hover:bg-error-container hover:text-danger">
+                                    <x-heroicon-o-arrow-right-on-rectangle class="h-5 w-5 shrink-0 text-on-surface-variant" />
+                                    Keluar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

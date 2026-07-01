@@ -6,6 +6,28 @@
 
 ---
 
+## Sesi 2026-07-02 — Profil admin/super (read-only+modal), modal OTP ramping, user menu ringkas, dropdown warga
+
+Branch `feat/ref-wilayah-sumbar`. Suite **286 (284 lulus, 2 skip)**. Pint bersih. Belum merge.
+
+- **Profil admin & super admin** = halaman Filament kustom **`App\Filament\Pages\Profil`** (route `/admin/profil`),
+  pola "read-only dulu, ubah lewat modal" (seperti warga): tampilan read-only + aksi header **Ubah Profil**
+  (nama super-only, email, No. HP) & **Ubah Keamanan** (username super-only, sandi; **wajib `current_password`**).
+  Nama & username admin desa FIX (dikelola super admin). `->profile()` bawaan dimatikan; `EditProfile` dihapus.
+  KEPUTUSAN user: username hanya super admin; ganti sandi wajib sandi lama.
+- **Modal OTP login pertama admin** (`ForcePasswordChange`): field **kontak (No.HP/email) DIHAPUS** — cukup
+  ganti sandi. Kontak dilengkapi lewat Profil. 2 test kontak dibuang.
+- **Panel Filament**: `->darkMode(false)` (tanpa switcher tema). **Topbar tetap** (avatar + badge peran).
+  **Dropdown** diringkas jadi **Profil + Keluar** via key `'profile'` (menimpa item akun default Filament yang
+  menampilkan header nama) — TANPA override view vendor. CATATAN: sempat over-remove avatar+badge topbar
+  (user koreksi: hanya dropdown), sudah dikembalikan.
+- **Dropdown warga** (portal): header avatar+nama dihapus, isi cukup **Profil** + **Keluar**.
+- **Kolom Kode Wilayah** (tabel Desa, super admin): `->copyable()->copyableState(digit-only)` — tampil
+  "13.71.01.1001", tersalin "13710110001" (angka saja).
+- NEXT: cek browser (login pertama OTP, /admin/profil kedua peran, dropdown), lalu PR ke main.
+
+---
+
 ## Sesi 2026-07-01 — Login gabungan, profil ready-production, notifikasi modal, audit bisnis+storage, loading bersama
 
 Branch `feat/ref-wilayah-sumbar`. Suite **284 (282 lulus, 2 skip)**. Pint bersih. Belum merge.

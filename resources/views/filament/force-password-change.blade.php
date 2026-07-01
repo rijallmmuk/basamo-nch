@@ -26,8 +26,7 @@
                 <h2 class="text-lg font-bold text-gray-950">Ganti Kata Sandi</h2>
             </div>
             <p class="mb-5 text-sm text-gray-500">
-                Demi keamanan, ganti sandi sementara (OTP) Anda sebelum melanjutkan. Minimal 8 karakter,
-                bebas. No. HP &amp; email opsional.
+                Demi keamanan, ganti sandi sementara (OTP) Anda sebelum melanjutkan. Minimal 8 karakter.
             </p>
 
             <form wire:submit="save" class="space-y-4">
@@ -44,26 +43,6 @@
                     <x-filament::input.wrapper>
                         <x-filament::input type="password" id="fpc-password2" wire:model="password_confirmation" placeholder="••••••••" autocomplete="new-password" />
                     </x-filament::input.wrapper>
-                </div>
-
-                <div class="border-t border-gray-100 pt-4">
-                    <p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">Kontak (opsional)</p>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="fpc-phone" class="mb-1 block text-sm font-medium text-gray-700">No. HP</label>
-                            <x-filament::input.wrapper>
-                                <x-filament::input type="tel" id="fpc-phone" wire:model="phone" placeholder="0812xxxxxxxx" />
-                            </x-filament::input.wrapper>
-                            @error('phone') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="fpc-email" class="mb-1 block text-sm font-medium text-gray-700">Email</label>
-                            <x-filament::input.wrapper>
-                                <x-filament::input type="email" id="fpc-email" wire:model="email" placeholder="nama@contoh.com" />
-                            </x-filament::input.wrapper>
-                            @error('email') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
                 </div>
 
                 <x-filament::button type="submit" class="w-full">

@@ -8,6 +8,13 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Profil admin & super admin ready-production** (2026-07-02) — halaman Filament kustom `Profil`
+      (read-only + modal Ubah Profil/Ubah Keamanan); username super-only, ganti sandi wajib sandi lama;
+      modal OTP login pertama diramping (hanya sandi); dropdown admin ringkas (Profil+Keluar); tanpa tema.
+- [x] **Kode Wilayah copyable digit-only** (2026-07-02) — tampil dgn titik, tersalin angka saja.
+- [x] **Dropdown warga** (2026-07-02) — hapus avatar+nama; cukup Profil + Keluar.
+- [ ] **Cek browser (NEXT)** — login pertama OTP (warga & admin), `/admin/profil` (super & desa admin) +
+      kedua modal, dropdown admin & warga, copyable kode wilayah.
 - [x] **Login GABUNGAN `/login`** (2026-07-01) — warga NIK, admin/super username/email; redirect per peran;
       Filament login dimatikan; `UnifiedLoginTest`.
 - [x] **Profil warga ready-production** (2026-07-01) — foto (Cropper.js+kompres <50KB), kontak, ganti sandi
