@@ -65,6 +65,7 @@ class HomeController extends Controller
             ->where('desa_id', $user->desa_id);
 
         $topUsers = $wargaQuery()
+            ->with('media') // foto profil (avatarUrl) — hindari N+1 saat render top 5
             ->orderByDesc('total_xp')
             ->orderBy('name')
             ->take(5)

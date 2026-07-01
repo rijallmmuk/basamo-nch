@@ -84,7 +84,7 @@ it('warga login dengan NIK + OTP lalu dipaksa ganti sandi', function () {
     $otp = $warga->issueOtp();
 
     // Login NIK + OTP berhasil.
-    $this->post(route('portal.login'), ['login' => '3201010101010009', 'password' => $otp])
+    $this->post(route('login'), ['login' => '3201010101010009', 'password' => $otp])
         ->assertRedirect(route('portal.home'));
 
     // Akses portal dialihkan ke ganti sandi.
@@ -131,20 +131,20 @@ it('login warga tetap diterima walau OTP lama (tanpa kedaluwarsa)', function () 
     // Walau OTP diterbitkan jauh di masa lalu, tetap berlaku.
     $this->travel(60)->days();
 
-    $this->post(route('portal.login'), ['login' => '3201010101010010', 'password' => $otp])
+    $this->post(route('login'), ['login' => '3201010101010010', 'password' => $otp])
         ->assertRedirect(route('portal.home'));
 });
 
-it('admin tidak bisa login ke portal warga', function () {
+it('admin login di halaman gabungan diarahkan ke panel admin', function () {
     $admin = User::factory()->desaAdmin()->create([
         'desa_id' => Desa::factory()->create()->id,
         'username' => 'adminx',
     ]);
 
-    $this->post(route('portal.login'), ['login' => 'adminx', 'password' => 'password'])
-        ->assertSessionHasErrors('login');
+    $this->post(route('login'), ['login' => 'adminx', 'password' => 'password'])
+        ->assertRedirect('/admin');
 
-    $this->assertGuest();
+    expect(auth()->id())->toBe($admin->id);
 });
 
 it('rute self-register sudah dihapus', function () {

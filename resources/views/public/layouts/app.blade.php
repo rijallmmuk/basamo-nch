@@ -30,7 +30,7 @@
 
             {{-- Actions --}}
             <div class="flex items-center gap-2 sm:gap-4">
-                <a href="{{ route('portal.login') }}" class="rounded-full bg-primary px-6 py-2.5 font-bold text-on-primary transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 sm:px-8">Masuk Portal</a>
+                <a href="{{ route('login') }}" class="rounded-full bg-primary px-6 py-2.5 font-bold text-on-primary transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 sm:px-8">Masuk Portal</a>
             </div>
         </div>
     </header>
@@ -56,7 +56,7 @@
             <nav class="flex flex-wrap gap-x-8 gap-y-3 font-semibold text-on-primary/70">
                 <a href="{{ route('public.umkm.index') }}" class="transition-colors hover:text-secondary-container">Katalog UMKM</a>
                 <a href="{{ route('public.peta') }}" class="transition-colors hover:text-secondary-container">Peta Nagari</a>
-                <a href="{{ route('portal.login') }}" class="transition-colors hover:text-secondary-container">Masuk Portal</a>
+                <a href="{{ route('login') }}" class="transition-colors hover:text-secondary-container">Masuk Portal</a>
             </nav>
         </div>
         <div class="relative z-10 mx-auto mt-12 max-w-7xl border-t border-on-primary/10 px-margin-mobile pt-6 text-label-sm font-bold uppercase tracking-widest text-on-primary/40 lg:px-margin-desktop">

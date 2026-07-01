@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Module;
 use App\Models\User;
+use App\Notifications\DiscussionReplied;
 use App\Services\LmsPointService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -98,6 +99,11 @@ class DiscussionController extends Controller
             'parent_id' => $discussion->id,
             'isi' => $data['isi'],
         ]);
+
+        // Beri tahu penanya bahwa pertanyaannya dibalas (kecuali membalas thread sendiri).
+        if ($discussion->user_id !== $user->id && $discussion->user) {
+            $discussion->user->notify(new DiscussionReplied($discussion, $user->name));
+        }
 
         // XP partisipasi diskusi (idempotent — sekali per modul, posting pertama).
         $this->pointService->awardDiscussionParticipation($user, $module);

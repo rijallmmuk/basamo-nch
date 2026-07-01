@@ -17,13 +17,13 @@ class EnsurePortalUser
     public function handle(Request $request, Closure $next): Response
     {
         if (! auth()->check()) {
-            return redirect()->route('portal.login');
+            return redirect()->route('login');
         }
 
         if (auth()->user()->role !== 'warga') {
             auth()->logout();
 
-            return redirect()->route('portal.login')
+            return redirect()->route('login')
                 ->with('error', 'Akun ini tidak memiliki akses portal warga.');
         }
 
@@ -31,7 +31,7 @@ class EnsurePortalUser
         if (auth()->user()->status !== ActiveStatus::Active) {
             auth()->logout();
 
-            return redirect()->route('portal.login')
+            return redirect()->route('login')
                 ->with('error', 'Akun Anda nonaktif. Hubungi Admin Desa.');
         }
 

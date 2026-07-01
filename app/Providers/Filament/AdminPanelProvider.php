@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\EditProfile;
-use App\Filament\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\EnsureAdminPasswordChanged;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -33,7 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->login(Login::class)
+            // Login bawaan Filament dimatikan — semua peran login lewat halaman gabungan
+            // (route `login`). Tamu yang membuka /admin diarahkan ke sana oleh auth handler.
             ->profile(EditProfile::class, isSimple: false)
             ->brandName('Basamo NCH')
             ->brandLogo(fn (): Htmlable => view('filament.brand'))

@@ -77,7 +77,7 @@
                 @php
                     // Class literal penuh (Tailwind v4 tak generate class rakitan-string).
                     $pilar = [
-                        ['icon' => 'academic-cap', 'wrap' => 'bg-primary/10 text-primary', 'peak' => 'bg-primary/10', 'cta' => 'text-primary', 'judul' => 'LMS Hub', 'desc' => 'Pusat pembelajaran digital nagari — modul, kuis interaktif, dan papan peringkat warga.', 'label' => 'MULAI BELAJAR', 'href' => route('portal.login')],
+                        ['icon' => 'academic-cap', 'wrap' => 'bg-primary/10 text-primary', 'peak' => 'bg-primary/10', 'cta' => 'text-primary', 'judul' => 'LMS Hub', 'desc' => 'Pusat pembelajaran digital nagari — modul, kuis interaktif, dan papan peringkat warga.', 'label' => 'MULAI BELAJAR', 'href' => route('login')],
                         ['icon' => 'building-storefront', 'wrap' => 'bg-secondary/10 text-secondary', 'peak' => 'bg-secondary/10', 'cta' => 'text-secondary', 'judul' => 'Katalog UMKM', 'desc' => 'Repositori UMKM nagari — katalog produk dan kontak langsung penjual via WhatsApp.', 'label' => 'LIHAT KATALOG', 'href' => route('public.umkm.index')],
                         ['icon' => 'chart-bar', 'wrap' => 'bg-tertiary/10 text-tertiary', 'peak' => 'bg-tertiary/10', 'judul' => 'SDGs Desa', 'desc' => 'Pencatatan dan visualisasi capaian pembangunan berkelanjutan tingkat nagari.', 'href' => null],
                         ['icon' => 'cpu-chip', 'wrap' => 'bg-error/10 text-error', 'peak' => 'bg-error/10', 'judul' => 'Sensor IoT', 'desc' => 'Pemantauan sensor desa — suhu, kelembaban tanah, curah hujan, dan kualitas udara.', 'href' => null],
@@ -199,7 +199,7 @@
                     <h2 class="text-[32px] font-extrabold leading-tight tracking-tight text-on-primary sm:text-[48px]">Jadi bagian dari ekosistem nagari.</h2>
                     <p class="mx-auto max-w-2xl text-lg font-light leading-relaxed text-on-primary/70 sm:text-xl">Masuk ke portal warga untuk belajar di LMS, dan kelola produk UMKM-mu agar terhubung langsung dengan pembeli.</p>
                     <div class="flex flex-wrap justify-center gap-4 pt-2">
-                        <a href="{{ route('portal.login') }}"
+                        <a href="{{ route('login') }}"
                             class="flex items-center gap-3 rounded-full bg-secondary-container px-10 py-5 text-label-md font-extrabold uppercase tracking-widest text-primary shadow-2xl transition-all hover:scale-105 active:scale-95">
                             Masuk Portal Warga <x-heroicon-s-arrow-right class="h-5 w-5" />
                         </a>

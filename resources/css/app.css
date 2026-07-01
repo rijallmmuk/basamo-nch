@@ -227,7 +227,8 @@
  */
 @layer components {
     .prose {
-        --tw-prose-body: var(--color-on-surface-variant);
+        /* Body pakai on-surface (kontras tinggi) demi kenyamanan baca panjang di HP. */
+        --tw-prose-body: var(--color-on-surface);
         --tw-prose-headings: var(--color-on-surface);
         --tw-prose-lead: var(--color-on-surface-variant);
         --tw-prose-links: var(--color-primary);
@@ -244,4 +245,37 @@
         --tw-prose-th-borders: var(--color-outline-variant);
         --tw-prose-td-borders: var(--color-outline-variant);
     }
+}
+
+/*
+ | Rapatkan spasi vertikal konten materi — default typography terlalu longgar,
+ | apalagi butir daftar dari RichEditor sering dibungkus <p> (margin bertumpuk).
+ | Ditaruh unlayered agar menang atas output plugin.
+ */
+.prose p {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+}
+.prose ul,
+.prose ol {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+}
+.prose li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+.prose li p {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+.prose :is(h2, h3, h4) {
+    margin-top: 1.1em;
+    margin-bottom: 0.5em;
+}
+.prose > :first-child {
+    margin-top: 0;
+}
+.prose > :last-child {
+    margin-bottom: 0;
 }

@@ -6,6 +6,40 @@
 
 ---
 
+## Sesi 2026-07-01 — Login gabungan, profil ready-production, notifikasi modal, audit bisnis+storage, loading bersama
+
+Branch `feat/ref-wilayah-sumbar`. Suite **284 (282 lulus, 2 skip)**. Pint bersih. Belum merge.
+
+- **Login GABUNGAN (semua peran) di `/login`** (nama route `login`, keluar dari prefix `/portal`): warga=NIK/email,
+  admin/super=username/email — deteksi otomatis (16 digit→NIK, `@`→email, selain itu→username). Redirect per
+  peran (admin→`/admin`, warga→portal); **BUKAN `intended()`** (cegah warga terlempar ke /admin lalu ditolak).
+  Login bawaan Filament DIMATIKAN (`->login()` + kelas `App\Filament\Auth\Login` dihapus); tamu `/admin`→`/login`
+  via fallback auth handler. Semua ref `portal.login`→`login`. `UnifiedLoginTest` (11).
+- **Halaman profil warga ready-production** (`profile/edit`): foto (Cropper.js crop/zoom + kompres klien **<50KB,
+  160px**=2× tampil terbesar 80px; thumb 160²), kontak (email/HP), ganti sandi (wajib sandi lama) — semua
+  **read-only dulu + tombol "Ubah"** (Alpine); data kependudukan **read-only** (baris "Desa" dibuang; catatan
+  "hubungi admin {sebutan}"). Endpoint `profile.contact`/`profile.password`. `PortalProfileUpdateTest`.
+- **Notifikasi = MODAL** (bukan halaman): lonceng buka modal Alpine (teleport, bottom-sheet HP); buka→POST
+  `notifications/read` (badge nol). Halaman+route lama dihapus. **+notif balasan diskusi** (`DiscussionReplied`,
+  admin & warga→penanya, bukan self). `PortalNotificationTest`, `DiscussionModerationTest` +3.
+- **Loading form = pola bersama**: handler global `app.js` (delegation, skip Livewire) + `x-portal.button`
+  type=submit auto spinner (`data-loading`); auth pill pakai atribut generik. Dipakai login/ganti-sandi/profil/
+  UMKM/diskusi. Lihat DECISIONS.
+- **Reader materi** (`modules/page`): isi memenuhi kartu (buang `max-w-[52rem]`), sidebar ramping `w-72`
+  (fokus isi), padding HP `px-5`, dots progres disembunyikan di HP. **Prose dirapatkan** (`app.css`): body
+  `on-surface` (kontras), margin p/li/ul dipadatkan, `space-y-5` antar-blok.
+- **Foto top-5 leaderboard beranda** kini tampil (dulu inisial saja) + eager-load media.
+- **Badge `urutan` modul dihapus dari daftar warga** (angka global bercelah, mis. "10" dari seeder — menyesatkan;
+  urutan tetap diterapkan). Reorder admin tetap.
+- **Audit alur+logika bisnis LMS** = robust (progres/kuis/XP/scoping). Catatan deploy **`queue:work` WAJIB**
+  (`QUEUE_CONNECTION=database` + notif ShouldQueue) ditulis di README.
+- **Audit hapus/ganti file storage** (super/admin/warga) = aman: Media Library (avatar/cover/foto UMKM/logo)
+  auto-hapus saat force-delete/replace; blok materi via hook `ModulePage`. +3 test regresi (ganti/buang/hapus blok).
+- **Dropdown**: nama desa dibuang, "Keluar dari Akun"→"Keluar".
+- **Dep baru**: `cropperjs` (DECISIONS). NEXT: cek browser (login pertama OTP warga & admin), PR ke main.
+
+---
+
 ## Sesi 2026-06-26 (lanjutan 16) — Reader: margin konsisten, tombol disederhanakan, scope badge dihapus
 
 Suite **260 (258 lulus, 2 skip)**. Pint bersih.

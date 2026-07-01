@@ -33,9 +33,9 @@
 
                     <div class="flex flex-1 flex-col p-5">
 
-                    {{-- Top row: urutan + status --}}
-                    <div class="mb-3 flex items-center justify-between gap-3">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-surface-container-high text-xs font-semibold text-on-surface-variant">{{ $module->urutan }}</span>
+                    {{-- Status modul (nomor urut internal tak ditampilkan ke warga —
+                         urutannya sudah tercermin dari susunan kartu). --}}
+                    <div class="mb-3 flex items-center justify-end gap-3">
                         <x-portal.status-badge :status="$status" />
                     </div>
 

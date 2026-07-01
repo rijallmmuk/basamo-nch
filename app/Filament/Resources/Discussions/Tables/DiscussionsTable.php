@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Discussions\Tables;
 
 use App\Models\Desa;
 use App\Models\Discussion;
+use App\Notifications\DiscussionReplied;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -150,6 +151,11 @@ class DiscussionsTable
                             'user_id' => auth()->id(),
                             'isi' => $data['isi'],
                         ]);
+
+                        // Beri tahu warga penanya bahwa pertanyaannya sudah dijawab admin.
+                        if ($record->user_id !== auth()->id() && $record->user) {
+                            $record->user->notify(new DiscussionReplied($record, auth()->user()->name));
+                        }
 
                         Notification::make()
                             ->title('Balasan terkirim')

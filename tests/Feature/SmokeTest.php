@@ -16,7 +16,7 @@ it('halaman publik terbuka tanpa error', function (string $url) {
 })->with([
     'beranda' => '/',
     'katalog umkm' => '/umkm',
-    'login portal' => '/portal/login',
+    'login gabungan' => '/login',
 ]);
 
 it('dasbor admin terbuka tanpa error (widget sambutan + chart render)', function (string $state) {
@@ -36,7 +36,6 @@ it('halaman portal warga terbuka tanpa error', function (string $name) {
     'portal.modules.index',
     'portal.leaderboard',
     'portal.xp',
-    'portal.notifications',
     'portal.profile.edit',
     'portal.password.edit',
 ]);

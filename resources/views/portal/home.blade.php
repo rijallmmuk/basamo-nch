@@ -127,7 +127,11 @@
                         @endphp
                         <div class="flex flex-1 items-center gap-md px-lg py-md transition-colors {{ $isMe ? 'bg-primary-fixed' : '' }}">
                             <span class="w-6 shrink-0 text-center text-sm font-bold {{ $isMe ? 'text-primary' : $rankColor }}">{{ $rank }}</span>
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold {{ $isMe ? 'bg-primary text-white' : $avatarBg }}">{{ $initials($w->name) }}</div>
+                            @if($w->avatarUrl())
+                                <img src="{{ $w->avatarUrl() }}" alt="{{ $w->name }}" class="h-9 w-9 shrink-0 rounded-full object-cover">
+                            @else
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold {{ $isMe ? 'bg-primary text-white' : $avatarBg }}">{{ $initials($w->name) }}</div>
+                            @endif
                             <span class="min-w-0 flex-1 truncate text-sm font-semibold {{ $isMe ? 'text-primary' : 'text-on-surface' }}">{{ $w->name }}@if($isMe) <span class="text-xs font-normal">(Anda)</span>@endif</span>
                             <span class="shrink-0 text-sm font-bold {{ $isMe ? 'text-primary' : 'text-on-surface' }}">{{ number_format($w->total_xp) }} <span class="text-xs font-normal text-on-surface-variant">XP</span></span>
                         </div>
@@ -137,7 +141,11 @@
                     @if($myRank > $topUsers->count())
                         <div class="flex flex-1 items-center gap-md bg-primary-fixed px-lg py-md">
                             <span class="w-6 shrink-0 text-center text-sm font-bold text-primary">{{ $myRank }}</span>
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{{ $initials($user->name) }}</div>
+                            @if($user->avatarUrl())
+                                <img src="{{ $user->avatarUrl() }}" alt="{{ $user->name }}" class="h-9 w-9 shrink-0 rounded-full object-cover">
+                            @else
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{{ $initials($user->name) }}</div>
+                            @endif
                             <span class="min-w-0 flex-1 truncate text-sm font-semibold text-primary">{{ $user->name }} <span class="text-xs font-normal">(Anda)</span></span>
                             <span class="shrink-0 text-sm font-bold text-primary">{{ number_format($user->total_xp) }} <span class="text-xs font-normal text-on-surface-variant">XP</span></span>
                         </div>

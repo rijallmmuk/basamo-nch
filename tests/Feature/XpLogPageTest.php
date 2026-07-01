@@ -5,6 +5,7 @@ use App\Models\Module;
 use App\Models\User;
 use App\Models\XpLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -25,6 +26,10 @@ it('menampilkan riwayat XP warga dengan judul sumber', function () {
 });
 
 it('tidak menampilkan XP milik warga lain', function () {
+    // Modul published memicu notifikasi "modul baru" ke warga; palsukan agar judulnya
+    // tak muncul di modal notifikasi header dan mengotori assertion isolasi XP.
+    Notification::fake();
+
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
     $lain = User::factory()->warga()->create(['desa_id' => $desa->id]);

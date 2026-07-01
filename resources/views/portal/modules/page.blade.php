@@ -26,8 +26,8 @@
             <span class="hidden sm:inline">{{ $prevPage ? 'Sebelumnya' : 'Ke Modul' }}</span>
         </a>
 
-        {{-- Indikator progres materi --}}
-        <div class="flex items-center gap-1.5">
+        {{-- Indikator progres materi (redundan dgn bar atas → sembunyikan di HP, cegah luber) --}}
+        <div class="hidden items-center gap-1.5 sm:flex">
             @foreach($pages as $p)
                 @php $isDone = in_array($p->id, $pagesCompleted); $isCurrent = $p->id === $page->id; @endphp
                 <span class="rounded-full transition-all
@@ -81,19 +81,19 @@
         </script>
     @endif
 
-    <div class="grid gap-5 lg:grid-cols-3">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
 
-        {{-- Content — kartu selebar kolom, isi dipusatkan ke lebar baca nyaman --}}
-        <div class="lg:col-span-2">
+        {{-- Content — fokus utama, mengambil sisa lebar --}}
+        <div class="min-w-0 flex-1">
             <x-portal.card :padded="false">
                 <div class="border-b border-outline-variant">
-                    <div class="mx-auto max-w-[52rem] px-6 py-5 sm:px-8">
+                    <div class="px-5 py-5 sm:px-8">
                         <p class="text-sm font-medium text-on-surface-variant">Materi {{ $currentIdx }} dari {{ $totalPages }}</p>
                         <h1 class="mt-1 text-xl font-bold leading-snug text-on-surface sm:text-2xl">{{ $page->judul }}</h1>
                     </div>
                 </div>
 
-                <div class="mx-auto max-w-[52rem] space-y-8 px-6 py-8 sm:px-8 lg:py-10">
+                <div class="space-y-5 px-5 py-6 sm:px-8 lg:py-8">
                     @forelse($page->blocks ?? [] as $block)
                         <x-portal.module-block :block="$block" />
                     @empty
@@ -103,8 +103,8 @@
             </x-portal.card>
         </div>
 
-        {{-- Sidebar outline --}}
-        <aside class="hidden lg:block">
+        {{-- Sidebar outline — ramping, sekunder terhadap isi materi --}}
+        <aside class="hidden w-72 shrink-0 lg:block">
             <x-portal.card :padded="false" class="sticky top-20">
                 <div class="border-b border-outline-variant px-5 py-4">
                     <p class="font-bold text-on-surface">Daftar Materi</p>

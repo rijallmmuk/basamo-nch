@@ -9,5 +9,5 @@ test('root menampilkan landing page publik', function () {
 });
 
 test('halaman login portal dapat diakses tamu', function () {
-    $this->get(route('portal.login'))->assertSuccessful();
+    $this->get(route('login'))->assertSuccessful();
 });

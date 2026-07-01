@@ -111,10 +111,19 @@
                     </div>
                 </div>
 
-                <button type="submit"
-                    class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-body-md font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]">
-                    <x-heroicon-s-check-circle class="h-5 w-5" />
-                    Simpan Sandi Baru
+                <button type="submit" data-loading
+                    class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-body-md font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-lg">
+                    <span data-loading-label class="flex items-center gap-2">
+                        <x-heroicon-s-check-circle class="h-5 w-5" />
+                        Simpan Sandi Baru
+                    </span>
+                    <span data-loading-spinner class="hidden items-center gap-2">
+                        <svg class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Menyimpan…
+                    </span>
                 </button>
             </form>
         </div>

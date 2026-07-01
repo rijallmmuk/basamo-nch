@@ -48,15 +48,25 @@ it('mengunggah foto baru mengganti yang lama (singleFile)', function () {
     expect($warga->fresh()->getMedia('avatar'))->toHaveCount(1);
 });
 
-it('warga menghapus foto profil (kembali ke inisial)', function () {
-    Storage::fake(config('media-library.disk_name'));
+it('foto wajib disertakan saat menyimpan', function () {
     $warga = profileWarga();
-    $warga->addMedia(UploadedFile::fake()->image('me.jpg'))->toMediaCollection('avatar');
 
     $this->actingAs($warga)
-        ->post(route('portal.profile.update'), ['remove_avatar' => '1']);
+        ->from(route('portal.profile.edit'))
+        ->post(route('portal.profile.update'), [])
+        ->assertSessionHasErrors('avatar');
+});
 
-    expect($warga->refresh()->avatarUrl())->toBeNull();
+it('menolak foto lebih dari 50 KB', function () {
+    $warga = profileWarga();
+
+    $this->actingAs($warga)
+        ->from(route('portal.profile.edit'))
+        ->post(route('portal.profile.update'), [
+            // Gambar valid namun > 50 KB → ditolak pengaman server.
+            'avatar' => UploadedFile::fake()->image('besar.jpg')->size(80),
+        ])
+        ->assertSessionHasErrors('avatar');
 });
 
 it('menolak file non-gambar sebagai foto profil', function () {

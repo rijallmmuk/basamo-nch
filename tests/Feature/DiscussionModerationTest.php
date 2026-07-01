@@ -5,7 +5,9 @@ use App\Models\Desa;
 use App\Models\Discussion;
 use App\Models\Module;
 use App\Models\User;
+use App\Notifications\DiscussionReplied;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -96,6 +98,50 @@ it('super admin membalas pertanyaan warga (balasan atas nama admin)', function (
         ->and($reply->isi)->toBe('Ini jawaban dari admin.')
         ->and($reply->user_id)->toBe($super->id)
         ->and($reply->module_id)->toBe($thread->module_id);
+});
+
+it('balasan admin memberi tahu warga penanya', function () {
+    Notification::fake();
+    $desa = Desa::factory()->create();
+    $super = User::factory()->superAdmin()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $thread = makeThread(makeDiscussionModule(), $warga);
+
+    $this->actingAs($super);
+
+    Livewire::test(ListDiscussions::class)
+        ->callTableAction('balas', $thread, data: ['isi' => 'Jawaban dari admin.']);
+
+    Notification::assertSentTo($warga, DiscussionReplied::class);
+});
+
+it('balasan warga lain memberi tahu penanya, tapi tidak memberi tahu diri sendiri', function () {
+    Notification::fake();
+    $desa = Desa::factory()->create();
+    $module = makeDiscussionModule();
+    $penanya = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $pembalas = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $thread = makeThread($module, $penanya);
+
+    $this->actingAs($pembalas)
+        ->post(route('portal.modules.discuss.reply', [$module, $thread]), ['isi' => 'Jawaban warga lain.'])
+        ->assertRedirect();
+
+    Notification::assertSentTo($penanya, DiscussionReplied::class);
+    Notification::assertNotSentTo($pembalas, DiscussionReplied::class);
+});
+
+it('membalas thread sendiri tidak memicu notifikasi', function () {
+    Notification::fake();
+    $desa = Desa::factory()->create();
+    $module = makeDiscussionModule();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $thread = makeThread($module, $warga);
+
+    $this->actingAs($warga)
+        ->post(route('portal.modules.discuss.reply', [$module, $thread]), ['isi' => 'Menambahkan info sendiri.']);
+
+    Notification::assertNothingSent();
 });
 
 it('admin menghapus lalu memulihkan diskusi', function () {

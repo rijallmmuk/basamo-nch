@@ -91,8 +91,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
+        // 160px = 2× tampilan avatar terbesar (80px di profil/podium) → tajam di layar
+        // retina HP dengan ukuran minimal.
         $this->addMediaConversion('thumb')
-            ->fit(Fit::Crop, 256, 256)
+            ->fit(Fit::Crop, 160, 160)
             ->format('webp')
             ->nonQueued();
     }

@@ -21,7 +21,7 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'login' => 'required|string',     // NIK (warga) atau email
+            'login' => 'required|string',     // NIK (warga) / username / email (admin)
             'password' => 'required|string',
         ]);
 
@@ -36,38 +36,54 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        // Warga login via NIK (kolom `nik`); email dideteksi via format.
-        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
+        // Deteksi jenis identitas: email (ada '@') → email; 16 digit → NIK warga;
+        // selain itu → username admin (kode nagari ±10 digit, tak pernah 16 → tak bentrok).
+        $login = $credentials['login'];
+        $field = match (true) {
+            filter_var($login, FILTER_VALIDATE_EMAIL) !== false => 'email',
+            ctype_digit($login) && strlen($login) === 16 => 'nik',
+            default => 'username',
+        };
 
-        if (! Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+        if (! Auth::attempt([$field => $login, 'password' => $credentials['password']], $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);
 
             return back()
-                ->withErrors(['login' => 'NIK/email atau sandi salah.'])
+                ->withErrors(['login' => 'Identitas atau kata sandi salah.'])
                 ->withInput();
         }
 
-        if (Auth::user()->role !== 'warga') {
+        $user = Auth::user();
+
+        // Akun nonaktif diblokir (berlaku untuk semua peran).
+        if ($user->status !== ActiveStatus::Active) {
             Auth::logout();
 
             return back()
-                ->withErrors(['login' => 'Akun ini tidak memiliki akses portal warga.'])
-                ->withInput();
-        }
-
-        // Akun nonaktif diblokir: menonaktifkan warga = cabut akses portal.
-        if (Auth::user()->status !== ActiveStatus::Active) {
-            Auth::logout();
-
-            return back()
-                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi Admin Desa.'])
+                ->withErrors(['login' => 'Akun Anda nonaktif. Hubungi admin.'])
                 ->withInput();
         }
 
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
-        return redirect()->route('portal.home');
+        // Arahkan ke beranda peran masing-masing. Sengaja TIDAK pakai intended():
+        // "intended URL" bisa lintas-area (mis. /admin tersimpan saat tamu, lalu warga
+        // login → terlempar ke /admin & ditolak). Redirect tetap per peran lebih aman.
+        if (in_array($user->role, ['super_admin', 'desa_admin'], true)) {
+            return redirect('/admin');
+        }
+
+        if ($user->role === 'warga') {
+            return redirect()->route('portal.home');
+        }
+
+        // Peran tak dikenal → tolak (defense-in-depth).
+        Auth::logout();
+
+        return back()
+            ->withErrors(['login' => 'Akun ini tidak memiliki akses.'])
+            ->withInput();
     }
 
     public function logout(Request $request): RedirectResponse
@@ -76,6 +92,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('portal.login');
+        return redirect()->route('login');
     }
 }

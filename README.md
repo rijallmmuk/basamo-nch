@@ -75,6 +75,37 @@ php artisan make:filament-resource NamaModel --generate
 
 ---
 
+## Deploy produksi — catatan wajib
+
+**Queue worker WAJIB berjalan.** `QUEUE_CONNECTION=database`, dan notifikasi in-app
+(modul baru, kuis baru, verifikasi produk UMKM) memakai `ShouldQueue`. Tanpa worker,
+notifikasi **tidak akan terkirim** (job menumpuk di tabel `jobs`, tak pernah diproses).
+
+Jalankan worker sebagai proses persisten (Supervisor/systemd), bukan sekali jalan:
+
+```bash
+php artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
+```
+
+Contoh Supervisor (`/etc/supervisor/conf.d/basamo-worker.conf`):
+
+```ini
+[program:basamo-worker]
+command=php /path/ke/basamo-nch/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/path/ke/basamo-nch/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+> Setelah tiap deploy yang mengubah kode, restart worker: `php artisan queue:restart`
+> (worker lama memuat kode basi sampai di-restart).
+
+---
+
 ## Milestone ringkas
 
 | Milestone | Fokus | Target |

@@ -62,6 +62,54 @@ it('M1: hapus permanen modul menghapus berkas blok halamannya', function () {
     Storage::disk($disk)->assertMissing('modules/blocks/pdf/a.pdf');
 });
 
+it('M1: mengganti berkas blok saat edit menghapus berkas lama, menyimpan yang baru', function () {
+    $disk = config('media-library.disk_name');
+    Storage::fake($disk);
+    Storage::disk($disk)->put('modules/blocks/pdf/lama.pdf', '%PDF-1.4');
+    Storage::disk($disk)->put('modules/blocks/pdf/baru.pdf', '%PDF-1.4');
+
+    $page = ModulePage::create([
+        'module_id' => makeModule()->id, 'judul' => 'PDF', 'urutan' => 1,
+        'blocks' => [['type' => 'pdf', 'data' => ['file' => 'modules/blocks/pdf/lama.pdf']]],
+    ]);
+
+    $page->update(['blocks' => [['type' => 'pdf', 'data' => ['file' => 'modules/blocks/pdf/baru.pdf']]]]);
+
+    Storage::disk($disk)->assertMissing('modules/blocks/pdf/lama.pdf');
+    Storage::disk($disk)->assertExists('modules/blocks/pdf/baru.pdf');
+});
+
+it('M1: membuang blok berkas saat edit menghapus berkasnya', function () {
+    $disk = config('media-library.disk_name');
+    Storage::fake($disk);
+    Storage::disk($disk)->put('modules/blocks/gambar/x.jpg', 'JPG');
+
+    $page = ModulePage::create([
+        'module_id' => makeModule()->id, 'judul' => 'Gambar', 'urutan' => 1,
+        'blocks' => [['type' => 'gambar', 'data' => ['file' => 'modules/blocks/gambar/x.jpg']]],
+    ]);
+
+    // Ganti jadi blok teks (buang blok gambar) → berkas gambar harus terhapus.
+    $page->update(['blocks' => [['type' => 'teks', 'data' => ['konten' => 'Hanya teks.']]]]);
+
+    Storage::disk($disk)->assertMissing('modules/blocks/gambar/x.jpg');
+});
+
+it('M1: menghapus satu halaman menghapus berkas bloknya', function () {
+    $disk = config('media-library.disk_name');
+    Storage::fake($disk);
+    Storage::disk($disk)->put('modules/blocks/audio/a.mp3', 'MP3');
+
+    $page = ModulePage::create([
+        'module_id' => makeModule()->id, 'judul' => 'Audio', 'urutan' => 1,
+        'blocks' => [['type' => 'audio', 'data' => ['file' => 'modules/blocks/audio/a.mp3']]],
+    ]);
+
+    $page->delete();
+
+    Storage::disk($disk)->assertMissing('modules/blocks/audio/a.mp3');
+});
+
 // ── M3: URL video — render hanya http/https (defense-in-depth) ────────
 it('M3: URL video skema javascript: tidak dirender sebagai tautan', function () {
     $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);

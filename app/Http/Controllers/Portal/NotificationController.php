@@ -3,19 +3,18 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 
 class NotificationController extends Controller
 {
-    public function index(): View
+    /**
+     * Tandai semua notifikasi user sebagai sudah dibaca. Dipanggil (fetch POST) saat
+     * modal notifikasi di header dibuka. Daftar notifikasi sendiri dirender di layout.
+     */
+    public function markAllRead(): Response
     {
-        $user = auth()->user();
+        auth()->user()->unreadNotifications()->update(['read_at' => now()]);
 
-        $notifications = $user->notifications()->latest()->paginate(20);
-
-        // Tandai semua sebagai sudah dibaca saat halaman dibuka (1 query, bukan per-baris).
-        $user->unreadNotifications()->update(['read_at' => now()]);
-
-        return view('portal.notifications.index', compact('notifications'));
+        return response()->noContent();
     }
 }

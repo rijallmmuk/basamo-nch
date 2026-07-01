@@ -35,13 +35,16 @@ Route::middleware('auth')
     ->get('admin/desa/peta-batas', [DesaBoundaryController::class, 'show'])
     ->name('admin.desa.boundary');
 
-Route::prefix('portal')->name('portal.')->group(function () {
-    // Guest only — akun warga dibuat Admin Desa (tanpa self-register).
-    Route::middleware('guest')->group(function () {
-        Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('login', [AuthController::class, 'login']);
-    });
+// ── Login gabungan (semua peran) ──────────────────────────────────────
+// Satu halaman login untuk warga (NIK), admin & super admin (username/email).
+// Nama route `login` = konvensi Laravel → Filament & middleware auth otomatis
+// mengarahkan tamu ke sini.
+Route::middleware('guest')->group(function () {
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'login']);
+});
 
+Route::prefix('portal')->name('portal.')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     // Protected (akun portal warga saja). `no-store` cegah dashboard ter-cache
@@ -53,13 +56,18 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
-        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
+        // Notifikasi ditampilkan lewat modal di header (bukan halaman terpisah);
+        // endpoint ini hanya menandai semua notifikasi sudah dibaca saat modal dibuka.
+        Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
         Route::get('leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
         Route::get('xp', [XpController::class, 'index'])->name('xp');
 
-        // Profil warga (foto profil)
+        // Profil warga: foto, kontak (email/HP), & ganti sandi. Data kependudukan
+        // read-only (hanya admin yang boleh mengubah — cegah salah ubah).
         Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::post('profil', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('profil/kontak', [ProfileController::class, 'updateContact'])->name('profile.contact');
+        Route::post('profil/sandi', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('/', [ModuleController::class, 'index'])->name('index');

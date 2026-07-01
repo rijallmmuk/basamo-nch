@@ -8,6 +8,16 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Login GABUNGAN `/login`** (2026-07-01) — warga NIK, admin/super username/email; redirect per peran;
+      Filament login dimatikan; `UnifiedLoginTest`.
+- [x] **Profil warga ready-production** (2026-07-01) — foto (Cropper.js+kompres <50KB), kontak, ganti sandi
+      (read-only + tombol Ubah), data kependudukan read-only; `PortalProfileUpdateTest`.
+- [x] **Notifikasi jadi modal** + **notif balasan diskusi** (`DiscussionReplied`) (2026-07-01).
+- [x] **Pola loading form bersama** (handler global + `x-portal.button`) (2026-07-01).
+- [x] **Audit bisnis LMS + storage cleanup** (2026-07-01) — robust; deploy `queue:work` di README; +test regresi.
+- [ ] **Cek browser (NEXT)** — login pertama OTP warga & admin (paksa ganti sandi), foto profil crop di HP,
+      modal notifikasi, `/login` semua peran.
+- [ ] **(Opsional) PR `feat/ref-wilayah-sumbar` → main** bila sudah mantap.
 - [x] **➡️ PUSH branch `feat/ref-wilayah-sumbar`** — di-push s/d `c03a141` (sesi 2026-06-26).
 - [x] **Polish UX tabel admin (2026-06-26)** — semua tabel (Desa/Warga/Wilayah/Modul/Quiz/Diskusi) baris
       non-klik + Ubah via aksi (kuning di Wilayah/Modul/Quiz); hapus halaman Lihat Desa/Warga; menu per-desa

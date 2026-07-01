@@ -21,7 +21,7 @@
                 <x-heroicon-s-academic-cap class="h-7 w-7 text-secondary-container" />
             </div>
             <h1 class="text-headline-lg font-extrabold tracking-tight text-primary">Basamo <span class="text-secondary">NCH</span></h1>
-            <p class="mt-1 text-body-md text-on-surface-variant">Portal Pembelajaran Warga</p>
+            <p class="mt-1 text-body-md text-on-surface-variant">Pembelajaran Digital Nagari</p>
         </div>
 
         {{-- Card --}}
@@ -36,20 +36,20 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('portal.login') }}" class="space-y-5">
+            <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
 
                 {{-- NIK / Email --}}
                 <div>
                     <label for="login" class="mb-2 block text-body-md font-semibold text-on-surface">
-                        NIK / Email
+                        NIK, Username, atau Email
                     </label>
                     <input type="text" id="login" name="login" value="{{ old('login') }}"
                         autocomplete="username" autofocus inputmode="text"
                         class="block w-full rounded-xl border-2 px-4 py-3 text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/50
                                @error('login') border-error bg-error-container/30 focus:border-error
                                @else border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest @enderror"
-                        placeholder="NIK 16 digit atau email">
+                        placeholder="NIK, username, atau email">
                     @error('login')
                         <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                     @enderror
@@ -78,11 +78,20 @@
                     <label for="remember" class="text-body-md text-on-surface-variant">Ingat saya</label>
                 </div>
 
-                {{-- Submit --}}
-                <button type="submit"
-                    class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-body-md font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]">
-                    <x-heroicon-s-arrow-right-end-on-rectangle class="h-5 w-5" />
-                    Masuk
+                {{-- Submit (dengan state loading agar tak terkesan macet / cegah klik ganda) --}}
+                <button type="submit" data-loading
+                    class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 text-body-md font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-lg">
+                    <span data-loading-label class="flex items-center gap-2">
+                        <x-heroicon-s-arrow-right-end-on-rectangle class="h-5 w-5" />
+                        Masuk
+                    </span>
+                    <span data-loading-spinner class="hidden items-center gap-2">
+                        <svg class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Memproses…
+                    </span>
                 </button>
             </form>
         </div>

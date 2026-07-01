@@ -22,12 +22,12 @@ function makeWarga(array $overrides = []): User
 it('menolak login warga berstatus nonaktif', function () {
     makeWarga(['status' => 'inactive']);
 
-    $this->from(route('portal.login'))
-        ->post(route('portal.login'), [
+    $this->from(route('login'))
+        ->post(route('login'), [
             'login' => '3201000000000999',
             'password' => 'rahasia-warga',
         ])
-        ->assertRedirect(route('portal.login'))
+        ->assertRedirect(route('login'))
         ->assertSessionHasErrors('login');
 
     expect(auth()->check())->toBeFalse();
@@ -36,7 +36,7 @@ it('menolak login warga berstatus nonaktif', function () {
 it('mengizinkan login warga aktif', function () {
     makeWarga(['status' => 'active']);
 
-    $this->post(route('portal.login'), [
+    $this->post(route('login'), [
         'login' => '3201000000000999',
         'password' => 'rahasia-warga',
     ])->assertRedirect(route('portal.home'));
@@ -50,7 +50,7 @@ it('mengeluarkan warga yang dinonaktifkan saat sesi berjalan', function () {
     $this->actingAs($warga);
     $warga->update(['status' => 'inactive']);
 
-    $this->get(route('portal.home'))->assertRedirect(route('portal.login'));
+    $this->get(route('portal.home'))->assertRedirect(route('login'));
     expect(auth()->check())->toBeFalse();
 });
 
