@@ -6,6 +6,29 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 7) — Audit robustness CRUD Warga (admin desa + super admin drill-in)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **319 (317 lulus, 2 skip)**. Pint bersih.
+
+Audit probe (tinker rollback) + sapu cakupan test. **Verdict: KOKOH — nol bug, 3 test
+pengunci ditambah** (perilaku benar tapi belum pernah di-test):
+- **Route-binding Edit lintas-desa = 404** (bukan cuma list yang ter-scope): admin desa A
+  buka Edit warga desa B → 404; super admin konteks A buka Edit warga B → 404.
+- **Penduduk yatim ber-NIK sama dipakai ulang & ikut pindah desa mengikuti akun barunya**
+  (probe: tanpa duplikat/unique violation; mirror desa bekerja) — skenario "orang pindah
+  nagari, akun lama sudah dihapus permanen".
+- Diverifikasi kokoh: job impor (cleanup file di finally+failed(), lapor per-baris ke
+  lonceng, desa eksplisit tanpa sesi); OTP tunda konsisten form+impor; guard anti-arsip
+  desa berpenghuni menjamin tak ada warga yatim; konteks super admin auto-bersih saat
+  buka daftar Desa (menutup race konteks-basi); validasi NIK dua lapis (users + penduduk).
+- **Catatan produk (bukan bug, TIDAK dibangun)**: memindah warga antar desa tak bisa via
+  edit (field desa terkunci konteks) dan NIK-unik menahan buat-ulang di desa lain selagi
+  akun lama terarsip. Jalur sah saat ini: hapus permanen akun lama → buat baru di desa
+  tujuan (identitas penduduk otomatis ikut pindah). Fitur "transfer warga" = keputusan
+  produk masa depan.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 6) — Audit robustness fitur inti: Desa · Modul→Materi · Kuis→Soal
 
 Branch `feat/ref-wilayah-sumbar`. Suite **316 (314 lulus, 2 skip)**. Pint bersih.

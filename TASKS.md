@@ -8,6 +8,10 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Audit robustness CRUD Warga** (2026-07-02) — admin desa + super admin drill-in;
+      verdict KOKOH, nol bug; +3 test pengunci (Edit lintas-desa 404, reuse penduduk
+      lintas-desa). Catatan produk: fitur "transfer warga antar desa" belum ada (by design,
+      jalur = hapus permanen + buat ulang). Suite 319 (317 lulus, 2 skip).
 - [x] **Audit robustness fitur inti** (2026-07-02) — Desa/Modul→Materi/Kuis→Soal; 2 bug
       terbukti via probe DB & difix: restore desa berkode-ganda diblokir, pindah desa modul
       dijaga (slug bentrok + prasyarat lintas-desa); sisanya kokoh. Suite 316 (314, 2 skip).

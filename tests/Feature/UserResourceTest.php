@@ -9,6 +9,7 @@ use App\Models\Penduduk;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Services\WargaProvisioningService;
 use App\Support\DesaContext;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -222,4 +223,41 @@ it('force-delete warga menghapus permanen akun + lapak UMKM beserta foto produkn
         ->and(UmkmProfile::withTrashed()->find($profile->id))->toBeNull()
         ->and(UmkmProduct::withTrashed()->find($product->id))->toBeNull()
         ->and(Media::where('model_type', UmkmProduct::class)->where('model_id', $product->id)->count())->toBe(0);
+});
+
+it('admin desa tidak bisa membuka halaman Edit warga desa lain (404)', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $adminA = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
+
+    actingAs($adminA);
+
+    $this->get(UserResource::getUrl('edit', ['record' => $wargaB]))->assertNotFound();
+});
+
+it('super admin dalam konteks desa A tidak bisa membuka Edit warga desa B (404)', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $wargaB = User::factory()->warga()->create(['desa_id' => $desaB->id]);
+
+    actingAs(User::factory()->superAdmin()->create());
+    DesaContext::set($desaA->id);
+
+    $this->get(UserResource::getUrl('edit', ['record' => $wargaB]))->assertNotFound();
+});
+
+it('penduduk yatim ber-NIK sama dipakai ulang & ikut pindah desa mengikuti akun barunya', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    // Identitas tersisa di desa A (mis. akun lamanya dihapus permanen).
+    $penduduk = Penduduk::create(['nik' => '3201999900010001', 'nama' => 'Orang Pindah', 'desa_id' => $desaA->id]);
+
+    $warga = app(WargaProvisioningService::class)->create([
+        'name' => 'Orang Pindah', 'nik' => '3201999900010001', 'status' => 'active',
+    ], $desaB->id);
+
+    expect($warga->penduduk_id)->toBe($penduduk->id)          // dipakai ulang, bukan duplikat
+        ->and($penduduk->refresh()->desa_id)->toBe($desaB->id) // mirror desa ikut akun
+        ->and(Penduduk::where('nik', '3201999900010001')->count())->toBe(1);
 });
