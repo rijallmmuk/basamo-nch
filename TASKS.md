@@ -175,7 +175,7 @@
 - [x] ~~QuizPlayer essay + antrian admin~~ — DIBATALKAN: MC-only (pending_review dihapus)
 - [x] Progress tracker visual (progress bar per modul + page dots)
 - [x] Bug fix: url()->previous() di quiz result, page ownership check, module scope check
-- [ ] UX belajar: layar "Selesai!" saat semua materi tuntas + CTA kuis
+- [x] UX belajar: sinyal kuis pasca-materi-tuntas (2026-07-02) — CTA "Kerjakan Kuis" di hero detail modul + kartu daftar modul, kartu "Kuis Lulus — nilai X", toast ajakan kuis. PortalQuizCtaTest
 - [x] UX quiz: progress "Soal X dari Y terjawab" + highlight live + scroll ke error
 - [x] Notifikasi in-app: modul baru + kuis baru (observer) + hasil kuis (QuizPlayer); lonceng + halaman notifikasi
 

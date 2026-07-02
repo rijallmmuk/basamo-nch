@@ -23,6 +23,8 @@
                     $pagesDone = count($progress?->halaman_selesai ?? []);
                     $pct = $module->pages_count > 0 ? (int) ($pagesDone / $module->pages_count * 100) : 0;
                     $locked = $status === 'locked';
+                    // Materi tuntas tapi kuis modul ini belum lulus → masih ada langkah tersisa.
+                    $quizPending = $status === 'completed' && ($quizPendingMap[$module->id] ?? false);
                 @endphp
 
                 <div class="flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition {{ $locked ? 'opacity-70' : 'hover:shadow-md' }}">
@@ -90,9 +92,11 @@
                         @else
                             <a href="{{ route('portal.modules.show', $module) }}"
                                 class="flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors
-                                    @if($status === 'completed') bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest
+                                    @if($status === 'completed' && ! $quizPending) bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest
                                     @else bg-primary text-on-primary hover:bg-surface-tint @endif">
-                                @if($status === 'completed')
+                                @if($quizPending)
+                                    <x-heroicon-s-clipboard-document-check class="h-4 w-4" /> Kerjakan Kuis
+                                @elseif($status === 'completed')
                                     <x-heroicon-o-eye class="h-4 w-4" /> Lihat Kembali
                                 @elseif($status === 'in_progress')
                                     <x-heroicon-o-play class="h-4 w-4" /> Lanjutkan

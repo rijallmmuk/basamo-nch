@@ -6,6 +6,29 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 8) — Sinyal "kuis belum dikerjakan" untuk warga (backlog UX ditutup)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **323 (321 lulus, 2 skip)**. Pint bersih. `npm run build` ✓.
+
+Pertanyaan user: bagaimana warga tahu kuis belum dikerjakan setelah materi tuntas?
+Temuan: HAMPIR TIDAK TAHU — satu-satunya sinyal kartu kuis di detail modul; hero pasca-
+selesai hanya "Tinjau Ulang Materi"; daftar modul bilang "Selesai"+"Lihat Kembali".
+(= backlog TASKS 2.3 "layar Selesai + CTA kuis"). Ditutup dgn 4 sinyal:
+- **Hero detail modul** (materi tuntas + kuis belum lulus): CTA primer **"Kerjakan Kuis"**
+  (gaya sama dgn "Mulai Belajar") + hint "Satu langkah lagi… (+100 XP)".
+- **Kartu kuis** kini 3 state: terkunci / Kerjakan Kuis / **"Kuis Lulus — nilai X"** (hijau).
+- **Kartu daftar modul**: modul selesai ber-kuis-belum-lulus → CTA primer "Kerjakan Kuis"
+  (menuju detail modul); setelah lulus kembali "Lihat Kembali" netral.
+- **Toast perayaan modul tuntas** menambah ajakan "Lanjut kerjakan kuisnya, ya!" bila kuis siap.
+- Teknis: status kuis dihitung di controller (`ModuleController` show: `$quiz`+
+  `$quizPassedScore`; index: `$quizPendingMap` 2 query anti-N+1) — sekalian hapus
+  query-di-Blade `$hasQuiz` lama. `PortalQuizCtaTest` (4).
+- CATATAN sadar: status modul "Selesai" tetap berbasis MATERI (kuis tak mengubah status) —
+  sinyal kuis lewat CTA/kartu, bukan mengubah semantik progres. Beranda "Lanjutkan
+  Belajar" belum memprioritaskan modul ber-kuis-pending (opsional, belum perlu).
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 7) — Audit robustness CRUD Warga (admin desa + super admin drill-in)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **319 (317 lulus, 2 skip)**. Pint bersih.

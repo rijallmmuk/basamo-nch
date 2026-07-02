@@ -76,7 +76,10 @@ class PageController extends Controller
         if (! $wasCompleted && $this->progressService->isModuleCompleted($user, $module)) {
             session()->flash('celebrate', [
                 'title' => 'Modul Selesai! 🎉',
-                'message' => '+'.LmsPointService::MODULE_XP.' XP ditambahkan.',
+                // Ada kuis siap (punya soal) → sekalian ajak lanjut (CTA-nya menonjol
+                // di halaman modul yang jadi tujuan redirect).
+                'message' => '+'.LmsPointService::MODULE_XP.' XP ditambahkan.'
+                    .($module->quiz()->whereHas('questions')->exists() ? ' Lanjut kerjakan kuisnya, ya!' : ''),
             ]);
         }
 

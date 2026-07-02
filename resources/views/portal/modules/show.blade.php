@@ -9,7 +9,9 @@
     $pct = $total > 0 ? (int) ($done / $total * 100) : 0;
     $nextPage = $pages->first(fn ($p) => ! in_array($p->id, $pagesCompleted)) ?? $pages->first();
     $firstPage = $pages->first();
-    $hasQuiz = $module->quiz && $module->quiz->questions()->exists();
+    // $quiz & $quizPassedScore dari controller (kuis siap = punya soal).
+    $hasQuiz = $quiz !== null;
+    $quizPassed = $quizPassedScore !== null;
     // Materi berurutan: indeks materi pertama yang belum selesai = batas akses.
     $firstIncompleteIdx = $pages->search(fn ($p) => ! in_array($p->id, $pagesCompleted));
 @endphp
@@ -87,6 +89,22 @@
                                     <x-heroicon-o-arrow-path class="h-5 w-5" /> Tinjau Ulang Materi
                                 </x-portal.button>
                             </div>
+
+                            {{-- Materi tuntas tapi kuis belum lulus → CTA utama berikutnya = kuis. --}}
+                            @if($hasQuiz && ! $quizPassed)
+                                <div class="mt-4">
+                                    <a href="{{ route('portal.modules.quiz', $module) }}"
+                                        class="group flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-4 text-base font-bold text-on-primary shadow-sm transition-colors hover:bg-surface-tint sm:w-fit">
+                                        <x-heroicon-s-clipboard-document-check class="h-5 w-5" />
+                                        Kerjakan Kuis
+                                        <x-heroicon-o-arrow-right class="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                                    </a>
+                                    <p class="mt-2.5 flex items-center gap-1.5 text-sm text-on-surface-variant">
+                                        <x-heroicon-o-arrow-turn-down-right class="h-4 w-4 shrink-0 text-outline" />
+                                        Satu langkah lagi: uji pemahamanmu lewat kuis (+100 XP).
+                                    </p>
+                                </div>
+                            @endif
                         @else
                             <a href="{{ route('portal.modules.pages.show', [$module, $nextPage]) }}"
                                 class="group flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-4 text-base font-bold text-on-primary shadow-sm transition-colors hover:bg-surface-tint sm:w-fit">
@@ -194,7 +212,17 @@
         {{-- ============ KUIS + DISKUSI (kiri-bawah / sekunder) ============ --}}
         <div class="space-y-4 lg:col-span-2">
             @if($hasQuiz)
-                @if($isCompleted)
+                @if($isCompleted && $quizPassed)
+                    <div class="flex items-center gap-3 rounded-2xl border border-sdg-3/30 bg-sdg-3/5 p-5">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sdg-3 text-white">
+                            <x-heroicon-s-check-badge class="h-6 w-6" />
+                        </span>
+                        <div>
+                            <p class="font-bold text-sdg-3">Kuis Lulus — nilai {{ $quizPassedScore }}</p>
+                            <p class="mt-0.5 text-sm text-on-surface-variant">Kamu sudah menuntaskan kuis modul ini.</p>
+                        </div>
+                    </div>
+                @elseif($isCompleted)
                     <a href="{{ route('portal.modules.quiz', $module) }}"
                         class="group flex items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-5 transition-colors hover:bg-primary/10">
                         <div class="flex items-center gap-3">

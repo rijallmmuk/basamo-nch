@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Portal;
 
 use App\Enums\ModuleProgressStatus;
 use App\Enums\ModuleStatus;
+use App\Enums\QuizAttemptStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\UserModuleProgress;
 use App\Services\LmsProgressService;
 use Illuminate\Http\RedirectResponse;
@@ -43,7 +46,20 @@ class ModuleController extends Controller
             fn ($m) => [$m->id => $this->progressService->getModuleStatusUsing($m, $m->progress->first(), $completedModuleIds)]
         );
 
-        return view('portal.modules.index', compact('modules', 'statusMap'));
+        // Kuis yang siap dikerjakan (punya soal) per modul → tandai modul yang materinya
+        // selesai tapi kuisnya BELUM lulus, agar warga tahu masih ada langkah tersisa.
+        $quizIdByModule = Quiz::whereIn('module_id', $modules->pluck('id'))
+            ->whereHas('questions')
+            ->pluck('id', 'module_id');
+
+        $passedQuizIds = QuizAttempt::where('user_id', $user->id)
+            ->where('status', QuizAttemptStatus::Passed)
+            ->whereIn('quiz_id', $quizIdByModule->values())
+            ->pluck('quiz_id');
+
+        $quizPendingMap = $quizIdByModule->map(fn ($quizId) => ! $passedQuizIds->contains($quizId));
+
+        return view('portal.modules.index', compact('modules', 'statusMap', 'quizPendingMap'));
     }
 
     public function show(Module $module): View|RedirectResponse
@@ -66,6 +82,18 @@ class ModuleController extends Controller
         $pagesCompleted = $progress?->halaman_selesai ?? [];
         $isCompleted = $progress?->status === ModuleProgressStatus::Completed;
 
-        return view('portal.modules.show', compact('module', 'pages', 'progress', 'pagesCompleted', 'isCompleted'));
+        // Kuis siap = punya soal. Nilai lulus tertinggi (null = belum lulus) menentukan
+        // CTA: "Kerjakan Kuis" menonjol setelah materi tuntas, atau kartu "Kuis Lulus".
+        $quiz = $module->quiz()->whereHas('questions')->first();
+        $quizPassedScore = $quiz
+            ? QuizAttempt::where('user_id', $user->id)
+                ->where('quiz_id', $quiz->id)
+                ->where('status', QuizAttemptStatus::Passed)
+                ->max('nilai')
+            : null;
+
+        return view('portal.modules.show', compact(
+            'module', 'pages', 'progress', 'pagesCompleted', 'isCompleted', 'quiz', 'quizPassedScore'
+        ));
     }
 }
