@@ -11,6 +11,7 @@ use App\Http\Controllers\Portal\PageController;
 use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\ProfileController;
 use App\Http\Controllers\Portal\QuizController;
+use App\Http\Controllers\Portal\UmkmApplicationController;
 use App\Http\Controllers\Portal\UmkmController;
 use App\Http\Controllers\Portal\UmkmProductController;
 use App\Http\Controllers\Portal\XpController;
@@ -86,6 +87,12 @@ Route::prefix('portal')->name('portal.')->group(function () {
                 Route::post('{module:slug}/discuss/{discussion}/reply', [DiscussionController::class, 'reply'])->name('discuss.reply');
             });
         });
+
+        // Pengajuan akses UMKM — justru untuk warga TANPA akses (di luar umkm.owner).
+        Route::get('umkm/ajukan', [UmkmApplicationController::class, 'create'])->name('umkm.ajukan');
+        Route::post('umkm/ajukan', [UmkmApplicationController::class, 'store'])
+            ->middleware('throttle:10,1')
+            ->name('umkm.ajukan.store');
 
         // Lapak UMKM "Produk Saya" — khusus warga dengan akses UMKM.
         Route::middleware('umkm.owner')->prefix('umkm')->name('umkm.')->group(function () {

@@ -234,6 +234,11 @@
       = akun umkm_owner, nagari diwarisi dari pemilik) + UmkmProfileResourceTest
 - [x] Antrian verifikasi produk dengan approval/reject + alasan (ProductsRelationManager:
       aksi Setujui/Tolak → status + approved_by/at + rejection_reason)
+- [x] **Pengajuan akses UMKM mandiri oleh warga** (2026-07-02) — portal `umkm/ajukan`
+      (profil + 1 produk lengkap: foto ≥1, deskripsi, harga WAJIB) → antrean "Pengajuan
+      UMKM" di panel admin desa (Tinjau & Setujui = akses+lapak+produk tayang; Tolak =
+      alasan wajib, boleh ajukan ulang); nav UMKM tampil semua warga; integrasi aksi
+      beri-akses manual. `UmkmApplicationTest` (8). Keputusan user via diskusi.
 
 ### 4.2 Input Produk (Pemilik UMKM)
 - [x] Portal: form profil usaha (nama, kategori, deskripsi, WhatsApp, alamat) — nagari ikut pemilik

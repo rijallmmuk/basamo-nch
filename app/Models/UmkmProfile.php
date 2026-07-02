@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ActiveStatus;
+use App\Enums\PengajuanUmkmStatus;
 use App\Models\Concerns\BelongsToDesa;
 use App\Support\PhoneNumber;
 use Database\Factories\UmkmProfileFactory;
@@ -24,6 +25,7 @@ class UmkmProfile extends Model
     protected $fillable = [
         'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
         'deskripsi', 'alamat', 'whatsapp', 'status',
+        'status_pengajuan', 'alasan_penolakan_pengajuan', 'diajukan_at',
     ];
 
     protected static function booted(): void
@@ -41,6 +43,8 @@ class UmkmProfile extends Model
     {
         return [
             'status' => ActiveStatus::class,
+            'status_pengajuan' => PengajuanUmkmStatus::class,
+            'diajukan_at' => 'datetime',
         ];
     }
 

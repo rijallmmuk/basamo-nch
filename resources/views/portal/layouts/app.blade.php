@@ -48,13 +48,12 @@
                 Belajar
             </a>
             {{-- "Peringkat" tak lagi di nav — diakses lewat kartu interaktif di beranda. --}}
-            @if($isUmkmOwner)
-                <a href="{{ route('portal.umkm.index') }}"
-                    class="flex items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium transition-all duration-200 active:translate-x-1 {{ $onUmkm ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high' }}">
-                    <x-dynamic-component :component="$onUmkm ? 'heroicon-s-building-storefront' : 'heroicon-o-building-storefront'" class="h-5 w-5" />
-                    Produk Saya
-                </a>
-            @endif
+            {{-- Pemilik → kelola lapak; warga lain → ajukan akses UMKM. --}}
+            <a href="{{ $isUmkmOwner ? route('portal.umkm.index') : route('portal.umkm.ajukan') }}"
+                class="flex items-center gap-md rounded-xl px-lg py-md text-headline-sm font-medium transition-all duration-200 active:translate-x-1 {{ $onUmkm ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high' }}">
+                <x-dynamic-component :component="$onUmkm ? 'heroicon-s-building-storefront' : 'heroicon-o-building-storefront'" class="h-5 w-5" />
+                {{ $isUmkmOwner ? 'Produk Saya' : 'UMKM' }}
+            </a>
         </nav>
 
         {{-- Profil & Keluar tersedia di menu pengguna (pojok kanan atas) — tak diduplikasi di sini. --}}
@@ -263,13 +262,12 @@
                 <span class="text-[10px] font-semibold">Belajar</span>
             </a>
             {{-- "Peringkat" tak lagi di nav — diakses lewat kartu interaktif di beranda. --}}
-            @if($isUmkmOwner)
-                <a href="{{ route('portal.umkm.index') }}"
-                    class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onUmkm ? 'text-primary' : 'text-on-surface-variant' }}">
-                    <x-dynamic-component :component="$onUmkm ? 'heroicon-s-building-storefront' : 'heroicon-o-building-storefront'" class="h-6 w-6" />
-                    <span class="text-[10px] font-semibold">Produk Saya</span>
-                </a>
-            @endif
+            {{-- Pemilik → kelola lapak; warga lain → ajukan akses UMKM. --}}
+            <a href="{{ $isUmkmOwner ? route('portal.umkm.index') : route('portal.umkm.ajukan') }}"
+                class="flex flex-1 flex-col items-center justify-center gap-1 transition-colors {{ $onUmkm ? 'text-primary' : 'text-on-surface-variant' }}">
+                <x-dynamic-component :component="$onUmkm ? 'heroicon-s-building-storefront' : 'heroicon-o-building-storefront'" class="h-6 w-6" />
+                <span class="text-[10px] font-semibold">{{ $isUmkmOwner ? 'Produk Saya' : 'UMKM' }}</span>
+            </a>
         </div>
     </nav>
     @show

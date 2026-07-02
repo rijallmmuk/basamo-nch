@@ -6,6 +6,42 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 10) — UMKM: pengajuan akses mandiri oleh warga (fitur baru)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **336 (334 lulus, 2 skip)**. Pint bersih. Build ✓.
+
+**KEPUTUSAN USER (AskUserQuestion)**: pengajuan DITINJAU admin desa (bukan otomatis);
+disetujui → produk bawaan IKUT disetujui (satu tinjauan); field produk WAJIB SEMUA
+(foto ≥1 + deskripsi + harga); ditolak → alasan wajib + boleh ajukan ulang.
+
+- **Model**: pengajuan = `UmkmProfile` berstatus Inactive + kolom baru
+  `status_pengajuan` (enum `PengajuanUmkmStatus`: menunggu/ditolak; null=tak ada) +
+  `alasan_penolakan_pengajuan` + `diajukan_at` (migrasi konsolidasi diedit + ALTER live)
+  + produk `pending`. TANPA tabel baru. Profil nonaktif → tak bocor ke katalog publik.
+- **Portal**: rute `portal.umkm.ajukan` (GET/POST throttle 10/mnt, DI LUAR umkm.owner);
+  `UmkmApplicationController` + view `umkm/apply` (form profil+produk+foto; state
+  menunggu = halaman status tanpa form; ditolak = banner alasan + form prefilled,
+  foto lama dihitung → tak wajib unggah ulang). **Nav UMKM kini tampil utk SEMUA warga**
+  (pemilik→"Produk Saya"; lainnya→"UMKM"→halaman ajukan); middleware umkm.owner
+  redirect ke halaman ajukan (bukan beranda).
+- **Service (logika inti)**: `UmkmService::submitApplication` (transaksi; ajukan-ulang
+  pakai profil/produk sama; notif lonceng ke admin desa) / `approveApplication`
+  (akses aktif + lapak Active + produk pending→approved TANPA notif produk dobel —
+  satu notif keputusan `UmkmApplicationDecided`) / `rejectApplication` (alasan+notif).
+  PELAJARAN: pakai `$owner->umkmProfile()->first()` (query segar), BUKAN relasi
+  ter-cache — relasi null basi bisa memicu dobel-create (unique user_id).
+- **Admin**: resource baru **"Pengajuan UMKM"** (model UmkmProfile ber-status_pengajuan;
+  pola = Verifikasi Produk: desa_admin sidebar, super via Kelola›UMKM/DesaContext,
+  badge count menunggu). Aksi **"Tinjau & Setujui"** (modal detail lengkap profil+
+  produk+foto via `filament/umkm-application-detail`) & **"Tolak"** (textarea alasan).
+- **Integrasi**: aksi "Beri akses UMKM" manual di tabel Warga → bila ada pengajuan
+  berjalan, jalurnya = approveApplication (cegah state menggantung).
+- `UmkmApplicationTest` (8): form/redirect pemilik, kirim lengkap (+notif admin),
+  validasi wajib, anti-kirim-ulang saat menunggu, setujui, tolak+ajukan-ulang,
+  scoping antar desa, integrasi beri-akses-manual.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 9) — Audit reader materi + keputusan ekonomi XP (diskusi user)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **328 (326 lulus, 2 skip)**. Pint bersih. Build ✓.

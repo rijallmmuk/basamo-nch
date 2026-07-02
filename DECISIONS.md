@@ -218,3 +218,7 @@ DomPDF (`barryvdh/laravel-dompdf`) untuk laporan LMS/SDGs; Maatwebsite Excel unt
 ### [YYYY-MM] Judul keputusan
 **Keputusan**: ... · **Alasan**: ... · **Ditolak**: ...
 ```
+
+## Pengajuan akses UMKM mandiri (2026-07-02)
+
+Dua pintu menuju akses UMKM: (1) **warga mengajukan sendiri** dari portal (`umkm/ajukan`) dengan profil usaha + SATU produk lengkap — semua field wajib termasuk **foto ≥1, deskripsi, dan harga** (keputusan user); (2) admin desa memberi akses langsung (alur lama, tetap ada). Pengajuan **ditinjau admin desa** (antrean "Pengajuan UMKM", badge menunggu); **disetujui = satu tinjauan**: akses aktif + lapak tayang + produk bawaan ikut approved (tanpa antre verifikasi kedua); **ditolak = alasan wajib**, warga melihat alasannya dan boleh memperbaiki + mengajukan ulang. Representasi data: TANPA tabel baru — pengajuan = `UmkmProfile` status `inactive` + kolom `status_pengajuan` (menunggu/ditolak/null) + `alasan_penolakan_pengajuan` + `diajukan_at`, produk `pending`; profil nonaktif otomatis tak bocor ke katalog publik. Pemberian akses manual saat ada pengajuan berjalan dialihkan ke jalur persetujuan pengajuan (cegah state menggantung).

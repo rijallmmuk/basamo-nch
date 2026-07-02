@@ -55,11 +55,18 @@ return new class extends Migration
             $table->text('alamat')->nullable();
             $table->string('whatsapp', 20);
             $table->string('status')->default('active');
+            // Pengajuan akses UMKM mandiri oleh warga (lihat App\Enums\PengajuanUmkmStatus):
+            // null = tak ada pengajuan berjalan; 'menunggu' = antre tinjauan admin desa;
+            // 'ditolak' = ditolak (alasan terisi), warga boleh memperbaiki & ajukan ulang.
+            $table->string('status_pengajuan', 20)->nullable();
+            $table->text('alasan_penolakan_pengajuan')->nullable();
+            $table->timestamp('diajukan_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('desa_id');
             $table->index('status');
+            $table->index('status_pengajuan');
         });
 
         // Foto produk dikelola via Spatie Media Library (koleksi 'photos', maks 5).

@@ -6,6 +6,7 @@ use App\Enums\ActiveStatus;
 use App\Enums\JenisKelamin;
 use App\Models\Desa;
 use App\Models\User;
+use App\Services\UmkmService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -222,7 +223,16 @@ class UsersTable
                         ->modalHeading('Beri akses UMKM')
                         ->modalDescription('Warga ini dapat mengisi profil usaha & mengelola produk di portal ("Produk Saya"). Akses belajar tetap ada.')
                         ->action(function (User $record): void {
-                            $record->update(['umkm_access_granted_at' => now()]);
+                            // Warga dgn pengajuan berjalan → jalurnya = persetujuan
+                            // pengajuan (lapak & produk ikut tayang + notif keputusan),
+                            // agar tak ada state "punya akses tapi pengajuan menggantung".
+                            $profile = $record->umkmProfile()->first();
+
+                            if ($profile?->status_pengajuan !== null) {
+                                app(UmkmService::class)->approveApplication($profile, auth()->user());
+                            } else {
+                                $record->update(['umkm_access_granted_at' => now()]);
+                            }
 
                             Notification::make()
                                 ->title('Akses UMKM diberikan')

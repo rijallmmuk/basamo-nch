@@ -28,13 +28,13 @@ it('umkm_owner bisa membuka menu Produk Saya', function () {
         ->assertSee('Produk Saya');
 });
 
-it('warga biasa tidak bisa membuka menu UMKM', function () {
+it('warga biasa tidak bisa membuka menu UMKM — diarahkan ke halaman pengajuan', function () {
     $desa = Desa::factory()->create();
     $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
 
     $this->actingAs($warga)
         ->get(route('portal.umkm.index'))
-        ->assertRedirect(route('portal.home'));
+        ->assertRedirect(route('portal.umkm.ajukan'));
 });
 
 it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
