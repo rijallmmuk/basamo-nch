@@ -75,17 +75,13 @@
                 harga: @js(old('harga', $product?->harga ? (int) $product->harga : null)),
                 deskripsiProduk: @js(old('deskripsi_produk', $product?->deskripsi ?? '')),
                 fotoUrl: @js($firstPhotoUrl),
+                fotoAwal: @js($firstPhotoUrl),
                 hargaTampil() {
                     return this.harga > 0 ? 'Rp ' + Number(this.harga).toLocaleString('id-ID') : 'Rp —';
                 },
-                previewFoto(e) {
-                    const file = e.target.files?.[0];
-                    if (! file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => this.fotoUrl = ev.target.result;
-                    reader.readAsDataURL(file);
-                },
             }"
+            {{-- Kartu pratinjau ikut foto pertama dari pemilih foto (fallback: foto lama). --}}
+            @photos-updated="fotoUrl = $event.detail.firstUrl ?? fotoAwal"
             class="grid items-start gap-5 lg:grid-cols-5">
             @csrf
 
@@ -176,13 +172,11 @@
                         @endif
 
                         <div>
-                            <label for="photos" class="mb-1.5 block text-sm font-semibold text-on-surface">
+                            <label class="mb-1.5 block text-sm font-semibold text-on-surface">
                                 {{ $existingPhotos->isNotEmpty() ? 'Tambah foto' : 'Foto produk' }}
                                 <span class="font-normal text-on-surface-variant">({{ $existingPhotos->isNotEmpty() ? 'sisa '.max(0, $remaining).' slot' : 'minimal 1, maks '.$maxPhotos }})</span>
                             </label>
-                            <input type="file" id="photos" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple
-                                @disabled($remaining <= 0) @change="previewFoto($event)"
-                                class="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20 disabled:opacity-50">
+                            <x-portal.photo-picker :max="max(0, $remaining)" />
                             <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP — maks 2MB per foto. Foto pertama jadi sampul produk.</p>
                             @error('photos') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                             @error('photos.*') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror

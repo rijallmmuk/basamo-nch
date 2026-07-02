@@ -69,14 +69,12 @@
 
             {{-- Tambah foto --}}
             <div>
-                <label for="photos" class="mb-1.5 block text-sm font-semibold text-on-surface">
+                <label class="mb-1.5 block text-sm font-semibold text-on-surface">
                     {{ $product ? 'Tambah foto' : 'Foto produk' }}
                     <span class="font-normal text-on-surface-variant">({{ $product ? 'sisa '.max(0, $remaining).' slot' : 'minimal 1, maks '.$maxPhotos }})</span>
                 </label>
-                <input type="file" id="photos" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple
-                    @disabled($product && $remaining <= 0)
-                    class="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20 disabled:opacity-50">
-                <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP. Maks 2MB per foto.</p>
+                <x-portal.photo-picker :max="$product ? max(0, $remaining) : $maxPhotos" />
+                <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP. Maks 2MB per foto. Foto pertama jadi sampul produk.</p>
                 @error('photos') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                 @error('photos.*') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
