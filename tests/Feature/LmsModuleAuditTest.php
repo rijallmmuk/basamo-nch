@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ModuleProgressStatus;
 use App\Filament\Resources\Modules\Pages\CreateModule;
 use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Models\Desa;
@@ -296,4 +297,56 @@ it('memindah desa modul tetap bisa bila tak ada bentrokan', function () {
         ->assertHasNoFormErrors();
 
     expect($module->fresh()->desa_id)->toBe($desa->id);
+});
+
+// ── Reader vs perubahan materi oleh admin (create/update di tengah jalan) ──
+it('halaman BARU yang ditambah admin setelah modul tuntas tetap bisa dibaca & diselesaikan tanpa XP ganda', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $module = makeModuleWithPages(2);
+
+    // Warga menuntaskan seluruh materi (dapat +50 XP).
+    $service = app(LmsProgressService::class);
+    foreach ($module->pages as $page) {
+        $service->markPageCompleted($warga, $module, $page);
+    }
+    $completedAt = $module->progress()->where('user_id', $warga->id)->value('completed_at');
+    expect($warga->fresh()->total_xp)->toBe(LmsPointService::MODULE_XP);
+
+    // Admin menambah materi baru → warga bisa langsung membacanya (tak terkunci).
+    $baru = ModulePage::create([
+        'module_id' => $module->id, 'judul' => 'Materi Susulan', 'urutan' => 3,
+        'blocks' => [['type' => 'teks', 'data' => ['konten' => 'Tambahan.']]],
+    ]);
+
+    actingAs($warga)
+        ->get(route('portal.modules.pages.show', [$module, $baru]))
+        ->assertOk()
+        ->assertSee('Materi Susulan');
+
+    // Menyelesaikannya: status tetap Completed, waktu selesai pertama utuh, XP tak dobel.
+    actingAs($warga)->post(route('portal.modules.pages.complete', [$module, $baru]));
+
+    $progress = $module->progress()->where('user_id', $warga->id)->first();
+    expect($progress->status)->toBe(ModuleProgressStatus::Completed)
+        ->and($progress->completed_at?->toDateTimeString())->toBe($completedAt?->toDateTimeString())
+        ->and($warga->fresh()->total_xp)->toBe(LmsPointService::MODULE_XP);
+});
+
+it('blok bertipe tak dikenal tidak meledakkan reader (dilewati diam-diam)', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $module = makeModuleWithPages(0);
+    $page = ModulePage::create([
+        'module_id' => $module->id, 'judul' => 'Campuran', 'urutan' => 1,
+        'blocks' => [
+            ['type' => 'hologram', 'data' => ['x' => 'y']], // tipe masa depan / data korup
+            ['type' => 'teks', 'data' => ['konten' => 'Tetap tampil.']],
+        ],
+    ]);
+
+    actingAs($warga)
+        ->get(route('portal.modules.pages.show', [$module, $page]))
+        ->assertOk()
+        ->assertSee('Tetap tampil.');
 });
