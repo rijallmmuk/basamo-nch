@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\IsLookup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JenisDesa extends Model
 {
+    use IsLookup;
+
     protected $table = 'jenis_desa';
 
     protected $fillable = ['nama', 'urutan', 'aktif'];

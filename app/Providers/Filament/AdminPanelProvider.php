@@ -57,9 +57,9 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             // Urutan grup lintas-peran. Hanya grup yang punya item tampil:
-            //  super admin → LMS, UMKM (Kategori), Sistem (+ Desa di tingkat atas).
-            //  admin desa  → UMKM, Pengaturan (+ Warga di tingkat atas; LMS disembunyikan).
-            ->navigationGroups(['LMS', 'UMKM', 'Sistem', 'Pengaturan'])
+            //  super admin → LMS, UMKM (Kategori), Data Master, Sistem (+ Desa di tingkat atas).
+            //  admin desa  → UMKM, Pengaturan (+ Warga di tingkat atas; LMS & Data Master disembunyikan).
+            ->navigationGroups(['LMS', 'UMKM', 'Data Master', 'Sistem', 'Pengaturan'])
             // Palet tunggal NCH untuk semua peran (Deep Blue). Tanpa pembedaan warna
             // per-peran — identitas peran cukup lewat chip di topbar. Ramp eksplisit
             // agar shade 600 (warna tombol solid Filament) = NCH Deep Blue #003857.

@@ -8,6 +8,11 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **CRUD Data Master** (2026-07-02) — grup "Data Master" super-only: Agama/Status
+      Perkawinan/Pekerjaan/Penyebutan Desa/Sebutan Sub-Unit (basis LookupResource +
+      ManageRecords modal ala Kategori UMKM); guard hapus-terpakai (juga di Kategori UMKM);
+      trait IsLookup::options dipakai seragam di form Warga/Desa/Pengaturan; RefWilayah
+      sengaja tanpa CRUD (data resmi, via seeder). Suite 310 (308 lulus, 2 skip).
 - [x] **Audit kesiapan produksi** (2026-07-02) — verdict SIAP deploy MVP; CoreSeeder sandi
       super admin acak (produksi) + guard DemoSeeder + README deploy lengkap (langkah,
       cron scheduler, HTTPS). Suite 295 (293 lulus, 2 skip).

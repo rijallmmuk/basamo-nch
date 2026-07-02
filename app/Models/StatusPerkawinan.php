@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\IsLookup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StatusPerkawinan extends Model
 {
+    use IsLookup;
+
     protected $table = 'status_perkawinan';
 
     protected $fillable = ['nama', 'urutan', 'aktif'];

@@ -6,6 +6,37 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 4) — CRUD Data Master + audit robustness super admin
+
+Branch `feat/ref-wilayah-sumbar`. Suite **310 (308 lulus, 2 skip)**. Pint bersih.
+
+User minta CRUD semua tabel data master + pastikan robust. Dibangun grup navigasi
+**"Data Master"** (super admin only) berisi 5 resource: **Agama, Status Perkawinan,
+Pekerjaan (＋kolom kode), Penyebutan Desa (jenis_desa), Sebutan Sub-Unit (jenis_sub_unit)**.
+- **Arsitektur**: basis `App\Filament\Resources\DataMaster\LookupResource` (abstract) —
+  tabel referensi berbentuk sama (nama unik + urutan + aktif) → form/tabel/guard sekali
+  tulis; 5 subclass tipis + 5 halaman `ManageRecords` (modal, pola persis Kategori UMKM:
+  No., aksi inline, tanpa klik-baris) + **5 Policy** (all-false, super via Gate::before).
+- **Guard hapus-terpakai** (kolom "Dipakai" + tolak delete): FK `penduduk.*` & `desas.
+  jenis_sub_unit_id` = SET NULL (hapus terpakai = data hilang diam-diam), `desas.
+  jenis_desa_id` = RESTRICT (= error 500). Jalur pensiun nilai = toggle **Nonaktif**.
+  Guard yang sama ditambahkan ke **Kategori UMKM** (dulu hapus terpakai lolos diam-diam).
+- **Trait `IsLookup::options(?includeId)`** di 5 model: opsi dropdown = baris aktif
+  + nilai terpilih (walau sudah nonaktif) → record lama tetap bisa dibuka/disimpan.
+  Dipakai seragam di **UserForm** (agama/status kawin/pekerjaan — dulu filter aktif tanpa
+  penyertaan nilai lama = record bisa gagal save), **DesaForm** & **PengaturanDesa**
+  (jenis_desa/jenis_sub_unit — dulu TANPA filter aktif sama sekali; inkonsisten).
+- Tabel data master **reorderable** (seret = ubah `urutan`) + `defaultSort('urutan')`.
+- Panel `navigationGroups` + 'Data Master' (antara UMKM & Sistem); tak tampil bagi
+  admin desa (canAccess super-only).
+- **RefWilayah SENGAJA tanpa CRUD** (keputusan): data resmi Kemendagri ±1464 baris,
+  jadi induk FK `desas.wilayah_kode` — diubah lewat seeder/`ImportWilayahBoundaries`,
+  bukan tangan. ActivityLog diskim ulang: super-only, read-only, aman.
+- Test `DataMasterResourceTest` (15): render per halaman (super), 403 (admin desa),
+  create/edit/unik, guard hapus terpakai (penduduk & desa), perilaku `options()`.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 3) — Audit kesiapan produksi (deploy-readiness)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **295 (293 lulus, 2 skip)**. Pint bersih.

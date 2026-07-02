@@ -8,6 +8,7 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -113,7 +114,22 @@ class UmkmCategoryResource extends Resource
             ->defaultSort('urutan')
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                // Kategori terpakai tidak boleh dihapus diam-diam (FK SET NULL akan
+                // melepas kategori dari UMKM tanpa jejak) — konsisten dgn Data Master.
+                DeleteAction::make()
+                    ->before(function (UmkmCategory $record, DeleteAction $action): void {
+                        $count = $record->profiles()->count();
+
+                        if ($count > 0) {
+                            Notification::make()
+                                ->title('Tidak bisa dihapus — masih dipakai')
+                                ->body("Masih dipakai {$count} UMKM. Pindahkan kategorinya dulu sebelum menghapus.")
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ]);
     }
 

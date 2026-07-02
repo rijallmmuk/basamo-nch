@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\IsLookup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pekerjaan extends Model
 {
+    use IsLookup;
+
     protected $table = 'pekerjaan';
 
     protected $fillable = ['kode', 'nama', 'urutan', 'aktif'];

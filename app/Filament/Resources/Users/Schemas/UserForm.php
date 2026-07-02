@@ -101,22 +101,24 @@ class UserForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
+                        // Opsi = baris aktif + nilai terpilih (walau sudah dinonaktifkan
+                        // lewat Data Master) — record lama tetap bisa dibuka & disimpan.
                         Select::make('agama_id')
                             ->label('Agama')
-                            ->options(fn (): array => Agama::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->options(fn (Get $get): array => Agama::options((int) $get('agama_id') ?: null))
                             ->searchable()
                             ->preload()
                             ->required(static::requiredOnCreate()),
 
                         Select::make('status_perkawinan_id')
                             ->label('Status Perkawinan')
-                            ->options(fn (): array => StatusPerkawinan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->options(fn (Get $get): array => StatusPerkawinan::options((int) $get('status_perkawinan_id') ?: null))
                             ->native(false)
                             ->required(static::requiredOnCreate()),
 
                         Select::make('pekerjaan_id')
                             ->label('Pekerjaan')
-                            ->options(fn (): array => Pekerjaan::where('aktif', true)->orderBy('urutan')->pluck('nama', 'id')->all())
+                            ->options(fn (Get $get): array => Pekerjaan::options((int) $get('pekerjaan_id') ?: null))
                             ->searchable()
                             ->preload()
                             ->required(static::requiredOnCreate()),

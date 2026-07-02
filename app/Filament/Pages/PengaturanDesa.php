@@ -77,7 +77,8 @@ class PengaturanDesa extends Page
                     ->schema([
                         Select::make('jenis_desa_id')
                             ->label('Penyebutan desa')
-                            ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
+                            // Opsi = baris aktif + nilai desa ini (walau sudah nonaktif).
+                            ->options(fn (): array => JenisDesa::options($this->desa?->jenis_desa_id))
                             ->required()
                             ->searchable()
                             ->native(false)
@@ -85,7 +86,7 @@ class PengaturanDesa extends Page
 
                         Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit')
-                            ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
+                            ->options(fn (): array => JenisSubUnit::options($this->desa?->jenis_sub_unit_id))
                             ->searchable()
                             ->native(false)
                             ->helperText('Bagian dalam desa — mis. Jorong / Dusun / Lingkungan. Dipakai di seluruh aplikasi.'),

@@ -52,7 +52,9 @@ class DesaForm
 
                         Select::make('jenis_desa_id')
                             ->label('Penyebutan desa')
-                            ->options(JenisDesa::orderBy('urutan')->pluck('nama', 'id'))
+                            // Opsi = baris aktif + nilai terpilih (walau sudah dinonaktifkan
+                            // lewat Data Master) — desa lama tetap bisa dibuka & disimpan.
+                            ->options(fn (Get $get): array => JenisDesa::options((int) $get('jenis_desa_id') ?: null))
                             ->required()
                             ->searchable()
                             ->native(false)
@@ -62,7 +64,7 @@ class DesaForm
 
                         Select::make('jenis_sub_unit_id')
                             ->label('Sebutan sub-unit')
-                            ->options(JenisSubUnit::orderBy('urutan')->pluck('nama', 'id'))
+                            ->options(fn (Get $get): array => JenisSubUnit::options((int) $get('jenis_sub_unit_id') ?: null))
                             ->searchable()
                             ->native(false)
                             // Live agar judul & label section sub-unit ikut sebutan terpilih.
