@@ -65,13 +65,9 @@ class UmkmProfileForm
                             ->required()
                             ->native(false),
 
-                        Textarea::make('deskripsi')
-                            ->label('Deskripsi')
-                            ->rows(3)
-                            ->columnSpanFull(),
-
                         Textarea::make('alamat')
-                            ->label('Alamat usaha')
+                            ->label('Alamat lengkap usaha')
+                            ->required()
                             ->rows(2)
                             ->columnSpanFull(),
                     ]),

@@ -13,8 +13,7 @@
                 'Nama usaha' => $profile->nama_usaha,
                 'Kategori' => $profile->category?->nama ?? '—',
                 'No. WhatsApp' => $profile->whatsapp,
-                'Alamat' => $profile->alamat,
-                'Deskripsi' => $profile->deskripsi,
+                'Alamat lengkap' => $profile->alamat,
             ] as $label => $value)
                 <div class="flex gap-4 px-4 py-2.5">
                     <dt class="w-32 shrink-0 text-gray-500 dark:text-gray-400">{{ $label }}</dt>

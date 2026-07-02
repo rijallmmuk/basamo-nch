@@ -340,7 +340,6 @@ class DemoSeeder extends Seeder
                 [
                     'nama_usaha' => $namaUsaha.' ('.$slug.')',
                     'umkm_category_id' => $categoryId,
-                    'deskripsi' => 'Usaha '.strtolower($kategori).' khas '.$desa->nama.'.',
                     'alamat' => 'Pasar '.$desa->nama,
                     'whatsapp' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'status' => 'active',

@@ -6,6 +6,31 @@
 
 ---
 
+## Sesi 2026-07-03 (lanjutan) — Audit CRUD produk pasca-setuju + cabut deskripsi profil menyeluruh
+
+Branch `feat/ref-wilayah-sumbar`. Suite **340 (338 lulus, 2 skip)**. Pint bersih. Build ✓.
+
+**Deskripsi profil UMKM DICABUT MENYELURUH** (jawaban "kenapa masih ada di ubah profil?"):
+kolom `umkm_profiles.deskripsi` DI-DROP (migrasi konsolidasi + ALTER live), hilang dari
+fillable, form portal ubah-profil, form admin Filament, modal detail pengajuan, factory,
+DemoSeeder. Deskripsi kini HANYA milik PRODUK. **Alamat = "Alamat lengkap usaha" WAJIB
+di semua form** (portal profil + admin Filament + pengajuan) dgn placeholder+helper sama.
+
+**Audit CRUD produk oleh warga (pasca-persetujuan) — kokoh, 1 inkonsistensi difix:**
+- Otorisasi solid: edit/update/destroy via `UmkmProductPolicy::ownsProduct` (403 lintas
+  pemilik, sudah ter-test); update → status balik pending (verifikasi ulang); hapus foto
+  ter-scope media milik produk; batas 5 foto server-side.
+- **INKONSISTENSI difix**: form produk reguler masih deskripsi/harga/foto OPSIONAL padahal
+  produk pengajuan wajib semua → kini `UmkmProductController::validated(creating)` =
+  deskripsi+harga wajib, foto wajib ≥1 saat buat; saat ubah, guard `sisaFoto ≥ 1`
+  (foto lama − dihapus[valid] + baru) — "jangan hapus semuanya", produk tak tersentuh
+  bila gagal. Label form produk diselaraskan (tanpa "(opsional)", "minimal 1").
+- CATATAN: produk lama tanpa foto (data pra-aturan) harus menambah foto saat diedit — disengaja.
+- Test: payload PortalUmkmTest dilengkapi; +1 guard hapus-semua-foto; UmkmProfileResourceTest
+  +alamat. `UmkmApplicationTest` payload tetap lulus (deskripsi diabaikan).
+
+---
+
 ## Sesi 2026-07-03 — Audit pengajuan UMKM + UX informatif (keputusan user)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **339 (337 lulus, 2 skip)**. Pint bersih. Build ✓.

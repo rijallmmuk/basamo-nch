@@ -63,6 +63,7 @@ it('membuat profil UMKM mewarisi desa dari pemiliknya', function () {
             'nama_usaha' => 'Keripik Uji',
             'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
+            'alamat' => 'Pasar Nagari, blok B',
             'status' => 'active',
         ])
         ->call('create')

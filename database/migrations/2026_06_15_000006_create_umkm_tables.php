@@ -51,7 +51,8 @@ return new class extends Migration
             $table->foreignId('umkm_category_id')->nullable()->constrained('umkm_categories')->nullOnDelete();
             $table->string('nama_usaha');
             $table->string('slug')->unique();
-            $table->text('deskripsi')->nullable();
+            // Tanpa kolom deskripsi profil (keputusan user 2026-07-03) — katalog cukup
+            // nama usaha/kategori/alamat; deskripsi ada di tiap PRODUK.
             $table->text('alamat')->nullable();
             $table->string('whatsapp', 20);
             $table->string('status')->default('active');

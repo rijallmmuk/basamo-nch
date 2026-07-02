@@ -33,12 +33,13 @@ class UmkmController extends Controller
 
     public function storeProfile(Request $request): RedirectResponse
     {
+        // Tanpa deskripsi profil (keputusan user 2026-07-03); alamat lengkap wajib —
+        // konsisten dgn form pengajuan akses UMKM.
         $data = $request->validate([
             'nama_usaha' => ['required', 'string', 'max:255'],
             'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
             'whatsapp' => ['required', 'string', 'max:20'],
-            'deskripsi' => ['nullable', 'string', 'max:2000'],
-            'alamat' => ['nullable', 'string', 'max:500'],
+            'alamat' => ['required', 'string', 'max:500'],
         ]);
 
         $this->umkm->saveProfile(auth()->user(), $data);

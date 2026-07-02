@@ -35,15 +35,16 @@
             </div>
 
             <div>
-                <label for="harga" class="mb-1.5 block text-sm font-semibold text-on-surface">Harga (Rp) <span class="font-normal text-on-surface-variant">(opsional)</span></label>
-                <input type="number" id="harga" name="harga" min="0" step="500" placeholder="mis. 25000"
+                <label for="harga" class="mb-1.5 block text-sm font-semibold text-on-surface">Harga (Rp)</label>
+                <input type="number" id="harga" name="harga" min="0" step="500" required placeholder="mis. 25000"
                     value="{{ old('harga', $product?->harga ? (int) $product->harga : null) }}" class="{{ $inputClass }}">
                 @error('harga') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="deskripsi" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi <span class="font-normal text-on-surface-variant">(opsional)</span></label>
-                <textarea id="deskripsi" name="deskripsi" rows="3" class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
+                <label for="deskripsi" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi produk</label>
+                <textarea id="deskripsi" name="deskripsi" rows="3" required
+                    placeholder="Bahan, rasa, ukuran/berat, keunggulan…" class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
                 @error('deskripsi') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
 
@@ -70,7 +71,7 @@
             <div>
                 <label for="photos" class="mb-1.5 block text-sm font-semibold text-on-surface">
                     {{ $product ? 'Tambah foto' : 'Foto produk' }}
-                    <span class="font-normal text-on-surface-variant">(maks {{ $maxPhotos }}, sisa {{ max(0, $remaining) }} slot)</span>
+                    <span class="font-normal text-on-surface-variant">({{ $product ? 'sisa '.max(0, $remaining).' slot' : 'minimal 1, maks '.$maxPhotos }})</span>
                 </label>
                 <input type="file" id="photos" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple
                     @disabled($product && $remaining <= 0)

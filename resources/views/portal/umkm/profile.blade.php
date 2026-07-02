@@ -50,14 +50,10 @@
             </div>
 
             <div>
-                <label for="deskripsi" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi <span class="font-normal text-on-surface-variant">(opsional)</span></label>
-                <textarea id="deskripsi" name="deskripsi" rows="3" class="{{ $inputClass }}">{{ old('deskripsi', $profile?->deskripsi) }}</textarea>
-                @error('deskripsi') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
-            </div>
-
-            <div>
-                <label for="alamat" class="mb-1.5 block text-sm font-semibold text-on-surface">Alamat usaha <span class="font-normal text-on-surface-variant">(opsional)</span></label>
-                <textarea id="alamat" name="alamat" rows="2" class="{{ $inputClass }}">{{ old('alamat', $profile?->alamat) }}</textarea>
+                <label for="alamat" class="mb-1.5 block text-sm font-semibold text-on-surface">Alamat lengkap usaha</label>
+                <textarea id="alamat" name="alamat" rows="2" required class="{{ $inputClass }}"
+                    placeholder="mis. Jorong Koto Tuo, samping masjid raya">{{ old('alamat', $profile?->alamat) }}</textarea>
+                <p class="mt-1.5 text-xs text-on-surface-variant">Tulis selengkap mungkin (jorong/dusun, patokan) — memudahkan pembeli menemukanmu.</p>
                 @error('alamat') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
 

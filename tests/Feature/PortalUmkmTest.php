@@ -45,6 +45,7 @@ it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
             'nama_usaha' => 'Keripik Sanjai',
             'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
+            'alamat' => 'Jorong Koto Tuo, samping masjid raya',
         ])
         ->assertRedirect(route('portal.umkm.index'));
 
@@ -61,6 +62,7 @@ it('pemilik menambah produk berstatus pending dengan foto', function () {
     $this->actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
             'nama_produk' => 'Keripik Balado',
+            'deskripsi' => 'Pedas manis khas Minang.',
             'harga' => 25000,
             'photos' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
         ])
@@ -81,12 +83,15 @@ it('membatasi foto produk maksimal 5', function () {
     $this->actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
             'nama_produk' => 'Banyak Foto',
+            'deskripsi' => 'Uji batas foto.',
+            'harga' => 1000,
             'photos' => $photos,
         ])
         ->assertSessionHasErrors('photos');
 });
 
 it('mengubah produk mengembalikan status ke pending', function () {
+    Storage::fake('public');
     $owner = umkmOwnerUser();
     $profile = UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
     $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id]);
@@ -94,6 +99,9 @@ it('mengubah produk mengembalikan status ke pending', function () {
     $this->actingAs($owner)
         ->put(route('portal.umkm.products.update', $product), [
             'nama_produk' => 'Nama Baru',
+            'deskripsi' => 'Deskripsi baru.',
+            'harga' => 2000,
+            'photos' => [UploadedFile::fake()->image('baru.jpg')], // produk wajib ≥1 foto
         ])
         ->assertRedirect(route('portal.umkm.index'));
 
@@ -124,4 +132,23 @@ it('pemilik menghapus produknya sendiri', function () {
         ->assertRedirect(route('portal.umkm.index'));
 
     expect(UmkmProduct::find($product->id))->toBeNull();
+});
+
+it('menghapus semua foto produk tanpa pengganti ditolak (produk wajib ≥1 foto)', function () {
+    Storage::fake('public');
+    $owner = umkmOwnerUser();
+    $profile = UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
+    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id]);
+    $product->addMedia(UploadedFile::fake()->image('satu.jpg'))->toMediaCollection('photos');
+
+    $this->actingAs($owner)
+        ->put(route('portal.umkm.products.update', $product), [
+            'nama_produk' => 'Tanpa Foto',
+            'deskripsi' => 'x',
+            'harga' => 1000,
+            'remove_photos' => [$product->getFirstMedia('photos')->id],
+        ])
+        ->assertSessionHasErrors('photos');
+
+    expect($product->refresh()->getMedia('photos'))->toHaveCount(1); // foto selamat, produk tak berubah
 });

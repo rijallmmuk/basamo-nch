@@ -25,7 +25,6 @@ class UmkmProfileFactory extends Factory
             'user_id' => User::factory()->umkmOwner(),
             'umkm_category_id' => UmkmCategory::query()->inRandomOrder()->value('id'),
             'nama_usaha' => fake()->unique()->company(),
-            'deskripsi' => fake()->sentence(12),
             'alamat' => fake()->address(),
             'whatsapp' => fake()->numerify('08##########'),
             'status' => 'active',

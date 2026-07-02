@@ -24,7 +24,7 @@ class UmkmProfile extends Model
 
     protected $fillable = [
         'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
-        'deskripsi', 'alamat', 'whatsapp', 'status',
+        'alamat', 'whatsapp', 'status',
         'status_pengajuan', 'alasan_penolakan_pengajuan', 'diajukan_at',
     ];
 

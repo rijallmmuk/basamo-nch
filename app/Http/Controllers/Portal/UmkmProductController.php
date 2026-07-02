@@ -29,7 +29,7 @@ class UmkmProductController extends Controller
         $profile = auth()->user()->umkmProfile;
         abort_unless($profile, 403);
 
-        [$data, $photos] = $this->validated($request);
+        [$data, $photos] = $this->validated($request, creating: true);
 
         $this->umkm->createProduct($profile, $data, $photos);
 
@@ -56,6 +56,18 @@ class UmkmProductController extends Controller
             ->map(fn ($id) => (int) $id)
             ->all();
 
+        // Produk katalog wajib punya minimal satu foto — hitung sisa setelah
+        // penghapusan (hanya ID foto milik produk ini yang dihitung) + unggahan baru.
+        $fotoMilik = $product->getMedia('photos')->pluck('id');
+        $sisaFoto = $fotoMilik->count()
+            - $fotoMilik->intersect($removePhotoIds)->count()
+            + count($photos);
+
+        if ($sisaFoto < 1) {
+            return back()->withInput()
+                ->withErrors(['photos' => 'Produk wajib punya minimal satu foto — jangan hapus semuanya.']);
+        }
+
         $this->umkm->updateProduct($product, $data, $photos, $removePhotoIds);
 
         return redirect()->route('portal.umkm.index')
@@ -73,22 +85,28 @@ class UmkmProductController extends Controller
     }
 
     /**
+     * Aturan field produk = aturan produk pengajuan (keputusan user 2026-07-02):
+     * deskripsi, harga, dan foto wajib — foto minimal 1 saat membuat; saat mengubah,
+     * kecukupan foto dihitung di update() (foto lama − dihapus + baru ≥ 1).
+     *
      * @return array{0: array<string, mixed>, 1: array<int, UploadedFile>}
      */
-    private function validated(Request $request): array
+    private function validated(Request $request, bool $creating = false): array
     {
         $validated = $request->validate([
             'nama_produk' => ['required', 'string', 'max:255'],
-            'deskripsi' => ['nullable', 'string', 'max:2000'],
-            'harga' => ['nullable', 'integer', 'min:0', 'max:999999999'],
-            'photos' => ['nullable', 'array', 'max:'.UmkmService::MAX_PHOTOS],
+            'deskripsi' => ['required', 'string', 'max:2000'],
+            'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
+            'photos' => [$creating ? 'required' : 'nullable', 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
+        ], [
+            'photos.required' => 'Unggah minimal satu foto produk.',
         ]);
 
         $data = [
             'nama_produk' => $validated['nama_produk'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-            'harga' => $validated['harga'] ?? null,
+            'deskripsi' => $validated['deskripsi'],
+            'harga' => $validated['harga'],
         ];
 
         return [$data, $request->file('photos', [])];
