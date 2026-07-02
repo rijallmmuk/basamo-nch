@@ -178,14 +178,20 @@
                             $progress = $module->progress->first();
                             $pagesDone = count($progress?->halaman_selesai ?? []);
                             $pct = $module->pages_count > 0 ? (int) ($pagesDone / $module->pages_count * 100) : 0;
+                            // Materi tuntas tapi kuis belum lulus → tampilkan sbg langkah tersisa.
+                            $quizPending = $status === 'completed' && ($quizPendingMap[$module->id] ?? false);
                         @endphp
                         <a href="{{ route('portal.modules.show', $module) }}"
                             class="flex flex-1 items-center gap-md px-lg py-md transition-colors hover:bg-surface-container-lowest">
                             {{-- Thumbnail asli modul (fallback default ditangani coverUrl()) --}}
                             <div class="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg ring-1 ring-outline-variant">
                                 <img src="{{ $module->coverUrl() }}" alt="" loading="lazy"
-                                    class="h-full w-full object-cover {{ $status === 'completed' ? 'opacity-90' : '' }}">
-                                @if($status === 'completed')
+                                    class="h-full w-full object-cover {{ $status === 'completed' && ! $quizPending ? 'opacity-90' : '' }}">
+                                @if($quizPending)
+                                    <span class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-on-primary ring-2 ring-surface">
+                                        <x-heroicon-s-clipboard-document-check class="h-3 w-3" />
+                                    </span>
+                                @elseif($status === 'completed')
                                     <span class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-sdg-3 text-white ring-2 ring-surface">
                                         <x-heroicon-s-check class="h-3 w-3" />
                                     </span>
@@ -201,8 +207,8 @@
                                         <span class="text-label-md text-on-surface-variant">{{ $pct }}%</span>
                                     </div>
                                 @else
-                                    <p class="mt-0.5 text-label-md font-medium {{ $status === 'completed' ? 'text-sdg-3' : 'text-sdg-14' }}">
-                                        {{ $status === 'completed' ? 'Telah diselesaikan' : 'Belum dimulai' }}
+                                    <p class="mt-0.5 text-label-md font-medium {{ $quizPending ? 'text-primary' : ($status === 'completed' ? 'text-sdg-3' : 'text-sdg-14') }}">
+                                        {{ $quizPending ? 'Kuis belum dikerjakan' : ($status === 'completed' ? 'Telah diselesaikan' : 'Belum dimulai') }}
                                     </p>
                                 @endif
                             </div>

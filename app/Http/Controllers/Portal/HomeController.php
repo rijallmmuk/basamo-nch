@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Portal;
 use App\Enums\ActiveStatus;
 use App\Enums\ModuleProgressStatus;
 use App\Enums\ModuleStatus;
+use App\Enums\QuizAttemptStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\User;
 use App\Models\UserModuleProgress;
 use App\Services\LmsProgressService;
@@ -42,14 +45,32 @@ class HomeController extends Controller
             fn ($m) => [$m->id => $this->progressService->getModuleStatusUsing($m, $m->progress->first(), $completedModuleIds)]
         );
 
-        $priorityOrder = ['in_progress' => 0, 'available' => 1, 'completed' => 2, 'locked' => 3];
+        // Kuis siap (punya soal) per modul → modul yang materinya tuntas tapi kuisnya
+        // belum lulus masih "berjalan" bagi warga (selangkah lagi), bukan selesai penuh.
+        $quizIdByModule = Quiz::whereIn('module_id', $modules->pluck('id'))
+            ->whereHas('questions')
+            ->pluck('id', 'module_id');
+
+        $passedQuizIds = QuizAttempt::where('user_id', $user->id)
+            ->where('status', QuizAttemptStatus::Passed)
+            ->whereIn('quiz_id', $quizIdByModule->values())
+            ->pluck('quiz_id');
+
+        $quizPendingMap = $quizIdByModule->map(fn ($quizId) => ! $passedQuizIds->contains($quizId));
+
+        $priorityOrder = ['in_progress' => 0, 'available' => 2, 'completed' => 3, 'locked' => 4];
 
         // "Lanjutkan Belajar": 5 modul aktif (kecuali terkunci), urut prioritas
-        // sedang-dipelajari → belum dimulai → selesai, lalu urutan modul menaik.
+        // sedang-dipelajari → kuis-menunggu → belum dimulai → selesai penuh,
+        // lalu urutan modul menaik.
         $featured = $modules
             ->reject(fn ($m) => ($statusMap[$m->id] ?? 'available') === 'locked')
-            ->sortBy(function ($m) use ($statusMap, $priorityOrder) {
-                $priority = $priorityOrder[$statusMap[$m->id] ?? 'available'] ?? 4;
+            ->sortBy(function ($m) use ($statusMap, $priorityOrder, $quizPendingMap) {
+                $status = $statusMap[$m->id] ?? 'available';
+
+                $priority = $status === 'completed' && ($quizPendingMap[$m->id] ?? false)
+                    ? 1 // materi tuntas, kuis menunggu — selangkah lagi
+                    : ($priorityOrder[$status] ?? 5);
 
                 return [$priority, $m->urutan];
             })->take(5)->values();
@@ -75,7 +96,7 @@ class HomeController extends Controller
         $totalWarga = $wargaQuery()->count();
 
         return view('portal.home', compact(
-            'featured', 'statusMap', 'modules', 'overallPct',
+            'featured', 'statusMap', 'quizPendingMap', 'modules', 'overallPct',
             'topUsers', 'myRank', 'totalWarga'
         ));
     }

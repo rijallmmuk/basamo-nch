@@ -24,8 +24,12 @@ selesai hanya "Tinjau Ulang Materi"; daftar modul bilang "Selesai"+"Lihat Kembal
   `$quizPassedScore`; index: `$quizPendingMap` 2 query anti-N+1) — sekalian hapus
   query-di-Blade `$hasQuiz` lama. `PortalQuizCtaTest` (4).
 - CATATAN sadar: status modul "Selesai" tetap berbasis MATERI (kuis tak mengubah status) —
-  sinyal kuis lewat CTA/kartu, bukan mengubah semantik progres. Beranda "Lanjutkan
-  Belajar" belum memprioritaskan modul ber-kuis-pending (opsional, belum perlu).
+  sinyal kuis lewat CTA/kartu, bukan mengubah semantik progres.
+- **Beranda "Lanjutkan Belajar" (5 modul) ikut diperbaiki** (permintaan user lanjutan):
+  prioritas kini sedang-dipelajari → **kuis-menunggu** → belum dimulai → selesai penuh;
+  modul kuis-menunggu diberi badge clipboard primary di thumbnail (bukan centang hijau)
+  + label "Kuis belum dikerjakan". `quizPendingMap` sama dgn daftar modul (anti-N+1).
+  +1 test beranda (label + assertSeeInOrder urutan prioritas).
 
 ---
 

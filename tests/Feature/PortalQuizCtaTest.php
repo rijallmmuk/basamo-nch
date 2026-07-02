@@ -111,3 +111,22 @@ it('perayaan modul tuntas mengajak lanjut ke kuis bila kuisnya siap', function (
         ->assertRedirect(route('portal.modules.show', $module))
         ->assertSessionHas('celebrate', fn (array $c): bool => str_contains($c['message'], 'kerjakan kuisnya'));
 });
+
+it('beranda: modul ber-kuis-menunggu diprioritaskan di atas modul baru & selesai penuh, dgn label', function () {
+    $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+
+    [$pending] = makeCompletedModuleWithQuiz($warga);       // materi tuntas, kuis belum
+    [$tuntas, $quizTuntas] = makeCompletedModuleWithQuiz($warga); // materi + kuis lulus
+    QuizAttempt::create([
+        'user_id' => $warga->id, 'quiz_id' => $quizTuntas->id,
+        'nilai' => 100, 'status' => QuizAttemptStatus::Passed, 'submitted_at' => now(),
+    ]);
+    $baru = Module::create(['judul' => 'Modul Baru '.uniqid(), 'status' => 'published', 'urutan' => 9]);
+
+    actingAs($warga)
+        ->get(route('portal.home'))
+        ->assertOk()
+        ->assertSee('Kuis belum dikerjakan')
+        // Urutan kartu "Lanjutkan Belajar": kuis-menunggu → belum dimulai → selesai penuh.
+        ->assertSeeInOrder([$pending->judul, $baru->judul, $tuntas->judul]);
+});
