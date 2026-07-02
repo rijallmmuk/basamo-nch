@@ -7,6 +7,7 @@ use App\Models\UmkmCategory;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -64,6 +65,12 @@ class UmkmCategoryResource extends Resource
                         ->placeholder('heroicon-o-cake')
                         ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
                         ->maxLength(60),
+
+                    Textarea::make('panduan_produk')
+                        ->label('Panduan deskripsi produk')
+                        ->helperText('Satu poin per baris, akhiri dengan titik dua (mis. "Berat atau isi per kemasan: "). Tampil sebagai panduan + kerangka isian di form produk warga kategori ini.')
+                        ->rows(6)
+                        ->columnSpanFull(),
 
                     // Urutan TIDAK diisi lewat form: kategori baru otomatis di urutan
                     // terakhir; mengubah urutan = seret baris di tabel.

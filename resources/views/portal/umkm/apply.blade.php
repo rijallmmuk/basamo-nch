@@ -76,8 +76,13 @@
                 deskripsiProduk: @js(old('deskripsi_produk', $product?->deskripsi ?? '')),
                 fotoUrl: @js($firstPhotoUrl),
                 fotoAwal: @js($firstPhotoUrl),
+                kategoriId: @js((string) old('umkm_category_id', $profile?->umkm_category_id ?? '')),
+                panduan: @js($panduanMap),
                 hargaTampil() {
                     return this.harga > 0 ? 'Rp ' + Number(this.harga).toLocaleString('id-ID') : 'Rp —';
+                },
+                panduanAktif() {
+                    return this.panduan[this.kategoriId] ?? null;
                 },
             }"
             {{-- Kartu pratinjau ikut foto pertama dari pemilih foto (fallback: foto lama). --}}
@@ -102,10 +107,10 @@
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div>
                                 <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-on-surface">Kategori usaha</label>
-                                <select id="umkm_category_id" name="umkm_category_id" required class="{{ $inputClass }}">
+                                <select id="umkm_category_id" name="umkm_category_id" required x-model="kategoriId" class="{{ $inputClass }}">
                                     <option value="">— Pilih kategori —</option>
                                     @foreach($kategori as $id => $nama)
-                                        <option value="{{ $id }}" @selected(old('umkm_category_id', $profile?->umkm_category_id) == $id)>{{ $nama }}</option>
+                                        <option value="{{ $id }}">{{ $nama }}</option>
                                     @endforeach
                                 </select>
                                 @error('umkm_category_id') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
@@ -155,9 +160,25 @@
 
                         <div>
                             <label for="deskripsi_produk" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi produk</label>
-                            <textarea id="deskripsi_produk" name="deskripsi_produk" rows="3" required x-model="deskripsiProduk"
-                                placeholder="Bahan, rasa, ukuran/berat, keunggulan…" class="{{ $inputClass }}">{{ old('deskripsi_produk', $product?->deskripsi) }}</textarea>
+                            <textarea id="deskripsi_produk" name="deskripsi_produk" rows="5" required x-model="deskripsiProduk"
+                                placeholder="Ikuti panduan di bawah — pilih kategori usaha dulu agar panduannya muncul." class="{{ $inputClass }}">{{ old('deskripsi_produk', $product?->deskripsi) }}</textarea>
                             @error('deskripsi_produk') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
+
+                            {{-- Panduan per kategori (dari data Kategori UMKM) + kerangka isian sekali klik --}}
+                            <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5" x-show="panduanAktif()" x-cloak>
+                                <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                                    <x-heroicon-o-light-bulb class="h-4 w-4" /> Panduan — sebutkan dalam deskripsi:
+                                </p>
+                                <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
+                                    <template x-for="baris in (panduanAktif() ?? '').split('\n').filter(b => b.trim())" :key="baris">
+                                        <li class="flex gap-1.5"><span class="text-primary">•</span><span x-text="baris.replace(/:\s*$/, '')"></span></li>
+                                    </template>
+                                </ul>
+                                <button type="button" x-show="! deskripsiProduk.trim()" @click="deskripsiProduk = panduanAktif()"
+                                    class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
+                                    Gunakan sebagai kerangka isian →
+                                </button>
+                            </div>
                         </div>
 
                         @if($existingPhotos->isNotEmpty())

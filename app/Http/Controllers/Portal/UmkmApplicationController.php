@@ -37,6 +37,9 @@ class UmkmApplicationController extends Controller
             'profile' => $profile,
             'product' => $product,
             'kategori' => UmkmCategory::options(),
+            // Panduan deskripsi per kategori — tampil + jadi kerangka isian saat
+            // kategori dipilih (agar warga tahu persis apa yang harus ditulis).
+            'panduanMap' => UmkmCategory::whereNotNull('panduan_produk')->pluck('panduan_produk', 'id'),
         ]);
     }
 
@@ -68,12 +71,13 @@ class UmkmApplicationController extends Controller
             'whatsapp' => ['required', 'string', 'max:20'],
             'alamat' => ['required', 'string', 'max:500'],
             'nama_produk' => ['required', 'string', 'max:255'],
-            'deskripsi_produk' => ['required', 'string', 'max:2000'],
+            'deskripsi_produk' => ['required', 'string', 'min:30', 'max:2000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
             'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
         ], [
             'photos.required' => 'Unggah minimal satu foto produk.',
+            'deskripsi_produk.min' => 'Jelaskan produkmu lebih lengkap (minimal 30 karakter) — ikuti panduan di bawah kolom deskripsi.',
         ]);
 
         $this->umkm->submitApplication(

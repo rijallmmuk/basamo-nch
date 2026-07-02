@@ -16,12 +16,17 @@ class UmkmProductController extends Controller
 
     public function create(): View|RedirectResponse
     {
-        if (! auth()->user()->umkmProfile) {
+        $profile = auth()->user()->umkmProfile;
+
+        if (! $profile) {
             return redirect()->route('portal.umkm.profile.edit')
                 ->with('info', 'Lengkapi profil usaha dulu sebelum menambah produk.');
         }
 
-        return view('portal.umkm.product-form', ['product' => null]);
+        return view('portal.umkm.product-form', [
+            'product' => null,
+            'panduan' => $profile->category?->panduan_produk,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -43,6 +48,7 @@ class UmkmProductController extends Controller
 
         return view('portal.umkm.product-form', [
             'product' => $product->load('media'),
+            'panduan' => $product->umkmProfile?->category?->panduan_produk,
         ]);
     }
 
@@ -95,12 +101,13 @@ class UmkmProductController extends Controller
     {
         $validated = $request->validate([
             'nama_produk' => ['required', 'string', 'max:255'],
-            'deskripsi' => ['required', 'string', 'max:2000'],
+            'deskripsi' => ['required', 'string', 'min:30', 'max:2000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
             'photos' => [$creating ? 'required' : 'nullable', 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
         ], [
             'photos.required' => 'Unggah minimal satu foto produk.',
+            'deskripsi.min' => 'Jelaskan produkmu lebih lengkap (minimal 30 karakter) — ikuti panduan di bawah kolom deskripsi.',
         ]);
 
         $data = [

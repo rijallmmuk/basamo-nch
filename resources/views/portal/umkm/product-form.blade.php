@@ -23,13 +23,14 @@
     </div>
 
     <x-portal.card>
-        <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-5">
+        <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-5"
+            x-data="{ deskripsi: @js(old('deskripsi', $product?->deskripsi ?? '')) }">
             @csrf
             @if($product) @method('PUT') @endif
 
             <div>
                 <label for="nama_produk" class="mb-1.5 block text-sm font-semibold text-on-surface">Nama produk</label>
-                <input type="text" id="nama_produk" name="nama_produk" required
+                <input type="text" id="nama_produk" name="nama_produk" required placeholder="mis. Keripik Balado 250gr"
                     value="{{ old('nama_produk', $product?->nama_produk) }}" class="{{ $inputClass }}">
                 @error('nama_produk') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
@@ -43,9 +44,29 @@
 
             <div>
                 <label for="deskripsi" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi produk</label>
-                <textarea id="deskripsi" name="deskripsi" rows="3" required
-                    placeholder="Bahan, rasa, ukuran/berat, keunggulan…" class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
+                <textarea id="deskripsi" name="deskripsi" rows="5" required x-model="deskripsi"
+                    placeholder="Ikuti panduan di bawah." class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
                 @error('deskripsi') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
+
+                {{-- Panduan sesuai kategori usaha (dari data Kategori UMKM) + kerangka isian --}}
+                @if(filled($panduan ?? null))
+                    <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5">
+                        <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                            <x-heroicon-o-light-bulb class="h-4 w-4" /> Panduan — sebutkan dalam deskripsi:
+                        </p>
+                        <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
+                            @foreach(preg_split('/\r\n|\n/', $panduan) as $baris)
+                                @if(trim($baris) !== '')
+                                    <li class="flex gap-1.5"><span class="text-primary">•</span>{{ rtrim(trim($baris), ': ') }}</li>
+                                @endif
+                            @endforeach
+                        </ul>
+                        <button type="button" x-show="! deskripsi.trim()" @click="deskripsi = @js($panduan)"
+                            class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
+                            Gunakan sebagai kerangka isian →
+                        </button>
+                    </div>
+                @endif
             </div>
 
             {{-- Foto produk yang sudah ada (edit) --}}

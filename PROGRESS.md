@@ -6,7 +6,26 @@
 
 ---
 
+## Sesi 2026-07-03 (lanjutan 2) — Panduan pengisian produk per kategori (commit a37c220)
+
+Suite **343 (341 lulus, 2 skip)**. KEPUTUSAN USER: panduan + kerangka isian (BUKAN field
+terstruktur per kategori); sumber = kolom `umkm_categories.panduan_produk` (bawaan 7
+kategori ter-seed hasil riset marketplace, super admin sunting via menu Kategori UMKM);
+deskripsi produk **min 30 karakter** (pengajuan & form produk, pesan error mengarah panduan).
+Portal: kotak "Panduan — sebutkan dalam deskripsi" + tombol **"Gunakan sebagai kerangka
+isian"** (mengisi textarea baris "Label: " siap lengkapi; tampil saat deskripsi kosong).
+Pengajuan: panduan ikut kategori terpilih (Alpine live); form produk: statis dari kategori
+profil. Test +3; payload lama disesuaikan ≥30 karakter. DECISIONS.md dicatat.
+
+---
+
 ## Sesi 2026-07-03 (lanjutan) — Audit CRUD produk pasca-setuju + cabut deskripsi profil menyeluruh
+
+- **Pemilih foto ber-thumbnail** (`x-portal.photo-picker`, commit d423d35): input file
+  native diganti — user bisa MENAMBAH foto berkali-kali sampai batas (dulu pilihan kedua
+  MENGGANTI pertama → "cuma bisa 1"), tiap foto tampil thumbnail + hapus per-foto,
+  hitungan n/5. Sinkron via DataTransfer ke input tersembunyi → tetap `photos[]` biasa.
+  Dipakai di form pengajuan (foto pertama → kartu pratinjau) ## Sesi 2026-07-03 (lanjutan) — Audit CRUD produk pasca-setuju + cabut deskripsi profil menyeluruh form tambah/ubah produk.
 
 Branch `feat/ref-wilayah-sumbar`. Suite **340 (338 lulus, 2 skip)**. Pint bersih. Build ✓.
 

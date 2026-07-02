@@ -11,7 +11,7 @@ class UmkmCategory extends Model
 {
     use HasSlug;
 
-    protected $fillable = ['nama', 'slug', 'icon', 'urutan'];
+    protected $fillable = ['nama', 'slug', 'icon', 'panduan_produk', 'urutan'];
 
     protected static function booted(): void
     {

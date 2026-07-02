@@ -14,14 +14,40 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /** Taksonomi UMKM global awal. */
+    /**
+     * Kategori bawaan + panduan pengisian deskripsi produk per kategori
+     * (satu poin per baris; tampil sebagai panduan & kerangka isian di form
+     * produk warga — bisa disunting super admin lewat menu Kategori UMKM).
+     */
     private const CATEGORIES = [
-        ['slug' => 'kuliner', 'nama' => 'Kuliner', 'icon' => 'heroicon-o-cake'],
-        ['slug' => 'kerajinan', 'nama' => 'Kerajinan', 'icon' => 'heroicon-o-sparkles'],
-        ['slug' => 'fashion', 'nama' => 'Fashion & Tekstil', 'icon' => 'heroicon-o-swatch'],
-        ['slug' => 'pertanian', 'nama' => 'Pertanian & Perkebunan', 'icon' => 'heroicon-o-sun'],
-        ['slug' => 'peternakan', 'nama' => 'Peternakan & Perikanan', 'icon' => 'heroicon-o-beaker'],
-        ['slug' => 'jasa', 'nama' => 'Jasa', 'icon' => 'heroicon-o-briefcase'],
-        ['slug' => 'lainnya', 'nama' => 'Lainnya', 'icon' => 'heroicon-o-ellipsis-horizontal-circle'],
+        [
+            'slug' => 'kuliner', 'nama' => 'Kuliner', 'icon' => 'heroicon-o-cake',
+            'panduan_produk' => "Varian/rasa: \nBerat atau isi per kemasan: \nBahan utama: \nDaya tahan & cara penyimpanan: \nLegalitas (PIRT/Halal) bila ada: \nMinimal pesanan / lama pre-order: ",
+        ],
+        [
+            'slug' => 'kerajinan', 'nama' => 'Kerajinan', 'icon' => 'heroicon-o-sparkles',
+            'panduan_produk' => "Bahan baku: \nUkuran (panjang × lebar × tinggi): \nWarna/motif tersedia: \nBisa pesan custom atau tidak: \nLama pengerjaan pesanan: ",
+        ],
+        [
+            'slug' => 'fashion', 'nama' => 'Fashion & Tekstil', 'icon' => 'heroicon-o-swatch',
+            'panduan_produk' => "Jenis bahan/kain: \nUkuran tersedia (S–XXL atau cm): \nPilihan warna/motif: \nCara perawatan: \nBisa pesan custom/seragam atau tidak: ",
+        ],
+        [
+            'slug' => 'pertanian', 'nama' => 'Pertanian & Perkebunan', 'icon' => 'heroicon-o-sun',
+            'panduan_produk' => "Satuan jual (kg/ikat/karung/liter): \nKondisi (segar/kering/olahan): \nKualitas atau grade: \nKetersediaan (stok tetap/musiman): \nMinimal pembelian: ",
+        ],
+        [
+            'slug' => 'peternakan', 'nama' => 'Peternakan & Perikanan', 'icon' => 'heroicon-o-beaker',
+            'panduan_produk' => "Satuan jual (kg/ekor/ikat): \nKondisi (hidup/segar/beku/olahan): \nUkuran atau bobot rata-rata: \nKetersediaan (harian/musiman): \nMinimal pembelian: ",
+        ],
+        [
+            'slug' => 'jasa', 'nama' => 'Jasa', 'icon' => 'heroicon-o-briefcase',
+            'panduan_produk' => "Rincian layanan yang didapat: \nPerkiraan lama pengerjaan: \nArea jangkauan layanan: \nYang sudah termasuk dalam harga: \nSyarat atau catatan pemesanan: ",
+        ],
+        [
+            'slug' => 'lainnya', 'nama' => 'Lainnya', 'icon' => 'heroicon-o-ellipsis-horizontal-circle',
+            'panduan_produk' => "Apa produknya & kegunaannya: \nUkuran/berat/isi: \nBahan atau kondisi: \nKeunggulan dibanding produk sejenis: ",
+        ],
     ];
 
     public function up(): void
@@ -31,6 +57,9 @@ return new class extends Migration
             $table->string('nama', 100);
             $table->string('slug', 100)->unique();
             $table->string('icon', 60)->nullable();
+            // Panduan pengisian deskripsi produk (satu poin per baris) — tampil
+            // sebagai panduan + kerangka isian di form produk warga.
+            $table->text('panduan_produk')->nullable();
             $table->unsignedSmallInteger('urutan')->default(0);
             $table->timestamps();
         });

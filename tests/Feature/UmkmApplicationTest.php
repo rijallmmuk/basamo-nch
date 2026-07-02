@@ -49,7 +49,7 @@ function payloadPengajuan(array $overrides = []): array
         'deskripsi' => 'Usaha keripik balado rumahan.',
         'alamat' => 'Jorong Koto Tuo',
         'nama_produk' => 'Keripik Balado',
-        'deskripsi_produk' => 'Pedas manis khas Minang.',
+        'deskripsi_produk' => 'Keripik balado pedas manis khas Minang, renyah, kemasan 250gr.',
         'harga' => 25000,
         'photos' => [UploadedFile::fake()->image('keripik.jpg')],
     ], $overrides);
@@ -274,4 +274,44 @@ it('pengajuan tidak lagi meminta deskripsi profil; alamat tetap wajib', function
     actingAs(wargaPemohon())
         ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['alamat' => '']))
         ->assertSessionHasErrors('alamat');
+});
+
+// ── Panduan pengisian produk per kategori ─────────────────────────────
+
+it('kategori bawaan ter-seed dengan panduan produk', function () {
+    expect(UmkmCategory::where('slug', 'kuliner')->value('panduan_produk'))
+        ->toContain('Berat atau isi per kemasan')
+        ->and(UmkmCategory::whereNotNull('panduan_produk')->count())->toBe(7);
+});
+
+it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi)', function () {
+    $warga = wargaPemohon();
+
+    actingAs($warga)
+        ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['deskripsi_produk' => 'enak murah']))
+        ->assertSessionHasErrors('deskripsi_produk');
+
+    expect(UmkmProfile::count())->toBe(0);
+});
+
+it('form produk reguler menampilkan panduan sesuai kategori usaha & menegakkan min 30 karakter', function () {
+    $desa = Desa::factory()->create();
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
+    $kuliner = UmkmCategory::where('slug', 'kuliner')->first();
+    UmkmProfile::factory()->create([
+        'desa_id' => $desa->id, 'user_id' => $owner->id, 'umkm_category_id' => $kuliner->id,
+    ]);
+
+    actingAs($owner)
+        ->get(route('portal.umkm.products.create'))
+        ->assertOk()
+        ->assertSee('Panduan — sebutkan dalam deskripsi')
+        ->assertSee('Berat atau isi per kemasan');
+
+    actingAs($owner)
+        ->post(route('portal.umkm.products.store'), [
+            'nama_produk' => 'Uji Pendek', 'deskripsi' => 'enak', 'harga' => 1000,
+            'photos' => [UploadedFile::fake()->image('p.jpg')],
+        ])
+        ->assertSessionHasErrors('deskripsi');
 });
