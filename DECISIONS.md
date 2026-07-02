@@ -110,7 +110,7 @@ MC-only (auto-grade); essay & antrian review dihapus total. Nilai = **angka 0–
 - **Upload PDF materi 10 MB**: Filament `maxSize(10240)` + PHP `upload_max_filesize=10M`/`post_max_size=12M`; produksi nginx `client_max_body_size 12M`.
 
 ### XP + Leaderboard XP (per nagari)
-XP berbasis pencapaian, **sekali per modul** (idempotent via `xp_logs` UNIQUE(user,source,source_id)): selesai materi modul **+50**, lulus kuis **+100**, partisipasi diskusi (posting pertama) **+20** → maks 170/modul. Akumulatif di `users.total_xp`. Leaderboard **per nagari** (warga aktif), urut total_xp, peringkat kompetisi; dashboard Top 5.
+XP berbasis pencapaian, **sekali per modul** (idempotent via `xp_logs` UNIQUE(user,source,source_id)): selesai materi modul **+50**, lulus kuis **+100** (+**25** bonus bila nilai sempurna 100 — keputusan user 2026-07-02; dihitung saat lulus pertama), partisipasi diskusi (posting pertama) **+20** → maks 195/modul. Besaran GLOBAL di kode (bukan per-modul — jaga keadilan leaderboard; opsi konfigurasi admin DITOLAK user). XP modul sengaja FLAT (opsi proporsional-materi ditolak). Akumulatif di `users.total_xp`. Leaderboard **per nagari** (warga aktif), urut total_xp, peringkat kompetisi; dashboard Top 5.
 **Alasan**: XP terikat penyelesaian/kelulusan/partisipasi berbatas → sulit "digoreng" (vs poin per-klik). Mitigasi bias: per nagari, dari pencapaian nyata, kuis flat, diskusi sekali/modul.
 **Sejarah**: sempat ditiadakan total (kekhawatiran bias kompetitif) lalu dihidupkan lagi dengan desain berbatas ini.
 

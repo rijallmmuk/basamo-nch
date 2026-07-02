@@ -26,7 +26,7 @@
         </div>
         <div class="relative z-10 hidden shrink-0 space-y-0.5 text-right text-xs text-white/70 sm:block">
             <p><span class="font-bold text-white">+50</span> selesai modul</p>
-            <p><span class="font-bold text-white">+100</span> lulus kuis</p>
+            <p><span class="font-bold text-white">+100</span> lulus kuis <span class="text-white/60">(+25 nilai sempurna)</span></p>
             <p><span class="font-bold text-white">+20</span> ikut diskusi</p>
         </div>
         <div class="pointer-events-none absolute -right-12 -top-12 z-0 h-48 w-48 rounded-full bg-white/10 blur-3xl"></div>

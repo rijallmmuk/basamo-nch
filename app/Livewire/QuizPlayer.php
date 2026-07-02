@@ -196,10 +196,12 @@ class QuizPlayer extends Component
         $this->submitted = true;
 
         if ($passed) {
-            app(LmsPointService::class)->awardQuizPass(auth()->user(), $this->quiz);
+            $xp = app(LmsPointService::class)->awardQuizPass(auth()->user(), $this->quiz, $percentage);
 
             $this->dispatch('confetti');
-            $this->dispatch('toast', type: 'xp', title: '+'.LmsPointService::QUIZ_XP.' XP', message: 'Selamat, kamu lulus kuis!');
+            $this->dispatch('toast', type: 'xp', title: "+{$xp} XP", message: $percentage >= 100
+                ? 'Nilai sempurna! Bonus keunggulan untukmu.'
+                : 'Selamat, kamu lulus kuis!');
         }
 
         auth()->user()->notify(new QuizCompleted($this->quiz, $percentage, $passed));

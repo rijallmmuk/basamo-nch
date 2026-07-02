@@ -15,6 +15,9 @@ class LmsPointService
 
     public const QUIZ_XP = 100;
 
+    /** Bonus keunggulan: lulus kuis dengan nilai sempurna (100). */
+    public const QUIZ_PERFECT_BONUS_XP = 25;
+
     public const DISCUSSION_XP = 20;
 
     public function awardModuleCompletion(User $user, Module $module): void
@@ -22,9 +25,18 @@ class LmsPointService
         $this->award($user, 'module', $module->id, self::MODULE_XP);
     }
 
-    public function awardQuizPass(User $user, Quiz $quiz): void
+    /**
+     * XP lulus kuis (+bonus bila nilainya sempurna). Besaran ditentukan pada momen
+     * lulus PERTAMA — sekali lulus, kuis tak bisa diulang, jadi tak ada jalur
+     * "menaikkan" bonus belakangan. Mengembalikan jumlah XP-nya (untuk toast).
+     */
+    public function awardQuizPass(User $user, Quiz $quiz, int $score): int
     {
-        $this->award($user, 'quiz', $quiz->id, self::QUIZ_XP);
+        $amount = self::QUIZ_XP + ($score >= 100 ? self::QUIZ_PERFECT_BONUS_XP : 0);
+
+        $this->award($user, 'quiz', $quiz->id, $amount);
+
+        return $amount;
     }
 
     /**

@@ -43,7 +43,7 @@ it('sumber XP berbeda tidak bertabrakan walau sumber_id sama', function () {
     $svc = app(LmsPointService::class);
 
     $svc->awardModuleCompletion($warga, $module);        // module:module_id
-    $svc->awardQuizPass($warga, $quiz);                  // quiz:quiz_id
+    $svc->awardQuizPass($warga, $quiz, 80);              // quiz:quiz_id (nilai biasa, tanpa bonus)
     $svc->awardDiscussionParticipation($warga, $module); // discussion:module_id
 
     expect(XpLog::where('user_id', $warga->id)->count())->toBe(3)
@@ -95,4 +95,31 @@ it('peringkat daftar konsisten dengan badge saat ada seri', function () {
         ->and($ranks[$c->id])->toBe(3)
         // Badge "Posisimu" Andi juga 1 — konsisten dengan daftar.
         ->and($resp->viewData('myRank'))->toBe(1);
+});
+
+it('lulus kuis dengan nilai sempurna mendapat bonus keunggulan (+25), idempotent', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $quiz = Quiz::create(['module_id' => makeXpModule()->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+    $svc = app(LmsPointService::class);
+
+    $xp = $svc->awardQuizPass($warga, $quiz, 100);
+
+    expect($xp)->toBe(LmsPointService::QUIZ_XP + LmsPointService::QUIZ_PERFECT_BONUS_XP)
+        ->and($warga->refresh()->total_xp)->toBe(125);
+
+    // Pemanggilan ulang (race/dobel) tak menambah apa pun.
+    $svc->awardQuizPass($warga, $quiz, 100);
+    expect($warga->refresh()->total_xp)->toBe(125);
+});
+
+it('lulus kuis dengan nilai biasa tetap +100 tanpa bonus', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $quiz = Quiz::create(['module_id' => makeXpModule()->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+
+    $xp = app(LmsPointService::class)->awardQuizPass($warga, $quiz, 85);
+
+    expect($xp)->toBe(LmsPointService::QUIZ_XP)
+        ->and($warga->refresh()->total_xp)->toBe(100);
 });

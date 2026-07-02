@@ -6,6 +6,28 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 9) — Audit reader materi + keputusan ekonomi XP (diskusi user)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **328 (326 lulus, 2 skip)**. Pint bersih. Build ✓.
+
+**A. Reader materi vs create/update admin — VERDICT KOKOH** (+2 test pengunci):
+halaman BARU yang ditambah setelah warga menuntaskan modul → terbaca (tak terkunci),
+bisa diselesaikan, status/completed_at utuh, XP tak dobel; blok bertipe TAK DIKENAL
+dilewati diam-diam (reader tak meledak). Sudah teruji sebelumnya: 6 tipe blok, XSS
+sanitasi, URL video aneh → fallback graceful, rekonsiliasi halaman hantu, guard
+field-opsional-kosong, cleanup berkas saat ganti/hapus blok.
+
+**B. Ekonomi XP — KEPUTUSAN USER (AskUserQuestion):**
+- XP modul **TETAP flat +50** (opsi proporsional-materi & per-materi DITOLAK user).
+- XP kuis **+100 + BONUS +25 bila nilai sempurna (100)** — `QUIZ_PERFECT_BONUS_XP`;
+  `awardQuizPass(User, Quiz, int $score): int` (besaran dihitung saat lulus PERTAMA —
+  kuis tak bisa diulang setelah lulus, tak ada jalur menaikkan bonus). Toast tampilkan
+  XP aktual + pesan "Nilai sempurna!"; banner XP mencantumkan "(+25 nilai sempurna)".
+- Besaran **tetap global di kode** (opsi konfigurasi per modul DITOLAK — jaga keadilan
+  leaderboard). Mekanika (idempoten/anti-farm/checkpoint saat tuntas) dinilai sudah tepat.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 8) — Sinyal "kuis belum dikerjakan" untuk warga (backlog UX ditutup)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **323 (321 lulus, 2 skip)**. Pint bersih. `npm run build` ✓.
