@@ -6,6 +6,34 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan) — Audit akhir LMS lintas peran sebelum lanjut UMKM
+
+Branch `feat/ref-wilayah-sumbar`. Suite **290 (288 lulus, 2 skip)**. Pint bersih.
+
+Audit menyeluruh migrasi/model/service/controller/policy/observer/views LMS (super admin, admin desa,
+warga). Verdict: **solid** — 4 perbaikan kecil diterapkan, sisanya dicatat sadar-tak-diubah:
+- **Notif "Kuis baru" tak lagi prematur**: dulu terkirim saat baris kuis dibuat (soal belum ada →
+  portal menolak, warga bingung). Kini saat **SOAL PERTAMA** dibuat: `QuizObserver` DIHAPUS →
+  `QuizQuestionObserver::created` (syarat modul published; kuis terarsip otomatis lolos krn relasi
+  quiz null). +3 test N1 di `LmsAuthoringHardeningTest`.
+- **Kode mati dihapus**: `ModuleObserver::deleting` (cleanup berkas force-delete) redundan — event
+  `forceDeleting` (hook di `Module::booted`) berjalan LEBIH DULU dan sudah menghapus halaman+berkas
+  via `ModulePage::deleted`. Test M1 tetap menjamin perilaku.
+- **Avatar diskusi kini berfoto** (index+thread+balasan; dulu inisial saja — tak konsisten dgn
+  header/peringkat/profil): eager-load `user.media` + prop `:src` di `x-portal.avatar`.
+- **Riwayat XP tahan arsip**: `XpController` pakai `withTrashed()` (Quiz+Module) + fallback judul
+  "Kuis" di view → entri modul/kuis terarsip tetap berjudul. +1 test `XpLogPageTest`.
+- Konsistensi kecil: observer pakai enum `ActiveStatus::Active` (bukan string `'active'`).
+- **Dicatat, sengaja TAK diubah (anti over-engineering)**: unique `quizzes(module_id,deleted_at)` tak
+  menegakkan keunikan baris aktif di MariaDB (NULL boleh ganda) — aman krn validasi opsi Select
+  Filament ter-scope server-side (diverifikasi ke vendor, `getInValidationRuleValues`); `$hasQuiz`
+  query di Blade `modules/show` (1 tempat); label enum ModuleStatus "Draft/Published" (Inggris);
+  notif ShouldQueue gagal senyap bila modul dihapus sebelum worker jalan.
+- Views: semua halaman portal 1 layout, tanpa override lebar, 0 warna Tailwind mentah (scan grep).
+- NEXT: cek browser (item sesi sebelumnya masih berlaku), PR ke main, lalu mulai fitur UMKM.
+
+---
+
 ## Sesi 2026-07-02 — Profil admin/super (read-only+modal), modal OTP ramping, user menu ringkas, dropdown warga
 
 Branch `feat/ref-wilayah-sumbar`. Suite **286 (284 lulus, 2 skip)**. Pint bersih. Belum merge.

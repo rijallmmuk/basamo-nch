@@ -50,7 +50,7 @@
                         $moduleId = $log->sumber === 'quiz' ? ($quizModuleMap[$log->sumber_id] ?? null) : $log->sumber_id;
                         $module = $moduleId ? ($modules[$moduleId] ?? null) : null;
                         $meta = match ($log->sumber) {
-                            'quiz' => ['icon' => 'heroicon-s-clipboard-document-check', 'tile' => 'bg-sdg-3/10 text-sdg-3', 'label' => 'Lulus kuis', 'title' => 'Kuis: '.($module?->judul ?? '')],
+                            'quiz' => ['icon' => 'heroicon-s-clipboard-document-check', 'tile' => 'bg-sdg-3/10 text-sdg-3', 'label' => 'Lulus kuis', 'title' => $module ? 'Kuis: '.$module->judul : 'Kuis'],
                             'module' => ['icon' => null, 'tile' => null, 'label' => 'Menyelesaikan modul', 'title' => $module?->judul ?? 'Modul'],
                             'discussion' => ['icon' => 'heroicon-s-chat-bubble-left-right', 'tile' => 'bg-secondary-container text-on-secondary-container', 'label' => 'Berpartisipasi diskusi', 'title' => $module?->judul ?? 'Modul'],
                             default => ['icon' => 'heroicon-s-star', 'tile' => 'bg-surface-container-high text-on-surface-variant', 'label' => 'Poin', 'title' => 'Aktivitas'],

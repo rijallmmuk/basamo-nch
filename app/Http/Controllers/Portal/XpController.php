@@ -23,7 +23,9 @@ class XpController extends Controller
 
         // Tiap entri terkait sebuah modul: 'module' & 'discussion' langsung via sumber_id,
         // 'quiz' via quiz.module_id. Muat modul + cover (media) sekali untuk hindari N+1.
-        $quizModuleMap = Quiz::whereIn('id', $logs->where('sumber', 'quiz')->pluck('sumber_id')->unique())
+        // withTrashed: riwayat XP tetap menampilkan judul modul/kuis yang sudah diarsip.
+        $quizModuleMap = Quiz::withTrashed()
+            ->whereIn('id', $logs->where('sumber', 'quiz')->pluck('sumber_id')->unique())
             ->pluck('module_id', 'id'); // [quiz_id => module_id]
 
         $moduleIds = $logs->whereIn('sumber', ['module', 'discussion'])->pluck('sumber_id')
@@ -31,7 +33,7 @@ class XpController extends Controller
             ->filter()
             ->unique();
 
-        $modules = Module::with('media')->whereIn('id', $moduleIds)->get()->keyBy('id');
+        $modules = Module::withTrashed()->with('media')->whereIn('id', $moduleIds)->get()->keyBy('id');
 
         return view('portal.xp.index', [
             'logs' => $logs,

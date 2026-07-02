@@ -12,7 +12,7 @@
     {{-- Pertanyaan utama --}}
     <div class="rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-sm">
         <div class="flex items-start gap-3">
-            <x-portal.avatar :name="$discussion->user?->name" variant="solid" size="lg" />
+            <x-portal.avatar :name="$discussion->user?->name" :src="$discussion->user?->avatarUrl()" variant="solid" size="lg" />
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
                     <p class="font-semibold text-on-surface">{{ $discussion->user?->name ?? 'Pengguna' }}</p>
@@ -37,7 +37,7 @@
             @foreach($discussion->replies as $reply)
                 <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
                     <div class="flex items-start gap-3">
-                        <x-portal.avatar :name="$reply->user?->name" variant="gray" size="md" />
+                        <x-portal.avatar :name="$reply->user?->name" :src="$reply->user?->avatarUrl()" variant="gray" size="md" />
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <p class="text-sm font-semibold text-on-surface">{{ $reply->user?->name ?? 'Pengguna' }}</p>

@@ -5,7 +5,9 @@ use App\Models\Module;
 use App\Models\ModulePage;
 use App\Models\Quiz;
 use App\Models\User;
+use App\Notifications\NewQuizPublished;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
@@ -179,4 +181,41 @@ it('halaman bisa memuat seluruh tipe blok sekaligus (urutan dipertahankan)', fun
 
     expect(collect($page->refresh()->blocks)->pluck('type')->all())
         ->toBe(['teks', 'video', 'pdf', 'gambar', 'audio', 'lampiran']);
+});
+
+// ── N1: notifikasi "kuis baru" dikirim saat kuis SIAP (punya soal) ────
+it('N1: membuat kuis tanpa soal belum mengirim notifikasi kuis baru', function () {
+    User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+    $module = makeModule();
+
+    Notification::fake();
+
+    Quiz::create(['module_id' => $module->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+
+    Notification::assertNothingSent();
+});
+
+it('N1: soal PERTAMA memicu notifikasi kuis baru; soal berikutnya tidak', function () {
+    $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+    $module = makeModule(); // global, published
+    $quiz = Quiz::create(['module_id' => $module->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+
+    Notification::fake();
+
+    $quiz->questions()->create(['pertanyaan' => 'Soal 1', 'urutan' => 1]);
+    Notification::assertSentTo($warga, NewQuizPublished::class);
+
+    $quiz->questions()->create(['pertanyaan' => 'Soal 2', 'urutan' => 2]);
+    Notification::assertSentToTimes($warga, NewQuizPublished::class, 1);
+});
+
+it('N1: soal pertama pada kuis modul draft tidak mengirim notifikasi', function () {
+    User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+    $quiz = Quiz::create(['module_id' => makeModule('draft')->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+
+    Notification::fake();
+
+    $quiz->questions()->create(['pertanyaan' => 'Soal 1', 'urutan' => 1]);
+
+    Notification::assertNothingSent();
 });

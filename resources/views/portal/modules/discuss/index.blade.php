@@ -50,7 +50,7 @@
                 <a href="{{ route('portal.modules.discuss.show', [$module, $thread]) }}"
                     class="block rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-colors hover:bg-surface-container-low">
                     <div class="flex items-start gap-3">
-                        <x-portal.avatar :name="$thread->user?->name" size="md" />
+                        <x-portal.avatar :name="$thread->user?->name" :src="$thread->user?->avatarUrl()" size="md" />
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
                                 <p class="text-sm font-semibold text-on-surface">{{ $thread->user?->name ?? 'Pengguna' }}</p>

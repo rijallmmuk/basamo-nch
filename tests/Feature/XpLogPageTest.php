@@ -2,6 +2,7 @@
 
 use App\Models\Desa;
 use App\Models\Module;
+use App\Models\Quiz;
 use App\Models\User;
 use App\Models\XpLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,4 +45,23 @@ it('tidak menampilkan XP milik warga lain', function () {
         ->assertOk()
         ->assertDontSee('Rahasia Orang Lain')
         ->assertSee('Belum ada poin');
+});
+
+it('tetap menampilkan judul modul yang sudah diarsip di riwayat XP', function () {
+    $desa = Desa::factory()->create();
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id, 'total_xp' => 100]);
+    $module = Module::create(['judul' => 'Modul Terarsip', 'slug' => 'modul-terarsip', 'status' => 'published', 'urutan' => 1]);
+    $quiz = Quiz::create(['module_id' => $module->id, 'nilai_lulus' => 70, 'maks_percobaan' => 3]);
+
+    XpLog::create([
+        'user_id' => $warga->id, 'desa_id' => $desa->id,
+        'sumber' => 'quiz', 'sumber_id' => $quiz->id, 'jumlah' => 100,
+    ]);
+
+    $quiz->delete();
+    $module->delete();
+
+    $this->actingAs($warga)->get(route('portal.xp'))
+        ->assertOk()
+        ->assertSee('Kuis: Modul Terarsip');
 });

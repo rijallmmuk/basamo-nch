@@ -8,6 +8,10 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Audit akhir LMS lintas peran** (2026-07-02) — verdict solid; 4 fix: notif kuis dikirim saat
+      soal pertama (bukan saat kuis dibuat), hapus dead code cleanup force-delete di ModuleObserver,
+      avatar diskusi tampil foto profil, riwayat XP `withTrashed` (judul modul terarsip tetap tampil).
+      Suite 290 (288 lulus, 2 skip). Siap lanjut fitur UMKM.
 - [x] **Profil admin & super admin ready-production** (2026-07-02) — halaman Filament kustom `Profil`
       (read-only + modal Ubah Profil/Ubah Keamanan); username super-only, ganti sandi wajib sandi lama;
       modal OTP login pertama diramping (hanya sandi); dropdown admin ringkas (Profil+Keluar); tanpa tema.

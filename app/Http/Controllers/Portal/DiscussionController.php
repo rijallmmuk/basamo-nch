@@ -27,7 +27,7 @@ class DiscussionController extends Controller
         $threads = $module->discussions()
             ->whereNull('parent_id')
             ->whereHas('user', fn ($q) => $q->where('desa_id', $user->desa_id))
-            ->with(['user:id,name'])
+            ->with(['user:id,name', 'user.media'])
             ->withCount('replies')
             ->orderByDesc('is_pinned')
             ->latest()
@@ -49,7 +49,8 @@ class DiscussionController extends Controller
 
         $discussion->load([
             'user:id,name',
-            'replies' => fn ($q) => $q->with('user:id,name')->oldest(),
+            'user.media',
+            'replies' => fn ($q) => $q->with(['user:id,name', 'user.media'])->oldest(),
         ]);
 
         return view('portal.modules.discuss.thread', compact('module', 'discussion'));
