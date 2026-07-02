@@ -6,6 +6,30 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 6) — Audit robustness fitur inti: Desa · Modul→Materi · Kuis→Soal
+
+Branch `feat/ref-wilayah-sumbar`. Suite **316 (314 lulus, 2 skip)**. Pint bersih.
+
+Audit dgn PROBE LANGSUNG ke DB live (tinker+transaksi rollback). 2 bug nyata terbukti & difix:
+- **Restore desa LOLOS saat kodenya sudah dipakai desa aktif lain** (unik komposit
+  (kode, deleted_at) tak menahan duplikat aktif di MariaDB — NULL boleh ganda) → 2 desa
+  aktif berkode sama → 2 admin ber-username sama → login ambigu. Fix: guard `before` di
+  `RestoreAction` DesasTable (tolak + arahan). +test.
+- **Pindah desa modul (edit, super admin)**: (a) slug bentrok di desa tujuan → unik DB
+  meledak **500**; ke global (NULL) malah LOLOS diam-diam → 2 modul global ber-slug sama,
+  salah satunya tak terjangkau warga (route binding ambigu); (b) modul yang jadi
+  **prasyarat** modul desa lain bisa dipindah keluar jangkauan → modul dependen terkunci
+  PERMANEN bagi warganya. Fix: rule server-side di `ModuleForm.desa_id` (slug-bentrok
+  withTrashed + dependen wajib sedesa tujuan). +3 test (ditolak×2, pindah normal tetap bisa).
+- **Diverifikasi kokoh tanpa perubahan** (reasoning + test yang ada): sinkron nama admin
+  saat penyebutan desa diganti (+test pengunci); hapus soal/opsi dgn attempt lama (FK
+  nullOnDelete + nilai tersimpan — riwayat aman); hapus soal TERAKHIR kuis published =
+  graceful (kartu kuis sembunyi, controller redirect info); submit kuis saat soal dihapus
+  admin (jawaban asing di-intersect, tak 500); guard materi-terakhir modul published;
+  cleanup berkas blok (M1); scoping desa_admin di semua jalur relation manager.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 5) — Konsistensi UI admin (keputusan user via diskusi)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **311 (309 lulus, 2 skip)**. Pint bersih.

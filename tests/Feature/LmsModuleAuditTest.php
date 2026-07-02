@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\Modules\Pages\CreateModule;
+use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Models\Desa;
 use App\Models\Module;
 use App\Models\ModulePage;
@@ -11,6 +12,8 @@ use App\Services\LmsProgressService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+
+use function Pest\Laravel\actingAs;
 
 uses(RefreshDatabase::class);
 
@@ -247,4 +250,50 @@ it('menghapus semua berkas blok dari disk saat halaman dihapus', function () {
 
     Storage::disk($disk)->assertMissing('modules/blocks/pdf/b.pdf');
     Storage::disk($disk)->assertMissing('modules/blocks/gambar/c.jpg');
+});
+
+// ── Pindah desa modul (edit): guard slug bentrok + prasyarat lintas-desa ──
+it('memindah desa modul ditolak bila slug bentrok di ruang tujuan', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $desa = Desa::factory()->create();
+
+    $global = Module::create(['judul' => 'Modul Kembar', 'status' => 'draft']);
+    Module::create(['judul' => 'Modul Kembar', 'status' => 'draft', 'desa_id' => $desa->id]);
+
+    Livewire::test(EditModule::class, ['record' => $global->getRouteKey()])
+        ->fillForm(['desa_id' => $desa->id])
+        ->call('save')
+        ->assertHasFormErrors(['desa_id']);
+
+    expect($global->fresh()->desa_id)->toBeNull();
+});
+
+it('memindah modul prasyarat keluar jangkauan modul dependennya ditolak', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+
+    $prasyarat = Module::create(['judul' => 'Dasar', 'status' => 'draft']); // global
+    Module::create(['judul' => 'Lanjutan', 'status' => 'draft', 'desa_id' => $desaB->id, 'prasyarat_module_id' => $prasyarat->id]);
+
+    // Global → desa A: modul desa B yang bergantung padanya akan terkunci permanen.
+    Livewire::test(EditModule::class, ['record' => $prasyarat->getRouteKey()])
+        ->fillForm(['desa_id' => $desaA->id])
+        ->call('save')
+        ->assertHasFormErrors(['desa_id']);
+
+    expect($prasyarat->fresh()->desa_id)->toBeNull();
+});
+
+it('memindah desa modul tetap bisa bila tak ada bentrokan', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $desa = Desa::factory()->create();
+    $module = Module::create(['judul' => 'Bebas Pindah', 'status' => 'draft']);
+
+    Livewire::test(EditModule::class, ['record' => $module->getRouteKey()])
+        ->fillForm(['desa_id' => $desa->id])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($module->fresh()->desa_id)->toBe($desa->id);
 });

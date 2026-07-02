@@ -16,6 +16,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -172,6 +173,26 @@ class DesasTable
                         ->before(fn (Desa $record, DeleteAction $action) => DesaResource::guardAgainstDependents($record, $action))
                         ->after(fn (Desa $record) => DesaResource::archiveAdmin($record)),
                     RestoreAction::make()
+                        // Kode wilayah desa terarsip boleh dipakai ulang desa baru — maka
+                        // saat dipulihkan, pastikan kodenya belum dipakai desa aktif lain
+                        // (unik komposit (kode, deleted_at) TIDAK menahan duplikat aktif
+                        // di MariaDB; tanpa guard ini bisa lahir 2 desa aktif berkode sama
+                        // dengan 2 admin ber-username sama → login ambigu).
+                        ->before(function (Desa $record, RestoreAction $action): void {
+                            $bentrok = Desa::where('wilayah_kode', $record->wilayah_kode)
+                                ->whereKeyNot($record->getKey())
+                                ->exists();
+
+                            if ($bentrok) {
+                                Notification::make()
+                                    ->title('Tidak bisa dipulihkan')
+                                    ->body('Kode wilayah desa ini sudah dipakai desa aktif lain. Hapus/ubah desa tersebut dulu.')
+                                    ->danger()
+                                    ->send();
+
+                                $action->halt();
+                            }
+                        })
                         ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
                     ForceDeleteAction::make()
                         ->before(function (Desa $record, ForceDeleteAction $action): void {

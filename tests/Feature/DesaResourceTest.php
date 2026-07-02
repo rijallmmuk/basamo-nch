@@ -232,3 +232,38 @@ it('force-delete desa juga menghapus permanen akun adminnya (tak jadi yatim)', f
     expect(Desa::withTrashed()->find($desa->id))->toBeNull()
         ->and(User::withTrashed()->find($admin->id))->toBeNull();
 });
+
+it('desa terarsip tidak bisa dipulihkan bila kodenya sudah dipakai desa aktif lain', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+
+    $lama = Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']);
+    $lama->delete();
+    Desa::factory()->create(['wilayah_kode' => '13.06.01.2001']); // pengganti aktif
+
+    Livewire::test(ListDesas::class)
+        ->filterTable('trashed', true)
+        ->callTableAction('restore', $lama);
+
+    expect($lama->fresh()->trashed())->toBeTrue()
+        ->and(Desa::where('wilayah_kode', '13.06.01.2001')->count())->toBe(1);
+});
+
+it('mengubah penyebutan desa ikut memperbarui nama akun adminnya', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    RefWilayah::create(['kode' => '13.06.01.2001', 'nama' => 'Tiku Selatan', 'level' => 4, 'parent_kode' => '13.06.01']);
+    $jenisDesa = JenisDesa::firstOrCreate(['nama' => 'Desa']);
+    $jenisNagari = JenisDesa::firstOrCreate(['nama' => 'Nagari']);
+
+    $desa = Desa::factory()->create([
+        'nama' => 'Tiku Selatan', 'wilayah_kode' => '13.06.01.2001', 'jenis_desa_id' => $jenisDesa->id,
+    ]);
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id, 'username' => '1306012001']);
+
+    Livewire::test(EditDesa::class, ['record' => $desa->getRouteKey()])
+        ->fillForm(['jenis_desa_id' => $jenisNagari->id])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($admin->fresh()->name)->toBe('Admin Nagari Tiku Selatan');
+});

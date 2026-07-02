@@ -8,6 +8,9 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Audit robustness fitur inti** (2026-07-02) — Desa/Modul→Materi/Kuis→Soal; 2 bug
+      terbukti via probe DB & difix: restore desa berkode-ganda diblokir, pindah desa modul
+      dijaga (slug bentrok + prasyarat lintas-desa); sisanya kokoh. Suite 316 (314, 2 skip).
 - [x] **Konsistensi UI admin** (2026-07-02) — Quiz klik-baris+⋮ (= Modul); Ubah inline
       kuning semua; kode pekerjaan & kolom Dipakai dibuang; urutan auto-append (form
       tanpa field urutan, reorder = seret); urutan jenis desa/sub-unit 1-based; Diskusi
