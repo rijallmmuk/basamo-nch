@@ -77,6 +77,37 @@ php artisan make:filament-resource NamaModel --generate
 
 ## Deploy produksi — catatan wajib
 
+### Langkah pemasangan (sekali)
+
+```bash
+composer install --no-dev --optimize-autoloader
+cp .env.example .env         # lalu isi: APP_ENV=production, APP_DEBUG=false,
+                             # APP_URL=https://…, SESSION_SECURE_COOKIE=true, kredensial DB
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --class=CoreSeeder --force
+# ⚠️ CATAT sandi super admin yang tercetak di console — hanya tampil sekali,
+#    wajib diganti saat login pertama. (Lokal/demo tetap superadmin/password.)
+php artisan storage:link     # unggahan (cover modul, foto produk, PDF) disajikan dari public/storage
+npm ci && npm run build
+php artisan optimize && php artisan filament:optimize
+```
+
+Tiap deploy berikutnya: `composer install --no-dev`, `php artisan migrate --force`,
+`npm run build`, `php artisan optimize && php artisan filament:optimize`,
+lalu `php artisan queue:restart`.
+
+### Scheduler WAJIB berjalan (cron)
+
+Retensi tabel event (pruning notifikasi terbaca >90 hari + `activitylog:clean`)
+dijadwalkan di `routes/console.php` — tanpa cron, tabel membengkak diam-diam:
+
+```cron
+* * * * * cd /path/ke/basamo-nch && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### Queue worker WAJIB berjalan
+
 **Queue worker WAJIB berjalan.** `QUEUE_CONNECTION=database`, dan notifikasi in-app
 (modul baru, kuis baru, verifikasi produk UMKM) memakai `ShouldQueue`. Tanpa worker,
 notifikasi **tidak akan terkirim** (job menumpuk di tabel `jobs`, tak pernah diproses).
@@ -103,6 +134,21 @@ stopwaitsecs=3600
 
 > Setelah tiap deploy yang mengubah kode, restart worker: `php artisan queue:restart`
 > (worker lama memuat kode basi sampai di-restart).
+
+### Catatan HTTPS & reverse proxy
+
+- Wajib HTTPS: set `APP_URL=https://…` dan `SESSION_SECURE_COOKIE=true` di `.env`.
+- Di belakang reverse proxy / Cloudflare, tambahkan trust proxies di
+  `bootstrap/app.php` (`$middleware->trustProxies(at: ...)`) agar deteksi
+  skema https & IP klien (dipakai rate-limit login) benar.
+- Batas upload PHP: `upload_max_filesize=10M`, `post_max_size=12M`
+  (PDF materi maks 10 MB); untuk lampiran/audio 20 MB naikkan seperlunya (24M).
+
+### Belum disiapkan (sadar, sebelum go-live skala besar)
+
+- **Backup DB terjadwal** (rencana: Spatie Backup / mysqldump cron) — wajib ada
+  sebelum data warga nyata masuk.
+- Monitoring error eksternal (mis. Sentry) — opsional, log file sudah ada.
 
 ---
 

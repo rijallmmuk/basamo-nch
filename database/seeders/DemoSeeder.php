@@ -37,6 +37,14 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
+        // Sabuk pengaman: data dummy tidak boleh masuk server produksi
+        // (produksi hanya CoreSeeder — lihat README "Deploy produksi").
+        if (app()->isProduction()) {
+            $this->command?->error('DemoSeeder dilewati: jangan seed data dummy di produksi. Gunakan `db:seed --class=CoreSeeder --force`.');
+
+            return;
+        }
+
         $this->points = app(LmsPointService::class);
 
         // Role RBAC + super admin (esensial, idempotent) — sumber tunggal di CoreSeeder.

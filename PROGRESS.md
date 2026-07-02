@@ -6,6 +6,31 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 3) — Audit kesiapan produksi (deploy-readiness)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **295 (293 lulus, 2 skip)**. Pint bersih.
+
+Pertanyaan user: "kalau mentok di sini, siap deploy?" Audit backend deploy-readiness.
+**Verdict: SIAP deploy MVP** dgn catatan di bawah. Fix yang diterapkan:
+- **CoreSeeder produksi**: sandi super admin TIDAK lagi hardcoded — di produksi dibangkitkan
+  acak 24 char (dicetak sekali di console) + `must_change_password` (masuk alur modal OTP).
+  Lokal/demo tetap `password`. `CoreSeederTest` (2).
+- **DemoSeeder diberi guard produksi** (return + error message) — cegah data dummy masuk
+  server nyata via kebiasaan `migrate:fresh --seed`.
+- **README deploy dilengkapi**: langkah pemasangan sekali (composer→env→key→migrate→
+  CoreSeeder→storage:link→build→optimize+filament:optimize), langkah tiap deploy,
+  **cron scheduler WAJIB** (retensi notifikasi+activity log), HTTPS+SESSION_SECURE_COOKIE,
+  trust proxies bila di belakang proxy/Cloudflare, batas upload PHP, daftar "belum
+  disiapkan" (backup DB terjadwal, monitoring eksternal).
+- **.env.example**: hint `SESSION_SECURE_COOKIE=true` utk produksi.
+- **Diverifikasi OK**: `config:cache`+`route:cache` jalan (tak ada env() di luar config,
+  tak ada dd/dump); `/up` health route; login→logout tiap peran ter-test (UnifiedLoginTest);
+  boundary endpoint ter-scope; schedule `onOneServer`; queue sudah terdokumentasi.
+- **Blocker tersisa sebelum go-live (bukan kode)**: backup DB terjadwal belum ada;
+  cek browser manual (daftar NEXT); server HTTPS + cron + supervisor sesuai README.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 2) — Audit Desa/Warga/login-pertama/profil semua peran
 
 Branch `feat/ref-wilayah-sumbar`. Suite **293 (291 lulus, 2 skip)**. Pint bersih.

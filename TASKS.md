@@ -8,6 +8,11 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Audit kesiapan produksi** (2026-07-02) — verdict SIAP deploy MVP; CoreSeeder sandi
+      super admin acak (produksi) + guard DemoSeeder + README deploy lengkap (langkah,
+      cron scheduler, HTTPS). Suite 295 (293 lulus, 2 skip).
+- [ ] **Sebelum go-live**: backup DB terjadwal (Spatie Backup / mysqldump cron) — WAJIB
+      sebelum data warga nyata masuk.
 - [x] **Audit Desa/Warga/login-pertama/profil** (2026-07-02) — verdict solid; 5 fix: aksi
       Pulihkan+Hapus Permanen warga (dulu terjebak arsip), hook forceDeleting User+UmkmProfile
       (foto produk tak yatim), wire forceDeleteAdmin desa (dulu dead code → admin yatim),
