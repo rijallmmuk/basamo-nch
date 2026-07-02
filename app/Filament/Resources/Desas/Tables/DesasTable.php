@@ -174,7 +174,14 @@ class DesasTable
                     RestoreAction::make()
                         ->after(fn (Desa $record) => DesaResource::restoreAdmin($record)),
                     ForceDeleteAction::make()
-                        ->before(fn (Desa $record, ForceDeleteAction $action) => DesaResource::guardAgainstDependents($record, $action, includeTrashed: true)),
+                        ->before(function (Desa $record, ForceDeleteAction $action): void {
+                            DesaResource::guardAgainstDependents($record, $action, includeTrashed: true);
+
+                            // Harus SEBELUM desa lenyap: FK users.desa_id SET NULL saat
+                            // desa dihapus permanen, sehingga relasi desaAdmin() putus
+                            // dan akun admin (terarsip) tertinggal jadi yatim.
+                            DesaResource::forceDeleteAdmin($record);
+                        }),
                 ])
                     ->icon('heroicon-m-squares-2x2')
                     ->tooltip('Aksi'),

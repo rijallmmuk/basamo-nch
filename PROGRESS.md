@@ -6,6 +6,39 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 2) — Audit Desa/Warga/login-pertama/profil semua peran
+
+Branch `feat/ref-wilayah-sumbar`. Suite **293 (291 lulus, 2 skip)**. Pint bersih.
+
+Audit kedalaman sama dgn audit LMS: CRUD Desa, CRUD Warga (incl. impor), login pertama
+(warga & admin), profil semua peran. Verdict: **solid** — 5 perbaikan diterapkan:
+- **Tabel Warga: aksi Pulihkan & Hapus Permanen DITAMBAHKAN** (dulu absen — warga terarsip
+  TERJEBAK: tak bisa dipulihkan lewat UI padahal TrashedFilter ada, policy mendukung, dan
+  NIK unik membuat restore satu-satunya jalan pakai-ulang NIK). Modal force-delete
+  menjelaskan data ikut terhapus; identitas penduduk tetap.
+- **Hook `forceDeleting` di `User` & `UmkmProfile`**: hapus permanen akun → lapak & produk
+  dihapus via Eloquent (cascade DB melewati event model → foto produk yatim di storage).
+  Sekalian menutup bug laten ForceDeleteAction Profil UMKM yang sudah ada. Test media bersih.
+- **Force-delete Desa kini memanggil `forceDeleteAdmin`** (dulu DEAD CODE, tak pernah
+  di-wire) — dipanggil di `before` SETELAH guard, karena FK `users.desa_id` SET NULL
+  memutus relasi `desaAdmin()` begitu desa lenyap → dulu akun admin tertinggal yatim.
+- **Pesan validasi NIK bentrok** kini mengarahkan admin: pulihkan akun terarsip lewat
+  filter "Dihapus" (bukan bingung "sudah dipakai" tanpa solusi).
+- **Diverifikasi solid tanpa perubahan**: login gabungan (throttle identitas+IP, deteksi
+  NIK/email/username, guard nonaktif/peran asing, regenerate session, redirect per peran);
+  login pertama (EnsurePortalUser & EnsureAdminPasswordChanged saling-lengkap; hook
+  `User::saving` bersihkan OTP; jalur OTP warga=admin); CRUD Desa (create/edit transaksional
+  + syncAdmin, guard anti-orphan 2 mode); CRUD Warga (provisioning transaksional, penduduk
+  reuse-by-NIK, impor queue tervalidasi/baris); profil warga+admin (current_password,
+  normalisasi email/HP — kolasi CI menutup celah kapitalisasi email).
+- **Dicatat, sengaja TAK diubah**: `users.nik`/`email` unik kolom-tunggal (termasuk
+  terarsip) = by design benar (pakai-ulang → restore, hindari duplikat saat pulihkan);
+  `Penduduk::firstOrNew` tak lihat penduduk terarsip (laten murni — tak ada jalur hapus
+  penduduk). **CEK BROWSER**: ganti sandi sendiri via modal Profil admin — kemungkinan
+  sesi batal (AuthenticateSession, kasus sama dgn ForcePasswordChange) → verifikasi manual.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan) — Audit akhir LMS lintas peran sebelum lanjut UMKM
 
 Branch `feat/ref-wilayah-sumbar`. Suite **290 (288 lulus, 2 skip)**. Pint bersih.

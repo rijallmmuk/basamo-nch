@@ -26,6 +26,16 @@ class UmkmProfile extends Model
         'deskripsi', 'alamat', 'whatsapp', 'status',
     ];
 
+    protected static function booted(): void
+    {
+        // Hapus permanen lapak → hapus produk lewat Eloquent. Cascade DB pada
+        // umkm_products.umkm_profile_id melewati event model, sehingga Media Library
+        // tak sempat membersihkan foto produk (berkas yatim di storage).
+        static::forceDeleting(function (self $profile): void {
+            $profile->products()->withTrashed()->get()->each->forceDelete();
+        });
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {

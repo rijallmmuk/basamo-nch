@@ -10,6 +10,8 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
@@ -254,6 +256,9 @@ class UsersTable
                         }),
 
                     DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make()
+                        ->modalDescription('Seluruh data akun ini (progres belajar, XP, diskusi, lapak UMKM beserta fotonya) ikut terhapus permanen dan tidak bisa dikembalikan. Identitas kependudukannya tetap tersimpan.'),
                 ])
                     ->icon('heroicon-m-squares-2x2')
                     ->tooltip('Aksi'),

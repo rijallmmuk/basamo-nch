@@ -62,6 +62,12 @@ class User extends Authenticatable implements FilamentUser, HasMedia
             }
         });
 
+        // Hapus permanen akun → hapus lapak UMKM-nya lewat Eloquent. Cascade DB pada
+        // umkm_profiles.user_id melewati event model, sehingga foto produk bisa yatim.
+        static::forceDeleting(function (self $user): void {
+            $user->umkmProfile()->withTrashed()->first()?->forceDelete();
+        });
+
         // Kolom `role` adalah sumber kebenaran. Saat role berubah, samakan Spatie role
         // agar Shield & cek hasRole() tetap konsisten (tak ada "admin hantu").
         static::saved(function (self $user): void {

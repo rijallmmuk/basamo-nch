@@ -6,11 +6,16 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Desa;
 use App\Models\Penduduk;
+use App\Models\UmkmProduct;
+use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Support\DesaContext;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 
 use function Pest\Laravel\actingAs;
@@ -176,4 +181,45 @@ it('berhasil create & edit warga mengarahkan ke halaman index (bukan edit)', fun
         ->assertRedirect($index);
 
     expect($warga->refresh()->name)->toBe('Nama Diedit');
+});
+
+it('warga terarsip bisa dipulihkan lewat aksi tabel Restore', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    actingAs($admin);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+    $warga->delete();
+
+    Livewire::test(ListUsers::class)
+        ->filterTable('trashed', true)
+        ->callTableAction('restore', $warga);
+
+    expect($warga->fresh()->trashed())->toBeFalse();
+});
+
+it('force-delete warga menghapus permanen akun + lapak UMKM beserta foto produknya', function () {
+    Storage::fake(config('media-library.disk_name'));
+
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    actingAs($admin);
+
+    $warga = User::factory()->warga()->create([
+        'desa_id' => $desa->id,
+        'umkm_access_granted_at' => now(),
+    ]);
+    $profile = UmkmProfile::factory()->create(['user_id' => $warga->id, 'desa_id' => $warga->desa_id]);
+    $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id]);
+    $product->addMedia(UploadedFile::fake()->image('foto.jpg'))->toMediaCollection('photos');
+
+    $warga->delete();
+
+    Livewire::test(ListUsers::class)
+        ->filterTable('trashed', true)
+        ->callTableAction('forceDelete', $warga);
+
+    expect(User::withTrashed()->find($warga->id))->toBeNull()
+        ->and(UmkmProfile::withTrashed()->find($profile->id))->toBeNull()
+        ->and(UmkmProduct::withTrashed()->find($product->id))->toBeNull()
+        ->and(Media::where('model_type', UmkmProduct::class)->where('model_id', $product->id)->count())->toBe(0);
 });

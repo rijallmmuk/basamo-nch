@@ -215,3 +215,20 @@ it('desa_admin tidak boleh mengelola desa', function () {
 
     expect(Gate::forUser($admin)->check('viewAny', Desa::class))->toBeFalse();
 });
+
+it('force-delete desa juga menghapus permanen akun adminnya (tak jadi yatim)', function () {
+    actingAs(User::factory()->superAdmin()->create());
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+
+    // Alur nyata: arsipkan dulu (admin ikut terarsip), lalu hapus permanen.
+    Livewire::test(ListDesas::class)
+        ->callTableAction('delete', $desa);
+
+    Livewire::test(ListDesas::class)
+        ->filterTable('trashed', true)
+        ->callTableAction('forceDelete', $desa);
+
+    expect(Desa::withTrashed()->find($desa->id))->toBeNull()
+        ->and(User::withTrashed()->find($admin->id))->toBeNull();
+});

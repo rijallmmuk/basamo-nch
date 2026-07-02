@@ -53,6 +53,11 @@ class UserForm
                             ->rules(['digits:16'])
                             ->helperText('NIK 16 digit — dipakai warga untuk login portal.')
                             ->unique(User::class, 'nik', ignoreRecord: true)
+                            // Termasuk akun terarsip (NIK tetap terpakai) — arahkan admin
+                            // ke jalan keluarnya: pulihkan akun lama, bukan buat baru.
+                            ->validationMessages([
+                                'unique' => 'NIK ini sudah dipakai akun lain. Bila akunnya sudah dihapus, pulihkan lewat filter "Dihapus" pada daftar Warga.',
+                            ])
                             // NIK boleh dikoreksi saat edit, tapi tak boleh bentrok dengan
                             // identitas penduduk lain (1 NIK = 1 orang). Saat create, NIK yang
                             // sama dengan penduduk tanpa akun sengaja dipakai-ulang (lihat

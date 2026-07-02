@@ -8,6 +8,13 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Audit Desa/Warga/login-pertama/profil** (2026-07-02) — verdict solid; 5 fix: aksi
+      Pulihkan+Hapus Permanen warga (dulu terjebak arsip), hook forceDeleting User+UmkmProfile
+      (foto produk tak yatim), wire forceDeleteAdmin desa (dulu dead code → admin yatim),
+      pesan validasi NIK arahkan ke restore. Suite 293 (291 lulus, 2 skip).
+- [ ] **Cek browser (NEXT)** — ganti sandi sendiri via modal "Ubah Keamanan" `/admin/profil`:
+      pastikan tidak logout senyap (AuthenticateSession); bila ya, beri langkah sukses ala
+      ForcePasswordChange.
 - [x] **Audit akhir LMS lintas peran** (2026-07-02) — verdict solid; 4 fix: notif kuis dikirim saat
       soal pertama (bukan saat kuis dibuat), hapus dead code cleanup force-delete di ModuleObserver,
       avatar diskusi tampil foto profil, riwayat XP `withTrashed` (judul modul terarsip tetap tampil).
