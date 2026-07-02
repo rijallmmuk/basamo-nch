@@ -5,9 +5,7 @@ namespace App\Filament\Resources\DataMaster;
 use App\Filament\Resources\DataMaster\Pages\ManagePekerjaan;
 use App\Models\Pekerjaan;
 use BackedEnum;
-use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 
 class PekerjaanResource extends LookupResource
 {
@@ -31,30 +29,6 @@ class PekerjaanResource extends LookupResource
     public static function getPluralModelLabel(): string
     {
         return 'Pekerjaan';
-    }
-
-    protected static function extraFormFields(): array
-    {
-        return [
-            TextInput::make('kode')
-                ->label('Kode')
-                ->helperText('Kode pekerjaan standar KTP (mis. 01–99).')
-                ->required()
-                ->maxLength(4)
-                ->unique(ignoreRecord: true),
-        ];
-    }
-
-    protected static function extraColumns(): array
-    {
-        return [
-            TextColumn::make('kode')
-                ->label('Kode')
-                ->badge()
-                ->color('gray')
-                ->sortable()
-                ->alignCenter(),
-        ];
     }
 
     public static function getPages(): array

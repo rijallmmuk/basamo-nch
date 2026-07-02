@@ -10,6 +10,16 @@ namespace App\Models\Concerns;
  */
 trait IsLookup
 {
+    /** Auto-urut: entri baru ditaruh di urutan terakhir (ubah urutan = seret di tabel). */
+    public static function bootIsLookup(): void
+    {
+        static::creating(function ($model): void {
+            if (empty($model->urutan)) {
+                $model->urutan = (static::max('urutan') ?? 0) + 1;
+            }
+        });
+    }
+
     /** @return array<int, string> */
     public static function options(?int $includeId = null): array
     {

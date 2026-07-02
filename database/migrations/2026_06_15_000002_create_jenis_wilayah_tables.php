@@ -53,8 +53,9 @@ return new class extends Migration
         $now = now();
         $rows = [];
 
-        foreach ($names as $urutan => $nama) {
-            $rows[] = ['nama' => $nama, 'urutan' => $urutan, 'aktif' => true, 'created_at' => $now, 'updated_at' => $now];
+        // Urutan 1-based — konsisten dgn seed agama/status_perkawinan/pekerjaan.
+        foreach (array_values($names) as $i => $nama) {
+            $rows[] = ['nama' => $nama, 'urutan' => $i + 1, 'aktif' => true, 'created_at' => $now, 'updated_at' => $now];
         }
 
         DB::table($table)->insert($rows);

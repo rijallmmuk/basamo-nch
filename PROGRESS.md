@@ -6,6 +6,29 @@
 
 ---
 
+## Sesi 2026-07-02 (lanjutan 5) — Konsistensi UI admin (keputusan user via diskusi)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **311 (309 lulus, 2 skip)**. Pint bersih.
+
+User menagih konsistensi + menjawab 4 pertanyaan (AskUserQuestion). KEPUTUSAN USER:
+- **Quiz = persis Modul**: baris DAPAT diklik → Edit + aksi dalam menu ⋮ (dulu non-klik
+  + aksi inline kuning). Desa/Warga tetap non-klik + ⋮.
+- **Aksi Ubah inline = KUNING semua** (Wilayah, Data Master, Kategori UMKM); aksi di
+  dalam ⋮ tetap netral.
+- **Kolom `kode` pekerjaan DIBUANG dari tampilan** (form+tabel). Kolom DB tetap (NOT
+  NULL+unik) → `Pekerjaan::booted creating` auto-isi nomor Dukcapil lanjutan.
+- **Kolom "Dipakai" data master DIBUANG** — pesan penolakan hapus tetap menyebut jumlah.
+- **Field `urutan` DIBUANG dari form** (Data Master + Kategori UMKM): entri baru
+  auto-append (`IsLookup::bootIsLookup` / hook UmkmCategory); ubah urutan = seret baris
+  (Kategori UMKM kini juga reorderable). Kolom urutan → toggle tersembunyi.
+- **Urutan jenis_desa/jenis_sub_unit dinormalkan 1-based** (dulu seed 0-based, beda dgn
+  agama/pekerjaan): migrasi diperbaiki + data live di-increment.
+- **Tabel Diskusi admin = PERTANYAAN saja, permanen** (`whereNull('parent_id')` di
+  resource; kolom Tipe + filter Tipe dihapus). KONSEKUENSI SADAR (user sudah
+  diperingatkan & memilih ini): balasan warga TAK bisa dimoderasi dari panel admin.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 4) — CRUD Data Master + audit robustness super admin
 
 Branch `feat/ref-wilayah-sumbar`. Suite **310 (308 lulus, 2 skip)**. Pint bersih.

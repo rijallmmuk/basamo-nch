@@ -13,6 +13,16 @@ class UmkmCategory extends Model
 
     protected $fillable = ['nama', 'slug', 'icon', 'urutan'];
 
+    protected static function booted(): void
+    {
+        // Auto-urut: kategori baru ditaruh di urutan terakhir (ubah urutan = seret di tabel).
+        static::creating(function (self $category): void {
+            if (empty($category->urutan)) {
+                $category->urutan = (static::max('urutan') ?? 0) + 1;
+            }
+        });
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {

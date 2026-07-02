@@ -24,16 +24,8 @@ class DiscussionsTable
     {
         $isSuperAdmin = (bool) auth()->user()?->isSuperAdmin();
 
+        // Tabel hanya berisi PERTANYAAN (balasan disaring di resource) → tanpa filter Tipe.
         $filters = [
-            SelectFilter::make('tipe')
-                ->label('Tipe')
-                ->options(['thread' => 'Pertanyaan', 'reply' => 'Balasan'])
-                ->query(fn ($query, array $data) => match ($data['value'] ?? null) {
-                    'thread' => $query->whereNull('parent_id'),
-                    'reply' => $query->whereNotNull('parent_id'),
-                    default => $query,
-                }),
-
             SelectFilter::make('module')
                 ->label('Modul')
                 ->relationship('module', 'judul')
@@ -48,7 +40,7 @@ class DiscussionsTable
 
         // Filter desa hanya untuk super_admin (desa_admin sudah ter-scope).
         if ($isSuperAdmin) {
-            array_splice($filters, 2, 0, [
+            array_splice($filters, 1, 0, [
                 SelectFilter::make('desa')
                     ->label('Desa')
                     ->options(fn () => Desa::orderBy('nama')->pluck('nama', 'id'))
@@ -65,13 +57,6 @@ class DiscussionsTable
                 TextColumn::make('no')
                     ->label('No.')
                     ->rowIndex()
-                    ->alignCenter(),
-
-                TextColumn::make('parent_id')
-                    ->label('Tipe')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => $state ? 'Balasan' : 'Pertanyaan')
-                    ->color(fn ($state): string => $state ? 'gray' : 'info')
                     ->alignCenter(),
 
                 TextColumn::make('module.judul')
@@ -102,7 +87,6 @@ class DiscussionsTable
                     ->label('Balasan')
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn ($state, Discussion $record): string => $record->parent_id ? '—' : (string) $state)
                     ->alignCenter(),
 
                 IconColumn::make('is_pinned')

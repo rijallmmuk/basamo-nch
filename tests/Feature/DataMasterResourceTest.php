@@ -13,6 +13,7 @@ use App\Filament\Resources\DataMaster\StatusPerkawinanResource;
 use App\Models\Agama;
 use App\Models\Desa;
 use App\Models\JenisDesa;
+use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -52,17 +53,19 @@ it('admin desa ditolak dari tiap halaman data master', function (string $page, s
     $this->get($resource::getUrl())->assertForbidden();
 })->with('halamanDataMaster');
 
-it('super admin bisa menambah & mengubah entri data master', function () {
+it('super admin bisa menambah & mengubah entri data master; urutan otomatis di akhir', function () {
     actingAs(User::factory()->superAdmin()->create());
+    $maksSebelum = (int) Agama::max('urutan');
 
     Livewire::test(ManageAgama::class)
-        ->callAction('create', ['nama' => 'Aliran Uji', 'urutan' => 50, 'aktif' => true])
+        ->callAction('create', ['nama' => 'Aliran Uji', 'aktif' => true])
         ->assertHasNoActionErrors();
 
     $agama = Agama::where('nama', 'Aliran Uji')->firstOrFail();
+    expect($agama->urutan)->toBe($maksSebelum + 1);
 
     Livewire::test(ManageAgama::class)
-        ->callTableAction('edit', $agama, ['nama' => 'Aliran Uji Ubah', 'urutan' => 51, 'aktif' => false])
+        ->callTableAction('edit', $agama, ['nama' => 'Aliran Uji Ubah', 'aktif' => false])
         ->assertHasNoTableActionErrors();
 
     expect($agama->refresh())
@@ -75,8 +78,21 @@ it('nama data master harus unik', function () {
     Agama::create(['nama' => 'Sudah Ada', 'urutan' => 90, 'aktif' => true]);
 
     Livewire::test(ManageAgama::class)
-        ->callAction('create', ['nama' => 'Sudah Ada', 'urutan' => 91, 'aktif' => true])
+        ->callAction('create', ['nama' => 'Sudah Ada', 'aktif' => true])
         ->assertHasActionErrors(['nama']);
+});
+
+it('pekerjaan baru mendapat kode Dukcapil lanjutan otomatis (kode tak lagi di form)', function () {
+    actingAs(User::factory()->superAdmin()->create());
+
+    Livewire::test(ManagePekerjaan::class)
+        ->callAction('create', ['nama' => 'Pekerjaan Uji', 'aktif' => true])
+        ->assertHasNoActionErrors();
+
+    $pekerjaan = Pekerjaan::where('nama', 'Pekerjaan Uji')->firstOrFail();
+
+    expect($pekerjaan->kode)->not->toBeEmpty()
+        ->and(Pekerjaan::where('kode', $pekerjaan->kode)->count())->toBe(1);
 });
 
 it('entri yang masih dipakai warga tidak bisa dihapus', function () {

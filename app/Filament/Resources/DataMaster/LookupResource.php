@@ -65,13 +65,8 @@ abstract class LookupResource extends Resource
                         ->maxLength(static::$namaMaxLength)
                         ->unique(ignoreRecord: true),
 
-                    TextInput::make('urutan')
-                        ->label('Urutan')
-                        ->helperText('Menentukan urutan tampil di pilihan form. Bisa juga diatur dengan menyeret baris di tabel.')
-                        ->numeric()
-                        ->minValue(0)
-                        ->default(0)
-                        ->required(),
+                    // Urutan TIDAK diisi lewat form: entri baru otomatis di urutan
+                    // terakhir (hook IsLookup); mengubah urutan = seret baris di tabel.
 
                     Toggle::make('aktif')
                         ->label('Aktif')
@@ -98,13 +93,6 @@ abstract class LookupResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make(static::$usageRelation.'_count')
-                    ->label('Dipakai')
-                    ->counts(static::$usageRelation)
-                    ->badge()
-                    ->color('gray')
-                    ->alignCenter(),
-
                 IconColumn::make('aktif')
                     ->label('Aktif')
                     ->boolean()
@@ -121,7 +109,9 @@ abstract class LookupResource extends Resource
             ->defaultSort('urutan')
             ->reorderable('urutan')
             ->recordActions([
-                EditAction::make(),
+                // Kuning = konvensi aksi Ubah yang tampil langsung (sama dgn Wilayah).
+                EditAction::make()
+                    ->color('warning'),
                 DeleteAction::make()
                     ->before(function (Model $record, DeleteAction $action): void {
                         $count = $record->{static::$usageRelation}()->count();

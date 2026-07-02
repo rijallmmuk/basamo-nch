@@ -53,6 +53,9 @@ class DiscussionResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
+            // Hanya PERTANYAAN (top-level) yang dikelola dari tabel ini; baris balasan
+            // tidak ditampilkan (keputusan user) — jumlahnya tampil di kolom "Balasan".
+            ->whereNull('parent_id')
             ->with(['user.desa', 'module'])
             ->withCount('replies')
             ->withoutGlobalScopes([SoftDeletingScope::class]);

@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Quizzes\Tables;
 
+use App\Filament\Resources\Quizzes\QuizResource;
+use App\Models\Quiz;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
@@ -15,8 +18,8 @@ class QuizzesTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Baris TIDAK dapat diklik — buka Ubah lewat aksi (sejajar, tak digabung ⋮).
-            ->recordUrl(null)
+            // Klik baris → buka Edit (pola sama dgn tabel Modul).
+            ->recordUrl(fn (Quiz $record): string => QuizResource::getUrl('edit', ['record' => $record]))
             ->columns([
                 TextColumn::make('no')
                     ->label('No.')
@@ -56,12 +59,16 @@ class QuizzesTable
             ->filters([
                 TrashedFilter::make(),
             ])
+            // Semua aksi baris dalam satu menu ⋮ (pola sama dgn tabel Modul).
             ->recordActions([
-                EditAction::make()
-                    ->color('warning'),
-                DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
+                ])
+                    ->icon('heroicon-m-squares-2x2')
+                    ->tooltip('Aksi'),
             ])
             ->defaultSort('created_at', 'desc');
     }

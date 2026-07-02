@@ -8,6 +8,10 @@
 
 ## ⬅️ AKTIF / NEXT SESSION
 
+- [x] **Konsistensi UI admin** (2026-07-02) — Quiz klik-baris+⋮ (= Modul); Ubah inline
+      kuning semua; kode pekerjaan & kolom Dipakai dibuang; urutan auto-append (form
+      tanpa field urutan, reorder = seret); urutan jenis desa/sub-unit 1-based; Diskusi
+      admin = pertanyaan saja (balasan tak dimoderasi — keputusan user). Suite 311.
 - [x] **CRUD Data Master** (2026-07-02) — grup "Data Master" super-only: Agama/Status
       Perkawinan/Pekerjaan/Penyebutan Desa/Sebutan Sub-Unit (basis LookupResource +
       ManageRecords modal ala Kategori UMKM); guard hapus-terpakai (juga di Kategori UMKM);

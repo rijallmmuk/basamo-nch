@@ -65,12 +65,8 @@ class UmkmCategoryResource extends Resource
                         ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
                         ->maxLength(60),
 
-                    TextInput::make('urutan')
-                        ->label('Urutan')
-                        ->numeric()
-                        ->default(0)
-                        ->required()
-                        ->columnSpanFull(),
+                    // Urutan TIDAK diisi lewat form: kategori baru otomatis di urutan
+                    // terakhir; mengubah urutan = seret baris di tabel.
                 ]),
         ]);
     }
@@ -109,11 +105,15 @@ class UmkmCategoryResource extends Resource
                 TextColumn::make('urutan')
                     ->label('Urutan')
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('urutan')
+            ->reorderable('urutan')
             ->recordActions([
-                EditAction::make(),
+                // Kuning = konvensi aksi Ubah yang tampil langsung (sama dgn Wilayah & Data Master).
+                EditAction::make()
+                    ->color('warning'),
                 // Kategori terpakai tidak boleh dihapus diam-diam (FK SET NULL akan
                 // melepas kategori dari UMKM tanpa jejak) — konsisten dgn Data Master.
                 DeleteAction::make()
