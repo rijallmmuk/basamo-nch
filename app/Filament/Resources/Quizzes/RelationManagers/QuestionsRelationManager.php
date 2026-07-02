@@ -98,7 +98,9 @@ class QuestionsRelationManager extends RelationManager
                     ->label('Tambah Soal'),
             ])
             ->recordActions([
-                EditAction::make(),
+                // Kuning = konvensi aksi Ubah yang tampil langsung (bukan di menu ⋮).
+                EditAction::make()
+                    ->color('warning'),
                 DeleteAction::make(),
             ]);
     }

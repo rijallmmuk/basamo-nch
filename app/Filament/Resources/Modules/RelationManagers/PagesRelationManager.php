@@ -222,7 +222,9 @@ class PagesRelationManager extends RelationManager
                     ->label('Tambah Halaman'),
             ])
             ->recordActions([
-                EditAction::make(),
+                // Kuning = konvensi aksi Ubah yang tampil langsung (bukan di menu ⋮).
+                EditAction::make()
+                    ->color('warning'),
                 // Cegah modul published jadi tanpa materi (warga akan lihat modul kosong
                 // & tak bisa menyelesaikannya). Turunkan ke draft dulu untuk mengosongkan.
                 DeleteAction::make()
