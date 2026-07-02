@@ -4,6 +4,8 @@ use App\Enums\ActiveStatus;
 use App\Enums\PengajuanUmkmStatus;
 use App\Enums\UmkmProductStatus;
 use App\Filament\Resources\UmkmApplications\Pages\ListUmkmApplications;
+use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
+use App\Filament\Resources\UmkmProfiles\Pages\ListUmkmProfiles;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Desa;
 use App\Models\UmkmCategory;
@@ -211,4 +213,65 @@ it('pemberian akses manual saat pengajuan menunggu = menyetujui pengajuan (state
         ->and($profile->refresh()->status_pengajuan)->toBeNull()
         ->and($profile->status)->toBe(ActiveStatus::Active)
         ->and($profile->products()->first()->status)->toBe(UmkmProductStatus::Approved);
+});
+
+it('profil & produk pengajuan tidak bocor ke daftar Profil UMKM dan antrean Verifikasi Produk', function () {
+    $warga = wargaPemohon();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $warga->desa_id]);
+
+    $profile = app(UmkmService::class)->submitApplication(
+        $warga,
+        ['nama_usaha' => 'Lapak Antre', 'whatsapp' => '0812', 'alamat' => 'y'],
+        ['nama_produk' => 'Produk Antre', 'deskripsi' => 'z', 'harga' => 500],
+        [UploadedFile::fake()->image('p.jpg')],
+    );
+
+    actingAs($admin);
+
+    // Dikelola HANYA lewat menu Pengajuan UMKM — bukan dobel di dua tempat lain.
+    Livewire::test(ListUmkmProfiles::class)
+        ->assertCanNotSeeTableRecords([$profile]);
+
+    Livewire::test(ListUmkmProducts::class)
+        ->assertCanNotSeeTableRecords([$profile->products()->first()]);
+
+    // Setelah disetujui, keduanya tampil normal di tempat resmi.
+    app(UmkmService::class)->approveApplication($profile, $admin);
+
+    Livewire::test(ListUmkmProfiles::class)
+        ->assertCanSeeTableRecords([$profile->refresh()]);
+});
+
+it('pengajuan dari warga yang sudah diarsipkan tidak bisa disetujui (aksi tersembunyi)', function () {
+    $warga = wargaPemohon();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $warga->desa_id]);
+
+    $profile = app(UmkmService::class)->submitApplication(
+        $warga,
+        ['nama_usaha' => 'Lapak Yatim', 'whatsapp' => '0812', 'alamat' => 'y'],
+        ['nama_produk' => 'Produk', 'deskripsi' => 'z', 'harga' => 500],
+        [UploadedFile::fake()->image('p.jpg')],
+    );
+
+    $warga->delete(); // pengaju diarsipkan saat pengajuan menggantung
+
+    actingAs($admin);
+    Livewire::test(ListUmkmApplications::class)
+        ->assertTableActionHidden('tinjau', $profile);
+});
+
+it('pengajuan tidak lagi meminta deskripsi profil; alamat tetap wajib', function () {
+    $warga = wargaPemohon();
+
+    $payload = payloadPengajuan();
+    unset($payload['deskripsi']); // field deskripsi profil sudah dihapus dari form
+
+    actingAs($warga)
+        ->post(route('portal.umkm.ajukan.store'), $payload)
+        ->assertSessionDoesntHaveErrors()
+        ->assertRedirect(route('portal.umkm.ajukan'));
+
+    actingAs(wargaPemohon())
+        ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['alamat' => '']))
+        ->assertSessionHasErrors('alamat');
 });

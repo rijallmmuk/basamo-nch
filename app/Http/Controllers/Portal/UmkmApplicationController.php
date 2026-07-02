@@ -61,11 +61,11 @@ class UmkmApplicationController extends Controller
 
         // Semua field pengajuan WAJIB (keputusan user 2026-07-02) — termasuk harga
         // & minimal satu foto produk (foto lama dari pengajuan sebelumnya dihitung).
+        // Profil TANPA deskripsi (keputusan user 2026-07-03); alamat = alamat lengkap.
         $data = $request->validate([
             'nama_usaha' => ['required', 'string', 'max:255'],
             'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
             'whatsapp' => ['required', 'string', 'max:20'],
-            'deskripsi' => ['required', 'string', 'max:2000'],
             'alamat' => ['required', 'string', 'max:500'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'deskripsi_produk' => ['required', 'string', 'max:2000'],
@@ -82,7 +82,6 @@ class UmkmApplicationController extends Controller
                 'nama_usaha' => $data['nama_usaha'],
                 'umkm_category_id' => $data['umkm_category_id'],
                 'whatsapp' => $data['whatsapp'],
-                'deskripsi' => $data['deskripsi'],
                 'alamat' => $data['alamat'],
             ],
             [

@@ -148,7 +148,10 @@ class UmkmApplicationResource extends Resource
                     ->label('Tinjau & Setujui')
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
+                    // Guard pengaju hilang (akun diarsipkan saat pengajuan menggantung):
+                    // tanpa pemilik, tak ada yang bisa diberi akses — jangan bisa disetujui.
                     ->visible(fn (UmkmProfile $record): bool => $record->status_pengajuan === PengajuanUmkmStatus::Menunggu
+                        && $record->owner !== null
                         && auth()->user()->can('update', $record))
                     ->modalHeading(fn (UmkmProfile $record): string => 'Pengajuan: '.$record->nama_usaha)
                     ->modalContent(fn (UmkmProfile $record) => view('filament.umkm-application-detail', ['profile' => $record]))

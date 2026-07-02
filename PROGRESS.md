@@ -6,6 +6,34 @@
 
 ---
 
+## Sesi 2026-07-03 — Audit pengajuan UMKM + UX informatif (keputusan user)
+
+Branch `feat/ref-wilayah-sumbar`. Suite **339 (337 lulus, 2 skip)**. Pint bersih. Build ✓.
+
+**Audit robustness — 3 lubang ditemukan & ditutup:**
+- **Antrean ganda**: profil pengajuan tampil juga di daftar "Profil UMKM" & produknya
+  antre juga di "Verifikasi Produk" (admin bisa setuju separuh / bingung dua tempat).
+  Fix: kedua resource `whereNull('status_pengajuan')` (list + route-binding Profil UMKM)
+  — pengajuan HANYA dikelola lewat menu "Pengajuan UMKM".
+- **Pengaju hilang**: warga diarsipkan saat pengajuan menggantung → aksi Tinjau &
+  Setujui disembunyikan (tanpa pemilik tak ada yang bisa diberi akses; cegah lapak yatim).
+
+**UX form pengajuan (keputusan user 2026-07-03):**
+- **Deskripsi profil DIHAPUS** dari pengajuan (validasi+service+form); deskripsi PRODUK tetap wajib.
+- **Alamat = "Alamat lengkap usaha"** (wajib): placeholder contoh ber-jorong+patokan+desa,
+  helper "tulis selengkap mungkin".
+- **Pratinjau produk HIDUP** (Alpine, sticky kanan): kartu ala katalog publik — foto
+  (FileReader dari unggahan / foto lama), nama, harga terformat id-ID, deskripsi
+  line-clamp, nama usaha + mock tombol WhatsApp. "Begini produkmu tampil di katalog."
+- **Strip 3 langkah** di atas form: (1) isi profil + 1 produk terbaik → (2) admin
+  meninjau, hasil di lonceng → (3) lapak tayang & "tambahkan SEMUA produk lewat
+  Produk Saya — tanpa batas". Copy "cukup SATU produk" ditegaskan di section produk
+  & halaman status menunggu. Anti-ambigu.
+- Test +3 (total `UmkmApplicationTest` 11): anti-bocor 2 antrean, pengaju terarsip,
+  tanpa-deskripsi + alamat wajib.
+
+---
+
 ## Sesi 2026-07-02 (lanjutan 10) — UMKM: pengajuan akses mandiri oleh warga (fitur baru)
 
 Branch `feat/ref-wilayah-sumbar`. Suite **336 (334 lulus, 2 skip)**. Pint bersih. Build ✓.

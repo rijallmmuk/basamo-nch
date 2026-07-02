@@ -84,7 +84,11 @@ class UmkmProductResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return static::scopeToActor(
-            parent::getEloquentQuery()->with(['umkmProfile.desa', 'umkmProfile.owner'])
+            parent::getEloquentQuery()
+                // Produk bawaan PENGAJUAN tidak antre di sini — ia disetujui sepaket
+                // lewat menu "Pengajuan UMKM" (cegah antrean ganda / setuju separuh).
+                ->whereHas('umkmProfile', fn (Builder $q) => $q->whereNull('status_pengajuan'))
+                ->with(['umkmProfile.desa', 'umkmProfile.owner'])
         );
     }
 

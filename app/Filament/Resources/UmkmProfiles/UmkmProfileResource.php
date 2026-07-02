@@ -78,6 +78,9 @@ class UmkmProfileResource extends Resource
     {
         return static::scopeToActor(
             parent::getEloquentQuery()
+                // Lapak resmi saja — profil pengajuan (menunggu/ditolak) dikelola
+                // lewat menu "Pengajuan UMKM", jangan tampil ganda di sini.
+                ->whereNull('status_pengajuan')
                 ->with(['desa', 'owner', 'category'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
@@ -87,6 +90,9 @@ class UmkmProfileResource extends Resource
     {
         return static::scopeToActor(
             parent::getRecordRouteBindingEloquentQuery()
+                // Profil pengajuan tak bisa dibuka/diedit dari resource ini (URL
+                // langsung sekalipun) — keputusannya lewat menu "Pengajuan UMKM".
+                ->whereNull('status_pengajuan')
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
