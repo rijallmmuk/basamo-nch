@@ -139,7 +139,10 @@ it('menyetujui pengajuan: akses aktif, lapak tayang, produk ikut disetujui, warg
 
     actingAs($admin);
     Livewire::test(ListUmkmApplications::class)
-        ->callTableAction('tinjau', $profile);
+        ->callAction([
+            TestAction::make('tinjau')->table($profile),
+            TestAction::make('setujui'),
+        ]);
 
     $profile->refresh();
     expect($warga->fresh()->hasUmkmAccess())->toBeTrue()
@@ -266,10 +269,13 @@ it('pengajuan dari warga yang sudah diarsipkan tidak bisa disetujui (hanya bisa 
 
     actingAs($admin);
 
-    // Modal tinjau tetap bisa dibuka (untuk menolak), tapi submit Setujui
-    // digagalkan guard server — status tetap menunggu, tak ada akses terbit.
+    // Modal tinjau tetap bisa dibuka (untuk menolak), tapi tombol Setujui
+    // disembunyikan — status tetap menunggu, tak ada akses terbit.
     Livewire::test(ListUmkmApplications::class)
-        ->callTableAction('tinjau', $profile);
+        ->assertActionHidden([
+            TestAction::make('tinjau')->table($profile),
+            TestAction::make('setujui'),
+        ]);
 
     expect($profile->refresh()->status_pengajuan)->toBe(PengajuanUmkmStatus::Menunggu)
         ->and($profile->status)->toBe(ActiveStatus::Inactive);

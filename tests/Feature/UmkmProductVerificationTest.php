@@ -42,7 +42,10 @@ it('menyetujui produk menyetel jejak verifikasi dan memberi tahu pemilik', funct
     $this->actingAs($admin);
 
     Livewire::test(ListUmkmProducts::class)
-        ->callTableAction('tinjau', $product);
+        ->callAction([
+            TestAction::make('tinjau')->table($product),
+            TestAction::make('setujui'),
+        ]);
 
     $product->refresh();
     expect($product->status->value)->toBe('approved')

@@ -1,7 +1,6 @@
 @extends('portal.layouts.app')
 
 @section('title', 'Ajukan Akses UMKM')
-@section('main-width', 'max-w-6xl')
 
 @php
     $inputClass = 'block w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-2.5 text-sm text-on-surface shadow-sm transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20';
@@ -303,13 +302,14 @@
                 </p>
             </aside>
 
-            {{-- Tombol di bawah semua konten: urutan mobile jadi form → pratinjau → kirim. --}}
+            {{-- Tombol di bawah semua konten (Batal kiri, aksi utama kanan):
+                 urutan mobile jadi form → pratinjau → kirim. --}}
             <div class="flex items-center gap-3 lg:col-span-full">
+                <x-portal.button :href="route('portal.home')" variant="ghost">Batal</x-portal.button>
                 <x-portal.button type="submit" size="lg">
                     <x-heroicon-o-paper-airplane class="h-5 w-5" />
                     {{ $ditolak ? 'Ajukan Ulang' : 'Kirim Pengajuan' }}
                 </x-portal.button>
-                <x-portal.button :href="route('portal.home')" variant="ghost">Batal</x-portal.button>
             </div>
         </form>
     @endif

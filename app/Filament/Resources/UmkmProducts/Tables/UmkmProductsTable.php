@@ -84,17 +84,10 @@ class UmkmProductsTable
                     ->modalHeading(fn (UmkmProduct $record): string => 'Produk: '.$record->nama_produk)
                     ->modalContent(fn (UmkmProduct $record) => view('filament.umkm-product-detail', ['product' => $record]))
                     ->modalWidth('2xl')
-                    ->modalSubmitActionLabel('Setujui Produk')
-                    ->modalSubmitAction(fn ($action, UmkmProduct $record) => $action->hidden($record->status === UmkmProductStatus::Approved))
-                    ->action(function (UmkmProduct $record): void {
-                        app(UmkmService::class)->verifyProduct($record, UmkmProductStatus::Approved, Auth::id());
-
-                        Notification::make()
-                            ->title('Produk disetujui')
-                            ->body("\"{$record->nama_produk}\" tayang di katalog publik. Pemilik diberi tahu.")
-                            ->success()
-                            ->send();
-                    })
+                    // Keputusan diambil DI DALAM modal (tanpa submit bawaan):
+                    // Tolak & Setujui masing-masing minta konfirmasi dulu.
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
                     ->extraModalFooterActions([
                         Action::make('tolak')
                             ->label('Tolak…')
@@ -102,7 +95,7 @@ class UmkmProductsTable
                             ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
                             ->modalHeading('Tolak produk')
                             ->modalDescription('Alasan ditampilkan ke pemilik — ia dapat memperbaiki lalu mengajukan ulang.')
-                            ->modalSubmitActionLabel('Tolak')
+                            ->modalSubmitActionLabel('Ya, Tolak')
                             ->schema([
                                 Textarea::make('alasan_penolakan')
                                     ->label('Alasan penolakan')
@@ -117,6 +110,25 @@ class UmkmProductsTable
                                 Notification::make()
                                     ->title('Produk ditolak')
                                     ->body('Pemilik diberi tahu beserta alasannya.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->cancelParentActions(),
+
+                        Action::make('setujui')
+                            ->label('Setujui Produk')
+                            ->color('success')
+                            ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
+                            ->requiresConfirmation()
+                            ->modalHeading('Setujui produk ini?')
+                            ->modalDescription('Produk langsung tayang di katalog publik selama lapak pemiliknya aktif.')
+                            ->modalSubmitActionLabel('Ya, Setujui')
+                            ->action(function (UmkmProduct $record): void {
+                                app(UmkmService::class)->verifyProduct($record, UmkmProductStatus::Approved, Auth::id());
+
+                                Notification::make()
+                                    ->title('Produk disetujui')
+                                    ->body("\"{$record->nama_produk}\" tayang di katalog publik. Pemilik diberi tahu.")
                                     ->success()
                                     ->send();
                             })

@@ -51,8 +51,8 @@
             </div>
 
             <div class="flex items-center gap-3 pt-1">
-                <x-portal.button type="submit">Simpan Profil</x-portal.button>
                 <x-portal.button :href="route('portal.umkm.index')" variant="ghost">Batal</x-portal.button>
+                <x-portal.button type="submit">Simpan Profil</x-portal.button>
             </div>
         </form>
     </x-portal.card>

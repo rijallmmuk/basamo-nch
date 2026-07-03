@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\View\PanelsIconAlias;
 use Illuminate\Support\Facades\Gate;
@@ -33,5 +34,16 @@ class AppServiceProvider extends ServiceProvider
             PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON => 'heroicon-m-bars-3',
             PanelsIconAlias::SIDEBAR_EXPAND_BUTTON => 'heroicon-m-bars-3',
         ]);
+
+        // Urutan tombol footer modal DIBALIK se-aplikasi (keputusan user):
+        // Batal di kiri, aksi utama paling kanan — konsisten dgn modal portal
+        // warga (confirm-dialog & profil). Bawaan Filament: submit dulu.
+        Action::configureUsing(function (Action $action): void {
+            $action->modalFooterActions(fn (Action $action): array => array_values(array_filter([
+                $action->getModalCancelAction(),
+                ...$action->getExtraModalFooterActions(),
+                $action->getModalSubmitAction(),
+            ])));
+        });
     }
 }

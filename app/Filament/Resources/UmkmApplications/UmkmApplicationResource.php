@@ -154,36 +154,17 @@ class UmkmApplicationResource extends Resource
                     ->modalHeading(fn (UmkmProfile $record): string => 'Pengajuan: '.$record->nama_usaha)
                     ->modalContent(fn (UmkmProfile $record) => view('filament.umkm-application-detail', ['profile' => $record]))
                     ->modalWidth('2xl')
-                    ->modalSubmitActionLabel('Setujui Pengajuan')
-                    // Pengaju hilang (akun diarsipkan): tak ada yang bisa diberi
-                    // akses — tombol Setujui disembunyikan, sisanya hanya Tolak.
-                    ->modalSubmitAction(fn ($action, UmkmProfile $record) => $action->hidden($record->owner === null))
-                    ->action(function (UmkmProfile $record): void {
-                        if ($record->owner === null) {
-                            Notification::make()
-                                ->title('Tidak bisa disetujui')
-                                ->body('Pengaju sudah diarsipkan — pengajuan hanya bisa ditolak.')
-                                ->danger()
-                                ->send();
-
-                            return;
-                        }
-
-                        app(UmkmService::class)->approveApplication($record, auth()->user());
-
-                        Notification::make()
-                            ->title('Pengajuan disetujui')
-                            ->body("{$record->owner?->name} kini Pemilik UMKM — lapak & produknya tayang di katalog.")
-                            ->success()
-                            ->send();
-                    })
+                    // Keputusan diambil DI DALAM modal (tanpa submit bawaan):
+                    // Tolak & Setujui masing-masing minta konfirmasi dulu.
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
                     ->extraModalFooterActions([
                         Action::make('tolak')
                             ->label('Tolak…')
                             ->color('danger')
                             ->modalHeading('Tolak pengajuan')
                             ->modalDescription('Alasan ditampilkan ke warga — ia dapat memperbaiki lalu mengajukan ulang.')
-                            ->modalSubmitActionLabel('Tolak')
+                            ->modalSubmitActionLabel('Ya, Tolak')
                             ->schema([
                                 Textarea::make('alasan')
                                     ->label('Alasan penolakan')
@@ -198,6 +179,27 @@ class UmkmApplicationResource extends Resource
                                 Notification::make()
                                     ->title('Pengajuan ditolak')
                                     ->body('Warga diberi tahu beserta alasannya.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->cancelParentActions(),
+
+                        Action::make('setujui')
+                            ->label('Setujui Pengajuan')
+                            ->color('success')
+                            // Pengaju hilang (akun diarsipkan): tak ada yang bisa
+                            // diberi akses — hanya tersisa Tolak.
+                            ->visible(fn (UmkmProfile $record): bool => $record->owner !== null)
+                            ->requiresConfirmation()
+                            ->modalHeading('Setujui pengajuan ini?')
+                            ->modalDescription('Akses UMKM warga langsung aktif; lapak & produknya tayang di katalog publik.')
+                            ->modalSubmitActionLabel('Ya, Setujui')
+                            ->action(function (UmkmProfile $record): void {
+                                app(UmkmService::class)->approveApplication($record, auth()->user());
+
+                                Notification::make()
+                                    ->title('Pengajuan disetujui')
+                                    ->body("{$record->owner?->name} kini Pemilik UMKM — lapak & produknya tayang di katalog.")
                                     ->success()
                                     ->send();
                             })

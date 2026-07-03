@@ -27,6 +27,7 @@ class UmkmProductController extends Controller
 
         return view('portal.umkm.product-form', [
             'product' => null,
+            'namaUsaha' => $profile->nama_usaha,
             ...$this->kategoriViewData(),
         ]);
     }
@@ -50,6 +51,7 @@ class UmkmProductController extends Controller
 
         return view('portal.umkm.product-form', [
             'product' => $product->load('media'),
+            'namaUsaha' => $product->umkmProfile?->nama_usaha ?? '',
             ...$this->kategoriViewData(),
         ]);
     }
