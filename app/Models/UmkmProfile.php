@@ -36,6 +36,18 @@ class UmkmProfile extends Model
         static::forceDeleting(function (self $profile): void {
             $profile->products()->withTrashed()->get()->each->forceDelete();
         });
+
+        // Lapak dihapus (arsip MAUPUN permanen) → kapabilitas UMKM pemilik ikut
+        // dicabut; dipulihkan → kapabilitas kembali. Tanpa ini warga tanpa lapak
+        // tetap pegang akses "Produk Saya" yang menggantung. (Event 'deleted'
+        // juga berjalan saat force delete.)
+        static::deleted(function (self $profile): void {
+            $profile->owner?->update(['umkm_access_granted_at' => null]);
+        });
+
+        static::restored(function (self $profile): void {
+            $profile->owner?->update(['umkm_access_granted_at' => now()]);
+        });
     }
 
     /** @return array<string, string> */

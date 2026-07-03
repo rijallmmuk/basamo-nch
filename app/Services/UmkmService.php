@@ -31,9 +31,16 @@ class UmkmService
     {
         // Query segar (bukan relasi ter-cache) — cegah dobel-create saat instance
         // user yang sama dipakai lintas pemanggilan dengan relasi null yang basi.
-        $profile = $owner->umkmProfile()->first();
+        // withTrashed: user_id UNIK (1 warga = 1 lapak) — lapak terarsip dipakai
+        // ulang (dipulihkan senyap, TANPA event restored yang menghidupkan akses,
+        // karena jalur ini juga dipakai pengajuan yang belum tentu disetujui).
+        $profile = $owner->umkmProfile()->withTrashed()->first();
 
         if ($profile) {
+            if ($profile->trashed()) {
+                $profile->restoreQuietly();
+            }
+
             $profile->update($data);
 
             return $profile;

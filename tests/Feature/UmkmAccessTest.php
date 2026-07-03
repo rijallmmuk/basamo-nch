@@ -63,3 +63,41 @@ it('memberi ulang akses mengaktifkan kembali lapak yang dinonaktifkan saat dicab
     expect($owner->refresh()->hasUmkmAccess())->toBeTrue()
         ->and($profile->refresh()->status->value)->toBe('active');
 });
+
+it('menghapus lapak (arsip maupun permanen) ikut mencabut akses UMKM; pulihkan mengembalikannya', function () {
+    $desa = Desa::factory()->create();
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create([
+        'desa_id' => $desa->id, 'user_id' => $owner->id, 'status' => 'active',
+    ]);
+
+    $profile->delete(); // arsip
+    expect($owner->refresh()->hasUmkmAccess())->toBeFalse();
+
+    $profile->restore();
+    expect($owner->refresh()->hasUmkmAccess())->toBeTrue();
+
+    $profile->forceDelete(); // permanen
+    expect($owner->refresh()->hasUmkmAccess())->toBeFalse();
+});
+
+it('lapak terarsip dipakai ulang saat warga mengisi profil lagi (tanpa bentrok unik user_id)', function () {
+    $desa = Desa::factory()->create();
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
+    $lama = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
+
+    $lama->delete(); // akses ikut tercabut (event deleted)
+    $owner->refresh()->update(['umkm_access_granted_at' => now()]); // admin beri akses lagi
+
+    $this->actingAs($owner)
+        ->post(route('portal.umkm.profile.store'), [
+            'nama_usaha' => 'Lapak Baru',
+            'whatsapp' => '08123456789',
+            'alamat' => 'Jorong Baru, dekat surau',
+        ])
+        ->assertRedirect(route('portal.umkm.index'));
+
+    expect(UmkmProfile::withTrashed()->where('user_id', $owner->id)->count())->toBe(1)
+        ->and($lama->refresh()->trashed())->toBeFalse()
+        ->and($lama->nama_usaha)->toBe('Lapak Baru');
+});
