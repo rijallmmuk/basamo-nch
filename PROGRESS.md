@@ -19,6 +19,14 @@ filament/partials/photo-lightbox, x-teleport); kartu "Pengajuan sedang ditinjau"
 klien (photo-picker canvas 1920px JPEG q0.8) + server (Spatie Image Fit::Max 1920 q80 —
 WAJIB save() ke path berekstensi, tmp upload tanpa ekstensi); validasi 10MB/foto.
 PRODUKSI: upload_max_filesize ≥10M, post_max_size ≥55M.
+**Reversibility (commit e09e983, keputusan user "semua aksi reversible")**: audit — hampir
+semua SUDAH reversible (verifikasi produk dua arah via Tinjau, pengajuan, akses beri↔cabut,
+restore di 7 resource); gap ditutup: produk dihapus warga kini bisa dipulihkan admin
+(TrashedFilter+Restore/ForceDelete di Verifikasi Produk + policy restore/forceDelete
+desa_admin + query withoutGlobalScopes; Tinjau hidden utk trashed); copy hapus portal
+diperbaiki (dulu bohong "permanen"). Sadar by-design tak reversible: hapus foto edit
+produk, XP/attempt kuis, kategori hard-delete-terjaga. Suite 348 (346, 2 skip).
+
 **Tombol & konfirmasi (commit 3ca1135, keputusan user)**: urutan tombol aksi DIBALIK
 se-aplikasi (Batal kiri, aksi utama kanan; Filament global `Action::configureUsing`
 modalFooterActions=[cancel,extra,submit] di AppServiceProvider; 3 form UMKM portal
