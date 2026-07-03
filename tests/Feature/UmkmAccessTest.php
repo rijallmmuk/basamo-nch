@@ -43,3 +43,23 @@ it('admin desa mencabut akses UMKM dan menonaktifkan lapaknya', function () {
         // Lapak keluar dari katalog publik (U3).
         ->and($profile->refresh()->status->value)->toBe('inactive');
 });
+
+it('memberi ulang akses mengaktifkan kembali lapak yang dinonaktifkan saat dicabut', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create([
+        'desa_id' => $desa->id, 'user_id' => $owner->id, 'status' => 'active',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)->callTableAction('cabutAksesUmkm', $owner);
+    expect($profile->refresh()->status->value)->toBe('inactive');
+
+    // Janji modal cabut: "bisa diaktifkan lagi bila akses dipulihkan".
+    Livewire::test(ListUsers::class)->callTableAction('beriAksesUmkm', $owner->refresh());
+
+    expect($owner->refresh()->hasUmkmAccess())->toBeTrue()
+        ->and($profile->refresh()->status->value)->toBe('active');
+});

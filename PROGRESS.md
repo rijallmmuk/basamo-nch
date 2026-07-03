@@ -43,6 +43,21 @@ verifikasi); "hasil masuk lonceng notifikasi" dibuang (bocor mekanisme, tak berg
 penjual) → copy fokus hasil & jalan perbaikan bila ditolak. Login page tetap generik
 (belum ada konteks desa). Test +assert "Admin Nagari meninjau".
 
+**AUDIT pra-verifikasi (permintaan user: robust sebelum lanjut tahap verifikasi admin) —
+3 area: CRUD Kategori super admin, pengajuan mandiri warga, jalur beri-akses-langsung.
+Verdict: fondasi SOLID, 1 bug + 4 gap difix:**
+- BUG: beri-ulang akses pasca-cabut TIDAK mengaktifkan kembali lapak (janji modal cabut
+  bohong; profil Inactive selamanya kecuali admin manual) → grant kini transaksional:
+  granted_at + reaktivasi profil (jalur pengajuan-menggantung tetap approveApplication).
+- Nama kategori kini `unique` (konvensi Data Master); guard hapus-terpakai + unik ter-test.
+- WhatsApp portal (pengajuan & profil) kini regex nomor (huruf lolos → wa.me kosong);
+  admin sudah aman via ->tel().
+- Kode mati `$profile->deskripsi` di index portal dihapus (kolom sudah di-drop).
+- Flash middleware umkm.owner "hubungi Admin Desa" → dinamis Admin {jenis desa}.
+Sadar-DIBIARKAN: kolom icon kategori belum dipakai di tampilan; slug kategori regenerasi
+saat rename (tak dipakai URL publik); desa_id profil tak ikut bila warga pindah desa
+(transfer warga memang belum ada). Suite 346 (344 lulus, 2 skip).
+
 ---
 
 ## Sesi 2026-07-03 (lanjutan 2) — Panduan pengisian produk per kategori (commit a37c220)

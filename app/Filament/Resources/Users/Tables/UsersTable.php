@@ -231,7 +231,13 @@ class UsersTable
                             if ($profile?->status_pengajuan !== null) {
                                 app(UmkmService::class)->approveApplication($profile, auth()->user());
                             } else {
-                                $record->update(['umkm_access_granted_at' => now()]);
+                                // Pulihkan sekalian lapak yang dinonaktifkan saat akses
+                                // dicabut — sesuai janji modal cabut ("bisa diaktifkan
+                                // lagi bila akses dipulihkan").
+                                DB::transaction(function () use ($record, $profile): void {
+                                    $record->update(['umkm_access_granted_at' => now()]);
+                                    $profile?->update(['status' => ActiveStatus::Active]);
+                                });
                             }
 
                             Notification::make()

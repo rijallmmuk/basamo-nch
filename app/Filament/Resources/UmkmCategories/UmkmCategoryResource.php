@@ -58,7 +58,9 @@ class UmkmCategoryResource extends Resource
                     TextInput::make('nama')
                         ->label('Nama kategori')
                         ->required()
-                        ->maxLength(100),
+                        ->maxLength(100)
+                        // Konsisten dgn Data Master: nama referensi global unik.
+                        ->unique(ignoreRecord: true),
 
                     TextInput::make('icon')
                         ->label('Ikon (Heroicon)')

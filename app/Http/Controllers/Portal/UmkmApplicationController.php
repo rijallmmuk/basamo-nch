@@ -70,7 +70,7 @@ class UmkmApplicationController extends Controller
         $data = $request->validate([
             'nama_usaha' => ['required', 'string', 'max:255'],
             'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
-            'whatsapp' => ['required', 'string', 'max:20'],
+            'whatsapp' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9][0-9 ().\-\/]{6,18}$/'],
             'alamat' => ['required', 'string', 'max:500'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'deskripsi_produk' => ['required', 'string', 'min:30', 'max:5000'],
@@ -78,6 +78,7 @@ class UmkmApplicationController extends Controller
             'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
         ], [
+            'whatsapp.regex' => 'Isi nomor WhatsApp yang valid, mis. 08123456789.',
             'photos.required' => 'Unggah minimal satu foto produk.',
             'deskripsi_produk.min' => 'Jelaskan produkmu lebih lengkap (minimal 30 karakter) — ikuti panduan di bawah kolom deskripsi.',
         ]);

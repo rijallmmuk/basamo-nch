@@ -103,6 +103,10 @@ it('semua field pengajuan wajib: tanpa foto / tanpa harga ditolak validasi', fun
         ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['harga' => null]))
         ->assertSessionHasErrors('harga');
 
+    actingAs($warga)
+        ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['whatsapp' => 'nol delapan satu dua']))
+        ->assertSessionHasErrors('whatsapp');
+
     expect(UmkmProfile::count())->toBe(0);
 });
 

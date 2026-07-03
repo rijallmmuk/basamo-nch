@@ -38,8 +38,10 @@ class UmkmController extends Controller
         $data = $request->validate([
             'nama_usaha' => ['required', 'string', 'max:255'],
             'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
-            'whatsapp' => ['required', 'string', 'max:20'],
+            'whatsapp' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9][0-9 ().\-\/]{6,18}$/'],
             'alamat' => ['required', 'string', 'max:500'],
+        ], [
+            'whatsapp.regex' => 'Isi nomor WhatsApp yang valid, mis. 08123456789.',
         ]);
 
         $this->umkm->saveProfile(auth()->user(), $data);

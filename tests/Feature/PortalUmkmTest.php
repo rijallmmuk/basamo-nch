@@ -52,6 +52,17 @@ it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
     $profile = $owner->fresh()->umkmProfile;
     expect($profile->nama_usaha)->toBe('Keripik Sanjai')
         ->and($profile->desa_id)->toBe($owner->desa_id);
+
+    // Nomor WhatsApp harus berformat nomor (huruf ditolak) — link wa.me
+    // di katalog publik bergantung pada nomor yang valid.
+    $this->actingAs($owner)
+        ->post(route('portal.umkm.profile.store'), [
+            'nama_usaha' => 'Keripik Sanjai',
+            'umkm_category_id' => UmkmCategory::first()->id,
+            'whatsapp' => 'nol delapan satu dua',
+            'alamat' => 'Jorong Koto Tuo',
+        ])
+        ->assertSessionHasErrors('whatsapp');
 });
 
 it('pemilik menambah produk berstatus pending dengan foto', function () {

@@ -47,9 +47,6 @@
                         <h2 class="truncate text-lg font-bold text-on-surface">{{ $profile->nama_usaha }}</h2>
                         <span class="inline-flex shrink-0 items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $profile->category?->nama }}</span>
                     </div>
-                    @if($profile->deskripsi)
-                        <p class="mt-1.5 text-sm text-on-surface-variant">{{ $profile->deskripsi }}</p>
-                    @endif
                     <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-on-surface-variant">
                         <span class="inline-flex items-center gap-1.5"><x-heroicon-o-phone class="h-4 w-4 text-outline" /> {{ $profile->whatsapp }}</span>
                         @if($profile->alamat)
