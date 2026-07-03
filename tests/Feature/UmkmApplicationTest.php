@@ -287,7 +287,7 @@ it('kategori bawaan ter-seed dengan panduan & contoh deskripsi produk', function
         ->and(UmkmCategory::whereNotNull('contoh_deskripsi')->count())->toBe(7);
 });
 
-it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi)', function () {
+it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi), tapi boleh rinci sampai 5000', function () {
     $warga = wargaPemohon();
 
     actingAs($warga)
@@ -295,6 +295,12 @@ it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi)', function ()
         ->assertSessionHasErrors('deskripsi_produk');
 
     expect(UmkmProfile::count())->toBe(0);
+
+    // Penjual yang mau menulis detail panjang TIDAK dicegah (batas longgar 5000).
+    actingAs($warga)
+        ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['deskripsi_produk' => str_repeat('Detail lengkap produk. ', 130)]))
+        ->assertSessionDoesntHaveErrors()
+        ->assertRedirect(route('portal.umkm.ajukan'));
 });
 
 it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & menegakkan min 30 karakter', function () {
@@ -310,7 +316,7 @@ it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & me
         ->assertOk()
         ->assertSee('Cukup sebutkan:')
         ->assertSee('Berat atau isi per kemasan')
-        ->assertSee('detail lain bisa ditanyakan pembeli lewat WhatsApp')
+        ->assertSee('bisa ditanyakan pembeli lewat WhatsApp')
         ->assertSee('Keripik singkong balado'); // contoh deskripsi sekali klik
 
     actingAs($owner)

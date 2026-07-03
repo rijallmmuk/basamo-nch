@@ -18,6 +18,11 @@ editable super admin via Kategori UMKM, label "Bingung mulai? Pakai contoh…");
 penenang "Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp"
 di kotak panduan (apply + product-form). Header kotak → "Cukup sebutkan:". DB live sudah
 di-ALTER + 7 baris diperbarui. Test panduan/contoh diperbarui (+assert contoh & kalimat WA).
+**Penajaman (benchmark Shopee/Tokopedia, arahan user "jangan cegah detail, jangan minta
+detail")**: kalimat penenang → "Boleh singkat, boleh rinci — deskripsi lengkap membuat
+lapak makin meyakinkan…"; max deskripsi 2000→5000 (kedua form); katalog publik terverifikasi
+`whitespace-pre-line` (deskripsi multi-baris rapi). Field terstruktur ala marketplace
+(varian/stok/berat) SENGAJA ditunda sampai transaksi in-app benar-benar dibangun.
 
 ---
 

@@ -73,7 +73,7 @@ class UmkmApplicationController extends Controller
             'whatsapp' => ['required', 'string', 'max:20'],
             'alamat' => ['required', 'string', 'max:500'],
             'nama_produk' => ['required', 'string', 'max:255'],
-            'deskripsi_produk' => ['required', 'string', 'min:30', 'max:2000'],
+            'deskripsi_produk' => ['required', 'string', 'min:30', 'max:5000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
             'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.UmkmService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],

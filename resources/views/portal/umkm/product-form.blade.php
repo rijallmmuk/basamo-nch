@@ -63,7 +63,8 @@
                             @endforeach
                         </ul>
                         <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
-                            Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp.
+                            Boleh singkat, boleh rinci — deskripsi lengkap membuat lapak makin meyakinkan.
+                            Detail lainnya bisa ditanyakan pembeli lewat WhatsApp.
                         </p>
                         @if(filled($contoh ?? null))
                             <button type="button" x-show="! deskripsi.trim()" @click="deskripsi = @js($contoh)"

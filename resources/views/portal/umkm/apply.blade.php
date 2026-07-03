@@ -180,7 +180,8 @@
                                     </template>
                                 </ul>
                                 <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
-                                    Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp.
+                                    Boleh singkat, boleh rinci — deskripsi lengkap membuat lapak makin meyakinkan.
+                                    Detail lainnya bisa ditanyakan pembeli lewat WhatsApp.
                                 </p>
                                 <button type="button" x-show="! deskripsiProduk.trim() && contohAktif()" @click="deskripsiProduk = contohAktif()"
                                     class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
