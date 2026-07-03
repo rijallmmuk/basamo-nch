@@ -1,6 +1,7 @@
 @extends('portal.layouts.app')
 
 @section('title', 'Ajukan Akses UMKM')
+@section('main-width', 'max-w-6xl')
 
 @php
     $inputClass = 'block w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-2.5 text-sm text-on-surface shadow-sm transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20';
@@ -28,7 +29,7 @@
     </div>
 
     {{-- ── Cara kerja: 3 langkah (jelas sejak awal, tanpa tanda tanya) ── --}}
-    <div class="mb-5 grid gap-3 sm:grid-cols-3">
+    <div class="mb-5 grid gap-3 md:grid-cols-3">
         @foreach([
             ['1', 'Isi profil usaha + 1 produk terbaik', 'Cukup SATU produk unggulan untuk pengajuan.'],
             ['2', 'Admin Desa meninjau', 'Hasilnya masuk ke lonceng notifikasi — disetujui atau ditolak beserta alasannya.'],
@@ -95,10 +96,10 @@
             }"
             {{-- Kartu pratinjau ikut foto pertama dari pemilih foto (fallback: foto lama). --}}
             @photos-updated="fotoUrl = $event.detail.firstUrl ?? fotoAwal"
-            class="grid items-start gap-5 lg:grid-cols-5">
+            class="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
             @csrf
 
-            <div class="space-y-5 lg:col-span-3">
+            <div class="space-y-5">
                 {{-- ── Profil usaha ── --}}
                 <x-portal.card>
                     <h2 class="mb-4 flex items-center gap-2 font-bold text-on-surface">
@@ -217,18 +218,10 @@
                         </div>
                     </div>
                 </x-portal.card>
-
-                <div class="flex items-center gap-3">
-                    <x-portal.button type="submit" size="lg">
-                        <x-heroicon-o-paper-airplane class="h-5 w-5" />
-                        {{ $ditolak ? 'Ajukan Ulang' : 'Kirim Pengajuan' }}
-                    </x-portal.button>
-                    <x-portal.button :href="route('portal.home')" variant="ghost">Batal</x-portal.button>
-                </div>
             </div>
 
             {{-- ── Preview hidup: begini tampil produkmu di katalog ── --}}
-            <aside class="lg:sticky lg:top-20 lg:col-span-2">
+            <aside class="lg:sticky lg:top-20">
                 <p class="mb-2 flex items-center gap-1.5 text-sm font-semibold text-on-surface">
                     <x-heroicon-o-eye class="h-4 w-4 text-primary" /> Pratinjau di katalog
                 </p>
@@ -260,6 +253,15 @@
                     Begini kurang-lebih produkmu tampil di katalog publik setelah pengajuan disetujui.
                 </p>
             </aside>
+
+            {{-- Tombol di bawah semua konten: urutan mobile jadi form → pratinjau → kirim. --}}
+            <div class="flex items-center gap-3 lg:col-span-full">
+                <x-portal.button type="submit" size="lg">
+                    <x-heroicon-o-paper-airplane class="h-5 w-5" />
+                    {{ $ditolak ? 'Ajukan Ulang' : 'Kirim Pengajuan' }}
+                </x-portal.button>
+                <x-portal.button :href="route('portal.home')" variant="ghost">Batal</x-portal.button>
+            </div>
         </form>
     @endif
 @endsection

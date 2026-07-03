@@ -1,6 +1,7 @@
 @extends('portal.layouts.app')
 
 @section('title', $product ? 'Ubah Produk' : 'Tambah Produk')
+@section('main-width', 'max-w-3xl')
 
 @php
     $inputClass = 'block w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-2.5 text-sm text-on-surface shadow-sm transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20';
