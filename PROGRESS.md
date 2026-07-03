@@ -19,6 +19,11 @@ filament/partials/photo-lightbox, x-teleport); kartu "Pengajuan sedang ditinjau"
 klien (photo-picker canvas 1920px JPEG q0.8) + server (Spatie Image Fit::Max 1920 q80 —
 WAJIB save() ke path berekstensi, tmp upload tanpa ekstensi); validasi 10MB/foto.
 PRODUKSI: upload_max_filesize ≥10M, post_max_size ≥55M.
+**Hapus lapak = cabut akses (commit f6f3607, temuan user)**: lapak dihapus (arsip/permanen)
+kini otomatis mencabut akses UMKM pemilik via event model UmkmProfile::deleted (+restored →
+beri lagi); saveProfile withTrashed → lapak terarsip dipakai ulang (restoreQuietly, tanpa
+event — jalur dipakai pengajuan) → bentrok unique user_id tertutup. Suite 350 (348, 2 skip).
+
 **Reversibility (commit e09e983, keputusan user "semua aksi reversible")**: audit — hampir
 semua SUDAH reversible (verifikasi produk dua arah via Tinjau, pengajuan, akses beri↔cabut,
 restore di 7 resource); gap ditutup: produk dihapus warga kini bisa dipulihkan admin
