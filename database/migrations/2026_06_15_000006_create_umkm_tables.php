@@ -86,7 +86,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('desa_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete(); // 1 warga = 1 lapak
-            $table->foreignId('umkm_category_id')->nullable()->constrained('umkm_categories')->nullOnDelete();
             $table->string('nama_usaha');
             $table->string('slug')->unique();
             // Tanpa kolom deskripsi profil (keputusan user 2026-07-03) — katalog cukup
@@ -112,6 +111,9 @@ return new class extends Migration
         Schema::create('umkm_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('umkm_profile_id')->constrained('umkm_profiles')->cascadeOnDelete();
+            // Kategori menempel di PRODUK, bukan profil (keputusan user 2026-07-03):
+            // satu lapak boleh menjual produk lintas kategori — pola marketplace.
+            $table->foreignId('umkm_category_id')->nullable()->constrained('umkm_categories')->nullOnDelete();
             $table->string('nama_produk');
             $table->string('slug')->unique();
             $table->text('deskripsi')->nullable();

@@ -10,6 +10,7 @@
         <dl class="divide-y divide-gray-100 rounded-xl border border-gray-200 dark:divide-white/10 dark:border-white/10">
             @foreach([
                 'Nama produk' => $product->nama_produk,
+                'Kategori' => $product->category?->nama ?? '—',
                 'Harga' => $product->harga !== null ? 'Rp '.number_format($product->harga, 0, ',', '.') : '—',
                 'Deskripsi' => $product->deskripsi,
             ] as $label => $value)
@@ -36,7 +37,6 @@
             @foreach([
                 'Nama usaha' => $profile?->nama_usaha ?? '—',
                 'Pemilik' => $profile?->owner ? $profile->owner->name.' — NIK '.$profile->owner->nik : '—',
-                'Kategori' => $profile?->category?->nama ?? '—',
             ] as $label => $value)
                 <div class="flex gap-4 px-4 py-2.5">
                     <dt class="w-32 shrink-0 text-gray-500 dark:text-gray-400">{{ $label }}</dt>

@@ -83,7 +83,7 @@ class UmkmApplicationResource extends Resource
     {
         $query = parent::getEloquentQuery()
             ->whereNotNull('status_pengajuan')
-            ->with(['owner', 'category', 'products.media']);
+            ->with(['owner', 'products.media', 'products.category']);
 
         $desaId = auth()->user()?->managedDesaId();
 
@@ -114,7 +114,7 @@ class UmkmApplicationResource extends Resource
                     ->label('Pengaju')
                     ->searchable(),
 
-                TextColumn::make('category.nama')
+                TextColumn::make('products.category.nama')
                     ->label('Kategori')
                     ->badge()
                     ->color('gray')

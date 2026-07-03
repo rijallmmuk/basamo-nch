@@ -97,8 +97,8 @@
                     <div class="min-w-0">
                         <p class="flex flex-wrap items-center gap-2 font-semibold text-on-surface">
                             <span class="truncate">{{ $profile->nama_usaha }}</span>
-                            @if($profile->category)
-                                <span class="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $profile->category->nama }}</span>
+                            @if($product?->category)
+                                <span class="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $product->category->nama }}</span>
                             @endif
                         </p>
                         <p class="mt-0.5 truncate text-sm text-on-surface-variant">
@@ -129,7 +129,7 @@
                 deskripsiProduk: @js(old('deskripsi_produk', $product?->deskripsi ?? '')),
                 fotoUrl: @js($firstPhotoUrl),
                 fotoAwal: @js($firstPhotoUrl),
-                kategoriId: @js((string) old('umkm_category_id', $profile?->umkm_category_id ?? '')),
+                kategoriId: @js((string) old('umkm_category_id', $product?->umkm_category_id ?? '')),
                 panduan: @js($panduanMap),
                 contoh: @js($contohMap),
                 hargaTampil() {
@@ -161,24 +161,12 @@
                             @error('nama_usaha') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-on-surface">Kategori usaha</label>
-                                <select id="umkm_category_id" name="umkm_category_id" required x-model="kategoriId" class="{{ $inputClass }}">
-                                    <option value="">— Pilih kategori —</option>
-                                    @foreach($kategori as $id => $nama)
-                                        <option value="{{ $id }}">{{ $nama }}</option>
-                                    @endforeach
-                                </select>
-                                @error('umkm_category_id') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
-                            </div>
-                            <div>
-                                <label for="whatsapp" class="mb-1.5 block text-sm font-semibold text-on-surface">No. WhatsApp usaha</label>
-                                <input type="tel" id="whatsapp" name="whatsapp" required
-                                    value="{{ old('whatsapp', $profile?->whatsapp) }}" class="{{ $inputClass }}" placeholder="0812…">
-                                <p class="mt-1.5 text-xs text-on-surface-variant">Tombol "Hubungi" di katalog mengarah ke nomor ini.</p>
-                                @error('whatsapp') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
-                            </div>
+                        <div>
+                            <label for="whatsapp" class="mb-1.5 block text-sm font-semibold text-on-surface">No. WhatsApp usaha</label>
+                            <input type="tel" id="whatsapp" name="whatsapp" required
+                                value="{{ old('whatsapp', $profile?->whatsapp) }}" class="{{ $inputClass }}" placeholder="0812…">
+                            <p class="mt-1.5 text-xs text-on-surface-variant">Tombol "Hubungi" di katalog mengarah ke nomor ini.</p>
+                            @error('whatsapp') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
@@ -201,6 +189,19 @@
                         Setelah disetujui, kamu bisa menambahkan semua produk lain lewat menu "Produk Saya" — tanpa batas.
                     </p>
                     <div class="space-y-4">
+                        {{-- Kategori milik PRODUK (pola marketplace) — pilih dulu agar
+                             panduan & contoh deskripsi kategorinya muncul. --}}
+                        <div>
+                            <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-on-surface">Kategori produk</label>
+                            <select id="umkm_category_id" name="umkm_category_id" required x-model="kategoriId" class="{{ $inputClass }}">
+                                <option value="">— Pilih kategori —</option>
+                                @foreach($kategori as $id => $nama)
+                                    <option value="{{ $id }}">{{ $nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('umkm_category_id') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
+                        </div>
+
                         <div>
                             <label for="nama_produk" class="mb-1.5 block text-sm font-semibold text-on-surface">Nama produk</label>
                             <input type="text" id="nama_produk" name="nama_produk" required x-model="namaProduk"

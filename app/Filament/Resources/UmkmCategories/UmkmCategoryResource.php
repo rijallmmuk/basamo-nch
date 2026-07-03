@@ -94,9 +94,9 @@ class UmkmCategoryResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('profiles_count')
-                    ->label('UMKM')
-                    ->counts('profiles')
+                TextColumn::make('products_count')
+                    ->label('Produk')
+                    ->counts('products')
                     ->badge()
                     ->color('gray')
                     ->alignCenter(),
@@ -117,12 +117,12 @@ class UmkmCategoryResource extends Resource
                 // melepas kategori dari UMKM tanpa jejak) — konsisten dgn Data Master.
                 DeleteAction::make()
                     ->before(function (UmkmCategory $record, DeleteAction $action): void {
-                        $count = $record->profiles()->count();
+                        $count = $record->products()->count();
 
                         if ($count > 0) {
                             Notification::make()
                                 ->title('Tidak bisa dihapus — masih dipakai')
-                                ->body("Masih dipakai {$count} UMKM. Pindahkan kategorinya dulu sebelum menghapus.")
+                                ->body("Masih dipakai {$count} produk. Pindahkan kategorinya dulu sebelum menghapus.")
                                 ->danger()
                                 ->send();
 

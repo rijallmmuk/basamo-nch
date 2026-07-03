@@ -44,13 +44,6 @@ class UmkmProfileForm
                             ->required()
                             ->maxLength(255),
 
-                        Select::make('umkm_category_id')
-                            ->label('Kategori')
-                            ->relationship('category', 'nama')
-                            ->required()
-                            ->native(false)
-                            ->preload(),
-
                         TextInput::make('whatsapp')
                             ->label('No. WhatsApp')
                             ->tel()

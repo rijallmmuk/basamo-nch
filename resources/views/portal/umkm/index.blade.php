@@ -43,10 +43,7 @@
         <x-portal.card class="mb-5">
             <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                        <h2 class="truncate text-lg font-bold text-on-surface">{{ $profile->nama_usaha }}</h2>
-                        <span class="inline-flex shrink-0 items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $profile->category?->nama }}</span>
-                    </div>
+                    <h2 class="truncate text-lg font-bold text-on-surface">{{ $profile->nama_usaha }}</h2>
                     <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-on-surface-variant">
                         <span class="inline-flex items-center gap-1.5"><x-heroicon-o-phone class="h-4 w-4 text-outline" /> {{ $profile->whatsapp }}</span>
                         @if($profile->alamat)
@@ -84,8 +81,11 @@
                                         <x-dynamic-component :component="$s['icon']" class="h-3.5 w-3.5" /> {{ $s['label'] }}
                                     </span>
                                 </div>
-                                <p class="mt-0.5 text-sm font-bold text-primary">
+                                <p class="mt-0.5 flex flex-wrap items-center gap-2 text-sm font-bold text-primary">
                                     {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Harga tidak dicantumkan' }}
+                                    @if($product->category)
+                                        <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">{{ $product->category->nama }}</span>
+                                    @endif
                                 </p>
                                 @if($product->status->value === 'rejected' && $product->alasan_penolakan)
                                     <p class="mt-1.5 rounded-lg bg-error-container px-2 py-1 text-xs text-on-error-container">{{ $product->alasan_penolakan }}</p>

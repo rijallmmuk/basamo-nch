@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,6 +21,7 @@ class UmkmProductFactory extends Factory
     {
         return [
             'umkm_profile_id' => UmkmProfile::factory(),
+            'umkm_category_id' => UmkmCategory::query()->inRandomOrder()->value('id'),
             'nama_produk' => fake()->unique()->words(3, true),
             'deskripsi' => fake()->sentence(10),
             'harga' => fake()->numberBetween(5, 500) * 1000,

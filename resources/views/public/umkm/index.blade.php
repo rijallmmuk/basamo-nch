@@ -44,7 +44,7 @@
                             {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Hubungi penjual' }}
                         </p>
                         <p class="mt-1 truncate text-xs text-gray-400">
-                            {{ $product->umkmProfile->category?->nama }} · {{ $product->umkmProfile->desa?->nama_lengkap }}
+                            {{ $product->category?->nama }} · {{ $product->umkmProfile->desa?->nama_lengkap }}
                         </p>
                     </div>
                 </a>

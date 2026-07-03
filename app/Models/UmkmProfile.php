@@ -23,7 +23,7 @@ class UmkmProfile extends Model
     use BelongsToDesa, HasFactory, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'desa_id', 'user_id', 'umkm_category_id', 'nama_usaha', 'slug',
+        'desa_id', 'user_id', 'nama_usaha', 'slug',
         'alamat', 'whatsapp', 'status',
         'status_pengajuan', 'alasan_penolakan_pengajuan', 'diajukan_at',
     ];
@@ -59,7 +59,7 @@ class UmkmProfile extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_usaha', 'umkm_category_id', 'whatsapp', 'status', 'desa_id', 'user_id'])
+            ->logOnly(['nama_usaha', 'whatsapp', 'status', 'desa_id', 'user_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('umkm');
@@ -75,11 +75,6 @@ class UmkmProfile extends Model
     public function whatsappUrl(?string $message = null): string
     {
         return 'https://wa.me/'.$this->normalizedWhatsapp().($message ? '?text='.rawurlencode($message) : '');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(UmkmCategory::class, 'umkm_category_id');
     }
 
     public function owner(): BelongsTo

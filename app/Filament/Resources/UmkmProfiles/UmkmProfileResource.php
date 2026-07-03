@@ -81,7 +81,7 @@ class UmkmProfileResource extends Resource
                 // Lapak resmi saja — profil pengajuan (menunggu/ditolak) dikelola
                 // lewat menu "Pengajuan UMKM", jangan tampil ganda di sini.
                 ->whereNull('status_pengajuan')
-                ->with(['desa', 'owner', 'category'])
+                ->with(['desa', 'owner'])
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }

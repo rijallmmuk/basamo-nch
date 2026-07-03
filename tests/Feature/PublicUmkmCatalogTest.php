@@ -25,10 +25,10 @@ it('katalog hanya menampilkan produk approved dari usaha aktif', function () {
 
 it('filter kategori mempersempit hasil', function () {
     $desa = Desa::factory()->create();
-    $profilA = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'umkm_category_id' => 1]);
-    $profilB = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'umkm_category_id' => 2]);
-    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilA->id, 'nama_produk' => 'Produk Satu']);
-    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilB->id, 'nama_produk' => 'Produk Dua']);
+    $profilA = UmkmProfile::factory()->create(['desa_id' => $desa->id]);
+    $profilB = UmkmProfile::factory()->create(['desa_id' => $desa->id]);
+    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilA->id, 'umkm_category_id' => 1, 'nama_produk' => 'Produk Satu']);
+    UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profilB->id, 'umkm_category_id' => 2, 'nama_produk' => 'Produk Dua']);
 
     $this->get(route('public.umkm.index', ['kategori' => 1]))
         ->assertOk()

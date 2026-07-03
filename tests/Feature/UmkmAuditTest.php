@@ -2,7 +2,6 @@
 
 use App\Filament\Resources\UmkmProfiles\Pages\CreateUmkmProfile;
 use App\Models\Desa;
-use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -41,7 +40,6 @@ it('menolak membuat profil kedua untuk pemilik yang sama', function () {
         ->fillForm([
             'user_id' => $owner->id,
             'nama_usaha' => 'Lapak Kedua',
-            'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
             'status' => 'active',
         ])

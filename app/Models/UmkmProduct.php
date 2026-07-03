@@ -23,7 +23,7 @@ class UmkmProduct extends Model implements HasMedia
     use HasFactory, HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'umkm_profile_id', 'nama_produk', 'slug', 'deskripsi', 'harga',
+        'umkm_profile_id', 'umkm_category_id', 'nama_produk', 'slug', 'deskripsi', 'harga',
         'status', 'alasan_penolakan', 'approved_by', 'approved_at', 'jumlah_dilihat',
     ];
 
@@ -48,7 +48,7 @@ class UmkmProduct extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_produk', 'harga', 'status', 'alasan_penolakan', 'umkm_profile_id'])
+            ->logOnly(['nama_produk', 'umkm_category_id', 'harga', 'status', 'alasan_penolakan', 'umkm_profile_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('produk');
@@ -81,6 +81,11 @@ class UmkmProduct extends Model implements HasMedia
     public function umkmProfile(): BelongsTo
     {
         return $this->belongsTo(UmkmProfile::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(UmkmCategory::class, 'umkm_category_id');
     }
 
     public function approver(): BelongsTo

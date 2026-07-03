@@ -339,7 +339,6 @@ class DemoSeeder extends Seeder
                 ['desa_id' => $desa->id, 'user_id' => $owner->id],
                 [
                     'nama_usaha' => $namaUsaha.' ('.$slug.')',
-                    'umkm_category_id' => $categoryId,
                     'alamat' => 'Pasar '.$desa->nama,
                     'whatsapp' => '0812'.sprintf('%08d', random_int(0, 99999999)),
                     'status' => 'active',
@@ -357,6 +356,7 @@ class DemoSeeder extends Seeder
                 UmkmProduct::firstOrCreate(
                     ['umkm_profile_id' => $profile->id, 'nama_produk' => $nama],
                     [
+                        'umkm_category_id' => $categoryId,
                         'deskripsi' => $nama.' produksi '.$namaUsaha.'.',
                         'harga' => random_int(10, 150) * 1000,
                         'status' => $status,

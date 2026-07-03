@@ -27,7 +27,7 @@
 
         {{-- Info --}}
         <div>
-            <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">{{ $profile->category?->nama }}</span>
+            <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">{{ $product->category?->nama }}</span>
             <h1 class="mt-2 text-2xl font-bold">{{ $product->nama_produk }}</h1>
             <p class="mt-1 text-xl font-bold text-indigo-600">
                 {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Hubungi penjual untuk harga' }}

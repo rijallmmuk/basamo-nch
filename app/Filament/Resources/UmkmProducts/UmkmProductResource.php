@@ -88,7 +88,7 @@ class UmkmProductResource extends Resource
                 // Produk bawaan PENGAJUAN tidak antre di sini — ia disetujui sepaket
                 // lewat menu "Pengajuan UMKM" (cegah antrean ganda / setuju separuh).
                 ->whereHas('umkmProfile', fn (Builder $q) => $q->whereNull('status_pengajuan'))
-                ->with(['umkmProfile.desa', 'umkmProfile.owner'])
+                ->with(['umkmProfile.desa', 'umkmProfile.owner', 'category'])
         );
     }
 

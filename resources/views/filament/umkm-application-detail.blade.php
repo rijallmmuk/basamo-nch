@@ -11,7 +11,6 @@
             @foreach([
                 'Pengaju' => $profile->owner?->name.' — NIK '.$profile->owner?->nik,
                 'Nama usaha' => $profile->nama_usaha,
-                'Kategori' => $profile->category?->nama ?? '—',
                 'No. WhatsApp' => $profile->whatsapp,
                 'Alamat lengkap' => $profile->alamat,
             ] as $label => $value)
@@ -29,6 +28,7 @@
             <dl class="divide-y divide-gray-100 rounded-xl border border-gray-200 dark:divide-white/10 dark:border-white/10">
                 @foreach([
                     'Nama produk' => $product->nama_produk,
+                    'Kategori' => $product->category?->nama ?? '—',
                     'Harga' => $product->harga !== null ? 'Rp '.number_format($product->harga, 0, ',', '.') : '—',
                     'Deskripsi' => $product->deskripsi,
                 ] as $label => $value)

@@ -42,6 +42,13 @@ class UmkmProductsTable
                     ->label('Usaha')
                     ->searchable(),
 
+                TextColumn::make('category.nama')
+                    ->label('Kategori')
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('—')
+                    ->alignCenter(),
+
                 TextColumn::make('harga')
                     ->label('Harga')
                     ->money('IDR')
@@ -62,6 +69,9 @@ class UmkmProductsTable
                 SelectFilter::make('status')
                     ->options(UmkmProductStatus::class)
                     ->default('pending'),
+                SelectFilter::make('umkm_category_id')
+                    ->label('Kategori')
+                    ->relationship('category', 'nama'),
             ])
             ->recordActions([
                 // SATU aksi "Tinjau" (keputusan user): modal detail (foto + deskripsi

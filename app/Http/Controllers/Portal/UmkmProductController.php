@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Services\UmkmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class UmkmProductController extends Controller
@@ -25,8 +27,7 @@ class UmkmProductController extends Controller
 
         return view('portal.umkm.product-form', [
             'product' => null,
-            'panduan' => $profile->category?->panduan_produk,
-            'contoh' => $profile->category?->contoh_deskripsi,
+            ...$this->kategoriViewData(),
         ]);
     }
 
@@ -49,9 +50,23 @@ class UmkmProductController extends Controller
 
         return view('portal.umkm.product-form', [
             'product' => $product->load('media'),
-            'panduan' => $product->umkmProfile?->category?->panduan_produk,
-            'contoh' => $product->umkmProfile?->category?->contoh_deskripsi,
+            ...$this->kategoriViewData(),
         ]);
+    }
+
+    /**
+     * Kategori milik PRODUK (pola marketplace): dropdown kategori + bantuan
+     * deskripsi (panduan & contoh) yang mengikuti kategori terpilih secara live.
+     *
+     * @return array{kategori: array<int, string>, panduanMap: Collection<int, string>, contohMap: Collection<int, string>}
+     */
+    private function kategoriViewData(): array
+    {
+        return [
+            'kategori' => UmkmCategory::options(),
+            'panduanMap' => UmkmCategory::whereNotNull('panduan_produk')->pluck('panduan_produk', 'id'),
+            'contohMap' => UmkmCategory::whereNotNull('contoh_deskripsi')->pluck('contoh_deskripsi', 'id'),
+        ];
     }
 
     public function update(Request $request, UmkmProduct $product): RedirectResponse
@@ -102,6 +117,7 @@ class UmkmProductController extends Controller
     private function validated(Request $request, bool $creating = false): array
     {
         $validated = $request->validate([
+            'umkm_category_id' => ['required', 'integer', 'exists:umkm_categories,id'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'deskripsi' => ['required', 'string', 'min:30', 'max:5000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
@@ -113,6 +129,7 @@ class UmkmProductController extends Controller
         ]);
 
         $data = [
+            'umkm_category_id' => $validated['umkm_category_id'],
             'nama_produk' => $validated['nama_produk'],
             'deskripsi' => $validated['deskripsi'],
             'harga' => $validated['harga'],

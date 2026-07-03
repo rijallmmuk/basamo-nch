@@ -3,6 +3,7 @@
 use App\Filament\Resources\UmkmCategories\Pages\ManageUmkmCategories;
 use App\Models\Desa;
 use App\Models\UmkmCategory;
+use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,9 +46,8 @@ it('nama kategori harus unik & kategori terpakai tidak bisa dihapus', function (
     $kuliner = UmkmCategory::where('slug', 'kuliner')->first();
     $desa = Desa::factory()->create();
     $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
-    UmkmProfile::factory()->create([
-        'desa_id' => $desa->id, 'user_id' => $owner->id, 'umkm_category_id' => $kuliner->id,
-    ]);
+    $lapak = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
+    UmkmProduct::factory()->create(['umkm_profile_id' => $lapak->id, 'umkm_category_id' => $kuliner->id]);
 
     Livewire::test(ManageUmkmCategories::class)->callTableAction('delete', $kuliner);
     expect(UmkmCategory::whereKey($kuliner->id)->exists())->toBeTrue();

@@ -34,24 +34,12 @@
                 @error('nama_usaha') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
 
-            <div class="grid gap-5 sm:grid-cols-2">
-                <div>
-                    <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-on-surface">Kategori</label>
-                    <select id="umkm_category_id" name="umkm_category_id" required class="{{ $inputClass }}">
-                        <option value="">— Pilih kategori —</option>
-                        @foreach($kategori as $value => $label)
-                            <option value="{{ $value }}" @selected((int) old('umkm_category_id', $profile?->umkm_category_id) === $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @error('umkm_category_id') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label for="whatsapp" class="mb-1.5 block text-sm font-semibold text-on-surface">No. WhatsApp</label>
-                    <input type="tel" id="whatsapp" name="whatsapp" required placeholder="08xxxxxxxxxx"
-                        value="{{ old('whatsapp', $profile?->whatsapp) }}" class="{{ $inputClass }}">
-                    @error('whatsapp') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
-                </div>
+            {{-- Kategori TIDAK di profil — kategori milik tiap PRODUK (pola marketplace). --}}
+            <div>
+                <label for="whatsapp" class="mb-1.5 block text-sm font-semibold text-on-surface">No. WhatsApp</label>
+                <input type="tel" id="whatsapp" name="whatsapp" required placeholder="08xxxxxxxxxx"
+                    value="{{ old('whatsapp', $profile?->whatsapp) }}" class="{{ $inputClass }}">
+                @error('whatsapp') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>
 
             <div>

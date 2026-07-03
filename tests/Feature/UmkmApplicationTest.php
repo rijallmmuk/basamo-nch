@@ -336,7 +336,7 @@ it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & me
     $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
     $kuliner = UmkmCategory::where('slug', 'kuliner')->first();
     UmkmProfile::factory()->create([
-        'desa_id' => $desa->id, 'user_id' => $owner->id, 'umkm_category_id' => $kuliner->id,
+        'desa_id' => $desa->id, 'user_id' => $owner->id,
     ]);
 
     actingAs($owner)
@@ -349,6 +349,7 @@ it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & me
 
     actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
+            'umkm_category_id' => $kuliner->id,
             'nama_produk' => 'Uji Pendek', 'deskripsi' => 'enak', 'harga' => 1000,
             'photos' => [UploadedFile::fake()->image('p.jpg')],
         ])

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\UmkmProfile;
+use App\Models\UmkmProduct;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class UmkmKategoriChart extends ApexChartWidget
@@ -17,9 +17,10 @@ class UmkmKategoriChart extends ApexChartWidget
     {
         $user = auth()->user();
 
-        $data = UmkmProfile::query()
+        $data = UmkmProduct::query()
+            ->join('umkm_profiles', 'umkm_profiles.id', '=', 'umkm_products.umkm_profile_id')
             ->when($user?->isDesaAdmin(), fn ($q) => $q->where('umkm_profiles.desa_id', $user->desa_id))
-            ->join('umkm_categories', 'umkm_categories.id', '=', 'umkm_profiles.umkm_category_id')
+            ->join('umkm_categories', 'umkm_categories.id', '=', 'umkm_products.umkm_category_id')
             ->selectRaw('umkm_categories.nama as kategori, COUNT(*) as total')
             ->groupBy('umkm_categories.nama')
             ->orderByDesc('total')

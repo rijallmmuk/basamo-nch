@@ -43,7 +43,6 @@ it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
     $this->actingAs($owner)
         ->post(route('portal.umkm.profile.store'), [
             'nama_usaha' => 'Keripik Sanjai',
-            'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => '08123456789',
             'alamat' => 'Jorong Koto Tuo, samping masjid raya',
         ])
@@ -58,7 +57,6 @@ it('pemilik membuat profil usaha (desa ikut pemilik)', function () {
     $this->actingAs($owner)
         ->post(route('portal.umkm.profile.store'), [
             'nama_usaha' => 'Keripik Sanjai',
-            'umkm_category_id' => UmkmCategory::first()->id,
             'whatsapp' => 'nol delapan satu dua',
             'alamat' => 'Jorong Koto Tuo',
         ])
@@ -72,6 +70,7 @@ it('pemilik menambah produk berstatus pending dengan foto', function () {
 
     $this->actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
+            'umkm_category_id' => UmkmCategory::first()->id,
             'nama_produk' => 'Keripik Balado',
             'deskripsi' => 'Keripik balado pedas manis khas Minang, renyah, kemasan 250gr.',
             'harga' => 25000,
@@ -93,6 +92,7 @@ it('membatasi foto produk maksimal 5', function () {
 
     $this->actingAs($owner)
         ->post(route('portal.umkm.products.store'), [
+            'umkm_category_id' => UmkmCategory::first()->id,
             'nama_produk' => 'Banyak Foto',
             'deskripsi' => 'Pengujian batas maksimal foto produk pada form ini.',
             'harga' => 1000,
@@ -109,6 +109,7 @@ it('mengubah produk mengembalikan status ke pending', function () {
 
     $this->actingAs($owner)
         ->put(route('portal.umkm.products.update', $product), [
+            'umkm_category_id' => UmkmCategory::first()->id,
             'nama_produk' => 'Nama Baru',
             'deskripsi' => 'Deskripsi baru yang lebih lengkap untuk produk ini.',
             'harga' => 2000,
@@ -154,6 +155,7 @@ it('menghapus semua foto produk tanpa pengganti ditolak (produk wajib ≥1 foto)
 
     $this->actingAs($owner)
         ->put(route('portal.umkm.products.update', $product), [
+            'umkm_category_id' => UmkmCategory::first()->id,
             'nama_produk' => 'Tanpa Foto',
             'deskripsi' => 'Deskripsi cukup panjang untuk lolos aturan minimum.',
             'harga' => 1000,

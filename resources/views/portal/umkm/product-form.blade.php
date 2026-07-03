@@ -25,9 +25,29 @@
 
     <x-portal.card>
         <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-5"
-            x-data="{ deskripsi: @js(old('deskripsi', $product?->deskripsi ?? '')) }">
+            x-data="{
+                deskripsi: @js(old('deskripsi', $product?->deskripsi ?? '')),
+                kategoriId: @js((string) old('umkm_category_id', $product?->umkm_category_id ?? '')),
+                panduan: @js($panduanMap),
+                contoh: @js($contohMap),
+                panduanAktif() { return this.panduan[this.kategoriId] ?? null; },
+                contohAktif() { return this.contoh[this.kategoriId] ?? null; },
+            }">
             @csrf
             @if($product) @method('PUT') @endif
+
+            {{-- Kategori milik PRODUK (pola marketplace) — pilih dulu agar panduan
+                 & contoh deskripsi kategorinya muncul. --}}
+            <div>
+                <label for="umkm_category_id" class="mb-1.5 block text-sm font-semibold text-on-surface">Kategori produk</label>
+                <select id="umkm_category_id" name="umkm_category_id" required x-model="kategoriId" class="{{ $inputClass }}">
+                    <option value="">— Pilih kategori —</option>
+                    @foreach($kategori as $id => $nama)
+                        <option value="{{ $id }}">{{ $nama }}</option>
+                    @endforeach
+                </select>
+                @error('umkm_category_id') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
+            </div>
 
             <div>
                 <label for="nama_produk" class="mb-1.5 block text-sm font-semibold text-on-surface">Nama produk</label>
@@ -46,35 +66,29 @@
             <div>
                 <label for="deskripsi" class="mb-1.5 block text-sm font-semibold text-on-surface">Deskripsi produk</label>
                 <textarea id="deskripsi" name="deskripsi" rows="5" required x-model="deskripsi"
-                    placeholder="Ikuti panduan di bawah." class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
+                    placeholder="Ikuti panduan di bawah — pilih kategori produk dulu agar panduannya muncul." class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
                 @error('deskripsi') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
 
-                {{-- Bantuan umum sesuai kategori usaha (dari data Kategori UMKM): 3 poin
-                     panduan + contoh deskripsi jadi sekali klik. Detail lanjutan urusan WhatsApp. --}}
-                @if(filled($panduan ?? null))
-                    <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5">
-                        <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
-                            <x-heroicon-o-light-bulb class="h-4 w-4" /> Cukup sebutkan:
-                        </p>
-                        <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
-                            @foreach(preg_split('/\r\n|\n/', $panduan) as $baris)
-                                @if(trim($baris) !== '')
-                                    <li class="flex gap-1.5"><span class="text-primary">•</span>{{ trim($baris) }}</li>
-                                @endif
-                            @endforeach
-                        </ul>
-                        <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
-                            Boleh singkat, boleh rinci — deskripsi lengkap membuat lapak makin meyakinkan.
-                            Detail lainnya bisa ditanyakan pembeli lewat WhatsApp.
-                        </p>
-                        @if(filled($contoh ?? null))
-                            <button type="button" x-show="! deskripsi.trim()" @click="deskripsi = @js($contoh)"
-                                class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
-                                Bingung mulai? Pakai contoh, tinggal ganti kata-katanya →
-                            </button>
-                        @endif
-                    </div>
-                @endif
+                {{-- Bantuan umum mengikuti kategori PRODUK terpilih (live): 3 poin
+                     panduan + contoh deskripsi sekali klik. Detail lanjutan urusan WhatsApp. --}}
+                <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5" x-show="panduanAktif()" x-cloak>
+                    <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                        <x-heroicon-o-light-bulb class="h-4 w-4" /> Cukup sebutkan:
+                    </p>
+                    <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
+                        <template x-for="baris in (panduanAktif() ?? '').split('\n').filter(b => b.trim())" :key="baris">
+                            <li class="flex gap-1.5"><span class="text-primary">•</span><span x-text="baris"></span></li>
+                        </template>
+                    </ul>
+                    <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
+                        Boleh singkat, boleh rinci — deskripsi lengkap membuat lapak makin meyakinkan.
+                        Detail lainnya bisa ditanyakan pembeli lewat WhatsApp.
+                    </p>
+                    <button type="button" x-show="! deskripsi.trim() && contohAktif()" @click="deskripsi = contohAktif()"
+                        class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
+                        Bingung mulai? Pakai contoh, tinggal ganti kata-katanya →
+                    </button>
+                </div>
             </div>
 
             {{-- Foto produk yang sudah ada (edit) --}}

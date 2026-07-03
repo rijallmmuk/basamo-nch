@@ -87,11 +87,12 @@ class UmkmApplicationController extends Controller
             $user,
             [
                 'nama_usaha' => $data['nama_usaha'],
-                'umkm_category_id' => $data['umkm_category_id'],
                 'whatsapp' => $data['whatsapp'],
                 'alamat' => $data['alamat'],
             ],
             [
+                // Kategori milik PRODUK (bukan profil) — pola marketplace.
+                'umkm_category_id' => $data['umkm_category_id'],
                 'nama_produk' => $data['nama_produk'],
                 'deskripsi' => $data['deskripsi_produk'],
                 'harga' => $data['harga'],

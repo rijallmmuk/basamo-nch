@@ -39,12 +39,6 @@ class UmkmProfilesTable
                     ->label('Pemilik')
                     ->searchable(),
 
-                TextColumn::make('category.nama')
-                    ->label('Kategori')
-                    ->badge()
-                    ->sortable()
-                    ->alignCenter(),
-
                 TextColumn::make('desa.nama')
                     ->label('Desa')
                     ->sortable()
@@ -73,9 +67,6 @@ class UmkmProfilesTable
                     ->alignCenter(),
             ])
             ->filters([
-                SelectFilter::make('umkm_category_id')
-                    ->label('Kategori')
-                    ->relationship('category', 'nama'),
                 SelectFilter::make('status')
                     ->options(ActiveStatus::class),
                 TrashedFilter::make(),

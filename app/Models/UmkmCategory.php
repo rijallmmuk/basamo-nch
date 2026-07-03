@@ -44,8 +44,8 @@ class UmkmCategory extends Model
         return static::orderBy('urutan')->pluck('nama', 'id')->all();
     }
 
-    public function profiles(): HasMany
+    public function products(): HasMany
     {
-        return $this->hasMany(UmkmProfile::class);
+        return $this->hasMany(UmkmProduct::class);
     }
 }

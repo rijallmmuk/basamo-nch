@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Desa;
-use App\Models\UmkmCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,7 +22,6 @@ class UmkmProfileFactory extends Factory
         return [
             'desa_id' => Desa::factory(),
             'user_id' => User::factory()->umkmOwner(),
-            'umkm_category_id' => UmkmCategory::query()->inRandomOrder()->value('id'),
             'nama_usaha' => fake()->unique()->company(),
             'alamat' => fake()->address(),
             'whatsapp' => fake()->numerify('08##########'),

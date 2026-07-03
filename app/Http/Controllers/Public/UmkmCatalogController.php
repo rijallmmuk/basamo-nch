@@ -24,10 +24,10 @@ class UmkmCatalogController extends Controller
         $products = UmkmProduct::query()
             ->where('status', UmkmProductStatus::Approved)
             ->whereHas('umkmProfile', fn ($q) => $q->where('status', ActiveStatus::Active))
-            ->with(['umkmProfile.desa.jenisDesa', 'umkmProfile.category', 'media'])
+            ->with(['umkmProfile.desa.jenisDesa', 'category', 'media'])
             ->when($request->filled('q'), fn ($q) => $this->applySearch($q, trim((string) $request->input('q'))))
             ->when($request->filled('desa'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('desa_id', $request->integer('desa'))))
-            ->when($request->filled('kategori'), fn ($q) => $q->whereHas('umkmProfile', fn ($p) => $p->where('umkm_category_id', $request->integer('kategori'))))
+            ->when($request->filled('kategori'), fn ($q) => $q->where('umkm_category_id', $request->integer('kategori')))
             ->latest('approved_at')
             ->simplePaginate(12)
             ->withQueryString();
@@ -93,7 +93,7 @@ class UmkmCatalogController extends Controller
                 ->update(['jumlah_dilihat' => DB::raw('jumlah_dilihat + 1')]);
         }
 
-        $product->load(['umkmProfile.desa.jenisDesa', 'umkmProfile.category', 'media']);
+        $product->load(['umkmProfile.desa.jenisDesa', 'category', 'media']);
 
         return view('public.umkm.show', ['product' => $product]);
     }
