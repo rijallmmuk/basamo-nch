@@ -19,8 +19,13 @@ filament/partials/photo-lightbox, x-teleport); kartu "Pengajuan sedang ditinjau"
 klien (photo-picker canvas 1920px JPEG q0.8) + server (Spatie Image Fit::Max 1920 q80 —
 WAJIB save() ke path berekstensi, tmp upload tanpa ekstensi); validasi 10MB/foto.
 PRODUKSI: upload_max_filesize ≥10M, post_max_size ≥55M.
-**BELUM diputuskan (diskusi menggantung): kategori pindah dari profil ke PRODUK** —
-analisis sudah disampaikan ke user, tunggu keputusan sebelum refactor.
+**Kategori pindah ke PRODUK — SELESAI (commit 31b0e4a, keputusan user "lanjut")**:
+`umkm_category_id` umkm_profiles → umkm_products (migrasi konsolidasi + live: kategori
+profil disalin ke 18 produk, kolom profil di-drop); dropdown "Kategori produk" di form
+produk & pengajuan (panduan+contoh LIVE ikut kategori terpilih di KEDUA form); profil
+tanpa kategori (portal+admin); katalog publik filter/badge dari produk; chart dashboard
+dari produk; kolom Kategori antrean admin dari produk (+filter di Verifikasi Produk);
+guard hapus kategori hitung produk; UmkmCategory::products(). Suite 347 (345, 2 skip).
 
 ---
 
