@@ -165,3 +165,37 @@ it('menghapus semua foto produk tanpa pengganti ditolak (produk wajib ≥1 foto)
 
     expect($product->refresh()->getMedia('photos'))->toHaveCount(1); // foto selamat, produk tak berubah
 });
+
+it('menolak total foto melebihi 5 saat mengubah produk (tidak dibuang diam-diam)', function () {
+    Storage::fake('public');
+    $owner = umkmOwnerUser();
+    $profile = UmkmProfile::factory()->create(['desa_id' => $owner->desa_id, 'user_id' => $owner->id]);
+    $product = UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id]);
+    foreach (range(1, 5) as $i) {
+        $product->addMedia(UploadedFile::fake()->image("p{$i}.jpg"))->toMediaCollection('photos');
+    }
+
+    $this->actingAs($owner)
+        ->put(route('portal.umkm.products.update', $product), [
+            'umkm_category_id' => UmkmCategory::first()->id,
+            'nama_produk' => 'Kebanyakan Foto',
+            'deskripsi' => 'Deskripsi cukup panjang untuk lolos aturan minimum.',
+            'harga' => 1000,
+            'photos' => [UploadedFile::fake()->image('extra.jpg')],
+        ])
+        ->assertSessionHasErrors('photos');
+
+    expect($product->refresh()->getMedia('photos'))->toHaveCount(5);
+});
+
+it('pemilik diberi tahu bila lapaknya dinonaktifkan admin', function () {
+    $owner = umkmOwnerUser();
+    UmkmProfile::factory()->create([
+        'desa_id' => $owner->desa_id, 'user_id' => $owner->id, 'status' => 'inactive',
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('portal.umkm.index'))
+        ->assertOk()
+        ->assertSee('Lapakmu sedang nonaktif');
+});

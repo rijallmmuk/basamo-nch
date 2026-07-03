@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
+use App\Filament\Resources\UmkmProducts\UmkmProductResource;
 use App\Models\Desa;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -119,4 +120,16 @@ it('produk yang dihapus warga bisa dipulihkan admin desa (semua aksi reversible)
         ->callTableAction('restore', $product);
 
     expect($product->refresh()->trashed())->toBeFalse();
+});
+
+it('badge antrean verifikasi tidak menghitung produk terhapus', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id]);
+    UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending']);
+    UmkmProduct::factory()->create(['umkm_profile_id' => $profile->id, 'status' => 'pending'])->delete();
+
+    $this->actingAs($admin);
+
+    expect(UmkmProductResource::getNavigationBadge())->toBe('1');
 });

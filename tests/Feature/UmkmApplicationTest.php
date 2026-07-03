@@ -10,6 +10,7 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Desa;
 use App\Models\JenisSubUnit;
 use App\Models\UmkmCategory;
+use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Notifications\UmkmApplicationDecided;
@@ -360,4 +361,29 @@ it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & me
             'photos' => [UploadedFile::fake()->image('p.jpg')],
         ])
         ->assertSessionHasErrors('deskripsi');
+});
+
+it('pengajuan ulang bekas lapak resmi tidak menimpa produk lama (produk unggulan baru)', function () {
+    $warga = wargaPemohon();
+    $warga->update(['umkm_access_granted_at' => now()]);
+    $profile = UmkmProfile::factory()->create([
+        'desa_id' => $warga->desa_id, 'user_id' => $warga->id, 'status' => 'active',
+    ]);
+    $lama = UmkmProduct::factory()->approved()->create([
+        'umkm_profile_id' => $profile->id, 'nama_produk' => 'Produk Lama',
+    ]);
+
+    // Admin menghapus lapak → akses ikut tercabut (event) → warga mengajukan lagi.
+    $profile->delete();
+    expect($warga->refresh()->hasUmkmAccess())->toBeFalse();
+
+    actingAs($warga)
+        ->post(route('portal.umkm.ajukan.store'), payloadPengajuan(['nama_produk' => 'Produk Baru']))
+        ->assertSessionDoesntHaveErrors();
+
+    $profile->refresh(); // lapak lama dipakai ulang (dipulihkan senyap)
+    expect($profile->trashed())->toBeFalse()
+        ->and($profile->status_pengajuan)->toBe(PengajuanUmkmStatus::Menunggu)
+        ->and($lama->refresh()->nama_produk)->toBe('Produk Lama') // TIDAK tertimpa
+        ->and($profile->products()->count())->toBe(2);
 });

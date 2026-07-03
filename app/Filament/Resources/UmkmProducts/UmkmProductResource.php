@@ -67,7 +67,12 @@ class UmkmProductResource extends Resource
     /** Badge navigasi = jumlah produk menunggu verifikasi (ter-scope aktor). */
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getEloquentQuery()->where('status', UmkmProductStatus::Pending)->count();
+        // withoutTrashed: query resource menyertakan produk terhapus (utk fitur
+        // Pulihkan) — jangan ikut dihitung di badge antrean.
+        $count = static::getEloquentQuery()
+            ->withoutTrashed()
+            ->where('status', UmkmProductStatus::Pending)
+            ->count();
 
         return $count > 0 ? (string) $count : null;
     }

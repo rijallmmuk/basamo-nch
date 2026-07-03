@@ -114,15 +114,19 @@ class UmkmApplicationResource extends Resource
                     ->label('Pengaju')
                     ->searchable(),
 
-                TextColumn::make('products.category.nama')
+                // Hanya PRODUK UNGGULAN pengajuan (produk pertama) — lapak lama
+                // yang diajukan ulang bisa membawa banyak produk lain.
+                TextColumn::make('kategori_unggulan')
                     ->label('Kategori')
+                    ->getStateUsing(fn (UmkmProfile $record): ?string => $record->products->first()?->category?->nama)
                     ->badge()
                     ->color('gray')
                     ->placeholder('—')
                     ->alignCenter(),
 
-                TextColumn::make('products.nama_produk')
+                TextColumn::make('produk_unggulan')
                     ->label('Produk')
+                    ->getStateUsing(fn (UmkmProfile $record): ?string => $record->products->first()?->nama_produk)
                     ->limit(30)
                     ->wrap(),
 

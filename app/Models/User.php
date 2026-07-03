@@ -68,6 +68,21 @@ class User extends Authenticatable implements FilamentUser, HasMedia
             $user->umkmProfile()->withTrashed()->first()?->forceDelete();
         });
 
+        // Arsipkan warga pemilik UMKM → lapaknya ikut nonaktif (keluar dari katalog
+        // publik — jangan ada konten publik tanpa pengelola); pulihkan → lapak aktif
+        // lagi HANYA bila akses UMKM-nya masih ada (akses yang dicabut tetap dicabut).
+        static::deleted(function (self $user): void {
+            if (! $user->isForceDeleting()) {
+                $user->umkmProfile()->first()?->update(['status' => ActiveStatus::Inactive]);
+            }
+        });
+
+        static::restored(function (self $user): void {
+            if ($user->hasUmkmAccess()) {
+                $user->umkmProfile()->first()?->update(['status' => ActiveStatus::Active]);
+            }
+        });
+
         // Kolom `role` adalah sumber kebenaran. Saat role berubah, samakan Spatie role
         // agar Shield & cek hasRole() tetap konsisten (tak ada "admin hantu").
         static::saved(function (self $user): void {

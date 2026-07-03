@@ -31,7 +31,13 @@ class UmkmApplicationController extends Controller
         }
 
         $profile = $user->umkmProfile()->first();
-        $product = $profile?->products()->with('media')->first();
+
+        // Prefill produk hanya dari PENGAJUAN sebelumnya (ditolak → diperbaiki).
+        // Bekas lapak resmi (mis. akses dicabut) mengajukan produk unggulan BARU —
+        // produk lamanya bukan bagian dari pengajuan ini.
+        $product = $profile?->status_pengajuan !== null
+            ? $profile->products()->with('media')->first()
+            : null;
 
         return view('portal.umkm.apply', [
             'profile' => $profile,
@@ -62,7 +68,12 @@ class UmkmApplicationController extends Controller
                 ->with('info', 'Pengajuanmu masih menunggu tinjauan Admin. Mohon bersabar, ya.');
         }
 
-        $existingPhotos = $profile?->products()->first()?->getMedia('photos')->count() ?? 0;
+        // Foto lama hanya dihitung utk PENGAJUAN ulang (produknya dipakai ulang);
+        // bekas lapak resmi membuat produk baru → wajib foto baru.
+        $existingPhotos = $profile?->status_pengajuan !== null
+            ? ($profile->products()->first()?->getMedia('photos')->count() ?? 0)
+            : 0;
+        $sisaSlotFoto = max(0, UmkmService::MAX_PHOTOS - $existingPhotos);
 
         // Semua field pengajuan WAJIB (keputusan user 2026-07-02) — termasuk harga
         // & minimal satu foto produk (foto lama dari pengajuan sebelumnya dihitung).
@@ -75,11 +86,12 @@ class UmkmApplicationController extends Controller
             'nama_produk' => ['required', 'string', 'max:255'],
             'deskripsi_produk' => ['required', 'string', 'min:30', 'max:5000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
-            'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.UmkmService::MAX_PHOTOS],
+            'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.$sisaSlotFoto],
             'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:10240'],
         ], [
             'whatsapp.regex' => 'Isi nomor WhatsApp yang valid, mis. 08123456789.',
             'photos.required' => 'Unggah minimal satu foto produk.',
+            'photos.max' => 'Maksimal '.UmkmService::MAX_PHOTOS.' foto per produk — sisa slotmu '.$sisaSlotFoto.'.',
             'deskripsi_produk.min' => 'Jelaskan produkmu lebih lengkap (minimal 30 karakter) — ikuti panduan di bawah kolom deskripsi.',
         ]);
 

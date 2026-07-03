@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -17,7 +18,9 @@ class UmkmKategoriChart extends ApexChartWidget
     {
         $user = auth()->user();
 
+        // Potret KATALOG: hanya produk approved (pending/ditolak belum tayang).
         $data = UmkmProduct::query()
+            ->where('umkm_products.status', UmkmProductStatus::Approved)
             ->join('umkm_profiles', 'umkm_profiles.id', '=', 'umkm_products.umkm_profile_id')
             ->when($user?->isDesaAdmin(), fn ($q) => $q->where('umkm_profiles.desa_id', $user->desa_id))
             ->join('umkm_categories', 'umkm_categories.id', '=', 'umkm_products.umkm_category_id')

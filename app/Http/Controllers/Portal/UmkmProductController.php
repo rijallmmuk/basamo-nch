@@ -93,6 +93,12 @@ class UmkmProductController extends Controller
                 ->withErrors(['photos' => 'Produk wajib punya minimal satu foto — jangan hapus semuanya.']);
         }
 
+        // Jangan buang kelebihan foto diam-diam — tolak dengan pesan jelas.
+        if ($sisaFoto > UmkmService::MAX_PHOTOS) {
+            return back()->withInput()
+                ->withErrors(['photos' => 'Maksimal '.UmkmService::MAX_PHOTOS.' foto per produk — hapus sebagian foto lama dulu.']);
+        }
+
         $this->umkm->updateProduct($product, $data, $photos, $removePhotoIds);
 
         return redirect()->route('portal.umkm.index')

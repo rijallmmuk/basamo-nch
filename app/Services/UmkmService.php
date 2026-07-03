@@ -39,6 +39,13 @@ class UmkmService
         if ($profile) {
             if ($profile->trashed()) {
                 $profile->restoreQuietly();
+
+                // Lapak terarsip yang dihidupkan ulang pemilik ber-akses → langsung
+                // aktif (status lama bisa basi Inactive dari cabut akses dulu).
+                // Jalur pengajuan tak terpengaruh: ia MENIMPA status via $data.
+                if (! array_key_exists('status', $data) && $owner->hasUmkmAccess()) {
+                    $data['status'] = ActiveStatus::Active;
+                }
             }
 
             $profile->update($data);
@@ -128,6 +135,12 @@ class UmkmService
     public function submitApplication(User $warga, array $profilData, array $productData, array $photos): UmkmProfile
     {
         $profile = DB::transaction(function () use ($warga, $profilData, $productData, $photos): UmkmProfile {
+            // Produk pengajuan sebelumnya hanya boleh DITIMPA bila profil memang
+            // masih berstatus pengajuan (ditolak → diperbaiki). Lapak resmi lama
+            // (mis. terarsip lalu diajukan ulang) TIDAK boleh kehilangan produknya
+            // — produk unggulan pengajuan baru dibuat sebagai produk baru.
+            $wasApplication = $warga->umkmProfile()->withTrashed()->first()?->status_pengajuan !== null;
+
             $profile = $this->saveProfile($warga, [
                 ...$profilData,
                 'status' => ActiveStatus::Inactive,
@@ -138,7 +151,7 @@ class UmkmService
 
             // Ajukan-ulang: perbarui produk pengajuan yang sudah ada; foto lama
             // dipertahankan, foto baru menambah (batas MAX_PHOTOS tetap dihormati).
-            if ($product = $profile->products()->first()) {
+            if ($wasApplication && ($product = $profile->products()->first())) {
                 $this->updateProduct($product, $productData, $photos);
             } else {
                 $this->createProduct($profile, $productData, $photos);

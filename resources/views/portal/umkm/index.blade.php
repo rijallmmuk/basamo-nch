@@ -29,6 +29,19 @@
         @endif
     </div>
 
+    {{-- Lapak dinonaktifkan admin (moderasi) → beri tahu pemilik: produk yang
+         dikelola di sini TIDAK tampil di katalog publik sampai diaktifkan lagi. --}}
+    @if($profile && $profile->status !== \App\Enums\ActiveStatus::Active)
+        <div class="mb-5 flex items-start gap-3 rounded-2xl border border-error/30 bg-error-container p-4">
+            <x-heroicon-s-exclamation-triangle class="mt-0.5 h-5 w-5 shrink-0 text-error" />
+            <div class="text-sm text-on-error-container">
+                <p class="font-bold">Lapakmu sedang nonaktif</p>
+                <p class="mt-0.5">Usaha dan semua produkmu tidak tampil di katalog publik.
+                    Hubungi {{ $sebutanAdmin }} bila menurutmu ini keliru.</p>
+            </div>
+        </div>
+    @endif
+
     @if(! $profile)
         {{-- Belum ada profil usaha --}}
         <x-portal.empty

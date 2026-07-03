@@ -84,7 +84,9 @@ it('menghapus lapak (arsip maupun permanen) ikut mencabut akses UMKM; pulihkan m
 it('lapak terarsip dipakai ulang saat warga mengisi profil lagi (tanpa bentrok unik user_id)', function () {
     $desa = Desa::factory()->create();
     $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
-    $lama = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
+    $lama = UmkmProfile::factory()->create([
+        'desa_id' => $desa->id, 'user_id' => $owner->id, 'status' => 'inactive', // basi dari cabut akses dulu
+    ]);
 
     $lama->delete(); // akses ikut tercabut (event deleted)
     $owner->refresh()->update(['umkm_access_granted_at' => now()]); // admin beri akses lagi
@@ -99,5 +101,20 @@ it('lapak terarsip dipakai ulang saat warga mengisi profil lagi (tanpa bentrok u
 
     expect(UmkmProfile::withTrashed()->where('user_id', $owner->id)->count())->toBe(1)
         ->and($lama->refresh()->trashed())->toBeFalse()
-        ->and($lama->nama_usaha)->toBe('Lapak Baru');
+        ->and($lama->nama_usaha)->toBe('Lapak Baru')
+        ->and($lama->status->value)->toBe('active'); // status basi ikut dihidupkan
+});
+
+it('mengarsipkan warga menonaktifkan lapaknya; pulihkan mengaktifkan lagi', function () {
+    $desa = Desa::factory()->create();
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create([
+        'desa_id' => $desa->id, 'user_id' => $owner->id, 'status' => 'active',
+    ]);
+
+    $owner->delete(); // arsip warga → lapak keluar dari katalog publik
+    expect($profile->refresh()->status->value)->toBe('inactive');
+
+    $owner->restore(); // akses masih ada → lapak kembali tayang
+    expect($profile->refresh()->status->value)->toBe('active');
 });
