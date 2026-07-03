@@ -35,9 +35,10 @@ class UmkmCatalogController extends Controller
         return view('public.umkm.index', [
             'products' => $products,
             'desaList' => Cache::remember(
-                'umkm.catalog.desa_list',
+                'umkm.catalog.desa_list.v2',
                 now()->addHour(),
-                fn () => Desa::where('status', ActiveStatus::Active)->orderBy('nama')->pluck('nama', 'id'),
+                fn () => Desa::where('status', ActiveStatus::Active)->with('jenisDesa')->orderBy('nama')->get()
+                    ->mapWithKeys(fn (Desa $desa) => [$desa->id => $desa->nama_lengkap]),
             ),
             'kategoriList' => Cache::remember(
                 'umkm.catalog.kategori_list',

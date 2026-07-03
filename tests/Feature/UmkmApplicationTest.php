@@ -8,6 +8,7 @@ use App\Filament\Resources\UmkmProducts\Pages\ListUmkmProducts;
 use App\Filament\Resources\UmkmProfiles\Pages\ListUmkmProfiles;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Desa;
+use App\Models\JenisSubUnit;
 use App\Models\UmkmCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -285,6 +286,17 @@ it('kategori bawaan ter-seed dengan panduan & contoh deskripsi produk', function
         ->toContain('Keripik singkong balado')
         ->and(UmkmCategory::whereNotNull('panduan_produk')->count())->toBe(7)
         ->and(UmkmCategory::whereNotNull('contoh_deskripsi')->count())->toBe(7);
+});
+
+it('contoh alamat di form pengajuan mengikuti sebutan sub-unit desa warga (tidak statis)', function () {
+    $desa = Desa::factory()->create(['jenis_sub_unit_id' => JenisSubUnit::firstOrCreate(['nama' => 'Dusun'])->id]);
+    $warga = User::factory()->warga()->create(['desa_id' => $desa->id]);
+
+    actingAs($warga)
+        ->get(route('portal.umkm.ajukan'))
+        ->assertOk()
+        ->assertSee('Dusun')
+        ->assertDontSee('Jorong');
 });
 
 it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi), tapi boleh rinci sampai 5000', function () {

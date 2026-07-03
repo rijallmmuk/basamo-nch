@@ -6,7 +6,7 @@
     @php
         $profile = $product->umkmProfile;
         $photos = $product->getMedia('photos');
-        $waText = 'Halo, saya tertarik dengan produk "'.$product->nama_produk.'" di katalog UMKM desa.';
+        $waText = 'Halo, saya tertarik dengan produk "'.$product->nama_produk.'" di katalog UMKM '.($profile->desa?->nama_lengkap ?? 'desa').'.';
     @endphp
 
     <a href="{{ route('public.umkm.index') }}" class="text-sm text-gray-500 hover:text-gray-700">&larr; Kembali ke katalog</a>

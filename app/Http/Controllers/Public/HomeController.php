@@ -30,7 +30,7 @@ class HomeController extends Controller
         $produkUnggulan = UmkmProduct::query()
             ->where('status', UmkmProductStatus::Approved)
             ->whereHas('umkmProfile', fn ($q) => $q->where('status', ActiveStatus::Active))
-            ->with(['umkmProfile.desa', 'media'])
+            ->with(['umkmProfile.desa.jenisDesa', 'media'])
             ->latest('approved_at')
             ->take(4)
             ->get();

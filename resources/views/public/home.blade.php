@@ -142,7 +142,7 @@
                                 <img src="{{ $produk->coverUrl() }}" alt="{{ $produk->nama_produk }}"
                                     class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105">
                                 @if ($produk->umkmProfile?->desa)
-                                    <div class="absolute left-4 top-4 rounded-full bg-surface-container-lowest/90 px-4 py-1.5 text-label-sm font-bold uppercase tracking-widest text-primary backdrop-blur-md">{{ $produk->umkmProfile->desa->nama }}</div>
+                                    <div class="absolute left-4 top-4 rounded-full bg-surface-container-lowest/90 px-4 py-1.5 text-label-sm font-bold uppercase tracking-widest text-primary backdrop-blur-md">{{ $produk->umkmProfile->desa->nama_lengkap }}</div>
                                 @endif
                             </a>
                             <div class="p-5">

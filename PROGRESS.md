@@ -23,6 +23,14 @@ detail")**: kalimat penenang → "Boleh singkat, boleh rinci — deskripsi lengk
 lapak makin meyakinkan…"; max deskripsi 2000→5000 (kedua form); katalog publik terverifikasi
 `whitespace-pre-line` (deskripsi multi-baris rapi). Field terstruktur ala marketplace
 (varian/stok/berat) SENGAJA ditunda sampai transaksi in-app benar-benar dibangun.
+**Audit sebutan desa/sub-unit statis (arahan user "semuanya dinamis sesuai nyata desa")**:
+5 pelanggar difix — placeholder+helper alamat apply/profile portal (kini `subUnitLabel()` +
+nama sub-unit warga bila ada, mis. "mis. Dusun X, samping masjid raya, Desa Y"); badge desa
+beranda publik `nama` → `nama_lengkap` (+eager jenisDesa); dropdown filter katalog publik →
+`nama_lengkap` (cache key di-bump `.v2`); teks WA "katalog UMKM desa" → nama_lengkap desa.
+Admin sudah dinamis sejak awal (subUnitLabel/DesaContext); "Jorong/Dusun" tersisa hanya
+contoh di helperText pemilih sebutan (memang wajar) + branding publik "Nagari Creative Hub"
+(nama produk, bukan rujukan desa). Suite 344 (342 lulus, 2 skip) — +test sebutan dinamis.
 
 ---
 

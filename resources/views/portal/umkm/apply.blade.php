@@ -10,6 +10,10 @@
     $maxPhotos = \App\Services\UmkmService::MAX_PHOTOS;
     $remaining = $maxPhotos - $existingPhotos->count();
     $firstPhotoUrl = $existingPhotos->first()?->getUrl('card');
+    // Contoh alamat mengikuti data nyata desa warga: sebutan sub-unit (Jorong/
+    // Dusun/…) + nama sub-unit tempat tinggalnya bila terisi.
+    $sebutanSubUnit = auth()->user()->desa?->subUnitLabel() ?? 'Wilayah';
+    $contohAlamat = 'mis. '.$sebutanSubUnit.' '.(auth()->user()->desaUnit?->nama ?? 'Koto Tuo').', samping masjid raya, '.(auth()->user()->desa?->nama_lengkap ?? 'desa');
 @endphp
 
 @section('content')
@@ -131,8 +135,8 @@
                         <div>
                             <label for="alamat" class="mb-1.5 block text-sm font-semibold text-on-surface">Alamat lengkap usaha</label>
                             <textarea id="alamat" name="alamat" rows="2" required class="{{ $inputClass }}"
-                                placeholder="mis. Jorong Koto Tuo, samping masjid raya, {{ auth()->user()->desa?->nama_lengkap ?? 'desa' }}">{{ old('alamat', $profile?->alamat) }}</textarea>
-                            <p class="mt-1.5 text-xs text-on-surface-variant">Tulis selengkap mungkin (jorong/dusun, patokan) — memudahkan pembeli menemukanmu.</p>
+                                placeholder="{{ $contohAlamat }}">{{ old('alamat', $profile?->alamat) }}</textarea>
+                            <p class="mt-1.5 text-xs text-on-surface-variant">Tulis selengkap mungkin ({{ mb_strtolower($sebutanSubUnit) }}, patokan) — memudahkan pembeli menemukanmu.</p>
                             @error('alamat') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
