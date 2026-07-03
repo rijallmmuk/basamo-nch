@@ -19,6 +19,14 @@ filament/partials/photo-lightbox, x-teleport); kartu "Pengajuan sedang ditinjau"
 klien (photo-picker canvas 1920px JPEG q0.8) + server (Spatie Image Fit::Max 1920 q80 —
 WAJIB save() ke path berekstensi, tmp upload tanpa ekstensi); validasi 10MB/foto.
 PRODUKSI: upload_max_filesize ≥10M, post_max_size ≥55M.
+**Tombol & konfirmasi (commit 3ca1135, keputusan user)**: urutan tombol aksi DIBALIK
+se-aplikasi (Batal kiri, aksi utama kanan; Filament global `Action::configureUsing`
+modalFooterActions=[cancel,extra,submit] di AppServiceProvider; 3 form UMKM portal
+di-swap); modal Tinjau (pengajuan & produk): submit bawaan mati, Setujui ber-
+requiresConfirmation + Tolak modal alasan sbg footer bersarang (+cancelParentActions;
+setujui hidden bila pengaju terarsipkan); form pengajuan & produk kembali LEBAR PENUH
+(cap 6xl/3xl dicabut); form produk kini ber-pratinjau katalog hidup ala pengajuan.
+
 **Kategori pindah ke PRODUK — SELESAI (commit 31b0e4a, keputusan user "lanjut")**:
 `umkm_category_id` umkm_profiles → umkm_products (migrasi konsolidasi + live: kategori
 profil disalin ke 18 produk, kolom profil di-drop); dropdown "Kategori produk" di form
