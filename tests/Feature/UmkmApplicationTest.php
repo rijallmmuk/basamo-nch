@@ -278,10 +278,13 @@ it('pengajuan tidak lagi meminta deskripsi profil; alamat tetap wajib', function
 
 // ── Panduan pengisian produk per kategori ─────────────────────────────
 
-it('kategori bawaan ter-seed dengan panduan produk', function () {
+it('kategori bawaan ter-seed dengan panduan & contoh deskripsi produk', function () {
     expect(UmkmCategory::where('slug', 'kuliner')->value('panduan_produk'))
         ->toContain('Berat atau isi per kemasan')
-        ->and(UmkmCategory::whereNotNull('panduan_produk')->count())->toBe(7);
+        ->and(UmkmCategory::where('slug', 'kuliner')->value('contoh_deskripsi'))
+        ->toContain('Keripik singkong balado')
+        ->and(UmkmCategory::whereNotNull('panduan_produk')->count())->toBe(7)
+        ->and(UmkmCategory::whereNotNull('contoh_deskripsi')->count())->toBe(7);
 });
 
 it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi)', function () {
@@ -294,7 +297,7 @@ it('deskripsi produk pengajuan minimal 30 karakter (anti asal isi)', function ()
     expect(UmkmProfile::count())->toBe(0);
 });
 
-it('form produk reguler menampilkan panduan sesuai kategori usaha & menegakkan min 30 karakter', function () {
+it('form produk reguler menampilkan bantuan deskripsi sesuai kategori usaha & menegakkan min 30 karakter', function () {
     $desa = Desa::factory()->create();
     $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id, 'must_change_password' => false]);
     $kuliner = UmkmCategory::where('slug', 'kuliner')->first();
@@ -305,8 +308,10 @@ it('form produk reguler menampilkan panduan sesuai kategori usaha & menegakkan m
     actingAs($owner)
         ->get(route('portal.umkm.products.create'))
         ->assertOk()
-        ->assertSee('Panduan — sebutkan dalam deskripsi')
-        ->assertSee('Berat atau isi per kemasan');
+        ->assertSee('Cukup sebutkan:')
+        ->assertSee('Berat atau isi per kemasan')
+        ->assertSee('detail lain bisa ditanyakan pembeli lewat WhatsApp')
+        ->assertSee('Keripik singkong balado'); // contoh deskripsi sekali klik
 
     actingAs($owner)
         ->post(route('portal.umkm.products.store'), [

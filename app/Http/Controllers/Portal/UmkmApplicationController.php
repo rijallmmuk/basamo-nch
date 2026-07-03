@@ -37,9 +37,11 @@ class UmkmApplicationController extends Controller
             'profile' => $profile,
             'product' => $product,
             'kategori' => UmkmCategory::options(),
-            // Panduan deskripsi per kategori — tampil + jadi kerangka isian saat
-            // kategori dipilih (agar warga tahu persis apa yang harus ditulis).
+            // Bantuan deskripsi per kategori (umum saja — detail via WhatsApp):
+            // panduan poin tampil saat kategori dipilih; contoh deskripsi jadi
+            // bisa dipakai sekali klik lalu diubah seperlunya.
             'panduanMap' => UmkmCategory::whereNotNull('panduan_produk')->pluck('panduan_produk', 'id'),
+            'contohMap' => UmkmCategory::whereNotNull('contoh_deskripsi')->pluck('contoh_deskripsi', 'id'),
         ]);
     }
 

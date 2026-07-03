@@ -78,11 +78,15 @@
                 fotoAwal: @js($firstPhotoUrl),
                 kategoriId: @js((string) old('umkm_category_id', $profile?->umkm_category_id ?? '')),
                 panduan: @js($panduanMap),
+                contoh: @js($contohMap),
                 hargaTampil() {
                     return this.harga > 0 ? 'Rp ' + Number(this.harga).toLocaleString('id-ID') : 'Rp —';
                 },
                 panduanAktif() {
                     return this.panduan[this.kategoriId] ?? null;
+                },
+                contohAktif() {
+                    return this.contoh[this.kategoriId] ?? null;
                 },
             }"
             {{-- Kartu pratinjau ikut foto pertama dari pemilih foto (fallback: foto lama). --}}
@@ -164,19 +168,23 @@
                                 placeholder="Ikuti panduan di bawah — pilih kategori usaha dulu agar panduannya muncul." class="{{ $inputClass }}">{{ old('deskripsi_produk', $product?->deskripsi) }}</textarea>
                             @error('deskripsi_produk') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
 
-                            {{-- Panduan per kategori (dari data Kategori UMKM) + kerangka isian sekali klik --}}
+                            {{-- Bantuan umum per kategori (dari data Kategori UMKM): 3 poin panduan +
+                                 contoh deskripsi jadi sekali klik. Detail lanjutan urusan WhatsApp. --}}
                             <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5" x-show="panduanAktif()" x-cloak>
                                 <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
-                                    <x-heroicon-o-light-bulb class="h-4 w-4" /> Panduan — sebutkan dalam deskripsi:
+                                    <x-heroicon-o-light-bulb class="h-4 w-4" /> Cukup sebutkan:
                                 </p>
                                 <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
                                     <template x-for="baris in (panduanAktif() ?? '').split('\n').filter(b => b.trim())" :key="baris">
-                                        <li class="flex gap-1.5"><span class="text-primary">•</span><span x-text="baris.replace(/:\s*$/, '')"></span></li>
+                                        <li class="flex gap-1.5"><span class="text-primary">•</span><span x-text="baris"></span></li>
                                     </template>
                                 </ul>
-                                <button type="button" x-show="! deskripsiProduk.trim()" @click="deskripsiProduk = panduanAktif()"
+                                <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
+                                    Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp.
+                                </p>
+                                <button type="button" x-show="! deskripsiProduk.trim() && contohAktif()" @click="deskripsiProduk = contohAktif()"
                                     class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
-                                    Gunakan sebagai kerangka isian →
+                                    Bingung mulai? Pakai contoh, tinggal ganti kata-katanya →
                                 </button>
                             </div>
                         </div>

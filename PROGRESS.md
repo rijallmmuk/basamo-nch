@@ -6,6 +6,21 @@
 
 ---
 
+## Sesi 2026-07-03 (lanjutan 3) — Bantuan deskripsi: umum saja, detail via WhatsApp
+
+Suite **343 (341 lulus, 2 skip)**. KEPUTUSAN USER (via AskUserQuestion): bantuan deskripsi
+produk cukup UMUM — detail biar ditanyakan pembeli lewat WhatsApp penjual; alur pengajuan
+TIDAK dirombak (sudah ringan: 8 isian + pratinjau, jangan over-engineering).
+Revisi panduan (DECISIONS.md dicatat): (1) panduan per kategori dipangkas 5–6 poin teknis
+→ **3 poin umum** tanpa titik dua; (2) tombol kerangka "Label: " → **contoh deskripsi jadi**
+(kolom baru `umkm_categories.contoh_deskripsi`, migrasi base + ALTER live, ter-seed 7,
+editable super admin via Kategori UMKM, label "Bingung mulai? Pakai contoh…"); (3) kalimat
+penenang "Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp"
+di kotak panduan (apply + product-form). Header kotak → "Cukup sebutkan:". DB live sudah
+di-ALTER + 7 baris diperbarui. Test panduan/contoh diperbarui (+assert contoh & kalimat WA).
+
+---
+
 ## Sesi 2026-07-03 (lanjutan 2) — Panduan pengisian produk per kategori (commit a37c220)
 
 Suite **343 (341 lulus, 2 skip)**. KEPUTUSAN USER: panduan + kerangka isian (BUKAN field

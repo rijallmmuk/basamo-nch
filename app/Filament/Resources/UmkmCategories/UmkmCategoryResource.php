@@ -68,8 +68,14 @@ class UmkmCategoryResource extends Resource
 
                     Textarea::make('panduan_produk')
                         ->label('Panduan deskripsi produk')
-                        ->helperText('Satu poin per baris, akhiri dengan titik dua (mis. "Berat atau isi per kemasan: "). Tampil sebagai panduan + kerangka isian di form produk warga kategori ini.')
-                        ->rows(6)
+                        ->helperText('Satu poin per baris, cukup 3 poin umum (mis. "Berat atau isi per kemasan") — detail lanjutan biar ditanyakan pembeli lewat WhatsApp. Tampil di form produk warga kategori ini.')
+                        ->rows(4)
+                        ->columnSpanFull(),
+
+                    Textarea::make('contoh_deskripsi')
+                        ->label('Contoh deskripsi produk')
+                        ->helperText('Contoh deskripsi jadi (2–3 kalimat) khas kategori ini — warga bisa memakainya sekali klik lalu tinggal mengganti kata-katanya.')
+                        ->rows(4)
                         ->columnSpanFull(),
 
                     // Urutan TIDAK diisi lewat form: kategori baru otomatis di urutan

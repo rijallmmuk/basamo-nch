@@ -26,6 +26,7 @@ class UmkmProductController extends Controller
         return view('portal.umkm.product-form', [
             'product' => null,
             'panduan' => $profile->category?->panduan_produk,
+            'contoh' => $profile->category?->contoh_deskripsi,
         ]);
     }
 
@@ -49,6 +50,7 @@ class UmkmProductController extends Controller
         return view('portal.umkm.product-form', [
             'product' => $product->load('media'),
             'panduan' => $product->umkmProfile?->category?->panduan_produk,
+            'contoh' => $product->umkmProfile?->category?->contoh_deskripsi,
         ]);
     }
 

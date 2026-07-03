@@ -48,23 +48,29 @@
                     placeholder="Ikuti panduan di bawah." class="{{ $inputClass }}">{{ old('deskripsi', $product?->deskripsi) }}</textarea>
                 @error('deskripsi') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
 
-                {{-- Panduan sesuai kategori usaha (dari data Kategori UMKM) + kerangka isian --}}
+                {{-- Bantuan umum sesuai kategori usaha (dari data Kategori UMKM): 3 poin
+                     panduan + contoh deskripsi jadi sekali klik. Detail lanjutan urusan WhatsApp. --}}
                 @if(filled($panduan ?? null))
                     <div class="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5">
                         <p class="flex items-center gap-1.5 text-xs font-bold text-primary">
-                            <x-heroicon-o-light-bulb class="h-4 w-4" /> Panduan — sebutkan dalam deskripsi:
+                            <x-heroicon-o-light-bulb class="h-4 w-4" /> Cukup sebutkan:
                         </p>
                         <ul class="mt-1.5 space-y-0.5 text-xs leading-relaxed text-on-surface-variant">
                             @foreach(preg_split('/\r\n|\n/', $panduan) as $baris)
                                 @if(trim($baris) !== '')
-                                    <li class="flex gap-1.5"><span class="text-primary">•</span>{{ rtrim(trim($baris), ': ') }}</li>
+                                    <li class="flex gap-1.5"><span class="text-primary">•</span>{{ trim($baris) }}</li>
                                 @endif
                             @endforeach
                         </ul>
-                        <button type="button" x-show="! deskripsi.trim()" @click="deskripsi = @js($panduan)"
-                            class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
-                            Gunakan sebagai kerangka isian →
-                        </button>
+                        <p class="mt-1.5 text-xs italic leading-relaxed text-on-surface-variant">
+                            Tak perlu terlalu rinci — detail lain bisa ditanyakan pembeli lewat WhatsApp.
+                        </p>
+                        @if(filled($contoh ?? null))
+                            <button type="button" x-show="! deskripsi.trim()" @click="deskripsi = @js($contoh)"
+                                class="mt-2 text-xs font-bold text-primary underline-offset-2 hover:underline">
+                                Bingung mulai? Pakai contoh, tinggal ganti kata-katanya →
+                            </button>
+                        @endif
                     </div>
                 @endif
             </div>
