@@ -99,6 +99,6 @@ class UmkmApplicationController extends Controller
         );
 
         return redirect()->route('portal.umkm.ajukan')
-            ->with('success', 'Pengajuan terkirim! Admin akan meninjaunya — hasilnya muncul di lonceng notifikasi.');
+            ->with('success', 'Pengajuan terkirim! Kami akan memberi tahumu begitu hasil tinjauannya keluar.');
     }
 }

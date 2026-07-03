@@ -20,7 +20,7 @@
 
     <div class="mb-5">
         <h1 class="text-xl font-bold text-on-surface sm:text-2xl">{{ $product ? 'Ubah Produk' : 'Tambah Produk' }}</h1>
-        <p class="mt-1 text-sm text-on-surface-variant">Produk akan ditinjau Admin Desa sebelum tampil di katalog.</p>
+        <p class="mt-1 text-sm text-on-surface-variant">Produk akan ditinjau Admin {{ auth()->user()->desa?->jenisDesa?->nama ?? 'Desa' }} sebelum tampil di katalog.</p>
     </div>
 
     <x-portal.card>

@@ -14,6 +14,9 @@
     // Contoh alamat mengikuti data nyata desa warga: sebutan sub-unit (Jorong/
     // Dusun/…) + nama sub-unit tempat tinggalnya bila terisi.
     $sebutanSubUnit = auth()->user()->desa?->subUnitLabel() ?? 'Wilayah';
+    // Sebutan peninjau ikut jenis desa warga (Admin Nagari/Desa/Kelurahan) —
+    // konsisten dengan nama akun admin ("Admin {nama lengkap desa}").
+    $sebutanAdmin = 'Admin '.(auth()->user()->desa?->jenisDesa?->nama ?? 'Desa');
     $contohAlamat = 'mis. '.$sebutanSubUnit.' '.(auth()->user()->desaUnit?->nama ?? 'Koto Tuo').', samping masjid raya, '.(auth()->user()->desa?->nama_lengkap ?? 'desa');
 @endphp
 
@@ -32,7 +35,7 @@
     <div class="mb-5 grid gap-3 md:grid-cols-3">
         @foreach([
             ['1', 'Isi profil usaha + 1 produk terbaik', 'Cukup SATU produk unggulan untuk pengajuan.'],
-            ['2', 'Admin Desa meninjau', 'Hasilnya masuk ke lonceng notifikasi — disetujui atau ditolak beserta alasannya.'],
+            ['2', $sebutanAdmin.' meninjau', 'Kamu akan diberi tahu hasilnya — bila ditolak, ada alasannya dan datanya bisa diperbaiki untuk diajukan ulang.'],
             ['3', 'Lapak tayang di katalog', 'Setelah disetujui, tambahkan SEMUA produkmu lewat menu "Produk Saya".'],
         ] as [$step, $judul, $ket])
             <div class="flex gap-3 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4">
@@ -55,8 +58,9 @@
                 <h2 class="mt-4 text-lg font-bold text-on-surface">Pengajuan sedang ditinjau</h2>
                 <p class="mt-1.5 max-w-md text-sm text-on-surface-variant">
                     Lapak <span class="font-semibold text-on-surface">"{{ $profile->nama_usaha }}"</span> diajukan
-                    {{ $profile->diajukan_at?->diffForHumans() }}. Hasil tinjauan Admin Desa akan muncul di lonceng
-                    notifikasi — begitu disetujui, kamu langsung bisa menambahkan semua produkmu.
+                    {{ $profile->diajukan_at?->diffForHumans() }}. Kami akan memberi tahumu begitu
+                    {{ $sebutanAdmin }} selesai meninjau — setelah disetujui, kamu langsung bisa
+                    menambahkan semua produkmu.
                 </p>
             </div>
         </x-portal.card>
