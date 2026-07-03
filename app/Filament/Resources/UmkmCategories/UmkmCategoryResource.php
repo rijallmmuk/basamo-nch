@@ -7,6 +7,7 @@ use App\Models\UmkmCategory;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -14,12 +15,47 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class UmkmCategoryResource extends Resource
 {
     protected static ?string $model = UmkmCategory::class;
+
+    /**
+     * Pilihan ikon kategori (Heroicon outline) — kurasi yang relevan untuk jenis
+     * usaha desa; dropdown menampilkan ikonnya langsung sehingga super admin
+     * tinggal memilih, dan nilai di luar daftar otomatis ditolak validasi Select.
+     *
+     * @var array<string, string> nama ikon => label pencarian
+     */
+    private const ICONS = [
+        'heroicon-o-cake' => 'Kue / kuliner',
+        'heroicon-o-fire' => 'Masakan / bakaran',
+        'heroicon-o-sparkles' => 'Kerajinan',
+        'heroicon-o-paint-brush' => 'Seni / lukis',
+        'heroicon-o-scissors' => 'Jahit / potong',
+        'heroicon-o-swatch' => 'Kain / fashion',
+        'heroicon-o-shopping-bag' => 'Belanja / toko',
+        'heroicon-o-building-storefront' => 'Warung / kios',
+        'heroicon-o-sun' => 'Pertanian',
+        'heroicon-o-beaker' => 'Peternakan / perikanan',
+        'heroicon-o-bug-ant' => 'Serangga / lebah',
+        'heroicon-o-briefcase' => 'Jasa / profesional',
+        'heroicon-o-wrench-screwdriver' => 'Bengkel / perbaikan',
+        'heroicon-o-truck' => 'Angkutan / kirim',
+        'heroicon-o-home-modern' => 'Properti / bangunan',
+        'heroicon-o-cpu-chip' => 'Elektronik',
+        'heroicon-o-device-phone-mobile' => 'Ponsel / pulsa',
+        'heroicon-o-camera' => 'Foto / dokumentasi',
+        'heroicon-o-musical-note' => 'Musik / hiburan',
+        'heroicon-o-book-open' => 'Buku / pendidikan',
+        'heroicon-o-heart' => 'Kesehatan / kecantikan',
+        'heroicon-o-gift' => 'Suvenir / hadiah',
+        'heroicon-o-cube' => 'Produk umum',
+        'heroicon-o-ellipsis-horizontal-circle' => 'Lainnya',
+    ];
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
@@ -62,11 +98,19 @@ class UmkmCategoryResource extends Resource
                         // Konsisten dgn Data Master: nama referensi global unik.
                         ->unique(ignoreRecord: true),
 
-                    TextInput::make('icon')
-                        ->label('Ikon (Heroicon)')
-                        ->placeholder('heroicon-o-cake')
-                        ->helperText('Nama ikon Heroicon, mis. heroicon-o-cake. Opsional.')
-                        ->maxLength(60),
+                    Select::make('icon')
+                        ->label('Ikon')
+                        ->options(
+                            collect(self::ICONS)->mapWithKeys(fn (string $label, string $name): array => [
+                                $name => svg($name, 'inline-block h-5 w-5 align-middle')->toHtml()
+                                    .'<span style="margin-left:.5rem">'.e($label).'</span>',
+                            ])->all()
+                        )
+                        ->allowHtml()
+                        ->searchable()
+                        ->native(false)
+                        ->placeholder('— Pilih ikon —')
+                        ->helperText('Opsional — penanda visual kategori.'),
 
                     Textarea::make('panduan_produk')
                         ->label('Panduan deskripsi produk')
@@ -105,9 +149,11 @@ class UmkmCategoryResource extends Resource
                     ->color('gray')
                     ->toggleable(),
 
-                TextColumn::make('icon')
+                IconColumn::make('icon')
                     ->label('Ikon')
-                    ->placeholder('—')
+                    ->icon(fn (?string $state): ?string => $state)
+                    ->color('gray')
+                    ->alignCenter()
                     ->toggleable(),
 
                 TextColumn::make('profiles_count')

@@ -58,6 +58,21 @@ Sadar-DIBIARKAN: kolom icon kategori belum dipakai di tampilan; slug kategori re
 saat rename (tak dipakai URL publik); desa_id profil tak ikut bila warga pindah desa
 (transfer warga memang belum ada). Suite 346 (344 lulus, 2 skip).
 
+**TAHAP VERIFIKASI PRODUK admin desa dipoles production-ready:**
+- Scoping desa DIKONFIRMASI kokoh: query ter-scope managedDesaId (desa_admin → desanya;
+  super wajib DesaContext), aksi lintas-desa DITOLAK Filament ("Record no longer exists")
+  — dikunci test baru; produk bawaan pengajuan tetap tak antre dobel (whereNull).
+- GAP UX difix: admin dulu TAK BISA lihat foto+deskripsi sebelum menyetujui → aksi
+  "Setujui" kini "Tinjau & Setujui" bermodal detail (foto klik-perbesar, deskripsi,
+  usaha+pemilik+NIK; view filament/umkm-product-detail — pola = modal Pengajuan UMKM);
+  peringatan bila produk tanpa foto. + kolom thumbnail foto; tolak: minLength 5/max 1000 +
+  modalDescription; notifikasi sukses admin utk setujui/tolak; kolom Desa dihapus (dead
+  code — semua aktor selalu ter-scope satu desa).
+**Ikon kategori UMKM (permintaan user)**: TextInput bebas → Select visual ber-preview ikon
+(24 Heroicon kurasi ber-label Indonesia, allowHtml+searchable via svg(); nilai luar daftar
+otomatis ditolak validasi Select — dikunci test); kolom tabel icon → IconColumn (tampil
+ikonnya). Suite 348 (346 lulus, 2 skip).
+
 ---
 
 ## Sesi 2026-07-03 (lanjutan 2) — Panduan pengisian produk per kategori (commit a37c220)

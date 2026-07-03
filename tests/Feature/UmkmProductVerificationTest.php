@@ -76,3 +76,20 @@ it('warga biasa tidak boleh mengakses antrian verifikasi', function () {
 
     Livewire::test(ListUmkmProducts::class)->assertForbidden();
 });
+
+it('desa_admin tidak bisa memverifikasi produk desa lain (aksi buntu, status tak berubah)', function () {
+    $desaA = Desa::factory()->create();
+    $desaB = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desaA->id]);
+    $profilB = UmkmProfile::factory()->create(['desa_id' => $desaB->id]);
+    $produkB = UmkmProduct::factory()->create(['umkm_profile_id' => $profilB->id, 'status' => 'pending']);
+
+    $this->actingAs($admin);
+
+    // Record di luar scope query tabel → Filament menolak ("Record no longer exists").
+    expect(fn () => Livewire::test(ListUmkmProducts::class)->callTableAction('approve', $produkB))
+        ->toThrow(Exception::class, 'no longer exists');
+
+    expect($produkB->refresh()->status->value)->toBe('pending')
+        ->and($produkB->approved_by)->toBeNull();
+});
