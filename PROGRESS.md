@@ -37,6 +37,11 @@ lebar halaman via hook `@section('main-width')` layout portal (pengajuan max-w-6
 produk & profil max-w-3xl); kolom pratinjau pas kartu (`lg:grid-cols-[minmax(0,1fr)_19rem]`);
 tombol Kirim/Batal ke bawah semua konten (mobile: form → pratinjau → tombol); strip 3 langkah
 `md:grid-cols-3`. npm run build ✓.
+**Sebutan peninjau + copy (commit d34a48e, temuan user)**: "Admin Desa" statis → "Admin
+{jenis desa}" dinamis (kartu langkah 2, status menunggu, subjudul form produk, flash
+verifikasi); "hasil masuk lonceng notifikasi" dibuang (bocor mekanisme, tak berguna bagi
+penjual) → copy fokus hasil & jalan perbaikan bila ditolak. Login page tetap generik
+(belum ada konteks desa). Test +assert "Admin Nagari meninjau".
 
 ---
 
