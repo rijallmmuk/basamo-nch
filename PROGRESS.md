@@ -31,6 +31,12 @@ beranda publik `nama` → `nama_lengkap` (+eager jenisDesa); dropdown filter kat
 Admin sudah dinamis sejak awal (subUnitLabel/DesaContext); "Jorong/Dusun" tersisa hanya
 contoh di helperText pemilih sebutan (memang wajar) + branding publik "Nagari Creative Hub"
 (nama produk, bukan rujukan desa). Suite 344 (342 lulus, 2 skip) — +test sebutan dinamis.
+**Rapikan tampilan form UMKM (commit 27a3ca9)**: "katalog Laravel" = APP_NAME .env lokal
+masih default → diisi "Basamo NCH" (env produksi juga HARUS diisi; .env.example sudah benar);
+lebar halaman via hook `@section('main-width')` layout portal (pengajuan max-w-6xl, form
+produk & profil max-w-3xl); kolom pratinjau pas kartu (`lg:grid-cols-[minmax(0,1fr)_19rem]`);
+tombol Kirim/Batal ke bawah semua konten (mobile: form → pratinjau → tombol); strip 3 langkah
+`md:grid-cols-3`. npm run build ✓.
 
 ---
 
