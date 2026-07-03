@@ -6,6 +6,22 @@
 
 ---
 
+## Sesi 2026-07-04 — FULL AUDIT UMKM: 8 temuan ditutup (commit 9b677fb)
+
+Suite **355 (353 lulus, 2 skip)**, build ✓. Audit mendalam pra-PR, user setujui semua:
+T1 arsip warga → lapak nonaktif (event User::deleted soft-only; restored → aktif bila
+akses masih ada); T2 badge Verifikasi withoutTrashed; T3 pengajuan-ulang bekas lapak
+resmi TIDAK menimpa produk lama (reuse produk hanya bila profil berstatus pengajuan —
+$wasApplication dicek SEBELUM saveProfile; prefill & hitungan foto ikut); T4 revive
+lapak terarsip oleh pemilik ber-akses → status dipaksa Active (edit biasa tetap tak
+sentuh status); T5 kelebihan foto ditolak ber-pesan (bukan drop senyap); T6 banner
+lapak-nonaktif di Produk Saya; T7 chart kategori approved-only; T8 kolom antrean
+Pengajuan = produk unggulan saja. SEHAT terkonfirmasi: scoping per-record policy,
+fulltext ok (driver mysql), binding publik tolak trashed, siklus reversible penuh.
+**UMKM DINYATAKAN READY-PRODUCTION.** Next: cek browser + PR ke main.
+
+---
+
 ## Sesi 2026-07-03 (lanjutan 4) — Polesan verifikasi + kompresi foto (commit 6a7c6c8)
 
 Suite **347 (345 lulus, 2 skip)**, build ✓. Arahan user, semua SELESAI (DECISIONS dicatat):
