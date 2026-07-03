@@ -3,6 +3,7 @@
 @section('title', 'Produk Saya')
 
 @php
+    $sebutanAdmin = 'Admin '.(auth()->user()->desa?->jenisDesa?->nama ?? 'Desa');
     $statusMap = [
         'approved' => ['label' => 'Disetujui', 'class' => 'bg-sdg-3/10 text-sdg-3', 'icon' => 'heroicon-s-check-circle'],
         'pending' => ['label' => 'Menunggu', 'class' => 'bg-secondary-container text-on-secondary-container', 'icon' => 'heroicon-s-clock'],
@@ -99,7 +100,7 @@
                                         tone="danger"
                                         icon="heroicon-o-trash"
                                         title="Hapus produk?"
-                                        :message="'Produk «'.$product->nama_produk.'» akan dihapus permanen dari katalog. Tindakan ini tidak dapat dibatalkan.'"
+                                        :message="'Produk «'.$product->nama_produk.'» akan dihapus dari lapakmu dan katalog. Bila keliru, hubungi '.$sebutanAdmin.' untuk memulihkannya.'"
                                         confirm-label="Ya, Hapus"
                                         form="hapus-produk-{{ $product->id }}"
                                         trigger-class="font-semibold text-error transition-colors hover:text-on-error-container">

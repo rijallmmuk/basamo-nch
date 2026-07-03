@@ -100,3 +100,23 @@ it('desa_admin tidak bisa memverifikasi produk desa lain (aksi buntu, status tak
     expect($produkB->refresh()->status->value)->toBe('pending')
         ->and($produkB->approved_by)->toBeNull();
 });
+
+it('produk yang dihapus warga bisa dipulihkan admin desa (semua aksi reversible)', function () {
+    $desa = Desa::factory()->create();
+    $admin = User::factory()->desaAdmin()->create(['desa_id' => $desa->id]);
+    $owner = User::factory()->umkmOwner()->create(['desa_id' => $desa->id]);
+    $profile = UmkmProfile::factory()->create(['desa_id' => $desa->id, 'user_id' => $owner->id]);
+    $product = UmkmProduct::factory()->approved()->create(['umkm_profile_id' => $profile->id]);
+
+    $product->delete(); // warga menghapus dari portal (soft delete)
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUmkmProducts::class)
+        ->filterTable('status', null) // lepas filter default "menunggu"
+        ->filterTable('trashed', true)
+        ->assertCanSeeTableRecords([$product])
+        ->callTableAction('restore', $product);
+
+    expect($product->refresh()->trashed())->toBeFalse();
+});

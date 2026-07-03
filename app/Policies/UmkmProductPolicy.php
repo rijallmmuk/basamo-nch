@@ -38,6 +38,21 @@ class UmkmProductPolicy
         return $this->ownsProduct($user, $product);
     }
 
+    /**
+     * Pulihkan/hapus permanen produk terhapus = wewenang admin desa (semua aksi
+     * reversible — warga yang keliru menghapus minta admin memulihkan).
+     * Scoping desa dijaga query resource; super_admin via Gate::before.
+     */
+    public function restore(User $user, UmkmProduct $product): bool
+    {
+        return $user->isDesaAdmin();
+    }
+
+    public function forceDelete(User $user, UmkmProduct $product): bool
+    {
+        return $user->isDesaAdmin();
+    }
+
     private function ownsProduct(User $user, UmkmProduct $product): bool
     {
         return $user->hasUmkmAccess()

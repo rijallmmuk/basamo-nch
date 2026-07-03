@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 /**
  * Antrian verifikasi produk lintas usaha (global). desa_admin hanya melihat
@@ -89,6 +90,9 @@ class UmkmProductResource extends Resource
                 // lewat menu "Pengajuan UMKM" (cegah antrean ganda / setuju separuh).
                 ->whereHas('umkmProfile', fn (Builder $q) => $q->whereNull('status_pengajuan'))
                 ->with(['umkmProfile.desa', 'umkmProfile.owner', 'category'])
+                // Produk terhapus bisa ditampilkan (TrashedFilter) agar admin dapat
+                // memulihkan produk yang keliru dihapus warga — semua aksi reversible.
+                ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }
 

@@ -6,11 +6,14 @@ use App\Enums\UmkmProductStatus;
 use App\Models\UmkmProduct;
 use App\Services\UmkmService;
 use Filament\Actions\Action;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -72,6 +75,7 @@ class UmkmProductsTable
                 SelectFilter::make('umkm_category_id')
                     ->label('Kategori')
                     ->relationship('category', 'nama'),
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 // SATU aksi "Tinjau" (keputusan user): modal detail (foto + deskripsi
@@ -81,6 +85,7 @@ class UmkmProductsTable
                     ->label('Tinjau')
                     ->icon('heroicon-o-eye')
                     ->color('info')
+                    ->visible(fn (UmkmProduct $record): bool => ! $record->trashed())
                     ->modalHeading(fn (UmkmProduct $record): string => 'Produk: '.$record->nama_produk)
                     ->modalContent(fn (UmkmProduct $record) => view('filament.umkm-product-detail', ['product' => $record]))
                     ->modalWidth('2xl')
@@ -134,6 +139,11 @@ class UmkmProductsTable
                             })
                             ->cancelParentActions(),
                     ]),
+
+                // Produk yang dihapus warga bisa dipulihkan admin (reversible) —
+                // atau dihapus permanen bila memang sudah tidak diperlukan.
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->defaultSort('created_at', 'asc');
     }
