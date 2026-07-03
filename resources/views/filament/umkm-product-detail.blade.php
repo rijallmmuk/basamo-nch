@@ -21,14 +21,7 @@
         </dl>
 
         @if($photos->isNotEmpty())
-            <div class="mt-3 flex flex-wrap gap-2">
-                @foreach($photos as $media)
-                    <a href="{{ $media->getUrl() }}" target="_blank" rel="noopener">
-                        <img src="{{ $media->getUrl('card') }}" alt=""
-                            class="h-24 w-24 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-white/10">
-                    </a>
-                @endforeach
-            </div>
+            @include('filament.partials.photo-lightbox', ['photos' => $photos])
         @else
             <p class="mt-3 rounded-xl bg-gray-50 px-4 py-3 text-gray-600 dark:bg-white/5 dark:text-gray-300">
                 <span class="font-semibold">Perhatian:</span> produk ini belum punya foto — pertimbangkan

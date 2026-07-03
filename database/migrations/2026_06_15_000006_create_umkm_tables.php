@@ -22,37 +22,37 @@ return new class extends Migration
      */
     private const CATEGORIES = [
         [
-            'slug' => 'kuliner', 'nama' => 'Kuliner', 'icon' => 'heroicon-o-cake',
+            'slug' => 'kuliner', 'nama' => 'Kuliner',
             'panduan_produk' => "Varian atau rasa yang tersedia\nBerat atau isi per kemasan\nApa yang membuatnya istimewa",
             'contoh_deskripsi' => 'Keripik singkong balado renyah dengan bumbu racikan sendiri. Tersedia rasa original dan pedas, kemasan 250 gram. Dibuat dari bahan pilihan tanpa pengawet.',
         ],
         [
-            'slug' => 'kerajinan', 'nama' => 'Kerajinan', 'icon' => 'heroicon-o-sparkles',
+            'slug' => 'kerajinan', 'nama' => 'Kerajinan',
             'panduan_produk' => "Bahan baku yang dipakai\nUkuran produk\nBisa pesan custom atau tidak",
             'contoh_deskripsi' => 'Tas anyaman pandan buatan tangan, ukuran 30 × 25 cm. Tersedia beberapa pilihan motif, bisa juga pesan sesuai keinginan. Kuat dan rapi untuk dipakai sehari-hari.',
         ],
         [
-            'slug' => 'fashion', 'nama' => 'Fashion & Tekstil', 'icon' => 'heroicon-o-swatch',
+            'slug' => 'fashion', 'nama' => 'Fashion & Tekstil',
             'panduan_produk' => "Jenis bahan atau kain\nUkuran yang tersedia\nPilihan warna atau motif",
             'contoh_deskripsi' => 'Baju kurung bahan katun yang adem dan nyaman dipakai. Tersedia ukuran S sampai XL dengan beberapa pilihan warna. Jahitan rapi, cocok untuk acara resmi maupun harian.',
         ],
         [
-            'slug' => 'pertanian', 'nama' => 'Pertanian & Perkebunan', 'icon' => 'heroicon-o-sun',
+            'slug' => 'pertanian', 'nama' => 'Pertanian & Perkebunan',
             'panduan_produk' => "Satuan jual (kg, ikat, karung)\nKondisi (segar, kering, olahan)\nApa keunggulannya",
             'contoh_deskripsi' => 'Beras sipulen hasil panen sendiri, dijual per karung 10 kg. Butiran utuh dan pulen saat dimasak. Stok tersedia setiap bulan.',
         ],
         [
-            'slug' => 'peternakan', 'nama' => 'Peternakan & Perikanan', 'icon' => 'heroicon-o-beaker',
+            'slug' => 'peternakan', 'nama' => 'Peternakan & Perikanan',
             'panduan_produk' => "Satuan jual (kg, ekor, ikat)\nKondisi (hidup, segar, beku)\nUkuran atau bobot rata-rata",
             'contoh_deskripsi' => 'Ikan nila segar langsung dari kolam sendiri, dijual per kg. Ukuran rata-rata 3–4 ekor per kg. Bisa dibersihkan dulu sesuai permintaan.',
         ],
         [
-            'slug' => 'jasa', 'nama' => 'Jasa', 'icon' => 'heroicon-o-briefcase',
+            'slug' => 'jasa', 'nama' => 'Jasa',
             'panduan_produk' => "Layanan apa yang didapat\nPerkiraan lama pengerjaan\nApa saja yang sudah termasuk harga",
             'contoh_deskripsi' => 'Jasa jahit pakaian wanita dan seragam sekolah. Pengerjaan sekitar satu minggu, harga sudah termasuk benang dan kancing. Hasil rapi, bisa disesuaikan bila kurang pas.',
         ],
         [
-            'slug' => 'lainnya', 'nama' => 'Lainnya', 'icon' => 'heroicon-o-ellipsis-horizontal-circle',
+            'slug' => 'lainnya', 'nama' => 'Lainnya',
             'panduan_produk' => "Apa produknya dan kegunaannya\nUkuran, berat, atau isi\nApa yang membuatnya istimewa",
             'contoh_deskripsi' => 'Sabun cuci piring buatan sendiri, kemasan botol 500 ml. Busa melimpah dengan wangi jeruk nipis, ampuh mengangkat lemak. Lebih hemat dibanding merek pabrik.',
         ],
@@ -64,7 +64,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 100);
             $table->string('slug', 100)->unique();
-            $table->string('icon', 60)->nullable();
             // Bantuan deskripsi produk di form warga — umum saja, detail via
             // WhatsApp: panduan (satu poin per baris) + contoh deskripsi jadi
             // yang bisa dipakai sekali klik lalu diubah seperlunya.

@@ -16,12 +16,34 @@
 <div x-data="{
         max: {{ (int) $max }},
         items: [],
-        add(e) {
-            for (const file of Array.from(e.target.files)) {
+        async add(e) {
+            const picked = Array.from(e.target.files);
+            for (const file of picked) {
                 if (this.items.length >= this.max) break;
-                this.items.push({ file, url: URL.createObjectURL(file) });
+                const optimized = await this.compress(file);
+                this.items.push({ file: optimized, url: URL.createObjectURL(optimized) });
             }
             this.sync();
+        },
+        // Kompres di klien (pola foto profil warga): sisi terpanjang maks 1920px,
+        // JPEG q0.8 — warga bebas memilih foto sebesar apa pun, transfer tetap ringan.
+        // Gagal (format tak terbaca) → kirim asli; server tetap mengompres ulang.
+        async compress(file) {
+            try {
+                const bmp = await createImageBitmap(file);
+                const scale = Math.min(1, 1920 / Math.max(bmp.width, bmp.height));
+                const w = Math.max(1, Math.round(bmp.width * scale));
+                const h = Math.max(1, Math.round(bmp.height * scale));
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); // PNG transparan → latar putih
+                ctx.drawImage(bmp, 0, 0, w, h);
+                bmp.close();
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+                if (! blob) return file;
+                return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+            } catch { return file; }
         },
         remove(i) {
             URL.revokeObjectURL(this.items[i].url);

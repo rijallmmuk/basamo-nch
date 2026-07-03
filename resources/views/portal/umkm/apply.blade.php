@@ -50,18 +50,62 @@
 
     {{-- ══ Pengajuan sedang ditinjau — tanpa form ══ --}}
     @if($menunggu)
-        <x-portal.card>
-            <div class="flex flex-col items-center px-4 py-10 text-center">
+        <x-portal.card class="mx-auto max-w-xl">
+            <div class="flex flex-col items-center px-2 pb-2 pt-6 text-center sm:px-6">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
                     <x-heroicon-o-clock class="h-8 w-8 text-on-secondary-container" />
                 </span>
                 <h2 class="mt-4 text-lg font-bold text-on-surface">Pengajuan sedang ditinjau</h2>
-                <p class="mt-1.5 max-w-md text-sm text-on-surface-variant">
-                    Lapak <span class="font-semibold text-on-surface">"{{ $profile->nama_usaha }}"</span> diajukan
-                    {{ $profile->diajukan_at?->diffForHumans() }}. Kami akan memberi tahumu begitu
+                <p class="mt-1.5 max-w-md text-sm leading-relaxed text-on-surface-variant">
+                    Diajukan {{ $profile->diajukan_at?->diffForHumans() }}. Kami akan memberi tahumu begitu
                     {{ $sebutanAdmin }} selesai meninjau — setelah disetujui, kamu langsung bisa
                     menambahkan semua produkmu.
                 </p>
+
+                {{-- Progres 3 langkah: Terkirim ✓ → Ditinjau (berjalan) → Hasil --}}
+                <div class="mt-6 flex w-full max-w-xs items-start">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-on-primary">
+                            <x-heroicon-s-check class="h-4 w-4" />
+                        </span>
+                        <span class="text-[11px] font-semibold text-on-surface">Terkirim</span>
+                    </div>
+                    <div class="mx-1.5 mt-3 h-0.5 flex-1 rounded bg-primary"></div>
+                    <div class="flex flex-col items-center gap-1.5">
+                        <span class="relative flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container">
+                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary-container opacity-60"></span>
+                            <x-heroicon-s-clock class="relative h-4 w-4 text-on-secondary-container" />
+                        </span>
+                        <span class="text-[11px] font-semibold text-on-surface">Ditinjau</span>
+                    </div>
+                    <div class="mx-1.5 mt-3 h-0.5 flex-1 rounded bg-outline-variant"></div>
+                    <div class="flex flex-col items-center gap-1.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-surface-container ring-1 ring-outline-variant">
+                            <x-heroicon-o-bell class="h-4 w-4 text-on-surface-variant" />
+                        </span>
+                        <span class="text-[11px] text-on-surface-variant">Hasil</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Ringkasan yang diajukan --}}
+            <div class="mt-6 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4">
+                <p class="mb-3 text-xs font-bold uppercase tracking-wide text-on-surface-variant">Yang kamu ajukan</p>
+                <div class="flex items-center gap-4">
+                    <img src="{{ $product?->coverUrl() }}" alt=""
+                        class="h-16 w-16 shrink-0 rounded-xl object-cover ring-1 ring-outline-variant">
+                    <div class="min-w-0">
+                        <p class="flex flex-wrap items-center gap-2 font-semibold text-on-surface">
+                            <span class="truncate">{{ $profile->nama_usaha }}</span>
+                            @if($profile->category)
+                                <span class="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $profile->category->nama }}</span>
+                            @endif
+                        </p>
+                        <p class="mt-0.5 truncate text-sm text-on-surface-variant">
+                            {{ $product?->nama_produk }}@if($product?->harga) · Rp {{ number_format($product->harga, 0, ',', '.') }}@endif
+                        </p>
+                    </div>
+                </div>
             </div>
         </x-portal.card>
     @else
@@ -216,7 +260,7 @@
                                 <span class="font-normal text-on-surface-variant">({{ $existingPhotos->isNotEmpty() ? 'sisa '.max(0, $remaining).' slot' : 'minimal 1, maks '.$maxPhotos }})</span>
                             </label>
                             <x-portal.photo-picker :max="max(0, $remaining)" />
-                            <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP — maks 2MB per foto. Foto pertama jadi sampul produk.</p>
+                            <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP — ukuran bebas, otomatis dikompres. Foto pertama jadi sampul produk.</p>
                             @error('photos') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                             @error('photos.*') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                         </div>

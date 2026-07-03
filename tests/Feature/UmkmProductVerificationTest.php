@@ -6,6 +6,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Notifications\UmkmProductVerified;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -41,7 +42,7 @@ it('menyetujui produk menyetel jejak verifikasi dan memberi tahu pemilik', funct
     $this->actingAs($admin);
 
     Livewire::test(ListUmkmProducts::class)
-        ->callTableAction('approve', $product);
+        ->callTableAction('tinjau', $product);
 
     $product->refresh();
     expect($product->status->value)->toBe('approved')
@@ -60,7 +61,10 @@ it('menolak produk menyimpan alasan dan mengembalikan status', function () {
     $this->actingAs($admin);
 
     Livewire::test(ListUmkmProducts::class)
-        ->callTableAction('reject', $product, data: ['alasan_penolakan' => 'Foto kurang jelas']);
+        ->callAction([
+            TestAction::make('tinjau')->table($product),
+            TestAction::make('tolak'),
+        ], ['alasan_penolakan' => 'Foto kurang jelas']);
 
     $product->refresh();
     expect($product->status->value)->toBe('rejected')
@@ -87,7 +91,7 @@ it('desa_admin tidak bisa memverifikasi produk desa lain (aksi buntu, status tak
     $this->actingAs($admin);
 
     // Record di luar scope query tabel → Filament menolak ("Record no longer exists").
-    expect(fn () => Livewire::test(ListUmkmProducts::class)->callTableAction('approve', $produkB))
+    expect(fn () => Livewire::test(ListUmkmProducts::class)->callTableAction('tinjau', $produkB))
         ->toThrow(Exception::class, 'no longer exists');
 
     expect($produkB->refresh()->status->value)->toBe('pending')

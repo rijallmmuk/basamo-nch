@@ -40,14 +40,7 @@
             </dl>
 
             @if($photos->isNotEmpty())
-                <div class="mt-3 flex flex-wrap gap-2">
-                    @foreach($photos as $media)
-                        <a href="{{ $media->getUrl() }}" target="_blank" rel="noopener">
-                            <img src="{{ $media->getUrl('card') }}" alt=""
-                                class="h-24 w-24 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-white/10">
-                        </a>
-                    @endforeach
-                </div>
+                @include('filament.partials.photo-lightbox', ['photos' => $photos])
             @endif
         @else
             <p class="text-gray-500 dark:text-gray-400">— Tidak ada produk terlampir —</p>

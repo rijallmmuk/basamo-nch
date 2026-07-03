@@ -76,7 +76,7 @@ class UmkmApplicationController extends Controller
             'deskripsi_produk' => ['required', 'string', 'min:30', 'max:5000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
             'photos' => [Rule::requiredIf($existingPhotos === 0), 'array', 'max:'.UmkmService::MAX_PHOTOS],
-            'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:10240'],
         ], [
             'whatsapp.regex' => 'Isi nomor WhatsApp yang valid, mis. 08123456789.',
             'photos.required' => 'Unggah minimal satu foto produk.',

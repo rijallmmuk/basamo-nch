@@ -103,7 +103,7 @@
                     <span class="font-normal text-on-surface-variant">({{ $product ? 'sisa '.max(0, $remaining).' slot' : 'minimal 1, maks '.$maxPhotos }})</span>
                 </label>
                 <x-portal.photo-picker :max="$product ? max(0, $remaining) : $maxPhotos" />
-                <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP. Maks 2MB per foto. Foto pertama jadi sampul produk.</p>
+                <p class="mt-1.5 text-xs text-on-surface-variant">JPG, PNG, atau WEBP — ukuran bebas, otomatis dikompres. Foto pertama jadi sampul produk.</p>
                 @error('photos') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                 @error('photos.*') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
             </div>

@@ -106,7 +106,7 @@ class UmkmProductController extends Controller
             'deskripsi' => ['required', 'string', 'min:30', 'max:5000'],
             'harga' => ['required', 'integer', 'min:0', 'max:999999999'],
             'photos' => [$creating ? 'required' : 'nullable', 'array', 'max:'.UmkmService::MAX_PHOTOS],
-            'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'photos.*' => ['image', 'mimes:jpeg,png,webp', 'max:10240'],
         ], [
             'photos.required' => 'Unggah minimal satu foto produk.',
             'deskripsi.min' => 'Jelaskan produkmu lebih lengkap (minimal 30 karakter) — ikuti panduan di bawah kolom deskripsi.',

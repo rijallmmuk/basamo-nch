@@ -14,6 +14,8 @@ use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Image\Enums\Fit;
+use Spatie\Image\Image;
 
 class UmkmService
 {
@@ -196,6 +198,8 @@ class UmkmService
 
     /**
      * Lampirkan foto sambil menghormati batas MAX_PHOTOS (sisa slot saja).
+     * Foto dioptimasi dulu sebelum disimpan (pengaman server — umumnya sudah
+     * dikompres di klien oleh photo-picker): sisi terpanjang maks 1920px, q80.
      *
      * @param  array<int, UploadedFile>  $photos
      */
@@ -206,6 +210,19 @@ class UmkmService
         Collection::make($photos)
             ->filter()
             ->take(max(0, $remaining))
-            ->each(fn (UploadedFile $file) => $product->addMedia($file)->toMediaCollection('photos'));
+            ->each(function (UploadedFile $file) use ($product): void {
+                // File tmp upload tak berekstensi → hasil optimasi disimpan ke
+                // path berekstensi agar driver gambar tahu format tujuannya.
+                $optimized = $file->getRealPath().'.'.($file->extension() ?: 'jpg');
+
+                Image::load($file->getRealPath())
+                    ->fit(Fit::Max, 1920, 1920)
+                    ->quality(80)
+                    ->save($optimized);
+
+                $product->addMedia($optimized)
+                    ->usingFileName($file->getClientOriginalName() ?: basename($optimized))
+                    ->toMediaCollection('photos');
+            });
     }
 }

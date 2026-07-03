@@ -64,17 +64,18 @@ class UmkmProductsTable
                     ->default('pending'),
             ])
             ->recordActions([
-                // Tinjau detail lengkap (foto + deskripsi + usaha) → Setujui —
-                // pola sama dengan modal "Tinjau & Setujui" di Pengajuan UMKM.
-                Action::make('approve')
-                    ->label('Tinjau & Setujui')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Approved)
+                // SATU aksi "Tinjau" (keputusan user): modal detail (foto + deskripsi
+                // + usaha) dulu, keputusan Setujui/Tolak dipilih DI DALAM modal —
+                // pola sama dengan antrean Pengajuan UMKM.
+                Action::make('tinjau')
+                    ->label('Tinjau')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
                     ->modalHeading(fn (UmkmProduct $record): string => 'Produk: '.$record->nama_produk)
                     ->modalContent(fn (UmkmProduct $record) => view('filament.umkm-product-detail', ['product' => $record]))
-                    ->modalSubmitActionLabel('Setujui Produk')
                     ->modalWidth('2xl')
+                    ->modalSubmitActionLabel('Setujui Produk')
+                    ->modalSubmitAction(fn ($action, UmkmProduct $record) => $action->hidden($record->status === UmkmProductStatus::Approved))
                     ->action(function (UmkmProduct $record): void {
                         app(UmkmService::class)->verifyProduct($record, UmkmProductStatus::Approved, Auth::id());
 
@@ -83,33 +84,34 @@ class UmkmProductsTable
                             ->body("\"{$record->nama_produk}\" tayang di katalog publik. Pemilik diberi tahu.")
                             ->success()
                             ->send();
-                    }),
+                    })
+                    ->extraModalFooterActions([
+                        Action::make('tolak')
+                            ->label('Tolak…')
+                            ->color('danger')
+                            ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
+                            ->modalHeading('Tolak produk')
+                            ->modalDescription('Alasan ditampilkan ke pemilik — ia dapat memperbaiki lalu mengajukan ulang.')
+                            ->modalSubmitActionLabel('Tolak')
+                            ->schema([
+                                Textarea::make('alasan_penolakan')
+                                    ->label('Alasan penolakan')
+                                    ->required()
+                                    ->minLength(5)
+                                    ->maxLength(1000)
+                                    ->rows(3),
+                            ])
+                            ->action(function (UmkmProduct $record, array $data): void {
+                                app(UmkmService::class)->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['alasan_penolakan']);
 
-                Action::make('reject')
-                    ->label('Tolak')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->visible(fn (UmkmProduct $record): bool => $record->status !== UmkmProductStatus::Rejected)
-                    ->modalHeading('Tolak produk')
-                    ->modalDescription('Alasan ditampilkan ke pemilik — ia dapat memperbaiki lalu mengajukan ulang.')
-                    ->modalSubmitActionLabel('Tolak')
-                    ->schema([
-                        Textarea::make('alasan_penolakan')
-                            ->label('Alasan penolakan')
-                            ->required()
-                            ->minLength(5)
-                            ->maxLength(1000)
-                            ->rows(3),
-                    ])
-                    ->action(function (UmkmProduct $record, array $data): void {
-                        app(UmkmService::class)->verifyProduct($record, UmkmProductStatus::Rejected, Auth::id(), $data['alasan_penolakan']);
-
-                        Notification::make()
-                            ->title('Produk ditolak')
-                            ->body('Pemilik diberi tahu beserta alasannya.')
-                            ->success()
-                            ->send();
-                    }),
+                                Notification::make()
+                                    ->title('Produk ditolak')
+                                    ->body('Pemilik diberi tahu beserta alasannya.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->cancelParentActions(),
+                    ]),
             ])
             ->defaultSort('created_at', 'asc');
     }

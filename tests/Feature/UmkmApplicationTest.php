@@ -14,6 +14,7 @@ use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Notifications\UmkmApplicationDecided;
 use App\Services\UmkmService;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -163,7 +164,10 @@ it('menolak pengajuan wajib beralasan; warga melihat alasan & bisa mengajukan ul
 
     actingAs($admin);
     Livewire::test(ListUmkmApplications::class)
-        ->callTableAction('tolak', $profile, ['alasan' => 'Foto produk kurang jelas.']);
+        ->callAction([
+            TestAction::make('tinjau')->table($profile),
+            TestAction::make('tolak'),
+        ], ['alasan' => 'Foto produk kurang jelas.']);
 
     expect($profile->refresh()->status_pengajuan)->toBe(PengajuanUmkmStatus::Ditolak)
         ->and($warga->fresh()->hasUmkmAccess())->toBeFalse();
@@ -247,7 +251,7 @@ it('profil & produk pengajuan tidak bocor ke daftar Profil UMKM dan antrean Veri
         ->assertCanSeeTableRecords([$profile->refresh()]);
 });
 
-it('pengajuan dari warga yang sudah diarsipkan tidak bisa disetujui (aksi tersembunyi)', function () {
+it('pengajuan dari warga yang sudah diarsipkan tidak bisa disetujui (hanya bisa ditolak)', function () {
     $warga = wargaPemohon();
     $admin = User::factory()->desaAdmin()->create(['desa_id' => $warga->desa_id]);
 
@@ -261,8 +265,14 @@ it('pengajuan dari warga yang sudah diarsipkan tidak bisa disetujui (aksi tersem
     $warga->delete(); // pengaju diarsipkan saat pengajuan menggantung
 
     actingAs($admin);
+
+    // Modal tinjau tetap bisa dibuka (untuk menolak), tapi submit Setujui
+    // digagalkan guard server — status tetap menunggu, tak ada akses terbit.
     Livewire::test(ListUmkmApplications::class)
-        ->assertTableActionHidden('tinjau', $profile);
+        ->callTableAction('tinjau', $profile);
+
+    expect($profile->refresh()->status_pengajuan)->toBe(PengajuanUmkmStatus::Menunggu)
+        ->and($profile->status)->toBe(ActiveStatus::Inactive);
 });
 
 it('pengajuan tidak lagi meminta deskripsi profil; alamat tetap wajib', function () {

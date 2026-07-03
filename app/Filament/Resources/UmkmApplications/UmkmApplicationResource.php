@@ -143,21 +143,32 @@ class UmkmApplicationResource extends Resource
                     ->options(PengajuanUmkmStatus::class),
             ])
             ->recordActions([
-                // Tinjau detail lengkap (profil + produk + foto) → Setujui.
+                // SATU aksi "Tinjau" (keputusan user): modal detail lengkap dulu,
+                // keputusan Setujui/Tolak baru dipilih DI DALAM modal.
                 Action::make('tinjau')
-                    ->label('Tinjau & Setujui')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    // Guard pengaju hilang (akun diarsipkan saat pengajuan menggantung):
-                    // tanpa pemilik, tak ada yang bisa diberi akses — jangan bisa disetujui.
+                    ->label('Tinjau')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
                     ->visible(fn (UmkmProfile $record): bool => $record->status_pengajuan === PengajuanUmkmStatus::Menunggu
-                        && $record->owner !== null
                         && auth()->user()->can('update', $record))
                     ->modalHeading(fn (UmkmProfile $record): string => 'Pengajuan: '.$record->nama_usaha)
                     ->modalContent(fn (UmkmProfile $record) => view('filament.umkm-application-detail', ['profile' => $record]))
-                    ->modalSubmitActionLabel('Setujui Pengajuan')
                     ->modalWidth('2xl')
+                    ->modalSubmitActionLabel('Setujui Pengajuan')
+                    // Pengaju hilang (akun diarsipkan): tak ada yang bisa diberi
+                    // akses — tombol Setujui disembunyikan, sisanya hanya Tolak.
+                    ->modalSubmitAction(fn ($action, UmkmProfile $record) => $action->hidden($record->owner === null))
                     ->action(function (UmkmProfile $record): void {
+                        if ($record->owner === null) {
+                            Notification::make()
+                                ->title('Tidak bisa disetujui')
+                                ->body('Pengaju sudah diarsipkan — pengajuan hanya bisa ditolak.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
                         app(UmkmService::class)->approveApplication($record, auth()->user());
 
                         Notification::make()
@@ -165,34 +176,33 @@ class UmkmApplicationResource extends Resource
                             ->body("{$record->owner?->name} kini Pemilik UMKM — lapak & produknya tayang di katalog.")
                             ->success()
                             ->send();
-                    }),
+                    })
+                    ->extraModalFooterActions([
+                        Action::make('tolak')
+                            ->label('Tolak…')
+                            ->color('danger')
+                            ->modalHeading('Tolak pengajuan')
+                            ->modalDescription('Alasan ditampilkan ke warga — ia dapat memperbaiki lalu mengajukan ulang.')
+                            ->modalSubmitActionLabel('Tolak')
+                            ->schema([
+                                Textarea::make('alasan')
+                                    ->label('Alasan penolakan')
+                                    ->required()
+                                    ->minLength(5)
+                                    ->maxLength(1000)
+                                    ->rows(3),
+                            ])
+                            ->action(function (UmkmProfile $record, array $data): void {
+                                app(UmkmService::class)->rejectApplication($record, $data['alasan']);
 
-                Action::make('tolak')
-                    ->label('Tolak')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->visible(fn (UmkmProfile $record): bool => $record->status_pengajuan === PengajuanUmkmStatus::Menunggu
-                        && auth()->user()->can('update', $record))
-                    ->modalHeading('Tolak pengajuan')
-                    ->modalDescription('Alasan ditampilkan ke warga — ia dapat memperbaiki lalu mengajukan ulang.')
-                    ->modalSubmitActionLabel('Tolak')
-                    ->schema([
-                        Textarea::make('alasan')
-                            ->label('Alasan penolakan')
-                            ->required()
-                            ->minLength(5)
-                            ->maxLength(1000)
-                            ->rows(3),
-                    ])
-                    ->action(function (UmkmProfile $record, array $data): void {
-                        app(UmkmService::class)->rejectApplication($record, $data['alasan']);
-
-                        Notification::make()
-                            ->title('Pengajuan ditolak')
-                            ->body('Warga diberi tahu beserta alasannya.')
-                            ->success()
-                            ->send();
-                    }),
+                                Notification::make()
+                                    ->title('Pengajuan ditolak')
+                                    ->body('Warga diberi tahu beserta alasannya.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->cancelParentActions(),
+                    ]),
             ])
             ->defaultSort('diajukan_at', 'desc');
     }

@@ -52,16 +52,3 @@ it('nama kategori harus unik & kategori terpakai tidak bisa dihapus', function (
     Livewire::test(ManageUmkmCategories::class)->callTableAction('delete', $kuliner);
     expect(UmkmCategory::whereKey($kuliner->id)->exists())->toBeTrue();
 });
-
-it('ikon kategori dipilih dari daftar kurasi; nilai di luar daftar ditolak', function () {
-    $this->actingAs(User::factory()->superAdmin()->create());
-
-    Livewire::test(ManageUmkmCategories::class)
-        ->callAction('create', data: ['nama' => 'Elektronik', 'icon' => 'heroicon-o-cpu-chip']);
-    expect(UmkmCategory::where('nama', 'Elektronik')->value('icon'))->toBe('heroicon-o-cpu-chip');
-
-    Livewire::test(ManageUmkmCategories::class)
-        ->callAction('create', data: ['nama' => 'Aneh', 'icon' => 'heroicon-o-tidak-ada'])
-        ->assertHasActionErrors(['icon']);
-    expect(UmkmCategory::where('nama', 'Aneh')->exists())->toBeFalse();
-});
