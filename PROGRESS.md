@@ -6,6 +6,24 @@
 
 ---
 
+## Sesi 2026-07-03 (lanjutan 4) — Polesan verifikasi + kompresi foto (commit 6a7c6c8)
+
+Suite **347 (345 lulus, 2 skip)**, build ✓. Arahan user, semua SELESAI (DECISIONS dicatat):
+ikon kategori DIHAPUS total (kolom icon di-drop, migrasi+ALTER live; slug hilang dari
+daftar); antrean Pengajuan & Verifikasi Produk = SATU aksi **"Tinjau"** (Setujui/Tolak di
+DALAM modal; tolak = extraModalFooterActions bersarang + cancelParentActions; pengaju
+terarsip → Setujui tersembunyi via modalSubmitAction closure + guard server; test aksi
+bersarang = `TestAction` berantai); foto modal tinjau ber-**lightbox** (partial
+filament/partials/photo-lightbox, x-teleport); kartu "Pengajuan sedang ditinjau" dirapikan
+(progres 3 langkah + ringkasan ajuan); **kompresi foto produk** ala foto profil warga:
+klien (photo-picker canvas 1920px JPEG q0.8) + server (Spatie Image Fit::Max 1920 q80 —
+WAJIB save() ke path berekstensi, tmp upload tanpa ekstensi); validasi 10MB/foto.
+PRODUKSI: upload_max_filesize ≥10M, post_max_size ≥55M.
+**BELUM diputuskan (diskusi menggantung): kategori pindah dari profil ke PRODUK** —
+analisis sudah disampaikan ke user, tunggu keputusan sebelum refactor.
+
+---
+
 ## Sesi 2026-07-03 (lanjutan 3) — Bantuan deskripsi: umum saja, detail via WhatsApp
 
 Suite **343 (341 lulus, 2 skip)**. KEPUTUSAN USER (via AskUserQuestion): bantuan deskripsi
