@@ -14,7 +14,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Str;
 
 class ModuleForm
 {
@@ -27,26 +26,14 @@ class ModuleForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
+                        // Slug URL dibuat & dijaga unik OTOMATIS oleh model (Spatie HasSlug
+                        // per desa saat dibuat; regenerasi ber-akhiran saat pindah desa) —
+                        // tak ditampilkan agar user tak perlu memikirkannya.
                         TextInput::make('judul')
                             ->label('Judul Modul')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(function (string $operation, $state, callable $set) {
-                                if ($operation === 'create') {
-                                    $set('slug', Str::slug($state));
-                                }
-                            })
-                            ->columnSpan(1),
-
-                        // Slug ditetapkan model (Spatie HasSlug, unik per desa + auto-suffix).
-                        // Field ini hanya pratinjau read-only; tak dikirim ke server.
-                        TextInput::make('slug')
-                            ->label('Slug URL')
-                            ->helperText('Otomatis dari judul. Bila bentrok di desa yang sama, ditambah akhiran (mis. -1).')
-                            ->readOnly()
-                            ->dehydrated(false)
-                            ->columnSpan(1),
+                            ->columnSpanFull(),
 
                         Select::make('desa_id')
                             ->label('Desa')
@@ -60,35 +47,16 @@ class ModuleForm
                             // Hanya super_admin yang menentukan desa/global.
                             // desa_admin: desa_id diisi otomatis (lihat CreateModule).
                             ->visible(fn () => auth()->user()?->isSuperAdmin())
-                            // Memindah desa modul yang SUDAH ADA dijaga dua hal:
-                            // (1) slug tak boleh bentrok di ruang tujuan — unik DB
-                            //     (desa_id, slug) meledak 500 utk desa, dan utk global
-                            //     (NULL) malah lolos → dua modul global ber-slug sama
-                            //     membuat salah satunya tak terjangkau warga;
-                            // (2) modul yang jadi PRASYARAT modul desa lain tak boleh
-                            //     pindah keluar jangkauan — modul dependennya terkunci
-                            //     permanen bagi warga desa itu.
+                            // Saat memindah desa modul: modul yang jadi PRASYARAT modul
+                            // desa lain tak boleh pindah keluar jangkauan — modul dependennya
+                            // akan terkunci permanen bagi warga desa itu. (Bentrok slug TIDAK
+                            // divalidasi: model meregenerasi slug unik otomatis saat pindah.)
                             ->rule(fn (?Module $record): Closure => function (string $attribute, $value, Closure $fail) use ($record) {
                                 if (! $record) {
                                     return;
                                 }
 
                                 $desaId = $value ? (int) $value : null;
-
-                                // Termasuk yang terarsip: baris trashed ikut unik DB.
-                                $slugBentrok = Module::withTrashed()
-                                    ->whereKeyNot($record->getKey())
-                                    ->where('slug', $record->slug)
-                                    ->when($desaId === null,
-                                        fn ($q) => $q->whereNull('desa_id'),
-                                        fn ($q) => $q->where('desa_id', $desaId))
-                                    ->exists();
-
-                                if ($slugBentrok) {
-                                    $fail('Tujuan sudah punya modul ber-slug sama. Ubah judul modul itu dulu, atau biarkan desa modul ini.');
-
-                                    return;
-                                }
 
                                 // Pindah ke desa tertentu: semua modul dependen wajib desa itu juga.
                                 $dependenLuar = $desaId !== null && Module::query()

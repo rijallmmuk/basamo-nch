@@ -32,6 +32,40 @@ class Module extends Model implements HasMedia
         static::forceDeleting(function (self $module): void {
             $module->pages()->get()->each->delete();
         });
+
+        // Pindah desa (super admin): Spatie TIDAK meregenerasi slug saat update
+        // (doNotGenerateSlugsOnUpdate), jadi slug lama bisa bentrok di desa tujuan.
+        // Jamin unik otomatis di ruang baru TANPA membebani user — tambah akhiran
+        // (-1, -2, …) hanya bila perlu. Slug tetap stabil bila tak pindah desa.
+        static::updating(function (self $module): void {
+            if ($module->isDirty('desa_id')) {
+                $module->slug = $module->uniqueSlugForDesa($module->slug);
+            }
+        });
+    }
+
+    /**
+     * Slug unik di ruang desa modul ini (global = desa_id NULL), memakai slug saat
+     * ini sebagai basis + akhiran angka bila bentrok. Index unik (desa_id, slug) ikut
+     * menghitung baris terhapus → cek withTrashed agar tak menabrak constraint.
+     */
+    protected function uniqueSlugForDesa(string $baseSlug): string
+    {
+        $slug = $baseSlug;
+        $suffix = 1;
+
+        while (
+            static::withTrashed()
+                ->whereKeyNot($this->getKey())
+                ->where('desa_id', $this->desa_id)
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = "{$baseSlug}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
     }
 
     public function getActivitylogOptions(): LogOptions

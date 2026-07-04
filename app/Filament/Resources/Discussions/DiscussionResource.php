@@ -56,7 +56,9 @@ class DiscussionResource extends Resource
             // Hanya PERTANYAAN (top-level) yang dikelola dari tabel ini; baris balasan
             // tidak ditampilkan (keputusan user) — jumlahnya tampil di kolom "Balasan".
             ->whereNull('parent_id')
-            ->with(['user.desa', 'module'])
+            // Balasan (+penulisnya) di-eager-load untuk baris expand "Lihat balasan"
+            // (urut kronologis; balasan terhapus tetap tersembunyi via scope bawaan).
+            ->with(['user.desa', 'module', 'replies' => fn ($q) => $q->with('user')->oldest()])
             ->withCount('replies')
             ->withoutGlobalScopes([SoftDeletingScope::class]);
 

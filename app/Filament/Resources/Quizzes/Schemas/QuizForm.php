@@ -84,10 +84,10 @@ class QuizForm
                         TextInput::make('maks_percobaan')
                             ->label('Maks. Percobaan')
                             ->numeric()
-                            ->default(3)
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(255)
-                            ->helperText('Isi 0 untuk percobaan tidak terbatas.')
+                            ->helperText('Isi 0 untuk percobaan tidak terbatas (default).')
                             ->required()
                             ->columnSpan(1),
                     ]),

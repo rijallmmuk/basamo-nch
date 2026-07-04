@@ -59,6 +59,27 @@ document.addEventListener('submit', (e) => {
 });
 
 /**
+ * Toggle lihat/sembunyikan kata sandi (komponen x-portal.password-input). Vanilla &
+ * terdelegasi → berfungsi di SEMUA halaman termasuk login yang tak memuat Alpine.
+ */
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-password-toggle]');
+    if (! btn) {
+        return;
+    }
+
+    const input = btn.parentElement.querySelector('input');
+    if (! input) {
+        return;
+    }
+
+    const reveal = input.type === 'password';
+    input.type = reveal ? 'text' : 'password';
+    btn.setAttribute('aria-label', reveal ? 'Sembunyikan kata sandi' : 'Lihat kata sandi');
+    btn.querySelectorAll('[data-eye]').forEach((el) => el.classList.toggle('hidden'));
+});
+
+/**
  * Editor foto profil: pilih → atur (crop 1:1, zoom, putar) → kompres <200KB → simpan.
  * Kompresi di sisi klien menghemat kuota unggah (target low-bandwidth) & menjamin
  * ukuran akhir kecil apa pun ukuran aslinya. Output selalu JPEG 512×512.

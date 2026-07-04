@@ -183,7 +183,8 @@ class UsersTable
             ->filters($filters)
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
+                    EditAction::make()
+                        ->color('warning'),
 
                     Action::make('resetOtp')
                         ->label('Reset OTP')

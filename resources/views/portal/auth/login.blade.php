@@ -39,17 +39,17 @@
             <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
 
-                {{-- NIK / Email --}}
+                {{-- NIK (warga) / Username (admin) --}}
                 <div>
                     <label for="login" class="mb-2 block text-body-md font-semibold text-on-surface">
-                        NIK, Username, atau Email
+                        NIK atau Username
                     </label>
                     <input type="text" id="login" name="login" value="{{ old('login') }}"
                         autocomplete="username" autofocus inputmode="text"
                         class="block w-full rounded-xl border-2 px-4 py-3 text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/50
                                @error('login') border-error bg-error-container/30 focus:border-error
                                @else border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest @enderror"
-                        placeholder="NIK, username, atau email">
+                        placeholder="NIK atau username">
                     @error('login')
                         <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                     @enderror
@@ -60,12 +60,12 @@
                     <label for="password" class="mb-2 block text-body-md font-semibold text-on-surface">
                         Kata Sandi
                     </label>
-                    <input type="password" id="password" name="password"
+                    <x-portal.password-input id="password" name="password"
                         autocomplete="current-password"
                         class="block w-full rounded-xl border-2 px-4 py-3 text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/50
                                @error('password') border-error bg-error-container/30 focus:border-error
                                @else border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest @enderror"
-                        placeholder="••••••••">
+                        placeholder="••••••••" />
                     @error('password')
                         <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                     @enderror

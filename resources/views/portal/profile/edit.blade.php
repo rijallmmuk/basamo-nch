@@ -225,8 +225,8 @@
                 <p class="text-sm text-on-surface-variant">Perlu sandi lama untuk konfirmasi.</p>
                 <div>
                     <label for="current_password" class="mb-1.5 block text-sm font-medium text-on-surface">Sandi lama</label>
-                    <input type="password" id="current_password" name="current_password" autocomplete="current-password"
-                        class="{{ $inputClass }} {{ $errors->has('current_password') ? $errClass : '' }}">
+                    <x-portal.password-input id="current_password" name="current_password" autocomplete="current-password"
+                        class="{{ $inputClass }} {{ $errors->has('current_password') ? $errClass : '' }}" />
                     @error('current_password')
                         <p class="mt-1.5 text-xs text-error">{{ $message }}</p>
                     @enderror
@@ -234,8 +234,8 @@
 
                 <div>
                     <label for="password" class="mb-1.5 block text-sm font-medium text-on-surface">Sandi baru</label>
-                    <input type="password" id="password" name="password" autocomplete="new-password"
-                        class="{{ $inputClass }} {{ $errors->has('password') ? $errClass : '' }}">
+                    <x-portal.password-input id="password" name="password" autocomplete="new-password"
+                        class="{{ $inputClass }} {{ $errors->has('password') ? $errClass : '' }}" />
                     <p class="mt-1.5 text-xs text-on-surface-variant">Minimal 8 karakter.</p>
                     @error('password')
                         <p class="mt-1.5 text-xs text-error">{{ $message }}</p>
@@ -244,8 +244,8 @@
 
                 <div>
                     <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-on-surface">Ulangi sandi baru</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password"
-                        class="{{ $inputClass }}">
+                    <x-portal.password-input id="password_confirmation" name="password_confirmation" autocomplete="new-password"
+                        class="{{ $inputClass }}" />
                 </div>
 
                 <div class="flex justify-end gap-2.5 pt-1">

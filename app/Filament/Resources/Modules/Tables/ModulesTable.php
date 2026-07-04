@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Modules\Tables;
 
 use App\Enums\ModuleStatus;
+use App\Filament\Resources\Discussions\DiscussionResource;
 use App\Filament\Resources\Modules\ModuleResource;
+use App\Filament\Resources\Quizzes\QuizResource;
 use App\Models\Module;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -103,7 +106,33 @@ class ModulesTable
             // Semua aksi baris dalam satu menu ⋮ (pola sama dgn halaman Desa).
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
+                    // Integrasi kuis: modul ber-kuis → Edit Kuis (relation manager Soal),
+                    // modul tanpa kuis → Buat Kuis dgn modul terpilih otomatis. Tersembunyi
+                    // untuk modul terarsip (kuis tak dikelola saat modul dihapus).
+                    Action::make('kelolaKuis')
+                        ->label(fn (Module $record): string => $record->quiz ? 'Kelola Kuis' : 'Tambah Kuis')
+                        ->icon('heroicon-o-clipboard-document-check')
+                        ->color('info')
+                        ->visible(fn (Module $record): bool => ! $record->trashed())
+                        ->url(fn (Module $record): string => $record->quiz
+                            ? QuizResource::getUrl('edit', ['record' => $record->quiz])
+                            : QuizResource::getUrl('create', ['module_id' => $record->id])),
+                    // Integrasi diskusi: buka daftar Diskusi (pertanyaan warga) ter-filter
+                    // modul ini untuk dimoderasi. Diskusi dibuat warga di portal — admin
+                    // tak membuat, hanya mengelola; tersembunyi utk modul terarsip.
+                    Action::make('kelolaDiskusi')
+                        ->label('Kelola Diskusi')
+                        ->icon('heroicon-o-chat-bubble-left-right')
+                        ->color('info')
+                        ->visible(fn (Module $record): bool => ! $record->trashed())
+                        // Query key 'filters' (bukan 'tableFilters') — Filament mem-bind
+                        // $tableFilters via #[Url(as: 'filters')]. Filter live (deferFilters
+                        // false di DiscussionsTable) agar tautan ini langsung menyaring.
+                        ->url(fn (Module $record): string => DiscussionResource::getUrl('index', [
+                            'filters' => ['module' => ['value' => $record->id]],
+                        ])),
+                    EditAction::make()
+                        ->color('warning'),
                     DeleteAction::make(),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),

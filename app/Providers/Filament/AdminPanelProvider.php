@@ -43,6 +43,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Profil')
                     ->icon('heroicon-o-user-circle')
                     ->url(fn (): string => Profil::getUrl()),
+                // "Keluar" merah — closure menerima item logout bawaan (URL + POST tetap
+                // utuh), hanya warnanya diubah jadi danger.
+                'logout' => fn (Action $action): Action => $action->color('danger'),
             ])
             ->brandName('Basamo NCH')
             ->brandLogo(fn (): Htmlable => view('filament.brand'))

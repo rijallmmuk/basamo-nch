@@ -1,6 +1,8 @@
 <?php
 
+use App\Filament\Resources\Discussions\DiscussionResource;
 use App\Filament\Resources\Discussions\Pages\ListDiscussions;
+use App\Filament\Resources\Modules\Pages\ListModules;
 use App\Models\Desa;
 use App\Models\Discussion;
 use App\Models\Module;
@@ -196,4 +198,34 @@ it('diskusi yang dihapus admin tidak tampil di portal warga', function () {
         ->get(route('portal.modules.discuss', $module))
         ->assertOk()
         ->assertDontSee('Konten dimoderasi unik');
+});
+
+it('daftar modul: aksi "Kelola Diskusi" mengarah ke daftar diskusi ter-filter modul', function () {
+    $this->actingAs(User::factory()->superAdmin()->create());
+    $module = makeDiscussionModule();
+
+    Livewire::test(ListModules::class)
+        ->assertTableActionExists('kelolaDiskusi')
+        ->assertTableActionHasUrl(
+            'kelolaDiskusi',
+            DiscussionResource::getUrl('index', ['filters' => ['module' => ['value' => $module->id]]]),
+            record: $module,
+        );
+});
+
+it('daftar diskusi ter-filter modul hanya menampilkan diskusi modul tersebut', function () {
+    $this->actingAs(User::factory()->superAdmin()->create());
+    $warga = User::factory()->warga()->create(['desa_id' => Desa::factory()->create()->id]);
+
+    $modulA = makeDiscussionModule();
+    $modulB = makeDiscussionModule();
+    $diskA = makeThread($modulA, $warga);
+    $diskB = makeThread($modulB, $warga);
+
+    // Simulasi membuka URL aksi "Kelola Diskusi": filter modul dari query string
+    // HARUS langsung menyaring (deferFilters(false) — tanpa ini filter URL tertimpa).
+    Livewire::withQueryParams(['filters' => ['module' => ['value' => $modulA->id]]])
+        ->test(ListDiscussions::class)
+        ->assertCanSeeTableRecords([$diskA])
+        ->assertCanNotSeeTableRecords([$diskB]);
 });

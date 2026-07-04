@@ -32,17 +32,33 @@
             <form wire:submit="save" class="space-y-4">
                 <div>
                     <label for="fpc-password" class="mb-1 block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
-                    <x-filament::input.wrapper>
-                        <x-filament::input type="password" id="fpc-password" wire:model="password" placeholder="Minimal 8 karakter" autocomplete="new-password" />
-                    </x-filament::input.wrapper>
+                    <div x-data="{ show: false }" class="relative">
+                        <x-filament::input.wrapper>
+                            <x-filament::input x-bind:type="show ? 'text' : 'password'" type="password" id="fpc-password" wire:model="password" placeholder="Minimal 8 karakter" autocomplete="new-password" class="pr-10" />
+                        </x-filament::input.wrapper>
+                        <button type="button" tabindex="-1" @click="show = ! show"
+                            x-bind:aria-label="show ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-colors hover:text-gray-600">
+                            <x-filament::icon x-show="! show" icon="heroicon-o-eye" class="h-5 w-5" />
+                            <x-filament::icon x-show="show" x-cloak icon="heroicon-o-eye-slash" class="h-5 w-5" />
+                        </button>
+                    </div>
                     @error('password') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="fpc-password2" class="mb-1 block text-sm font-medium text-gray-700">Ulangi Kata Sandi</label>
-                    <x-filament::input.wrapper>
-                        <x-filament::input type="password" id="fpc-password2" wire:model="password_confirmation" placeholder="••••••••" autocomplete="new-password" />
-                    </x-filament::input.wrapper>
+                    <div x-data="{ show: false }" class="relative">
+                        <x-filament::input.wrapper>
+                            <x-filament::input x-bind:type="show ? 'text' : 'password'" type="password" id="fpc-password2" wire:model="password_confirmation" placeholder="••••••••" autocomplete="new-password" class="pr-10" />
+                        </x-filament::input.wrapper>
+                        <button type="button" tabindex="-1" @click="show = ! show"
+                            x-bind:aria-label="show ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-colors hover:text-gray-600">
+                            <x-filament::icon x-show="! show" icon="heroicon-o-eye" class="h-5 w-5" />
+                            <x-filament::icon x-show="show" x-cloak icon="heroicon-o-eye-slash" class="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
 
                 <x-filament::button type="submit" class="w-full">

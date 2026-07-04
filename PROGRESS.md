@@ -6,6 +6,53 @@
 
 ---
 
+## Sesi 2026-07-05 — Polesan admin lintas-fitur + integrasi Modul (temuan browser user, banyak)
+
+Suite **364 (362 lulus, 2 skip)**, Pint bersih, build ✓. Semua fokus panel admin/superadmin
+(kecuali toggle sandi & login yang ikut portal). Belum merge.
+
+**Form Desa (create)**: pencarian wilayah kini by **nama ATAU kode**, toleran ejaan mirip via
+MariaDB `SOUNDS LIKE` (mis. "koto tua"→Koto Tuo), cocok-langsung diurut dulu; field dirapikan +
+**sebutan jenis desa dinamis** (helper `jenisName()`: "Nama/Data/Logo/Akun admin {Nagari/Desa/…}",
+fallback "desa"); helper username = "terisi otomatis dari kode {sebutan} tanpa titik".
+
+**Toggle lihat kata sandi** di SEMUA input sandi: komponen portal `x-portal.password-input`
+(vanilla JS di app.js — bukan Alpine, agar jalan di halaman login tanpa Livewire) dipakai
+login/ganti-sandi/profil; Filament `->revealable()` (Profil ×3); force-password (Alpine, Filament);
+`::-ms-reveal` disembunyikan (app.css + theme.css) agar tak dobel ikon.
+
+**Login hanya NIK & Username** (email dibuang dari deteksi & teks form; email tetap kontak).
+`RememberMeTest` baru — "Ingat saya" TERBUKTI bekerja (token recaller 60-char + cookie ~5thn;
+tanpa remember token tak disentuh). Deteksi: 16 digit→nik, selain itu→username.
+
+**Integrasi Modul (aksi baris)**: **Kelola/Tambah Kuis** (ada kuis→Edit, belum→Create prefill
+module_id) & **Kelola Diskusi** (→ daftar Diskusi ter-filter modul). PENTING: query key filter
+Filament = **`filters`** (bukan `tableFilters`; `#[Url(as:'filters')]`) + tabel Diskusi
+`->deferFilters(false)` agar tautan langsung menyaring (deferred default menimpa URL-filter).
+
+**Konsistensi tombol admin (REVISI aturan lama)**: **"Batal" PALING KANAN** di semua modal
+(AppServiceProvider `Action::configureUsing` footer `[submit, extra, cancel]`) + **Edit KUNING
+di mana pun** termasuk dalam ⋮ (9 EditAction + 2 Ubah Profil). **Logout MERAH** di dropdown user
+admin (override key 'logout' → color danger, URL/POST utuh). Lihat [[admin-ui-conventions]].
+
+**Paginasi**: opsi **"Semua"** (`'all'`) ditambah global (`Table::configureUsing`
+[5,10,25,50,'all']) → semua tabel admin.
+
+**Redesign tabel Diskusi**: tiap pertanyaan = kartu (judul tebal + meta penulis·waktu + badge
+modul); **balasan expand** via `View::make('filament.tables.discussion-replies')->collapsible()`
+(eager-load replies.user, anti-N+1); kolom "Dihapus" DIBUANG → ikon trash pada judul (konvensi);
+badge balasan warna-by-jumlah; badge "Disematkan" hanya saat pinned (fix ikon nyasar); aksi ke ⋮.
+
+**Slug modul auto-unik & TAK nyusahin user**: field "Slug URL" + validasi nag DIBUANG; model
+`Module::updating` regenerasi slug ber-akhiran otomatis saat **pindah desa** (Spatie
+doNotGenerateSlugsOnUpdate → dulu bentrok). Guard prasyarat-lintas-desa TETAP (constraint sah).
+
+**Alur create**: `CreateModule` & `CreateQuiz` kini **redirect ke Edit** (bukan index) — di sana
+tambah materi/soal (relation manager). **Kuis maks_percobaan default 0** (tak terbatas). Rumus
+nilai kuis DIKONFIRMASI aman utk berapa pun soal (ternormalisasi /jumlah_soal, 3 guard bagi-nol).
+
+---
+
 ## Sesi 2026-07-04 (lanjutan) — Perbaikan kartu pengajuan + modal konfirmasi Alpine (temuan browser user)
 
 Build ✓, Pint bersih, 73 test UMKM lulus. Semua sisi klien (endpoint tak berubah).

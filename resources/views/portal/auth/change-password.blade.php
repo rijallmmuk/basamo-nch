@@ -47,10 +47,10 @@
                         <label for="current_password" class="mb-2 block text-body-md font-semibold text-on-surface">
                             Kata Sandi Saat Ini
                         </label>
-                        <input type="password" id="current_password" name="current_password"
+                        <x-portal.password-input id="current_password" name="current_password"
                             autocomplete="current-password"
                             class="{{ $inputClass }} {{ $inputState('current_password') }}"
-                            placeholder="••••••••">
+                            placeholder="••••••••" />
                         @error('current_password')
                             <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                         @enderror
@@ -62,10 +62,10 @@
                     <label for="password" class="mb-2 block text-body-md font-semibold text-on-surface">
                         Kata Sandi Baru
                     </label>
-                    <input type="password" id="password" name="password"
+                    <x-portal.password-input id="password" name="password"
                         autocomplete="new-password" autofocus
                         class="{{ $inputClass }} {{ $inputState('password') }}"
-                        placeholder="Minimal 8 karakter">
+                        placeholder="Minimal 8 karakter" />
                     @error('password')
                         <p class="mt-1.5 text-label-md font-medium text-error">{{ $message }}</p>
                     @enderror
@@ -76,10 +76,10 @@
                     <label for="password_confirmation" class="mb-2 block text-body-md font-semibold text-on-surface">
                         Ulangi Kata Sandi
                     </label>
-                    <input type="password" id="password_confirmation" name="password_confirmation"
+                    <x-portal.password-input id="password_confirmation" name="password_confirmation"
                         autocomplete="new-password"
                         class="{{ $inputClass }} border-transparent bg-surface-container-low focus:border-secondary-container focus:bg-surface-container-lowest"
-                        placeholder="••••••••">
+                        placeholder="••••••••" />
                 </div>
 
                 {{-- Kontak (opsional) — lengkapi sekalian saat login pertama --}}

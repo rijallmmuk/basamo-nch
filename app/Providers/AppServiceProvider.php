@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Support\Facades\FilamentIcon;
+use Filament\Tables\Table;
 use Filament\View\PanelsIconAlias;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -35,15 +36,21 @@ class AppServiceProvider extends ServiceProvider
             PanelsIconAlias::SIDEBAR_EXPAND_BUTTON => 'heroicon-m-bars-3',
         ]);
 
-        // Urutan tombol footer modal DIBALIK se-aplikasi (keputusan user):
-        // Batal di kiri, aksi utama paling kanan — konsisten dgn modal portal
-        // warga (confirm-dialog & profil). Bawaan Filament: submit dulu.
+        // Urutan tombol footer modal se-panel admin (keputusan user): aksi utama di
+        // kiri, aksi tambahan di tengah, "Batal" PALING KANAN — seragam di semua modal
+        // (konfirmasi, form, tinjau bersarang).
         Action::configureUsing(function (Action $action): void {
             $action->modalFooterActions(fn (Action $action): array => array_values(array_filter([
-                $action->getModalCancelAction(),
-                ...$action->getExtraModalFooterActions(),
                 $action->getModalSubmitAction(),
+                ...$action->getExtraModalFooterActions(),
+                $action->getModalCancelAction(),
             ])));
+        });
+
+        // Opsi "per halaman" se-panel admin + pilihan "Semua" (locale id: label 'Semua')
+        // untuk menampilkan seluruh data sekaligus. Berlaku ke semua tabel.
+        Table::configureUsing(function (Table $table): void {
+            $table->paginationPageOptions([5, 10, 25, 50, 'all']);
         });
     }
 }

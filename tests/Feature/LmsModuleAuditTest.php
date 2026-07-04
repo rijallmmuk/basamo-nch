@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ModuleProgressStatus;
+use App\Filament\Resources\Modules\ModuleResource;
 use App\Filament\Resources\Modules\Pages\CreateModule;
 use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Models\Desa;
@@ -199,6 +200,18 @@ it('menolak prasyarat lintas-desa untuk modul global', function () {
         ->assertHasFormErrors(['prasyarat_module_id']);
 });
 
+it('setelah modul dibuat, diarahkan ke halaman Edit (bukan index)', function () {
+    $this->actingAs(User::factory()->superAdmin()->create());
+
+    Livewire::test(CreateModule::class)
+        ->fillForm(['judul' => 'Modul Baru', 'status' => 'draft', 'desa_id' => null])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertRedirect(ModuleResource::getUrl('edit', [
+            'record' => Module::where('judul', 'Modul Baru')->firstOrFail(),
+        ]));
+});
+
 it('mengizinkan prasyarat global untuk modul global', function () {
     $this->actingAs(User::factory()->superAdmin()->create());
     $global = makeModuleWithPages(1);
@@ -253,20 +266,22 @@ it('menghapus semua berkas blok dari disk saat halaman dihapus', function () {
     Storage::disk($disk)->assertMissing('modules/blocks/gambar/c.jpg');
 });
 
-// ── Pindah desa modul (edit): guard slug bentrok + prasyarat lintas-desa ──
-it('memindah desa modul ditolak bila slug bentrok di ruang tujuan', function () {
+// ── Pindah desa modul (edit): slug auto-regenerasi + guard prasyarat lintas-desa ──
+it('memindah desa modul yang slug-nya bentrok di tujuan → slug diregenerasi otomatis (tak ditolak)', function () {
     actingAs(User::factory()->superAdmin()->create());
     $desa = Desa::factory()->create();
 
-    $global = Module::create(['judul' => 'Modul Kembar', 'status' => 'draft']);
-    Module::create(['judul' => 'Modul Kembar', 'status' => 'draft', 'desa_id' => $desa->id]);
+    $global = Module::create(['judul' => 'Modul Kembar', 'status' => 'draft']);          // slug: modul-kembar (global)
+    Module::create(['judul' => 'Modul Kembar', 'status' => 'draft', 'desa_id' => $desa->id]); // slug: modul-kembar (desa)
 
     Livewire::test(EditModule::class, ['record' => $global->getRouteKey()])
         ->fillForm(['desa_id' => $desa->id])
         ->call('save')
-        ->assertHasFormErrors(['desa_id']);
+        ->assertHasNoFormErrors();
 
-    expect($global->fresh()->desa_id)->toBeNull();
+    $moved = $global->fresh();
+    expect($moved->desa_id)->toBe($desa->id)
+        ->and($moved->slug)->toBe('modul-kembar-1'); // auto-suffix karena bentrok di desa tujuan
 });
 
 it('memindah modul prasyarat keluar jangkauan modul dependennya ditolak', function () {

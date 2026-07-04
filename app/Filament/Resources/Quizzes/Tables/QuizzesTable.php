@@ -62,7 +62,8 @@ class QuizzesTable
             // Semua aksi baris dalam satu menu ⋮ (pola sama dgn tabel Modul).
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
+                    EditAction::make()
+                        ->color('warning'),
                     DeleteAction::make(),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),

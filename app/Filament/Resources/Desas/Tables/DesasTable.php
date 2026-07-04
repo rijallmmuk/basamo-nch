@@ -119,7 +119,8 @@ class DesasTable
             // panel admin desa. Baris tak dapat diklik → Ubah lewat aksi di menu ini.
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
+                    EditAction::make()
+                        ->color('warning'),
 
                     Action::make('kelolaWarga')
                         ->label('Kelola Warga')

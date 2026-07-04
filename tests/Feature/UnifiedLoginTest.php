@@ -14,7 +14,7 @@ it('tamu membuka /admin diarahkan ke halaman login gabungan', function () {
 it('halaman login gabungan bisa dibuka', function () {
     $this->get(route('login'))
         ->assertOk()
-        ->assertSee('NIK, Username, atau Email');
+        ->assertSee('NIK atau Username');
 });
 
 it('super admin login (username) diarahkan ke panel admin', function () {
@@ -29,17 +29,32 @@ it('super admin login (username) diarahkan ke panel admin', function () {
     expect(auth()->id())->toBe($super->id);
 });
 
-it('admin login via email diarahkan ke panel admin', function () {
+it('admin desa login (username) diarahkan ke panel admin', function () {
     $admin = User::factory()->desaAdmin()->create([
         'desa_id' => Desa::factory()->create()->id,
+        'username' => 'adminnagari',
+        'password' => Hash::make('rahasia123'),
+    ]);
+
+    $this->post(route('login'), ['login' => 'adminnagari', 'password' => 'rahasia123'])
+        ->assertRedirect('/admin');
+
+    expect(auth()->id())->toBe($admin->id);
+});
+
+it('email tidak diterima sebagai identitas login', function () {
+    User::factory()->desaAdmin()->create([
+        'desa_id' => Desa::factory()->create()->id,
+        'username' => 'adminnagari2',
         'email' => 'admin@nagari.test',
         'password' => Hash::make('rahasia123'),
     ]);
 
+    // Email hanya kontak, bukan identitas login → ditolak.
     $this->post(route('login'), ['login' => 'admin@nagari.test', 'password' => 'rahasia123'])
-        ->assertRedirect('/admin');
+        ->assertSessionHasErrors('login');
 
-    expect(auth()->id())->toBe($admin->id);
+    $this->assertGuest();
 });
 
 it('warga login (NIK) diarahkan ke portal', function () {

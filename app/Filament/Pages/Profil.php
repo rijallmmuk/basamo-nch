@@ -52,6 +52,7 @@ class Profil extends Page
             Action::make('ubahProfil')
                 ->label('Ubah Profil')
                 ->icon(Heroicon::OutlinedPencilSquare)
+                ->color('warning')
                 ->modalHeading('Ubah Profil')
                 ->modalSubmitActionLabel('Simpan')
                 ->fillForm(fn (): array => [
@@ -93,7 +94,7 @@ class Profil extends Page
             Action::make('ubahKeamanan')
                 ->label('Ubah Keamanan')
                 ->icon(Heroicon::OutlinedLockClosed)
-                ->color('gray')
+                ->color('warning')
                 ->modalHeading('Ubah Keamanan')
                 ->modalSubmitActionLabel('Simpan')
                 ->fillForm(fn (): array => $isSuper ? ['username' => $user->username] : [])
@@ -101,6 +102,7 @@ class Profil extends Page
                     TextInput::make('current_password')
                         ->label('Sandi lama')
                         ->password()
+                        ->revealable()
                         ->required()
                         ->currentPassword()
                         ->helperText('Wajib untuk mengonfirmasi perubahan.'),
@@ -115,13 +117,15 @@ class Profil extends Page
                     TextInput::make('password')
                         ->label('Sandi baru')
                         ->password()
+                        ->revealable()
                         ->minLength(8)
                         ->confirmed()
                         ->required(! $isSuper) // admin desa: modal ini khusus ganti sandi
                         ->helperText($isSuper ? 'Kosongkan bila hanya mengubah username.' : 'Minimal 8 karakter.'),
                     TextInput::make('password_confirmation')
                         ->label('Ulangi sandi baru')
-                        ->password(),
+                        ->password()
+                        ->revealable(),
                 ])))
                 ->action(function (array $data) use ($user, $isSuper): void {
                     $attributes = [];

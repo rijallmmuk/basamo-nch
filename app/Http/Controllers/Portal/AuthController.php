@@ -21,7 +21,7 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'login' => 'required|string',     // NIK (warga) / username / email (admin)
+            'login' => 'required|string',     // NIK (warga) / username (admin desa & super admin)
             'password' => 'required|string',
         ]);
 
@@ -36,14 +36,10 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        // Deteksi jenis identitas: email (ada '@') → email; 16 digit → NIK warga;
-        // selain itu → username admin (kode nagari ±10 digit, tak pernah 16 → tak bentrok).
+        // Deteksi jenis identitas: 16 digit → NIK warga; selain itu → username admin
+        // (kode nagari ±10 digit, tak pernah 16 → tak bentrok). Email BUKAN identitas login.
         $login = $credentials['login'];
-        $field = match (true) {
-            filter_var($login, FILTER_VALIDATE_EMAIL) !== false => 'email',
-            ctype_digit($login) && strlen($login) === 16 => 'nik',
-            default => 'username',
-        };
+        $field = ctype_digit($login) && strlen($login) === 16 ? 'nik' : 'username';
 
         if (! Auth::attempt([$field => $login, 'password' => $credentials['password']], $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);

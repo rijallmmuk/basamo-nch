@@ -279,3 +279,13 @@
 .prose > :last-child {
     margin-bottom: 0;
 }
+
+/*
+ | Sembunyikan kontrol "reveal/clear" bawaan browser (Edge ::-ms-reveal) pada input
+ | kata sandi — kita sediakan toggle mata sendiri (x-portal.password-input) agar tak
+ | tampil dua ikon.
+ */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+    display: none;
+}

@@ -6,12 +6,17 @@ use App\Models\Desa;
 use App\Models\Discussion;
 use App\Notifications\DiscussionReplied;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -53,120 +58,140 @@ class DiscussionsTable
         return $table
             // Baris tidak dapat diklik (moderasi read-only; aksi lewat tombol).
             ->recordUrl(null)
+            // Tiap pertanyaan = satu "kartu"; balasannya dibuka via baris expand
+            // (View collapsible di bawah). Menandai baris terhapus dgn ikon trash pada
+            // teks pertanyaan (konvensi) — kolom "Dihapus" terpisah tak lagi perlu.
             ->columns([
-                TextColumn::make('no')
-                    ->label('No.')
-                    ->rowIndex()
-                    ->alignCenter(),
+                Split::make([
+                    Stack::make([
+                        TextColumn::make('isi')
+                            ->weight(FontWeight::Bold)
+                            ->wrap()
+                            ->searchable()
+                            ->icon(fn (Discussion $record): ?string => $record->trashed() ? 'heroicon-m-trash' : null)
+                            ->iconColor('danger')
+                            ->tooltip(fn (Discussion $record): ?string => $record->trashed()
+                                ? 'Dihapus '.$record->deleted_at?->translatedFormat('d M Y H:i')
+                                : null),
 
-                TextColumn::make('module.judul')
-                    ->label('Modul')
-                    ->limit(30)
-                    ->wrap()
-                    ->searchable(),
+                        // Meta penulis + waktu (baris sekunder ringan).
+                        TextColumn::make('user.name')
+                            ->color('gray')
+                            ->icon('heroicon-m-user-circle')
+                            ->iconColor('gray')
+                            ->searchable()
+                            ->formatStateUsing(fn (?string $state, Discussion $record): string => ($state ?? '—')
+                                .' · '.$record->created_at->translatedFormat('d M Y, H:i')),
 
-                TextColumn::make('user.name')
-                    ->label('Penulis')
-                    ->searchable(),
+                        // Modul asal pertanyaan sebagai badge (mudah dipindai).
+                        TextColumn::make('module.judul')
+                            ->badge()
+                            ->color('gray')
+                            ->icon('heroicon-m-book-open')
+                            ->searchable()
+                            ->grow(false),
+                    ])->space(2),
 
-                TextColumn::make('user.desa.nama')
-                    ->label('Desa')
-                    ->badge()
-                    ->color('gray')
-                    ->alignCenter()
-                    ->visible($isSuperAdmin),
+                    Stack::make([
+                        TextColumn::make('user.desa.nama')
+                            ->badge()
+                            ->color('gray')
+                            ->grow(false)
+                            ->visible($isSuperAdmin),
 
-                TextColumn::make('isi')
-                    ->label('Isi')
-                    ->limit(60)
-                    ->wrap()
-                    ->tooltip(fn (?string $state): ?string => $state)
-                    ->searchable(),
+                        // Badge menonjol bila ada balasan (primary), abu bila kosong.
+                        TextColumn::make('replies_count')
+                            ->badge()
+                            ->color(fn (int $state): string => $state > 0 ? 'primary' : 'gray')
+                            ->icon('heroicon-m-chat-bubble-left-right')
+                            ->formatStateUsing(fn (int $state): string => $state.' balasan')
+                            ->grow(false),
 
-                TextColumn::make('replies_count')
-                    ->label('Balasan')
-                    ->badge()
-                    ->color('gray')
-                    ->alignCenter(),
+                        // Hanya muncul saat disematkan (ikon & label sama-sama kondisional
+                        // agar tak ada badge/ikon nyasar pada baris yang tidak disematkan).
+                        TextColumn::make('is_pinned')
+                            ->badge()
+                            ->color('warning')
+                            ->icon(fn (bool $state): ?string => $state ? 'heroicon-s-bookmark' : null)
+                            ->formatStateUsing(fn (bool $state): ?string => $state ? 'Disematkan' : null)
+                            ->grow(false),
+                    ])
+                        ->alignment(Alignment::End)
+                        ->grow(false)
+                        ->visibleFrom('md'),
+                ]),
 
-                IconColumn::make('is_pinned')
-                    ->label('Disematkan')
-                    ->boolean()
-                    ->alignCenter(),
-
-                TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->alignCenter(),
-
-                TextColumn::make('deleted_at')
-                    ->label('Dihapus')
-                    ->dateTime('d M Y H:i')
-                    ->placeholder('—')
-                    ->toggleable()
-                    ->alignCenter(),
+                View::make('filament.tables.discussion-replies')
+                    ->collapsible(),
             ])
             ->filters($filters)
+            // Filter LANGSUNG kepakai (bukan deferred) — penting agar tautan dari aksi
+            // "Kelola Diskusi" di daftar Modul (?tableFilters[module][value]=…) menyaring
+            // saat halaman dibuka, bukan menunggu tombol "Terapkan".
+            ->deferFilters(false)
             ->recordActions([
-                // Admin (super/desa, sesuai scope) bisa menjawab pertanyaan warga.
-                // Balasan ditulis atas nama admin yang login; hanya pada pertanyaan
-                // (top-level) yang belum dihapus.
-                Action::make('balas')
-                    ->label('Balas')
-                    ->icon('heroicon-o-chat-bubble-left-right')
-                    ->color('info')
-                    ->visible(fn (Discussion $record): bool => $record->parent_id === null
-                        && ! $record->trashed()
-                        && auth()->user()->can('update', $record))
-                    ->modalHeading('Balas pertanyaan')
-                    ->modalSubmitActionLabel('Kirim balasan')
-                    ->schema([
-                        Textarea::make('isi')
-                            ->label('Balasan')
-                            ->required()
-                            ->minLength(2)
-                            ->maxLength(2000)
-                            ->rows(4),
-                    ])
-                    ->action(function (Discussion $record, array $data): void {
-                        $record->replies()->create([
-                            'module_id' => $record->module_id,
-                            'user_id' => auth()->id(),
-                            'isi' => $data['isi'],
-                        ]);
+                ActionGroup::make([
+                    // Admin (super/desa, sesuai scope) bisa menjawab pertanyaan warga.
+                    // Balasan ditulis atas nama admin yang login; hanya pada pertanyaan
+                    // (top-level) yang belum dihapus.
+                    Action::make('balas')
+                        ->label('Balas')
+                        ->icon('heroicon-o-chat-bubble-left-right')
+                        ->color('info')
+                        ->visible(fn (Discussion $record): bool => $record->parent_id === null
+                            && ! $record->trashed()
+                            && auth()->user()->can('update', $record))
+                        ->modalHeading('Balas pertanyaan')
+                        ->modalSubmitActionLabel('Kirim balasan')
+                        ->schema([
+                            Textarea::make('isi')
+                                ->label('Balasan')
+                                ->required()
+                                ->minLength(2)
+                                ->maxLength(2000)
+                                ->rows(4),
+                        ])
+                        ->action(function (Discussion $record, array $data): void {
+                            $record->replies()->create([
+                                'module_id' => $record->module_id,
+                                'user_id' => auth()->id(),
+                                'isi' => $data['isi'],
+                            ]);
 
-                        // Beri tahu warga penanya bahwa pertanyaannya sudah dijawab admin.
-                        if ($record->user_id !== auth()->id() && $record->user) {
-                            $record->user->notify(new DiscussionReplied($record, auth()->user()->name));
-                        }
+                            // Beri tahu warga penanya bahwa pertanyaannya sudah dijawab admin.
+                            if ($record->user_id !== auth()->id() && $record->user) {
+                                $record->user->notify(new DiscussionReplied($record, auth()->user()->name));
+                            }
 
-                        Notification::make()
-                            ->title('Balasan terkirim')
-                            ->success()
-                            ->send();
-                    }),
+                            Notification::make()
+                                ->title('Balasan terkirim')
+                                ->success()
+                                ->send();
+                        }),
 
-                Action::make('togglePin')
-                    ->label(fn (Discussion $record): string => $record->is_pinned ? 'Lepas sematan' : 'Sematkan')
-                    ->icon(fn (Discussion $record): string => $record->is_pinned ? 'heroicon-o-bookmark-slash' : 'heroicon-o-bookmark')
-                    ->color('warning')
-                    // Pin hanya untuk pertanyaan (top-level) yang belum dihapus.
-                    ->visible(fn (Discussion $record): bool => $record->parent_id === null
-                        && ! $record->trashed()
-                        && auth()->user()->can('update', $record))
-                    ->action(function (Discussion $record): void {
-                        $record->update(['is_pinned' => ! $record->is_pinned]);
+                    Action::make('togglePin')
+                        ->label(fn (Discussion $record): string => $record->is_pinned ? 'Lepas sematan' : 'Sematkan')
+                        ->icon(fn (Discussion $record): string => $record->is_pinned ? 'heroicon-o-bookmark-slash' : 'heroicon-o-bookmark')
+                        ->color('warning')
+                        // Pin hanya untuk pertanyaan (top-level) yang belum dihapus.
+                        ->visible(fn (Discussion $record): bool => $record->parent_id === null
+                            && ! $record->trashed()
+                            && auth()->user()->can('update', $record))
+                        ->action(function (Discussion $record): void {
+                            $record->update(['is_pinned' => ! $record->is_pinned]);
 
-                        Notification::make()
-                            ->title($record->is_pinned ? 'Diskusi disematkan' : 'Sematan dilepas')
-                            ->success()
-                            ->send();
-                    }),
+                            Notification::make()
+                                ->title($record->is_pinned ? 'Diskusi disematkan' : 'Sematan dilepas')
+                                ->success()
+                                ->send();
+                        }),
 
-                DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
+                ])
+                    ->icon('heroicon-m-squares-2x2')
+                    ->tooltip('Aksi'),
             ])
             ->defaultSort('created_at', 'desc');
     }

@@ -60,3 +60,10 @@
 .fi-simple-main .fi-btn {
     border-radius: 9999px;
 }
+
+/* Sembunyikan reveal bawaan browser (Edge ::-ms-reveal) — Filament revealable() &
+   toggle di halaman ganti-sandi login pertama sudah menyediakan ikon mata sendiri. */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+    display: none;
+}
