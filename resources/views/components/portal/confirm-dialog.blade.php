@@ -17,13 +17,18 @@
     ];
     $t = $toneMap[$tone] ?? $toneMap['primary'];
 
-    // Submit form by-id (jika diberi) lebih aman dari merangkai ekspresi JS bertanda kutip.
-    $confirmExpr = $form ? "document.getElementById('{$form}').submit()" : $onConfirm;
+    // Mode form (submit by-id) lebih aman dari merangkai ekspresi JS bertanda kutip.
+    // - Pemicu: validasi HTML5 dulu (reportValidity) — modal hanya muncul bila form valid,
+    //   jadi field wajib yang kosong ketahuan SEBELUM konfirmasi.
+    // - Konfirmasi: requestSubmit() (bukan .submit()) agar validasi & event submit tetap
+    //   jalan (spinner app.js), lalu tandai `submitting` untuk state tombol pemicu.
+    $openExpr = $form ? "document.getElementById('{$form}').reportValidity() && (open = true)" : 'open = true';
+    $confirmExpr = $form ? "submitting = true; document.getElementById('{$form}').requestSubmit()" : $onConfirm;
 @endphp
 
 {{-- Pembungkus display:contents agar tak mengganggu layout tombol pemicu. --}}
-<div x-data="{ open: false }" style="display: contents">
-    <button type="button" @click="open = true" {{ $attributes->merge(['class' => $triggerClass]) }}>
+<div x-data="{ open: false, submitting: false }" style="display: contents">
+    <button type="button" @click="{{ $openExpr }}" :disabled="submitting" {{ $attributes->merge(['class' => $triggerClass]) }}>
         {{ $slot }}
     </button>
 
@@ -63,7 +68,8 @@
                         {{ $cancelLabel }}
                     </button>
                     <button type="button" @click="open = false; {{ $confirmExpr }}"
-                        class="flex-1 rounded-xl px-4 py-3 text-sm font-bold shadow-sm transition-colors {{ $t['btn'] }}">
+                        class="flex-1 rounded-xl px-4 py-3 text-sm font-bold shadow-sm transition-colors disabled:opacity-60 {{ $t['btn'] }}"
+                        :disabled="submitting">
                         {{ $confirmLabel }}
                     </button>
                 </div>

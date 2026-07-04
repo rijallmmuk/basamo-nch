@@ -6,6 +6,38 @@
 
 ---
 
+## Sesi 2026-07-04 (lanjutan) — Perbaikan kartu pengajuan + modal konfirmasi Alpine (temuan browser user)
+
+Build ✓, Pint bersih, 73 test UMKM lulus. Semua sisi klien (endpoint tak berubah).
+
+**BUG lebar kartu "Pengajuan sedang ditinjau" (cek browser user)**: kartu kolaps jadi kolom
+~24px. Akar: token spacing legacy `--spacing-xs/sm/md/lg/xl` (`app.css`) MENABRAK skala nama
+`max-w-*` Tailwind v4 → `max-w-xl` resolve ke `var(--spacing-xl)`=24px (bukan 36rem),
+`max-w-md`=12px, `max-w-xs`=4px. Fix: ganti ke nilai arbitrer kebal-tabrakan
+`max-w-[36rem]/[28rem]/[20rem]` di `apply.blade.php` (SATU-SATUNYA view portal pakai
+`max-w-<ukuran>`; Filament pakai bundle theme.css tanpa token itu → aman). Rename token
+spacing DITOLAK (dipakai `p-lg`/`gap-sm` se-app, risiko tinggi pra-deploy).
+
+**Kartu "Yang kamu ajukan" + profil usaha (permintaan user)**: dulu cuma produk; kini
+2 bagian — profil usaha (nama, WhatsApp, alamat berikon) + produk unggulan (foto, nama,
+kategori, harga). nama_produk jadi judul produk (dulu keliru nama_usaha).
+
+**Modal konfirmasi Alpine "Kirim Pengajuan" (permintaan user)**: pakai komponen bersama
+`x-portal.confirm-dialog`. Komponen DIPERKUAT (backward-compat): mode `form` kini (1)
+validasi `reportValidity()` SEBELUM modal muncul (field wajib kosong ketahuan dulu),
+(2) konfirmasi `requestSubmit()` bukan `.submit()` (validasi + event submit/spinner jalan,
+upload multipart aman), (3) state `submitting` → spinner + anti-dobel-kirim. Hapus produk
+& kumpul kuis (pengguna lama) tetap jalan tanpa berubah.
+
+**Audit konfirmasi panel admin/superadmin (permintaan user) — SUDAH LENGKAP, nol perubahan**:
+semua aksi destruktif/signifikan sudah berpengaman — Delete/Restore/ForceDelete (modal
+bawaan Filament), Setujui/Tolak pengajuan+produk (requiresConfirmation/modal alasan),
+Beri/Cabut akses UMKM (requiresConfirmation), Reset OTP admin+warga (modal), Impor Excel
+(modal). Yang TANPA konfirmasi = sengaja: navigasi (kelolaWarga/Wilayah/Umkm, kembaliKeDesa),
+unduh template (read-only), togglePin diskusi (toggle reversibel ringan).
+
+---
+
 ## Sesi 2026-07-04 — FULL AUDIT UMKM: 8 temuan ditutup (commit 9b677fb)
 
 Suite **355 (353 lulus, 2 skip)**, build ✓. Audit mendalam pra-PR, user setujui semua:

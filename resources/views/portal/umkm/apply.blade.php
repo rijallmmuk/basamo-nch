@@ -49,20 +49,20 @@
 
     {{-- ══ Pengajuan sedang ditinjau — tanpa form ══ --}}
     @if($menunggu)
-        <x-portal.card class="mx-auto max-w-xl">
+        <x-portal.card class="mx-auto max-w-[36rem]">
             <div class="flex flex-col items-center px-2 pb-2 pt-6 text-center sm:px-6">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
                     <x-heroicon-o-clock class="h-8 w-8 text-on-secondary-container" />
                 </span>
                 <h2 class="mt-4 text-lg font-bold text-on-surface">Pengajuan sedang ditinjau</h2>
-                <p class="mt-1.5 max-w-md text-sm leading-relaxed text-on-surface-variant">
+                <p class="mt-1.5 max-w-[28rem] text-sm leading-relaxed text-on-surface-variant">
                     Diajukan {{ $profile->diajukan_at?->diffForHumans() }}. Kami akan memberi tahumu begitu
                     {{ $sebutanAdmin }} selesai meninjau — setelah disetujui, kamu langsung bisa
                     menambahkan semua produkmu.
                 </p>
 
                 {{-- Progres 3 langkah: Terkirim ✓ → Ditinjau (berjalan) → Hasil --}}
-                <div class="mt-6 flex w-full max-w-xs items-start">
+                <div class="mt-6 flex w-full max-w-[20rem] items-start">
                     <div class="flex flex-col items-center gap-1.5">
                         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-on-primary">
                             <x-heroicon-s-check class="h-4 w-4" />
@@ -87,22 +87,42 @@
                 </div>
             </div>
 
-            {{-- Ringkasan yang diajukan --}}
-            <div class="mt-6 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4">
-                <p class="mb-3 text-xs font-bold uppercase tracking-wide text-on-surface-variant">Yang kamu ajukan</p>
-                <div class="flex items-center gap-4">
+            {{-- Ringkasan yang diajukan: profil usaha + produk unggulan --}}
+            <div class="mt-6 space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 text-left">
+                <p class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Yang kamu ajukan</p>
+
+                {{-- Profil usaha --}}
+                <div class="space-y-2.5">
+                    <p class="flex items-center gap-2 font-semibold text-on-surface">
+                        <x-heroicon-s-building-storefront class="h-5 w-5 shrink-0 text-primary" />
+                        <span class="truncate">{{ $profile->nama_usaha }}</span>
+                    </p>
+                    <dl class="space-y-1.5 pl-7 text-sm text-on-surface-variant">
+                        <div class="flex items-start gap-2">
+                            <x-heroicon-o-phone class="mt-0.5 h-4 w-4 shrink-0" />
+                            <dd>{{ $profile->whatsapp }}</dd>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <x-heroicon-o-map-pin class="mt-0.5 h-4 w-4 shrink-0" />
+                            <dd>{{ $profile->alamat }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                {{-- Produk unggulan --}}
+                <div class="flex items-center gap-4 border-t border-outline-variant pt-4">
                     <img src="{{ $product?->coverUrl() }}" alt=""
                         class="h-16 w-16 shrink-0 rounded-xl object-cover ring-1 ring-outline-variant">
                     <div class="min-w-0">
                         <p class="flex flex-wrap items-center gap-2 font-semibold text-on-surface">
-                            <span class="truncate">{{ $profile->nama_usaha }}</span>
+                            <span class="truncate">{{ $product?->nama_produk }}</span>
                             @if($product?->category)
                                 <span class="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{{ $product->category->nama }}</span>
                             @endif
                         </p>
-                        <p class="mt-0.5 truncate text-sm text-on-surface-variant">
-                            {{ $product?->nama_produk }}@if($product?->harga) · Rp {{ number_format($product->harga, 0, ',', '.') }}@endif
-                        </p>
+                        @if($product?->harga)
+                            <p class="mt-0.5 text-sm font-semibold text-primary">Rp {{ number_format($product->harga, 0, ',', '.') }}</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -120,7 +140,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('portal.umkm.ajukan.store') }}" enctype="multipart/form-data"
+        <form id="form-ajukan-umkm" method="POST" action="{{ route('portal.umkm.ajukan.store') }}" enctype="multipart/form-data"
             x-data="{
                 namaUsaha: @js(old('nama_usaha', $profile?->nama_usaha ?? '')),
                 namaProduk: @js(old('nama_produk', $product?->nama_produk ?? '')),
@@ -306,10 +326,26 @@
                  urutan mobile jadi form → pratinjau → kirim. --}}
             <div class="flex items-center gap-3 lg:col-span-full">
                 <x-portal.button :href="route('portal.home')" variant="ghost">Batal</x-portal.button>
-                <x-portal.button type="submit" size="lg">
-                    <x-heroicon-o-paper-airplane class="h-5 w-5" />
-                    {{ $ditolak ? 'Ajukan Ulang' : 'Kirim Pengajuan' }}
-                </x-portal.button>
+                <x-portal.confirm-dialog
+                    form="form-ajukan-umkm"
+                    icon="heroicon-o-paper-airplane"
+                    :title="$ditolak ? 'Ajukan ulang sekarang?' : 'Kirim pengajuan sekarang?'"
+                    :message="$sebutanAdmin.' akan meninjau profil usaha & produk yang kamu ajukan. Pastikan datanya sudah benar sebelum dikirim — kamu akan diberi tahu begitu hasilnya keluar.'"
+                    :confirm-label="$ditolak ? 'Ya, Ajukan Ulang' : 'Ya, Kirim'"
+                    cancel-label="Periksa Lagi"
+                    trigger-class="inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-base font-bold text-on-primary shadow-sm transition-colors hover:bg-surface-tint disabled:cursor-not-allowed disabled:opacity-60">
+                    <span x-show="! submitting" class="flex items-center gap-2.5">
+                        <x-heroicon-o-paper-airplane class="h-5 w-5" />
+                        {{ $ditolak ? 'Ajukan Ulang' : 'Kirim Pengajuan' }}
+                    </span>
+                    <span x-show="submitting" x-cloak class="flex items-center gap-2.5">
+                        <svg class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Memproses…
+                    </span>
+                </x-portal.confirm-dialog>
             </div>
         </form>
     @endif
