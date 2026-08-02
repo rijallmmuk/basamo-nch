@@ -19,23 +19,34 @@ class BackofficeUserService
     /** @var list<string> */
     public const PORTAL_ROLES = ['warga'];
 
-    /** Generate username unik berdasarkan nama lengkap. */
+    /** Generate username unik: kata pertama dari nama + tiga digit acak. */
     public function generateUniqueUsername(string $name, ?int $ignoreId = null): string
     {
-        $baseSlug = Str::slug($name, '.');
-        if (blank($baseSlug)) {
-            $baseSlug = 'user';
+        $slug = Str::slug($name);
+        $kataPertama = Str::before($slug, '-');
+        $base = Str::limit(filled($kataPertama) ? $kataPertama : 'user', 252, '');
+        $angkaAwal = random_int(0, 999);
+
+        // Memulai dari angka acak, lalu mengitari seluruh ruang 000–999. Dengan
+        // begitu format selalu tepat tiga digit dan pencarian tetap pasti selesai
+        // selama masih ada satu username yang tersedia untuk kata tersebut.
+        for ($offset = 0; $offset < 1000; $offset++) {
+            $angka = ($angkaAwal + $offset) % 1000;
+            $username = $base.str_pad((string) $angka, 3, '0', STR_PAD_LEFT);
+
+            $sudahDipakai = User::query()
+                ->where('username', $username)
+                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+                ->exists();
+
+            if (! $sudahDipakai) {
+                return $username;
+            }
         }
 
-        $username = $baseSlug;
-        $counter = 1;
-
-        while (User::query()->where('username', $username)->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))->exists()) {
-            $username = $baseSlug.$counter;
-            $counter++;
-        }
-
-        return $username;
+        throw ValidationException::withMessages([
+            'username' => "Seluruh kombinasi username untuk {$base} sudah digunakan. Isi username secara manual.",
+        ]);
     }
 
     /** @param array<string, mixed> $data @param list<string> $roles */

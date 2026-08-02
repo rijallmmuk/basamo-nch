@@ -51,12 +51,13 @@ class BackofficeUserForm
                         ->label('Username')
                         ->prefixIcon('heroicon-m-identification')
                         ->nullable()
+                        ->alphaDash()
                         ->maxLength(255)
                         ->live(onBlur: true)
                         ->unique(User::class, 'username', ignoreRecord: true)
                         ->disabled(fn (?User $record): bool => ($record?->hasRole('operator') ?? false)
                             || $record?->penduduk_id !== null)
-                        ->helperText('Kosongkan agar dibuatkan otomatis dari nama.'),
+                        ->helperText('Kosongkan agar dibuat otomatis dari kata pertama nama dan tiga angka.'),
 
                     TextInput::make('email')
                         ->label('Alamat Email')

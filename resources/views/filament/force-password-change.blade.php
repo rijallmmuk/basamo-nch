@@ -28,7 +28,7 @@
                         <x-filament::input.wrapper>
                             <x-filament::input type="text" id="fpc-username" wire:model="username" placeholder="Masukkan username baru" class="w-full" />
                         </x-filament::input.wrapper>
-                        <p class="mt-1 text-xs text-gray-500">Username otomatis dibuat dari nama. Kamu boleh menyesuaikannya sekarang.</p>
+                        <p class="mt-1 text-xs text-gray-500">Username otomatis memakai kata pertama nama dan tiga angka. Anda boleh menyesuaikannya sekarang.</p>
                         @error('username') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                 @endif
@@ -78,6 +78,15 @@
                 <x-filament::button type="submit" class="w-full">
                     Simpan &amp; Lanjutkan
                 </x-filament::button>
+            </form>
+
+            {{-- Sama seperti portal warga: pengguna boleh kembali ke halaman masuk,
+                 tetapi harus mengakhiri sesi agar kunci sandi awal tidak dapat dilewati. --}}
+            <form method="POST" action="{{ route('filament.panel.auth.logout') }}" class="mt-5 text-center">
+                @csrf
+                <button type="submit" class="text-sm text-gray-500 transition-colors hover:text-gray-800 hover:underline">
+                    Keluar
+                </button>
             </form>
         </div>
     </div>

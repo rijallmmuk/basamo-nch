@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Rules\NotInitialPassword;
+use App\Services\BackofficeUserService;
 use App\Services\FirstLoginPasswordService;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
@@ -33,7 +34,7 @@ class ForcePasswordChange extends Component
 
     public bool $canSetLembaga = false;
 
-    public function mount(): void
+    public function mount(BackofficeUserService $backofficeUsers): void
     {
         $user = auth()->user();
 
@@ -44,7 +45,10 @@ class ForcePasswordChange extends Component
 
         if ($this->canSetName && $user->penduduk_id === null) {
             $this->canChangeUsername = true;
-            $this->username = (string) $user->username;
+            $username = (string) $user->username;
+            $this->username = preg_match('/^[A-Za-z0-9_-]+$/', $username) === 1
+                ? $username
+                : $backofficeUsers->generateUniqueUsername((string) $user->name, $user->id);
         }
 
         if ($user?->hasRole('pengajar')) {
