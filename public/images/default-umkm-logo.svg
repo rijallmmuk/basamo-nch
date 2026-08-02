@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Logo Usaha UMKM Basamo NCH">
+  <defs>
+    <linearGradient id="logo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="gold-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="400" height="400" fill="url(#logo-bg)"/>
+
+  <!-- Decorative Circle Ring -->
+  <circle cx="200" cy="180" r="95" fill="none" stroke="url(#gold-ring)" stroke-width="4" opacity="0.4"/>
+  <circle cx="200" cy="180" r="85" fill="#f59e0b" opacity="0.08"/>
+
+  <!-- Central Icon (Storefront Motif) -->
+  <g transform="translate(152, 132) scale(4)" fill="#f59e0b" opacity="0.95">
+    <path d="M19 6h-2c0-2.21-1.79-4-4-4S9 3.79 9 6H7c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 15H7V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v11z"/>
+  </g>
+
+  <!-- Branding Text -->
+  <text x="200" y="315" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" fill="#ffffff" letter-spacing="1">PROFIL USAHA</text>
+  <text x="200" y="342" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#f59e0b" opacity="0.9" letter-spacing="1.5">UMKM BASAMO NCH</text>
+</svg>

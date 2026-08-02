@@ -1,0 +1,746 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+/* Scan blade SUMBER langsung (bukan cache storage/framework/views yang bisa basi
+   saat build — kelas arbitrary spt tracking-[-0.04em] pernah hilang karenanya). */
+@source '../views/**/*.blade.php';
+@source '../../app/Livewire/**/*.php';
+
+[x-cloak] {
+    display: none !important;
+}
+
+/*
+ | Design System: "Nagari Creative Hub" — SUMBER KEBENARAN front-end.
+ | Token kanonik didefinisikan pada blok @theme di berkas ini (satu-satunya sumber).
+ | Aturan: halaman SELALU pakai token semantik (bg-primary, text-on-surface,
+ | text-display-lg, …), JANGAN hex mentah. Ganti token di sini → seluruh app ikut.
+ | Palet: NCH Deep Blue (primary) · Minang Gold (secondary/accent) · Sustainable
+ | Green (tertiary) · Plus Jakarta Sans.
+ */
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* ── Primary — NCH Deep Blue ────────────────────────────── */
+    --color-primary: #003857;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #1b4f72;
+    --color-on-primary-container: #cce5ff;
+    --color-primary-highlight: #0b5e8d;
+    --color-primary-fixed: #cce5ff;
+    --color-primary-fixed-dim: #9dcbf4;
+    --color-on-primary-fixed: #001e31;
+    --color-on-primary-fixed-variant: #154b6d;
+    --color-inverse-primary: #9dcbf4;
+    --color-surface-tint: #326286;
+
+    /* ── Secondary — Minang Gold (accent) ───────────────────── */
+    --color-secondary: #735c00;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #fed33e;
+    --color-on-secondary-container: #4b3b00;
+    --color-secondary-fixed: #ffe085;
+    --color-secondary-fixed-dim: #ecc22c;
+    --color-on-secondary-fixed: #231b00;
+    --color-on-secondary-fixed-variant: #574500;
+
+    /* ── Tertiary — Sustainable Green ───────────────────────── */
+    --color-tertiary: #003d1c;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #00572a;
+    --color-on-tertiary-container: #a7f6bd;
+    --color-tertiary-fixed: #7efba4;
+    --color-tertiary-fixed-dim: #61de8a;
+    --color-on-tertiary-fixed: #00210c;
+    --color-on-tertiary-fixed-variant: #005228;
+
+    /* ── Surfaces & neutrals ────────────────────────────────── */
+    --color-background: #f7f9fb;
+    --color-on-background: #191c1e;
+    --color-surface: #f7f9fb;
+    --color-on-surface: #191c1e;
+    --color-on-surface-variant: #41474e;
+    --color-on-surface-muted: #626a73;
+    --color-surface-variant: #e0e3e5;
+    --color-surface-bright: #f7f9fb;
+    --color-surface-dim: #d8dadc;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f2f4f6;
+    --color-surface-container: #eceef0;
+    --color-surface-container-high: #e6e8ea;
+    --color-surface-container-highest: #e0e3e5;
+    --color-inverse-surface: #2d3133;
+    --color-inverse-on-surface: #eff1f3;
+    --color-outline: #72787f;
+    --color-outline-variant: #c1c7cf;
+    --color-control-border: #858c94;
+
+    /* ── Feedback ───────────────────────────────────────────── */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    --color-danger: #ba1a1a; /* alias kompat — markup lama pakai text-danger */
+    --color-info: #2563eb;
+    --color-on-info: #ffffff;
+    --color-info-container: #dbeafe;
+    --color-on-info-container: #1e40af;
+    --color-success: #1f6b3a;
+    --color-on-success: #ffffff;
+    --color-success-container: #d8f3df;
+    --color-on-success-container: #15552d;
+
+    /* ── SDG palette (18 poin, standar internasional) ───────── */
+    --color-sdg-1: #e5243b;
+    --color-sdg-2: #dda63a;
+    --color-sdg-3: #4c9f38;
+    --color-sdg-4: #c5192d;
+    --color-sdg-5: #ff3a21;
+    --color-sdg-6: #26bde2;
+    --color-sdg-7: #fcc30b;
+    --color-sdg-8: #a21942;
+    --color-sdg-9: #fd6925;
+    --color-sdg-10: #dd1367;
+    --color-sdg-11: #fd9d24;
+    --color-sdg-12: #bf8b2e;
+    --color-sdg-13: #3f7e44;
+    --color-sdg-14: #0a97d9;
+    --color-sdg-15: #56c02b;
+    --color-sdg-16: #00689d;
+    --color-sdg-17: #19486a;
+    --color-sdg-18: #4f46e5;
+
+    /* ── Spacing — base 8px (page-level dari DESIGN.md) ─────── */
+    /* Skala 4px (xs–xl) dipertahankan untuk internal komponen lama. */
+    /* CATATAN: token --spacing-{xs,sm,md,lg,xl} DIHAPUS (2026-07-10) — namanya
+       menabrak utility max-w-{xs..xl} Tailwind v4 (max-w-xl jadi 1.5rem!) dan
+       menyempitkan semua kolom teks. Pakai skala numerik bawaan (gap-3, p-4, …). */
+    --spacing-gutter: 1.5rem; /* 24px */
+    --spacing-margin-mobile: 1.25rem; /* 20px */
+    --spacing-margin-desktop: 3rem; /* 48px — portal (app-like) */
+    --spacing-section-gap: 5rem; /* 80px */
+    --spacing-container-max: 80rem; /* 1280px — portal */
+
+    /* Halaman PUBLIK (panutan beranda 2026-07-10): kontainer lebar ala referensi. */
+    --spacing-margin-page: 8rem; /* 128px */
+    --spacing-container-page: 125rem; /* 2000px */
+
+    /* ── Tipografi PANUTAN halaman publik (beranda 2026-07-10) ──
+       Fluid via clamp — tak perlu breakpoint per ukuran layar.  */
+    --text-hero: clamp(2.5rem, 1.1rem + 3.4vw, 4.5rem); /* 40 → 72px */
+    --text-hero--line-height: 1.08;
+    --text-hero--font-weight: 800;
+    --text-hero--letter-spacing: -0.04em;
+    --text-section: clamp(1.75rem, 1.3rem + 1.1vw, 2.625rem); /* 28 → 42px */
+    --text-section--line-height: 1.15;
+    --text-section--font-weight: 800;
+    --text-section--letter-spacing: -0.04em;
+    --text-lead: clamp(1.125rem, 1rem + 0.35vw, 1.375rem); /* 18 → 22px */
+    --text-lead--line-height: 1.6;
+    --text-lead--font-weight: 300;
+    --tracking-tightest: -0.04em;
+
+    /* ── Typography — Plus Jakarta Sans (DESIGN.md) ─────────── */
+    --text-display-lg: 48px;
+    --text-display-lg--line-height: 1.2;
+    --text-display-lg--font-weight: 800;
+    --text-display-lg--letter-spacing: -0.02em;
+    --text-display-md: 36px;
+    --text-display-md--line-height: 1.2;
+    --text-display-md--font-weight: 700;
+    --text-display-md--letter-spacing: -0.02em;
+    --text-headline-lg: 30px;
+    --text-headline-lg--line-height: 1.3;
+    --text-headline-lg--font-weight: 700;
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 1.4;
+    --text-headline-md--font-weight: 600;
+    --text-headline-sm: 18px; /* kompat — tidak ada di DESIGN.md, dipakai markup lama */
+    --text-headline-sm--line-height: 24px;
+    --text-headline-sm--font-weight: 600;
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 1.6;
+    --text-body-lg--font-weight: 400;
+    --text-body-md: 16px;
+    --text-body-md--line-height: 1.6;
+    --text-body-md--font-weight: 400;
+    --text-label-md: 14px;
+    --text-label-md--line-height: 1.2;
+    --text-label-md--font-weight: 600;
+    --text-label-md--letter-spacing: 0.05em;
+    --text-label-sm: 12px;
+    --text-label-sm--line-height: 1.2;
+    --text-label-sm--font-weight: 500;
+    --text-metric-lg: 32px; /* kompat — angka statistik */
+    --text-metric-lg--line-height: 40px;
+    --text-metric-lg--font-weight: 800;
+}
+
+/* Mode baca: media memakai kanvas lebar, sedangkan baris teks tetap nyaman. */
+.slc-readable-text {
+    max-width: 56rem;
+}
+
+.portal-reader-full .slc-media-wide {
+    max-width: none;
+}
+
+/* Lockup aplikasi memakai markup yang sama dengan panel Filament. */
+.nch-brand {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.nch-brand-mark {
+    display: inline-flex;
+    width: 3.65rem;
+    height: 2.65rem;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.nch-brand-logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.nch-brand-logo--light {
+    display: none;
+}
+
+.nch-brand-copy {
+    display: inline-flex;
+    width: max-content;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nch-brand-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    color: var(--color-primary);
+    font-size: 1.18rem;
+    font-weight: 850;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.nch-brand-accent {
+    color: var(--color-secondary);
+}
+
+.nch-brand-subtitle {
+    color: var(--color-on-surface-muted);
+    margin-top: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.018em;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.public-footer-brand .nch-brand-logo--default {
+    display: none;
+}
+
+.public-footer-brand .nch-brand-logo--light {
+    display: block;
+}
+
+.public-footer-brand .nch-brand-title {
+    color: var(--color-on-primary);
+}
+
+.public-footer-brand .nch-brand-accent {
+    color: var(--color-secondary-container);
+}
+
+.public-footer-brand .nch-brand-subtitle {
+    color: color-mix(in srgb, var(--color-on-primary) 68%, transparent);
+}
+
+/*
+ | Motif & elevasi Minangkabau — utility terpusat (jangan copy per halaman).
+ | Diturunkan dari stitch code.html: gonjong, songket, bada mudiak, glass, kartu.
+ */
+@layer base {
+    /* Sorotan teks & fokus keyboard bernuansa brand (a11y + rasa premium) */
+    ::selection {
+        background: var(--color-secondary-container);
+        color: var(--color-on-secondary-fixed);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-secondary);
+        outline-offset: 2px;
+    }
+
+    body {
+        text-rendering: optimizeLegibility;
+    }
+}
+
+@layer utilities {
+    /* Anchor one-page: sisakan ruang untuk header sticky saat lompat section */
+    section[id] {
+        scroll-margin-top: 5.5rem;
+    }
+
+    /* Select bergaya NCH — panah kustom berjarak (select native panahnya mepet kanan) */
+    .select-nch {
+        @apply min-h-11 rounded-xl border border-control-border bg-surface-container-lowest px-3.5 py-2.5 text-sm font-medium text-on-surface shadow-sm transition-colors hover:border-outline focus:border-secondary focus:ring-2 focus:ring-secondary-container/35;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2372787f'%3E%3Cpath fill-rule='evenodd' d='M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        background-size: 1.1rem;
+        padding-right: 2.6rem;
+    }
+
+    /* Input teks/textarea portal warga — dulu diulang sbg $inputClass di tiap form
+       (profile/edit, umkm/profile, umkm/product-form, umkm/apply); satukan di sini
+       agar sekali ubah, berubah semua. */
+    .input-nch {
+        @apply block min-h-11 w-full rounded-xl border border-control-border bg-surface-container-lowest px-3.5 py-2.5 text-sm text-on-surface shadow-sm transition-colors placeholder:text-on-surface-muted hover:border-outline focus:border-secondary focus:ring-2 focus:ring-secondary-container/35 disabled:cursor-not-allowed disabled:border-outline-variant disabled:bg-surface-container-high disabled:text-on-surface-variant;
+    }
+
+    /* Watermark gonjong (atap rumah gadang) — pakai di pojok kartu/section */
+    .gonjong-bg {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23735c00' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
+    }
+
+    /* Titik songket — latar bertekstur halus */
+    .songket-pattern {
+        background-image: radial-gradient(circle at 2px 2px, rgba(115, 92, 0, 0.15) 1px, transparent 0);
+        background-size: 16px 16px;
+    }
+
+    /* Garis ombak "bada mudiak" — pemisah section */
+    .pattern-bada-mudiak {
+        background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(0, 56, 87, 0.05) 10px,
+            rgba(0, 56, 87, 0.05) 20px
+        );
+    }
+
+    .minang-divider {
+        height: 40px;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='40' viewBox='0 0 100 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 Q25 0 50 40 Q75 0 100 40' fill='none' stroke='%23003857' stroke-width='1' opacity='0.2'/%3E%3C/svg%3E");
+        background-repeat: repeat-x;
+    }
+
+    /* Elevasi — Level 1 (kartu) & hover (Level 2) */
+    .card-shadow {
+        box-shadow: 0px 4px 12px rgba(27, 79, 114, 0.06);
+    }
+    .card-hover {
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 24px rgba(27, 79, 114, 0.1);
+    }
+
+    /* Panel kaca — overlay/header dengan blur */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(254, 211, 62, 0.2);
+    }
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Aksen tech — glow biru+emas untuk elemen IoT/hero */
+    .tech-glow {
+        box-shadow:
+            0 0 20px rgba(0, 56, 87, 0.2),
+            0 0 40px rgba(254, 211, 62, 0.1);
+    }
+
+    /* Bentuk gonjong (atap runcing) via clip-path */
+    .gonjong-peak {
+        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+    }
+    .pucuk-rabuang {
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    /* ── Animated gradient hero mesh ─────────────────────────── */
+    .hero-gradient-mesh {
+        background: linear-gradient(
+            -45deg,
+            var(--color-primary) 0%,
+            #0a4a6e 25%,
+            var(--color-primary-container) 50%,
+            #002a45 75%,
+            var(--color-primary) 100%
+        );
+        background-size: 400% 400%;
+        animation: gradient-shift 20s ease infinite;
+    }
+
+    /* ── Floating luminous orbs ──────────────────────────────── */
+    .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        will-change: transform;
+    }
+    .floating-orb--gold {
+        animation: float-orb 20s ease-in-out infinite;
+    }
+    .floating-orb--blue {
+        animation: float-orb-reverse 25s ease-in-out infinite;
+    }
+    .floating-orb--green {
+        animation: float-orb 30s ease-in-out infinite 5s;
+    }
+
+    /* ── Clean borders on hover (no weird gradients) ──────────────────────── */
+    .glow-border {
+        position: relative;
+        z-index: 0;
+    }
+    .glow-border::before {
+        display: none;
+    }
+    .glow-border:hover::before {
+        opacity: 0;
+    }
+
+    /* ── Clean hover ──────────────────────── */
+    .shimmer-hover {
+        position: relative;
+    }
+    .shimmer-hover::after {
+        display: none;
+    }
+
+    /* ── Infinite marquee for logo strips ───────────────────── */
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        animation: marquee 40s linear infinite;
+    }
+    .marquee-track:hover {
+        animation-play-state: paused;
+    }
+
+    /* ── Animated bar fill (distribution bars) ──────────────── */
+    .bar-animated {
+        transform-origin: left;
+        transform: scaleX(0);
+    }
+    .bar-animated.bar-revealed {
+        animation: bar-fill 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* ── Scroll indicator bounce ────────────────────────────── */
+    .scroll-indicator {
+        animation: bounce-gentle 2.5s ease-in-out infinite;
+    }
+
+    /* ── Ken-burns for slideshow images ──────────────────────── */
+    .ken-burns {
+        animation: ken-burns 12s ease-in-out alternate infinite;
+    }
+
+    /* ── Gold pulse glow ────────────────────────────────────── */
+    .pulse-gold {
+        animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    /* ── Animated wave divider (upgrade dari static) ─────────── */
+    .minang-divider-wave {
+        height: 48px;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3Csvg width='200' height='48' viewBox='0 0 200 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 48 Q25 0 50 48 Q75 0 100 48 Q125 0 150 48 Q175 0 200 48' fill='none' stroke='%23003857' stroke-width='1.5' opacity='0.15'/%3E%3Cpath d='M0 48 Q25 8 50 48 Q75 8 100 48 Q125 8 150 48 Q175 8 200 48' fill='none' stroke='%23fed33e' stroke-width='0.5' opacity='0.12'/%3E%3C/svg%3E");
+        background-repeat: repeat-x;
+        background-size: 200px 48px;
+        animation: wave-flow 6s linear infinite;
+    }
+
+    /* ── Staggered reveal for child elements ─────────────────── */
+    .stagger-children > * {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    .stagger-children.revealed > * {
+        opacity: 1;
+        transform: translateY(0);
+        transition:
+            opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .stagger-children.revealed > *:nth-child(1) { transition-delay: 0ms; }
+    .stagger-children.revealed > *:nth-child(2) { transition-delay: 80ms; }
+    .stagger-children.revealed > *:nth-child(3) { transition-delay: 160ms; }
+    .stagger-children.revealed > *:nth-child(4) { transition-delay: 240ms; }
+    .stagger-children.revealed > *:nth-child(5) { transition-delay: 320ms; }
+    .stagger-children.revealed > *:nth-child(6) { transition-delay: 400ms; }
+    .stagger-children.revealed > *:nth-child(7) { transition-delay: 480ms; }
+    .stagger-children.revealed > *:nth-child(8) { transition-delay: 560ms; }
+
+    /* ── Fade-in-up reveal (individual elements) ────────────── */
+    .reveal-up {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+            opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal-up.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ── FAQ smooth height transition ───────────────────────── */
+    details.faq-smooth > summary ~ * {
+        overflow: hidden;
+        transition: max-height 0.35s ease, opacity 0.3s ease;
+    }
+
+    /* ── Shrinking header on scroll ──────────────────────────── */
+    .header-shrink {
+        transition: padding 0.3s ease, box-shadow 0.3s ease;
+    }
+    .header-shrink.scrolled {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        box-shadow:
+            0 4px 20px rgba(0, 56, 87, 0.08),
+            0 1px 3px rgba(0, 56, 87, 0.04);
+    }
+
+    /* ── Gold accent underline ──────────────────────────────── */
+    .gold-underline {
+        background-image: linear-gradient(
+            90deg,
+            var(--color-secondary-container),
+            var(--color-secondary-fixed-dim),
+            var(--color-secondary-container)
+        );
+        background-size: 200% 3px;
+        background-position: bottom left;
+        background-repeat: no-repeat;
+        padding-bottom: 4px;
+        animation: gold-shimmer 3s ease-in-out infinite;
+    }
+
+    /* ── Counter number animation class ─────────────────────── */
+    .count-up {
+        display: inline-block;
+    }
+}
+
+/*
+ | ── Keyframes untuk animasi premium beranda ──────────────────
+ | Ditempatkan di luar layer agar tersedia global.
+ */
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    25% { background-position: 50% 100%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 0%; }
+}
+
+@keyframes float-orb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -40px) scale(1.05); }
+    50% { transform: translate(-15px, 25px) scale(0.97); }
+    75% { transform: translate(20px, -15px) scale(1.02); }
+}
+
+@keyframes float-orb-reverse {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(-25px, 35px) scale(0.96); }
+    50% { transform: translate(20px, -30px) scale(1.04); }
+    75% { transform: translate(-10px, 15px) scale(0.98); }
+}
+
+@keyframes shimmer-sweep {
+    0% { left: -100%; }
+    100% { left: 200%; }
+}
+
+@keyframes wave-flow {
+    0% { background-position-x: 0; }
+    100% { background-position-x: 200px; }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+@keyframes bar-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(254, 211, 62, 0.3); }
+    50% { box-shadow: 0 0 24px 6px rgba(254, 211, 62, 0); }
+}
+
+@keyframes bounce-gentle {
+    0%, 100% { transform: translateY(0); opacity: 0.7; }
+    50% { transform: translateY(8px); opacity: 1; }
+}
+
+@keyframes ken-burns {
+    0% { transform: scale(1) translate(0, 0); }
+    100% { transform: scale(1.08) translate(-0.5%, -0.5%); }
+}
+
+@keyframes gold-shimmer {
+    0%, 100% { background-position: bottom left; background-size: 200% 3px; }
+    50% { background-position: bottom right; background-size: 200% 3px; }
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/*
+ | Tipografi konten materi (@tailwindcss/typography) di-brand ke token NCH.
+ | Dipakai oleh blok 'teks' (RichEditor admin) & deskripsi modul lewat kelas `prose`.
+ */
+@layer components {
+    .app-surface {
+        @apply rounded-xl border border-outline-variant/80 bg-surface-container-lowest;
+    }
+
+    .app-table-shell {
+        @apply overflow-hidden rounded-xl border border-outline-variant/80 bg-surface-container-lowest;
+    }
+
+    .app-table-row {
+        @apply transition-colors duration-150 hover:bg-surface-container-low;
+    }
+
+    .app-icon-button {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2;
+    }
+
+    .prose {
+        /* Body pakai on-surface (kontras tinggi) demi kenyamanan baca panjang di HP. */
+        --tw-prose-body: var(--color-on-surface);
+        --tw-prose-headings: var(--color-on-surface);
+        --tw-prose-lead: var(--color-on-surface-variant);
+        --tw-prose-links: var(--color-primary);
+        --tw-prose-bold: var(--color-on-surface);
+        --tw-prose-counters: var(--color-on-surface-variant);
+        --tw-prose-bullets: var(--color-primary);
+        --tw-prose-hr: var(--color-outline-variant);
+        --tw-prose-quotes: var(--color-on-surface-variant);
+        --tw-prose-quote-borders: var(--color-secondary-container);
+        --tw-prose-captions: var(--color-on-surface-variant);
+        --tw-prose-code: var(--color-on-surface);
+        --tw-prose-pre-code: var(--color-on-surface-variant);
+        --tw-prose-pre-bg: var(--color-surface-container-high);
+        --tw-prose-th-borders: var(--color-outline-variant);
+        --tw-prose-td-borders: var(--color-outline-variant);
+    }
+}
+
+/*
+ | Rapatkan spasi vertikal konten materi — default typography terlalu longgar,
+ | apalagi butir daftar dari RichEditor sering dibungkus <p> (margin bertumpuk).
+ | Ditaruh unlayered agar menang atas output plugin.
+ */
+.prose p {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+}
+.prose ul,
+.prose ol {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+}
+.prose li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+.prose li p {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+.prose :is(h2, h3, h4) {
+    margin-top: 1.1em;
+    margin-bottom: 0.5em;
+}
+.prose > :first-child {
+    margin-top: 0;
+}
+.prose > :last-child {
+    margin-bottom: 0;
+}
+
+/*
+ | Tabel konten materi (RichEditor). Plugin typography hanya memberi garis tipis &
+ | TIDAK membungkus scroll, sehingga tabel lebar merusak layout HP (memaksa halaman
+ | menggeser horizontal). Di sini dibuat responsif + rapi:
+ | - display:block + width:max-content + max-width:100% + overflow-x:auto
+ |   → tabel tak pernah melebihi lebar kolom; menggeser SENDIRI saat kolomnya banyak,
+ |     bukan menggeser seluruh halaman.
+ | - grid penuh, header ber-latar, baris selang-seling (zebra) agar mudah dibaca.
+ | Unlayered agar menang atas output plugin.
+ */
+.prose table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    font-size: 0.9375em;
+    line-height: 1.5;
+}
+.prose :is(th, td) {
+    border: 1px solid var(--color-outline-variant);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+.prose thead th {
+    background-color: var(--color-surface-container);
+    color: var(--color-on-surface);
+    font-weight: 700;
+}
+.prose tbody tr:nth-child(even) {
+    background-color: var(--color-surface-container-low);
+}
+
+/*
+ | Sembunyikan kontrol "reveal/clear" bawaan browser (Edge ::-ms-reveal) pada input
+ | kata sandi — kita sediakan toggle mata sendiri (x-portal.password-input) agar tak
+ | tampil dua ikon.
+ */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+    display: none;
+}

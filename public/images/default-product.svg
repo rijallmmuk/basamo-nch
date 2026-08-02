@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Foto Produk UMKM Basamo NCH">
+  <defs>
+    <linearGradient id="product-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="45%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="gold-accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="icon-glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="600" height="600" fill="url(#product-bg)"/>
+
+  <!-- Decorative Patterns -->
+  <circle cx="500" cy="100" r="140" fill="#fbbf24" opacity="0.08"/>
+  <circle cx="100" cy="500" r="160" fill="#6366f1" opacity="0.1"/>
+  <rect x="420" y="380" width="220" height="220" rx="30" fill="#ffffff" opacity="0.03" transform="rotate(-15 420 380)"/>
+
+  <!-- Glowing Aura behind Icon -->
+  <circle cx="300" cy="240" r="110" fill="url(#icon-glow)"/>
+
+  <!-- Top Badge Pill -->
+  <rect x="190" y="65" width="220" height="34" rx="17" fill="url(#gold-accent)"/>
+  <text x="300" y="87" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#1e1b4b" letter-spacing="2">PRODUK UMKM</text>
+
+  <!-- Central Icon (Shopping Bag / Package Motif) -->
+  <g transform="translate(240, 150) scale(5)" fill="#fbbf24" opacity="0.95">
+    <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H3v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6h-5zm-6-2h4v2h-4V4zm9 16H5V8h3v2a1 1 0 0 0 2 0V8h4v2a1 1 0 0 0 2 0V8h3v12z"/>
+  </g>
+
+  <!-- Branding Text -->
+  <text x="300" y="415" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#ffffff" letter-spacing="0.5">Basamo NCH</text>
+  <text x="300" y="455" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#fbbf24" opacity="0.9" letter-spacing="1">Produk Lokal Nagari</text>
+</svg>

@@ -1,0 +1,61 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+/.cursor/
+/.idea
+/.nova
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/app/backups
+/storage/app/backup-temp
+/storage/framework/testing
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Dump wilayah nasional mentah (pakai database/data/sumbar_* hasil ekstrak)
+/wilayah*.sql
+/wilayah*-main/
+/db_wilayah_bps.sql
+
+# Bahan coba-coba IoT (halaman statis, tangkapan layar, dan TOKEN API Blynk mentah)
+/IoT/
+
+# Berkas contoh impor penduduk — dipakai saat uji impor lokal, bukan bagian aplikasi
+/penduduk_*.xlsx
+
+# Panduan operasional lokal — sengaja tidak dipublikasikan ke GitHub
+/DEPLOY.md
+/PANDUAN-PENGAJAR.md
+/panduan-pengajar/
+/CATATAN-OPERASIONAL.md
+/TUGAS-TERTUNDA.md
+
+# Lingkungan pengujian lokal mirip produksi — berisi jalur & user mesin ini
+/deploy-lokal/
+/.env.staging
+
+# Metadata asisten/editor lokal
+/.agents/
+/.claude/
+/.codex/
+
+# Perangkat pengujian lokal — tidak dikirim ke repository produksi
+/tests/
+/phpunit.xml
+/database/factories/
+
+# Berkas kunci OnlyOffice/LibreOffice saat dokumen sedang dibuka
+.~lock.*#

@@ -1,0 +1,22 @@
+# Penjaga akar proyek.
+#
+# Yang benar tetap: arahkan document root domain ke folder `public/`. Berkas ini
+# jaring pengaman untuk bawaan Hostinger, yang menaruh document root di
+# `public_html` sedangkan aplikasi dipasang di dalamnya.
+#
+# Satu aturan ini sudah cukup. Permintaan ke `.env`, `storage/logs`, atau berkas
+# kode apa pun ikut ditulis ulang ke dalam `public/`, tidak ditemukan di sana,
+# lalu dibalas 404. Menambah daftar tolak sendiri justru pernah merusak: daftar
+# yang memuat `storage` membuat SELURUH foto situs dibalas 403, sebab
+# `public/storage` adalah symlink tempat media publik dilayankan.
+#
+# Kalau document root sudah menunjuk `public/`, berkas ini tidak pernah dibaca.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
+
+Options -Indexes

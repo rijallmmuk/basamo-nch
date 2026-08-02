@@ -1,0 +1,28 @@
+{
+  "id": "/",
+  "name": "BASAMO Nagari Creative Hub",
+  "short_name": "Basamo NCH",
+  "description": "Ekosistem data nagari, pelatihan warga, budaya, UMKM, dan pemantauan IoT.",
+  "lang": "id-ID",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#003857",
+  "background_color": "#f7f9fb",
+  "display": "standalone",
+  "orientation": "any",
+  "categories": ["education", "business", "government"]
+}
