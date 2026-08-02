@@ -9,13 +9,6 @@
     $isNagari = $nagari instanceof \App\Models\Nagari;
     $photoList = collect($photos ?? ($photo ? [$photo] : []))->filter()->values();
     $hasPhotos = $photoList->isNotEmpty();
-    $isFallback = $isNagari && request()->routeIs('*.fallback');
-    $slcUrl = $isNagari
-        ? ($isFallback ? route('public.nagari.slc.fallback', $nagari) : route('public.nagari.slc', $nagari))
-        : route('public.slc');
-    $umkmUrl = $isNagari
-        ? ($isFallback ? route('public.nagari.umkm.fallback', $nagari) : route('public.nagari.umkm', $nagari))
-        : route('public.umkm');
 @endphp
 
 <section class="hero-gradient-mesh relative isolate overflow-hidden {{ $isNagari ? 'min-h-[min(92svh,46rem)]' : 'min-h-[min(88svh,42rem)]' }}">
@@ -57,43 +50,19 @@
             <div class="lg:col-span-5">
                 @if($isNagari)
                     <h1 class="text-hero text-balance text-on-primary font-extrabold tracking-tight">
-                        BASAMO Nagari Creative Hub <span class="text-secondary-container gold-underline">Smart Learning Center.</span>
+                        Basamo Nagari Creative Hub <span class="text-secondary-container gold-underline">Smart Learning Center.</span>
                     </h1>
                     <p class="mt-6 max-w-xl text-lead text-pretty text-on-primary/80 leading-relaxed font-light">
                         Data, pembelajaran, budaya, dan ekonomi lokal terhubung dalam satu ekosistem digital untuk mendukung kemajuan {{ $nagari->nama_lengkap }}.
                     </p>
                 @else
-                    <div class="inline-flex items-center gap-2 rounded-full border border-on-primary/20 bg-on-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary-container backdrop-blur-md shadow-lg shadow-black/10 transition-transform duration-300 hover:scale-105">
-                        <x-heroicon-s-sparkles class="h-4 w-4 animate-pulse text-secondary-container" />
-                        Nagari Creative Hub
-                    </div>
-                    <h1 class="mt-7 text-hero text-balance text-on-primary font-extrabold tracking-tight">
+                    <h1 class="text-hero text-balance text-on-primary font-extrabold tracking-tight">
                         Empat pilar, <span class="text-secondary-container gold-underline">satu ekosistem nagari.</span>
                     </h1>
                     <p class="mt-6 max-w-xl text-lead text-pretty text-on-primary/80 leading-relaxed font-light">
                         Basamo NCH menghubungkan data, pembelajaran warga, ekonomi lokal, dan teknologi nagari dalam satu pengalaman digital.
                     </p>
                 @endif
-
-                <div class="mt-8 flex flex-wrap gap-3">
-                    @if($isNagari)
-                        <a href="#ringkasan" class="shimmer-hover inline-flex items-center gap-2.5 rounded-full bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-xl shadow-secondary-container/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-secondary-container/30 active:translate-y-0">
-                            Lihat Ringkasan Nagari <x-heroicon-o-arrow-down class="h-4 w-4" />
-                        </a>
-                    @else
-                        <a href="{{ route('public.teras') }}" class="shimmer-hover inline-flex items-center gap-2.5 rounded-full bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-xl shadow-secondary-container/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-secondary-container/30 active:translate-y-0">
-                            Lihat Teras Nagari <x-heroicon-o-arrow-down class="h-4 w-4" />
-                        </a>
-                        <a href="{{ $slcUrl }}"
-                           class="inline-flex items-center gap-2 rounded-full border border-on-primary/30 bg-on-primary/5 px-6 py-3.5 text-sm font-bold text-on-primary backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-on-primary/15 hover:border-on-primary/50">
-                            <x-heroicon-o-academic-cap class="h-4 w-4 text-secondary-container" /> Jelajahi Pembelajaran
-                        </a>
-                        <a href="{{ $umkmUrl }}"
-                           class="inline-flex items-center gap-2 rounded-full border border-on-primary/30 bg-on-primary/5 px-6 py-3.5 text-sm font-bold text-on-primary backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-on-primary/15 hover:border-on-primary/50">
-                            <x-heroicon-o-building-storefront class="h-4 w-4 text-secondary-container" /> Masuk Lapau
-                        </a>
-                    @endif
-                </div>
 
             </div>
 

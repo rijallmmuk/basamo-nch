@@ -4,10 +4,8 @@ namespace App\Support\Dashboard;
 
 use App\Enums\ModuleProgressStatus;
 use App\Models\Nagari;
-use App\Models\Penduduk;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
-use App\Models\User;
 use App\Models\UserModuleProgress;
 
 /**
@@ -31,8 +29,9 @@ class SuperadminDashboardData
 
         // Penduduk terdata dan akun portal adalah dua populasi berbeda; keduanya
         // disebut terpisah, sama seperti pada dasbor operator.
-        $pendudukCount = Penduduk::count();
-        $wargaCount = User::role('warga')->count();
+        $demografi = DemografiData::ringkasan(hanyaNagariAktif: true);
+        $pendudukCount = $demografi['penduduk'];
+        $wargaCount = $demografi['akun_portal'];
 
         $modulSelesaiCount = UserModuleProgress::where('status', ModuleProgressStatus::Completed->value)->count();
 

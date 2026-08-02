@@ -58,24 +58,7 @@
 </x-public.pillar-header>
 
 @if($globalTeras)
-    <section class="border-b border-outline-variant bg-surface-container-lowest py-6">
-        <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-            <form method="GET" action="{{ route('public.teras') }}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <label class="min-w-0 flex-1">
-                    <span class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Tampilkan data nagari</span>
-                    <select name="nagari" class="select-nch w-full rounded-full">
-                        <option value="">Semua nagari</option>
-                        @foreach($nagariOptions as $option)
-                            <option value="{{ $option->id }}" @selected($option->id === $nagari->id)>
-                                {{ $option->nama }}{{ $option->kabupaten ? ' · '.$option->kabupaten : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </label>
-                <button class="mt-0 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-on-primary sm:mt-5">Terapkan</button>
-            </form>
-        </div>
-    </section>
+    <x-public.nagari-filter :options="$nagariOptions" :selected="$nagari->id" />
 @endif
 
 {{-- ══ RINGKASAN ANGKA + DEMOGRAFI LENGKAP ══ --}}

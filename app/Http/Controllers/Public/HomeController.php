@@ -35,7 +35,7 @@ class HomeController extends Controller
         // Tanpa cache FAQ: harus sinkron seketika begitu superadmin menyimpan.
         $faqs = Faq::query()->where('aktif', true)->orderBy('urutan')->get();
 
-        $overview = $this->overview->overview();
+        $overview = $this->overview->overview(lengkap: false);
 
         $mitraNagari = Nagari::query()
             ->where('status', ActiveStatus::Active)

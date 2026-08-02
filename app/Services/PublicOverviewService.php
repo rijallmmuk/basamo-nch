@@ -9,13 +9,12 @@ use App\Models\IdmStatus;
 use App\Models\Module;
 use App\Models\Nagari;
 use App\Models\Pelatihan;
-use App\Models\Penduduk;
 use App\Models\SdgAchievement;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\UserModuleProgress;
+use App\Support\Dashboard\DemografiData;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 
 class PublicOverviewService
 {
@@ -25,25 +24,47 @@ class PublicOverviewService
      *
      * @return array<string, mixed>
      */
-    public function overview(?Nagari $nagari = null): array
+    public function overview(?Nagari $nagari = null, bool $lengkap = true): array
     {
-        $cacheKey = 'public.teras.v2.'.($nagari?->getKey() ?? 'global');
+        $hanyaNagariAktif = $nagari === null;
+        $demografi = DemografiData::ringkasan($nagari?->getKey(), $hanyaNagariAktif);
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), fn (): array => [
-            'metrics' => $this->metrics($nagari),
-            'gender' => $this->gender($nagari),
-            'ageGroups' => $this->ageGroups($nagari),
-            'education' => $this->lookupDistribution($nagari, 'pendidikan', 'pendidikan_id'),
-            'occupations' => $this->lookupDistribution($nagari, 'pekerjaan', 'pekerjaan_id'),
-            'learning' => $this->learning($nagari),
-            'economy' => $this->economy($nagari),
+        $hasil = [
+            'metrics' => $this->metrics($nagari, $demografi),
             'sdgs' => $this->sdgs($nagari),
             'idm' => $this->idm($nagari),
-        ]);
+        ];
+
+        // Beranda hanya memakai kartu utama, SDGs, dan IDM. Distribusi demografi,
+        // belajar, serta ekonomi dihitung hanya untuk Teras agar halaman masuk
+        // tetap ringan pada nagari dengan puluhan ribu penduduk.
+        if (! $lengkap) {
+            return $hasil;
+        }
+
+        $kelompokUmur = DemografiData::kelompokUmur($nagari?->getKey(), $hanyaNagariAktif);
+        $kelompokUmur->put(
+            'Belum terdata',
+            DemografiData::tanpaTanggalLahir($nagari?->getKey(), $hanyaNagariAktif),
+        );
+
+        // Statistik publik sengaja dihitung dari sumber yang sama dengan dashboard,
+        // tanpa cache snapshot. Impor warga memakai bulk insert (melewati event
+        // model), sehingga cache 15 menit sebelumnya dapat mempertahankan angka 0
+        // ketika dashboard sudah membaca ribuan penduduk yang baru masuk.
+        return [
+            ...$hasil,
+            'gender' => $this->gender($demografi),
+            'ageGroups' => $this->distribution($kelompokUmur),
+            'education' => $this->distribution(DemografiData::distribusiPendidikan($nagari?->getKey(), $hanyaNagariAktif)),
+            'occupations' => $this->distribution(DemografiData::distribusiPekerjaan($nagari?->getKey(), $hanyaNagariAktif)),
+            'learning' => $this->learning($nagari),
+            'economy' => $this->economy($nagari),
+        ];
     }
 
     /** @return list<array{label: string, value: int, icon: string, description: string}> */
-    private function metrics(?Nagari $nagari): array
+    private function metrics(?Nagari $nagari, array $demografi): array
     {
         $metrics = [];
 
@@ -58,7 +79,7 @@ class PublicOverviewService
 
         return [
             ...$metrics,
-            ['label' => 'Penduduk', 'value' => $this->pendudukQuery($nagari)->count(), 'icon' => 'heroicon-o-user-group', 'description' => 'Data agregat SID'],
+            ['label' => 'Penduduk', 'value' => $demografi['penduduk'], 'icon' => 'heroicon-o-user-group', 'description' => number_format($demografi['akun_portal'], 0, ',', '.').' memiliki akun portal'],
             ['label' => 'Pelatihan', 'value' => $this->pelatihanQuery($nagari)->count(), 'icon' => 'heroicon-o-academic-cap', 'description' => 'Pelatihan siap dipelajari'],
             ['label' => 'Modul', 'value' => $this->moduleQuery($nagari)->count(), 'icon' => 'heroicon-o-book-open', 'description' => 'Modul terbit'],
             ['label' => 'UMKM', 'value' => $this->umkmQuery($nagari)->count(), 'icon' => 'heroicon-o-building-storefront', 'description' => 'Rumah usaha aktif'],
@@ -67,62 +88,24 @@ class PublicOverviewService
     }
 
     /** @return list<array{label: string, value: int}> */
-    private function gender(?Nagari $nagari): array
+    private function gender(array $demografi): array
     {
-        $row = $this->pendudukQuery($nagari)
-            ->selectRaw("SUM(CASE WHEN jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS laki_laki")
-            ->selectRaw("SUM(CASE WHEN jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS perempuan")
-            ->selectRaw('SUM(CASE WHEN jenis_kelamin IS NULL THEN 1 ELSE 0 END) AS belum_terdata')
-            ->first();
-
         return [
-            ['label' => 'Laki-laki', 'value' => (int) ($row?->laki_laki ?? 0)],
-            ['label' => 'Perempuan', 'value' => (int) ($row?->perempuan ?? 0)],
-            ['label' => 'Belum terdata', 'value' => (int) ($row?->belum_terdata ?? 0)],
+            ['label' => 'Laki-laki', 'value' => $demografi['laki_laki']],
+            ['label' => 'Perempuan', 'value' => $demografi['perempuan']],
+            ['label' => 'Belum terdata', 'value' => $demografi['belum_terdata']],
         ];
     }
 
     /** @return list<array{label: string, value: int}> */
-    private function ageGroups(?Nagari $nagari): array
+    private function distribution(\Illuminate\Support\Collection $data): array
     {
-        $today = now()->startOfDay();
-        $age18 = $today->copy()->subYears(18)->toDateString();
-        $age26 = $today->copy()->subYears(26)->toDateString();
-        $age41 = $today->copy()->subYears(41)->toDateString();
-        $age61 = $today->copy()->subYears(61)->toDateString();
-
-        $row = $this->pendudukQuery($nagari)
-            ->selectRaw('SUM(CASE WHEN tanggal_lahir > ? THEN 1 ELSE 0 END) AS usia_0_17', [$age18])
-            ->selectRaw('SUM(CASE WHEN tanggal_lahir <= ? AND tanggal_lahir > ? THEN 1 ELSE 0 END) AS usia_18_25', [$age18, $age26])
-            ->selectRaw('SUM(CASE WHEN tanggal_lahir <= ? AND tanggal_lahir > ? THEN 1 ELSE 0 END) AS usia_26_40', [$age26, $age41])
-            ->selectRaw('SUM(CASE WHEN tanggal_lahir <= ? AND tanggal_lahir > ? THEN 1 ELSE 0 END) AS usia_41_60', [$age41, $age61])
-            ->selectRaw('SUM(CASE WHEN tanggal_lahir <= ? THEN 1 ELSE 0 END) AS usia_61_plus', [$age61])
-            ->first();
-
-        return [
-            ['label' => '0–17 tahun', 'value' => (int) ($row?->usia_0_17 ?? 0)],
-            ['label' => '18–25 tahun', 'value' => (int) ($row?->usia_18_25 ?? 0)],
-            ['label' => '26–40 tahun', 'value' => (int) ($row?->usia_26_40 ?? 0)],
-            ['label' => '41–60 tahun', 'value' => (int) ($row?->usia_41_60 ?? 0)],
-            ['label' => '61+ tahun', 'value' => (int) ($row?->usia_61_plus ?? 0)],
-        ];
-    }
-
-    /** @return list<array{label: string, value: int}> */
-    private function lookupDistribution(?Nagari $nagari, string $table, string $foreignKey): array
-    {
-        return $this->pendudukQuery($nagari)
-            ->join($table, $table.'.id', '=', 'penduduk.'.$foreignKey)
-            ->select($table.'.nama AS label')
-            ->selectRaw('COUNT(*) AS total')
-            ->groupBy($table.'.id', $table.'.nama')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get()
-            ->map(fn (Penduduk $row): array => [
-                'label' => (string) $row->getAttribute('label'),
-                'value' => (int) $row->getAttribute('total'),
+        return $data
+            ->map(fn (int $value, string $label): array => [
+                'label' => $label,
+                'value' => $value,
             ])
+            ->values()
             ->all();
     }
 
@@ -227,15 +210,6 @@ class PublicOverviewService
             'latest' => null,
             'statuses' => $statuses,
         ];
-    }
-
-    /** @return Builder<Penduduk> */
-    private function pendudukQuery(?Nagari $nagari): Builder
-    {
-        return Penduduk::query()
-            ->whereHas('nagari', fn (Builder $query) => $query
-                ->where('status', ActiveStatus::Active)
-                ->when($nagari, fn (Builder $scope) => $scope->whereKey($nagari->getKey())));
     }
 
     /** @return Builder<Pelatihan> */

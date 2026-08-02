@@ -283,7 +283,6 @@
                 <div class="space-y-4">
                     <h2 class="text-xs font-bold uppercase tracking-widest text-secondary-container">Kemitraan</h2>
                     <ul class="space-y-3 text-sm text-on-primary/70">
-                        <li><a href="mailto:{{ config('mail.from.address') }}" class="transition-colors hover:text-secondary-container">Hubungi Tim BASAMO NCH</a></li>
                         {{-- Dari situs nagari, kedua tautan ini menuju induknya. --}}
                         <li><a href="{{ $situsIndukUrl }}" class="transition-colors hover:text-secondary-container">Beranda BASAMO NCH</a></li>
                         <li><a href="{{ $situsIndukUrl }}#peta" class="transition-colors hover:text-secondary-container">Peta Nagari Mitra</a></li>

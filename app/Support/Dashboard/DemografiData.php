@@ -2,8 +2,10 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\JenisKelamin;
 use App\Models\Penduduk;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -22,6 +24,56 @@ class DemografiData
 {
     /** Batas bawah tiap kelompok umur; kelompok terakhir terbuka ke atas. */
     private const KELOMPOK_UMUR = [0, 5, 15, 25, 35, 45, 55, 65];
+
+    /**
+     * Angka dasar kependudukan yang dipakai bersama oleh dashboard dan halaman
+     * publik. Penduduk dan akun portal sengaja tetap menjadi dua populasi berbeda.
+     *
+     * @return array{penduduk:int, akun_portal:int, laki_laki:int, perempuan:int, belum_terdata:int}
+     */
+    public static function ringkasan(?int $nagariId = null, bool $hanyaNagariAktif = false): array
+    {
+        $baris = self::dasar($nagariId, $hanyaNagariAktif)
+            ->selectRaw('COUNT(*) AS penduduk')
+            ->selectRaw("SUM(CASE WHEN jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS laki_laki")
+            ->selectRaw("SUM(CASE WHEN jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS perempuan")
+            ->selectRaw("SUM(CASE WHEN jenis_kelamin IS NULL OR jenis_kelamin NOT IN ('L', 'P') THEN 1 ELSE 0 END) AS belum_terdata")
+            ->first();
+
+        $akun = User::query()
+            ->role('warga')
+            ->when($nagariId, fn (Builder $query) => $query->where('users.nagari_id', $nagariId))
+            ->when($hanyaNagariAktif && $nagariId === null, fn (Builder $query) => $query
+                ->whereHas('nagari', fn (Builder $nagari) => $nagari->where('status', ActiveStatus::Active)))
+            ->count();
+
+        return [
+            'penduduk' => (int) ($baris?->penduduk ?? 0),
+            'akun_portal' => $akun,
+            'laki_laki' => (int) ($baris?->laki_laki ?? 0),
+            'perempuan' => (int) ($baris?->perempuan ?? 0),
+            'belum_terdata' => (int) ($baris?->belum_terdata ?? 0),
+        ];
+    }
+
+    /** @return Collection<string, int> */
+    public static function kelompokUmur(?int $nagariId = null, bool $hanyaNagariAktif = false): Collection
+    {
+        return collect(self::labelUmur())
+            ->combine(self::hitungUmur($nagariId, null, $hanyaNagariAktif));
+    }
+
+    /** @return Collection<string, int> */
+    public static function distribusiPendidikan(?int $nagariId = null, bool $hanyaNagariAktif = false): Collection
+    {
+        return self::hitungReferensi($nagariId, 'pendidikan', 'pendidikan_id', $hanyaNagariAktif);
+    }
+
+    /** @return Collection<string, int> */
+    public static function distribusiPekerjaan(?int $nagariId = null, bool $hanyaNagariAktif = false): Collection
+    {
+        return self::hitungReferensi($nagariId, 'pekerjaan', 'pekerjaan_id', $hanyaNagariAktif)->take(10);
+    }
 
     /**
      * Piramida penduduk: kelompok umur di sumbu tegak, laki-laki ke kiri dan
@@ -100,9 +152,9 @@ class DemografiData
      * tahu grafiknya belum mewakili semua orang, bukan mengira nagarinya memang
      * sekecil itu.
      */
-    public static function tanpaTanggalLahir(?int $nagariId = null): int
+    public static function tanpaTanggalLahir(?int $nagariId = null, bool $hanyaNagariAktif = false): int
     {
-        return self::dasar($nagariId)->whereNull('tanggal_lahir')->count();
+        return self::dasar($nagariId, $hanyaNagariAktif)->whereNull('tanggal_lahir')->count();
     }
 
     /** @return list<string> */
@@ -121,21 +173,29 @@ class DemografiData
     /**
      * @return list<int> jumlah penduduk per kelompok umur, urut sesuai KELOMPOK_UMUR
      */
-    private static function hitungUmur(?int $nagariId, string $jenisKelamin): array
+    private static function hitungUmur(?int $nagariId, ?string $jenisKelamin, bool $hanyaNagariAktif = false): array
     {
-        $query = self::dasar($nagariId)
-            ->where('jenis_kelamin', $jenisKelamin)
+        $query = self::dasar($nagariId, $hanyaNagariAktif)
+            ->when($jenisKelamin !== null, fn (Builder $query) => $query->where('jenis_kelamin', $jenisKelamin))
             ->whereNotNull('tanggal_lahir');
 
         foreach (self::KELOMPOK_UMUR as $index => $batas) {
             $berikut = self::KELOMPOK_UMUR[$index + 1] ?? null;
-            $umur = 'TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE())';
+            $lahirMaksimal = now()->startOfDay()->subYears($batas)->toDateString();
 
+            if ($berikut === null) {
+                $query->selectRaw(
+                    "SUM(CASE WHEN tanggal_lahir <= ? THEN 1 ELSE 0 END) as kelompok_{$index}",
+                    [$lahirMaksimal],
+                );
+
+                continue;
+            }
+
+            $lahirMinimalEksklusif = now()->startOfDay()->subYears($berikut)->toDateString();
             $query->selectRaw(
-                $berikut === null
-                    ? "SUM({$umur} >= ?) as kelompok_{$index}"
-                    : "SUM({$umur} BETWEEN ? AND ?) as kelompok_{$index}",
-                $berikut === null ? [$batas] : [$batas, $berikut - 1],
+                "SUM(CASE WHEN tanggal_lahir <= ? AND tanggal_lahir > ? THEN 1 ELSE 0 END) as kelompok_{$index}",
+                [$lahirMaksimal, $lahirMinimalEksklusif],
             );
         }
 
@@ -153,9 +213,14 @@ class DemografiData
      *
      * @return Collection<string, int>
      */
-    private static function hitungReferensi(?int $nagariId, string $tabel, string $kolom): Collection
+    private static function hitungReferensi(
+        ?int $nagariId,
+        string $tabel,
+        string $kolom,
+        bool $hanyaNagariAktif = false,
+    ): Collection
     {
-        $hasil = self::dasar($nagariId)
+        $hasil = self::dasar($nagariId, $hanyaNagariAktif)
             ->leftJoin($tabel, "{$tabel}.id", '=', "penduduk.{$kolom}")
             ->selectRaw("COALESCE({$tabel}.nama, 'Belum terdata') as label, COUNT(*) as jumlah")
             ->groupBy('label')
@@ -199,8 +264,11 @@ class DemografiData
         ];
     }
 
-    private static function dasar(?int $nagariId): Builder
+    private static function dasar(?int $nagariId, bool $hanyaNagariAktif = false): Builder
     {
-        return Penduduk::query()->when($nagariId, fn (Builder $query) => $query->where('penduduk.nagari_id', $nagariId));
+        return Penduduk::query()
+            ->when($nagariId, fn (Builder $query) => $query->where('penduduk.nagari_id', $nagariId))
+            ->when($hanyaNagariAktif && $nagariId === null, fn (Builder $query) => $query
+                ->whereHas('nagari', fn (Builder $nagari) => $nagari->where('status', ActiveStatus::Active)));
     }
 }

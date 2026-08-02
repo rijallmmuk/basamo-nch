@@ -6,7 +6,6 @@ use App\Enums\ModuleProgressStatus;
 use App\Models\EvaluasiPercobaan;
 use App\Models\Module;
 use App\Models\Nagari;
-use App\Models\Penduduk;
 use App\Models\SdgAchievement;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -38,15 +37,16 @@ class OperatorDashboardData
         // seluruh warga yang terdata, `users` hanya yang punya akun portal. Dulu
         // keduanya berdampingan dalam satu kartu sehingga jumlah laki-laki ditambah
         // perempuan tidak pernah sama dengan angka besarnya.
-        $pendudukCount = Penduduk::where('nagari_id', $nagariId)->count();
-        $priaCount = Penduduk::where('nagari_id', $nagariId)->where('jenis_kelamin', 'L')->count();
-        $wanitaCount = Penduduk::where('nagari_id', $nagariId)->where('jenis_kelamin', 'P')->count();
+        $demografi = DemografiData::ringkasan($nagariId);
+        $pendudukCount = $demografi['penduduk'];
+        $priaCount = $demografi['laki_laki'];
+        $wanitaCount = $demografi['perempuan'];
 
         // Sasaran dipakai sebagai SUBQUERY. Satu nagari dapat berisi puluhan ribu
         // warga, dan menariknya jadi daftar id di PHP membuat dasbor operator
         // menyalin seluruh tabel warga ke memori setiap kali dibuka.
         $wargaQuery = fn (): Builder => User::role('warga')->where('nagari_id', $nagariId)->select('users.id');
-        $akunWargaCount = User::role('warga')->where('nagari_id', $nagariId)->count();
+        $akunWargaCount = $demografi['akun_portal'];
 
         // 2. Belajar
         $lmsCompletedCount = UserModuleProgress::whereIn('user_id', $wargaQuery())

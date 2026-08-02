@@ -32,7 +32,7 @@ class NagariHomeController extends Controller
         // halaman pilarnya sendiri dengan versi yang lebih miskin, dan menyeret dua
         // query berat ke halaman yang paling sering dibuka. Beranda kini menyerahkan
         // pengunjung ke pilarnya, bukan mencoba menjadi semuanya sekaligus.
-        $overview = $this->overview->overview($nagari);
+        $overview = $this->overview->overview($nagari, lengkap: false);
 
         return view('public.nagari.home', [
             'nagari' => $nagari,
