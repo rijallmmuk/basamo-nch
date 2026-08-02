@@ -12,10 +12,13 @@ use Livewire\Component;
 
 /**
  * Modal pemblokir ganti sandi untuk admin/pengguna yang masih memakai password awal default.
- * Sediakan opsi ganti username untuk superadmin, pengajar, dpmd, serta field wajib lembaga/instansi untuk pengajar.
+ * Sediakan nama lengkap wajib dan opsi ganti username untuk superadmin, pengajar,
+ * dpmd, serta field wajib lembaga/instansi untuk pengajar.
  */
 class ForcePasswordChange extends Component
 {
+    public string $name = '';
+
     public string $username = '';
 
     public string $password = '';
@@ -26,13 +29,20 @@ class ForcePasswordChange extends Component
 
     public bool $canChangeUsername = false;
 
+    public bool $canSetName = false;
+
     public bool $canSetLembaga = false;
 
     public function mount(): void
     {
         $user = auth()->user();
 
-        if ($user?->hasAnyRole(['superadmin', 'pengajar', 'dpmd']) && $user->penduduk_id === null) {
+        if ($user?->hasAnyRole(['superadmin', 'pengajar', 'dpmd'])) {
+            $this->canSetName = true;
+            $this->name = (string) $user->name;
+        }
+
+        if ($this->canSetName && $user->penduduk_id === null) {
             $this->canChangeUsername = true;
             $this->username = (string) $user->username;
         }
@@ -49,6 +59,10 @@ class ForcePasswordChange extends Component
         $rules = [
             'password' => ['required', 'string', 'min:8', 'confirmed', new NotInitialPassword],
         ];
+
+        if ($this->canSetName) {
+            $rules['name'] = ['required', 'string', 'min:2', 'max:255'];
+        }
 
         if ($this->canChangeUsername) {
             $rules['username'] = [
@@ -68,10 +82,11 @@ class ForcePasswordChange extends Component
         $data = $this->validate($rules);
 
         $updatedUser = $firstLoginPassword->change(
-            $user,
-            $data['password'],
-            $this->canChangeUsername ? ($data['username'] ?? null) : null,
-            $this->canSetLembaga ? ($data['lembaga'] ?? null) : null
+            user: $user,
+            newPassword: $data['password'],
+            newUsername: $this->canChangeUsername ? ($data['username'] ?? null) : null,
+            newLembaga: $this->canSetLembaga ? ($data['lembaga'] ?? null) : null,
+            newName: $this->canSetName ? ($data['name'] ?? null) : null,
         );
 
         if ($updatedUser === null) {

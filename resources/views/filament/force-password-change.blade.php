@@ -1,6 +1,6 @@
 {{-- Overlay pemblokir: tak bisa ditutup, menutupi seluruh panel sampai sandi diganti. --}}
 <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 p-4 backdrop-blur-sm">
-    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div class="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
         <div>
             <div class="mb-1 flex items-center gap-2">
                 <x-filament::icon icon="heroicon-o-key" class="h-5 w-5 text-primary-600" />
@@ -11,6 +11,17 @@
             </p>
 
             <form wire:submit="save" class="space-y-4">
+                @if ($canSetName)
+                    <div>
+                        <label for="fpc-name" class="mb-1 block text-sm font-medium text-gray-700">Nama Lengkap <span class="text-danger-600">*</span></label>
+                        <x-filament::input.wrapper>
+                            <x-filament::input type="text" id="fpc-name" wire:model="name" placeholder="Masukkan nama lengkap" autocomplete="name" class="w-full" />
+                        </x-filament::input.wrapper>
+                        <p class="mt-1 text-xs text-gray-500">Nama ini akan ditampilkan pada profil dan aktivitas di sistem.</p>
+                        @error('name') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                    </div>
+                @endif
+
                 @if ($canChangeUsername)
                     <div>
                         <label for="fpc-username" class="mb-1 block text-sm font-medium text-gray-700">Username (Opsional)</label>
