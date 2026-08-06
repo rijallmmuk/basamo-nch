@@ -10,6 +10,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class OperatorWargaActivityWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 5;

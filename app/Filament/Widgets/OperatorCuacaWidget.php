@@ -8,6 +8,8 @@ use Filament\Widgets\Widget;
 
 class OperatorCuacaWidget extends Widget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 0;

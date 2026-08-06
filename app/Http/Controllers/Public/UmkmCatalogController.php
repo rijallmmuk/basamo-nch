@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Enums\ActiveStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Nagari;
+use App\Models\UmkmCategory;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\UmkmView;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Wajah publik UMKM per nagari (subdomain {slug}.domain): entri utama = DIREKTORI
  * usaha (bukan produk), tiap usaha punya halaman ETALASE sendiri berisi profil +
- * produknya, lalu detail produk. Tujuannya menjadikan tiap profil UMKM "rumah"
+ * produknya, lalu detail produk. Tujuannya menjadikan tiap profil UMKM lapau usaha
  * pemiliknya. Yang tampil hanya lapak aktif dari nagari aktif; seluruh produk
  * lapak itu ikut tampil (produk tidak punya status terbit).
  */
@@ -25,6 +26,7 @@ class UmkmCatalogController extends Controller
     /** Direktori UMKM global lintas nagari aktif, dengan filter nagari. */
     public function globalDirectory(Request $request): View
     {
+        $search = trim((string) $request->input('q', ''));
         $selectedNagariId = $request->integer('nagari') ?: null;
         $nagariOptions = Nagari::query()
             ->where('status', ActiveStatus::Active)
@@ -43,8 +45,8 @@ class UmkmCatalogController extends Controller
                     ->whereKey($selectedNagariId)))
             ->with(['media', 'nagari:id,nama,slug,kabupaten'])
             ->withCount('products as produk_count')
-            ->when($request->filled('q'), fn ($query) => $query
-                ->where('nama_usaha', 'like', '%'.trim((string) $request->input('q')).'%'))
+            ->when($search !== '', fn ($query) => $query
+                ->where('nama_usaha', 'like', '%'.$search.'%'))
             ->orderByDesc('produk_count')
             ->orderBy('nama_usaha')
             ->paginate(24)
@@ -55,7 +57,7 @@ class UmkmCatalogController extends Controller
             'usaha' => $usaha,
             'nagariOptions' => $nagariOptions,
             'filters' => [
-                'q' => (string) $request->input('q', ''),
+                'q' => $search,
                 'nagari' => $selectedNagariId ? (string) $selectedNagariId : '',
             ],
         ]);
@@ -65,13 +67,14 @@ class UmkmCatalogController extends Controller
     public function directory(Request $request, Nagari $nagari): View
     {
         abort_unless($nagari->status === ActiveStatus::Active, 404);
+        $search = trim((string) $request->input('q', ''));
 
         $usaha = UmkmProfile::query()
             ->where('nagari_id', $nagari->id)
             ->where('status', ActiveStatus::Active)
             ->with('media')
             ->withCount('products as produk_count')
-            ->when($request->filled('q'), fn ($q) => $q->where('nama_usaha', 'like', '%'.trim((string) $request->input('q')).'%'))
+            ->when($search !== '', fn ($q) => $q->where('nama_usaha', 'like', '%'.$search.'%'))
             ->orderByDesc('produk_count')
             ->orderBy('nama_usaha')
             ->paginate(24)
@@ -82,7 +85,7 @@ class UmkmCatalogController extends Controller
             'usaha' => $usaha,
             'nagariOptions' => collect(),
             'filters' => [
-                'q' => (string) $request->input('q', ''),
+                'q' => $search,
                 'nagari' => '',
             ],
         ]);
@@ -109,7 +112,7 @@ class UmkmCatalogController extends Controller
         return view('public.umkm.etalase', [
             'nagari' => $nagari,
             'profile' => $profile,
-            'products' => $profile->products()->with(['category', 'media'])->latest()->paginate(24)->withQueryString(),
+            ...$this->etalaseProducts($request, $profile),
             'global' => true,
         ]);
     }
@@ -140,16 +143,10 @@ class UmkmCatalogController extends Controller
             UmkmView::catat($profile);
         }
 
-        $products = $profile->products()
-            ->with(['category', 'media'])
-            ->latest()
-            ->paginate(24)
-            ->withQueryString();
-
         return view('public.umkm.etalase', [
             'nagari' => $nagari,
             'profile' => $profile,
-            'products' => $products,
+            ...$this->etalaseProducts($request, $profile),
         ]);
     }
 
@@ -177,8 +174,8 @@ class UmkmCatalogController extends Controller
 
         $product->load(['umkmProfile.media', 'category', 'media']);
 
-        // Produk lain DARI TOKO YANG SAMA (memperkuat konsep "rumah" pemilik) —
-        // arahkan pengunjung menjelajah etalase usaha itu, bukan lintas toko.
+        // Produk lain DARI LAPAU YANG SAMA — arahkan pengunjung menjelajah
+        // etalase usaha itu, bukan berpindah ke usaha lain.
         $terkait = $product->umkmProfile->products()
             ->whereKeyNot($product->getKey())
             ->with(['umkmProfile', 'category', 'media'])
@@ -221,5 +218,46 @@ class UmkmCatalogController extends Controller
             'terkait' => $terkait,
             'global' => true,
         ]);
+    }
+
+    /**
+     * Produk sebuah lapau beserta filter etalasenya. Kueri yang sama dipakai di
+     * domain utama, subdomain nagari, dan fallback lokal agar perilakunya identik.
+     *
+     * @return array{products: mixed, categoryOptions: mixed, productFilters: array{q: string, category: string}}
+     */
+    private function etalaseProducts(Request $request, UmkmProfile $profile): array
+    {
+        $search = trim((string) $request->input('q', ''));
+        $categoryId = $request->integer('kategori') ?: null;
+
+        $categoryOptions = UmkmCategory::query()
+            ->whereHas('products', fn ($products) => $products
+                ->where('umkm_profile_id', $profile->getKey()))
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
+
+        if ($categoryId && ! $categoryOptions->contains('id', $categoryId)) {
+            $categoryId = null;
+        }
+
+        $products = $profile->products()
+            ->with(['category', 'media'])
+            ->when($search !== '', fn ($query) => $query
+                ->where('nama_produk', 'like', '%'.$search.'%'))
+            ->when($categoryId, fn ($query) => $query
+                ->where('umkm_category_id', $categoryId))
+            ->latest()
+            ->paginate(24)
+            ->withQueryString();
+
+        return [
+            'products' => $products,
+            'categoryOptions' => $categoryOptions,
+            'productFilters' => [
+                'q' => $search,
+                'category' => $categoryId ? (string) $categoryId : '',
+            ],
+        ];
     }
 }

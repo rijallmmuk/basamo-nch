@@ -51,7 +51,7 @@ class UmkmProductsTable
             ->emptyStateHeading($selfService ? 'Belum ada produk' : 'Belum ada produk UMKM')
             ->emptyStateDescription($selfService
                 ? 'Tambahkan produk pertama Anda. Setiap produk yang disimpan langsung tampil di etalase selama usaha Anda tayang.'
-                : 'Produk akan muncul di sini setelah pemilik usaha menambahkannya.')
+                : 'Tambahkan produk atas nama lapak warga, atau tunggu pemilik usaha mengelolanya sendiri.')
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),

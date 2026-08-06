@@ -8,6 +8,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class OperatorSdgsChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 3;

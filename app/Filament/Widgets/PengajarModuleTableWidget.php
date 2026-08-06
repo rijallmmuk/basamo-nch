@@ -12,6 +12,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class PengajarModuleTableWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     /** @var array<int, array{target: int, learning: int, completed: int}> */
     private array $progressMetrics = [];
 

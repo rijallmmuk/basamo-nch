@@ -6,11 +6,12 @@ namespace App\Policies;
 
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Support\NagariContext;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * superadmin dilewatkan via Gate::before (akses penuh).
- * operator hanya mengelola profil usaha di nagarinya (cek per-record `nagari_id`,
+ * superadmin dilewatkan via Gate::before (akses penuh). Operator membuat dan
+ * mengelola profil usaha di nagarinya (cek per-record `nagari_id`,
  * mandiri — tak bergantung pada scoping query saja).
  */
 class UmkmProfilePolicy
@@ -19,7 +20,7 @@ class UmkmProfilePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->isOperator() || $user->usesUmkmSelfService() || $user->hasRole('dpmd');
+        return $user->isSuperAdmin() || $user->isOperator() || $user->usesUmkmSelfService() || $user->hasRole('dpmd');
     }
 
     public function view(User $user, UmkmProfile $profile): bool
@@ -29,13 +30,16 @@ class UmkmProfilePolicy
 
     public function create(User $user): bool
     {
-        return $user->usesUmkmSelfService()
-            && ! $user->umkmProfile()->withTrashed()->exists();
+        if ($user->isSuperAdmin() || $user->isOperator()) {
+            return $user->managedNagariId(NagariContext::UMKM_PROFIL) !== null;
+        }
+
+        return $user->usesUmkmSelfService() && ! $user->umkmProfile()->withTrashed()->exists();
     }
 
     public function update(User $user, UmkmProfile $profile): bool
     {
-        return $this->ownsProfile($user, $profile);
+        return $user->isSuperAdmin() || $this->ownsProfile($user, $profile) || $this->managesInNagari($user, $profile);
     }
 
     public function delete(User $user, UmkmProfile $profile): bool

@@ -34,6 +34,12 @@
 @section('content')
 @php
     $participants = $pelatihan->participants();
+    $isFallback = $nagari && request()->routeIs('*.fallback');
+    $catalogUrl = $nagari
+        ? ($isFallback
+            ? route('public.nagari.slc.fallback', $nagari)
+            : route('public.nagari.slc', $nagari))
+        : route('public.slc');
 @endphp
 
 {{-- ══ KEPALA HALAMAN ══════════════════════════════════════════════════
@@ -50,15 +56,19 @@
 
     <div class="relative z-10 mx-auto max-w-container-page px-margin-mobile py-14 lg:px-margin-page lg:py-20">
         <div class="max-w-3xl">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-[0.18em] text-secondary-container">Pilar 2 · Medan Nan Balinduang</span>
+            <a href="{{ $catalogUrl }}" class="mb-8 inline-flex items-center gap-2 text-sm font-bold text-on-primary/80 transition hover:text-on-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-primary">
+                <x-heroicon-o-arrow-left class="h-4 w-4" /> Kembali ke Medan Nan Balinduang
+            </a>
+
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span class="text-xs font-bold uppercase tracking-[0.18em] text-secondary-container">Medan Nan Balinduang</span>
                 @if($pelatihan->dapatDimasuki())
-                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-600/95 px-2.5 py-0.5 text-[11px] font-bold">
-                        <x-heroicon-s-check-circle class="h-3.5 w-3.5" /> Terbuka
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-on-primary/80">
+                        <x-heroicon-o-check-circle class="h-4 w-4" /> Dapat dipelajari
                     </span>
                 @else
-                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-500/95 px-2.5 py-0.5 text-[11px] font-bold">
-                        <x-heroicon-s-lock-closed class="h-3.5 w-3.5" /> Terkunci
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-on-primary/80">
+                        <x-heroicon-o-lock-closed class="h-4 w-4" /> Belum dibuka untuk belajar
                     </span>
                 @endif
             </div>
@@ -71,7 +81,7 @@
 
             <div class="mt-8 flex flex-wrap items-center gap-3">
                 <a href="{{ route('login') }}"
-                   class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">
+                   class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-sm transition hover:bg-secondary-fixed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
                     Masuk untuk Belajar <x-heroicon-o-arrow-right class="h-4 w-4" />
                 </a>
                 <span class="text-sm text-on-primary/70">
@@ -85,77 +95,63 @@
 {{-- ══ ISI ══ --}}
 <section class="border-t border-outline-variant bg-background py-section-gap">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-        <div class="grid gap-8 lg:grid-cols-3">
-
-            {{-- ── Daftar modul: JUDUL SAJA ──────────────────────────────────
-                 Isi materi, berkas, pre-test, evaluasi, dan diskusi tidak ikut
-                 dimuat sama sekali, bukan sekadar disembunyikan di tampilan.
-                 Yang tidak dimuat tidak bisa bocor lewat view-source. --}}
-            <div class="lg:col-span-2">
-                <h2 class="text-xl font-extrabold tracking-tight text-primary">Isi pelatihan</h2>
+        {{-- Daftar modul mengikuti kartu modul portal. Isi materi, berkas,
+             pre-test, evaluasi, dan diskusi tetap tidak pernah dimuat. --}}
+        <div class="flex flex-col justify-between gap-3 border-b border-outline-variant pb-4 sm:flex-row sm:items-end">
+            <div>
+                <h2 class="flex items-center gap-2 text-xl font-extrabold tracking-tight text-on-surface">
+                    <x-heroicon-s-book-open class="h-5 w-5 text-primary" />
+                    Daftar Modul Pembelajaran
+                </h2>
                 <p class="mt-1 text-sm text-on-surface-variant">
-                    Judul modulnya terbuka untuk umum. Materi, berkas, dan evaluasinya dibuka setelah masuk sebagai warga nagari.
+                    Lihat cover, judul, dan ringkasan modul. Materi lengkap tersedia setelah masuk sebagai warga nagari.
                 </p>
+            </div>
+            <p class="shrink-0 text-sm font-bold text-on-surface-variant">
+                {{ number_format($pelatihan->modules_count, 0, ',', '.') }} modul
+            </p>
+        </div>
 
-                @if($pelatihan->modules->isEmpty())
-                    <x-public.empty-state
-                        class="mt-6"
-                        icon="heroicon-o-book-open"
-                        title="Modul belum tersedia"
-                        description="Modul tampil di sini setelah pengajar menyiapkan materinya." />
-                @else
-                    <ol class="mt-6 space-y-3">
-                        @foreach($pelatihan->modules as $urutan => $modul)
-                            <li class="flex items-start gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-sm font-black text-primary">
-                                    {{ $urutan + 1 }}
-                                </span>
-                                <div class="min-w-0 flex-1">
-                                    <p class="font-extrabold leading-snug text-on-surface">{{ $modul->judul }}</p>
-                                    @if(filled($modul->deskripsi))
-                                        <p class="mt-1 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">
-                                            {{ strip_tags($modul->deskripsi) }}
-                                        </p>
-                                    @endif
-                                </div>
-                                <span class="mt-1 shrink-0 text-on-surface-variant" title="Terbuka setelah masuk">
-                                    <x-heroicon-o-lock-closed class="h-5 w-5" />
-                                </span>
-                            </li>
-                        @endforeach
-                    </ol>
-                @endif
+        @if($pelatihan->modules->isEmpty())
+            <x-public.empty-state
+                class="mt-6"
+                icon="heroicon-o-book-open"
+                title="Modul belum tersedia"
+                description="Modul tampil di sini setelah pengajar menyiapkan materinya." />
+        @else
+            <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @foreach($pelatihan->modules as $urutan => $modul)
+                    <x-slc.module-preview-card :module="$modul" :order="$urutan + 1" />
+                @endforeach
+            </div>
+        @endif
+
+        <aside class="mt-10 grid gap-5 lg:grid-cols-2">
+            <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                <h2 class="text-lg font-extrabold text-on-surface">Pengajar atau pengelola</h2>
+                <div class="mt-4">
+                    <x-slc.pengelola-list :participants="$participants" compact />
+                </div>
             </div>
 
-            {{-- ── Sisi kanan ── --}}
-            <aside class="space-y-5">
-                <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Pengajar atau Pengelola</h2>
-                    <div class="mt-4">
-                        <x-slc.pengelola-list :participants="$participants" compact />
-                    </div>
-                </div>
-
-                <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Cara mengikuti</h2>
-                    <ol class="mt-4 space-y-3 text-sm text-on-surface-variant">
-                        <li class="flex gap-3">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">1</span>
-                            Masuk memakai NIK Anda sebagai warga nagari.
-                        </li>
-                        <li class="flex gap-3">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">2</span>
-                            Kerjakan pre-test bila pengajar menyediakannya.
-                        </li>
-                        <li class="flex gap-3">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">3</span>
-                            Pelajari materi tiap modul secara berurutan, lalu kerjakan evaluasinya.
-                        </li>
-                    </ol>
-
-                </div>
-            </aside>
-        </div>
+            <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                <h2 class="text-lg font-extrabold text-on-surface">Cara mengikuti</h2>
+                <ol class="mt-4 grid gap-3 text-sm text-on-surface-variant sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">1</span>
+                        Masuk memakai NIK Anda sebagai warga nagari.
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">2</span>
+                        Kerjakan pre-test bila pengajar menyediakannya.
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/8 text-xs font-black text-primary">3</span>
+                        Pelajari materi berurutan, lalu kerjakan evaluasinya.
+                    </li>
+                </ol>
+            </div>
+        </aside>
     </div>
 </section>
 @endsection

@@ -28,6 +28,27 @@ class CreateUmkmProduct extends CreateRecord
 {
     protected static string $resource = UmkmProductResource::class;
 
+    public function mount(): void
+    {
+        $user = auth()->user();
+
+        if ($user?->isSuperAdmin()) {
+            $lapakId = request()->integer('lapak');
+
+            if ($lapakId) {
+                $nagariId = UmkmProfile::query()->whereKey($lapakId)->value('nagari_id');
+
+                if ($nagariId !== null) {
+                    NagariContext::set(NagariContext::UMKM_PRODUK, (int) $nagariId);
+                }
+            }
+
+            NagariContext::ensureDefault(NagariContext::UMKM_PRODUK);
+        }
+
+        parent::mount();
+    }
+
     public function getTitle(): string
     {
         return 'Tambah Produk';
@@ -100,11 +121,15 @@ class CreateUmkmProduct extends CreateRecord
 
         $nagariId = $user?->managedNagariId(NagariContext::UMKM_PRODUK);
 
+        if ($nagariId === null) {
+            abort(403, 'Pilih nagari yang akan dikelola terlebih dahulu.');
+        }
+
         // Scope guard: lapak dipaksa berada di nagari yang dikelola (cegah payload
         // umkm_profile_id lintas-nagari) — di luar scope → gagal (firstOrFail).
         $profile = UmkmProfile::query()
             ->whereKey($data['umkm_profile_id'] ?? null)
-            ->when($nagariId !== null, fn ($query) => $query->where('nagari_id', $nagariId))
+            ->where('nagari_id', $nagariId)
             ->firstOrFail();
 
         Gate::authorize('update', $profile);

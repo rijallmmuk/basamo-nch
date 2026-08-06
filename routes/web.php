@@ -23,6 +23,7 @@ use App\Http\Controllers\Public\SeoController;
 use App\Http\Controllers\Public\SlcCatalogController;
 use App\Http\Controllers\Public\TerasCatalogController;
 use App\Http\Controllers\Public\UmkmCatalogController;
+use App\Models\Nagari;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 
@@ -47,28 +48,35 @@ Route::domain('{nagari:slug}.'.config('app.public_base_domain'))
     ->group(function () {
     Route::get('/', [NagariHomeController::class, 'index'])->name('public.nagari.home');
     Route::get('teras-nagari', [NagariHomeController::class, 'teras'])->name('public.nagari.teras');
-    Route::get('medang-nan-balinduang', [SlcCatalogController::class, 'nagari'])->name('public.nagari.slc');
+    Route::get('medan-nan-balinduang', [SlcCatalogController::class, 'nagari'])->name('public.nagari.slc');
     // Halaman muka pelatihan: etalase terbuka. Isi materi, berkas, dan evaluasi
     // tetap di balik login; lihat PelatihanPublikController.
-    Route::get('medang-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan');
+    Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan');
     Route::get('lapau-nagari', [UmkmCatalogController::class, 'directory'])->name('public.nagari.umkm');
     Route::get('medan-nan-bapaneh', [NagariHomeController::class, 'bapaneh'])->name('public.nagari.bapaneh');
 
     Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'etalase'])->name('public.nagari.umkm.etalase');
     Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'show'])->name('public.nagari.produk');
+
+    // Ejaan lama "medang" dipertahankan sebagai pengalihan agar bookmark tidak putus.
+    Route::get('medang-nan-balinduang', fn (Nagari $nagari) => redirect()->route('public.nagari.slc', $nagari, 301));
+    Route::get('medang-nan-balinduang/{pelatihan}', fn (Nagari $nagari, string $pelatihan) => redirect()->route('public.nagari.pelatihan', [$nagari, $pelatihan], 301));
 });
 
 // Fallback lokal tanpa subdomain (misal /n/{nagari:slug})
 Route::prefix('n/{nagari:slug}')->group(function () {
     Route::get('/', [NagariHomeController::class, 'index'])->name('public.nagari.home.fallback');
     Route::get('teras-nagari', [NagariHomeController::class, 'teras'])->name('public.nagari.teras.fallback');
-    Route::get('medang-nan-balinduang', [SlcCatalogController::class, 'nagari'])->name('public.nagari.slc.fallback');
-    Route::get('medang-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan.fallback');
+    Route::get('medan-nan-balinduang', [SlcCatalogController::class, 'nagari'])->name('public.nagari.slc.fallback');
+    Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan.fallback');
     Route::get('lapau-nagari', [UmkmCatalogController::class, 'directory'])->name('public.nagari.umkm.fallback');
     Route::get('medan-nan-bapaneh', [NagariHomeController::class, 'bapaneh'])->name('public.nagari.bapaneh.fallback');
 
     Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'etalase'])->name('public.nagari.umkm.etalase.fallback');
     Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'show'])->name('public.nagari.produk.fallback');
+
+    Route::get('medang-nan-balinduang', fn (Nagari $nagari) => redirect()->route('public.nagari.slc.fallback', $nagari, 301));
+    Route::get('medang-nan-balinduang/{pelatihan}', fn (Nagari $nagari, string $pelatihan) => redirect()->route('public.nagari.pelatihan.fallback', [$nagari, $pelatihan], 301));
 });
 
 // ── Route Publik Induk (Global) ──────────────────────────────────────────

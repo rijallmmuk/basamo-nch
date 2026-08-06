@@ -12,6 +12,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class OperatorUmkmCatalogWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 4;

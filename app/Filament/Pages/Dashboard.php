@@ -57,7 +57,7 @@ class Dashboard extends BaseDashboard
 
         NagariContext::set(NagariContext::DASHBOARD, $this->nagariId);
 
-        $this->dispatch(NagariContext::DASHBOARD_EVENT);
+        $this->redirect(request()->header('Referer') ?? self::getUrl());
     }
 
     /**
@@ -99,7 +99,8 @@ class Dashboard extends BaseDashboard
 
     /**
      * Operator sudah terkunci ke nagarinya sendiri sehingga tak perlu memilih;
-     * pengajar dan pemilik UMKM tidak punya widget ber-cakupan nagari di dasbornya.
+     * pengajar hanya melihat SLC, sedangkan pemilik UMKM tidak punya widget
+     * ber-cakupan nagari di dasbornya.
      */
     private function memakaiPemilih(): bool
     {

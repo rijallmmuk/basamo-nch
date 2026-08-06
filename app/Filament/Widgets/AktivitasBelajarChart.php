@@ -8,6 +8,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class AktivitasBelajarChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?string $chartId = 'aktivitasBelajarChart';

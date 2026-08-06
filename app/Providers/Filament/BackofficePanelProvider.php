@@ -50,7 +50,7 @@ class BackofficePanelProvider extends PanelProvider
                     ->label('Portal Belajar Warga')
                     ->icon('heroicon-o-academic-cap')
                     ->url(fn (): string => route('portal.home'))
-                    ->visible(fn (): bool => auth()->check() && auth()->user()->hasUmkmAccess())
+                    ->visible(fn (): bool => auth()->check() && auth()->user()->usesUmkmSelfService())
                     ->extraAttributes(['@click.prevent' => "\$dispatch('open-switch-portal-modal')"])
                     ->sort(1),
                 'profile' => Action::make('profile')
@@ -68,7 +68,7 @@ class BackofficePanelProvider extends PanelProvider
                     ->url(fn (): string => route('portal.home'))
                     ->icon('heroicon-o-academic-cap')
                     ->group('Portal Warga')
-                    ->visible(fn (): bool => auth()->check() && auth()->user()->hasUmkmAccess())
+                    ->visible(fn (): bool => auth()->check() && auth()->user()->usesUmkmSelfService())
                     ->extraAttributes(['@click.prevent' => "\$dispatch('open-switch-portal-modal')"])
                     ->sort(1),
             ])

@@ -152,8 +152,7 @@ class AuthController extends Controller
         // "intended URL" bisa lintas-area (mis. /panel tersimpan saat tamu, lalu warga
         // login → terlempar ke /panel & ditolak). Redirect tetap per peran lebih aman.
         // Back-office (superadmin/operator/pengajar/dpmd) = panel Filament /panel, tiap
-        // Resource menjaga scoping perannya. warga/umkm = portal (umkm additive di atas
-        // warga → peran utama tetap warga → portal; kelola lapak lewat tautan ke /panel).
+        // Resource menjaga scoping perannya.
         // Multi-role: peran utama (ROLE_PRIORITY) menentukan area tujuan.
         switch ($user->primaryRole()) {
             case 'superadmin':
@@ -162,6 +161,9 @@ class AuthController extends Controller
             case 'dpmd':
                 return redirect('/panel');
             case 'warga':
+                if ($user->hasUmkmAccess()) {
+                    return redirect('/panel');
+                }
                 return redirect()->route('portal.home');
         }
 

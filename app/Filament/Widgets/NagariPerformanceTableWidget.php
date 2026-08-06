@@ -17,6 +17,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class NagariPerformanceTableWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = 'full';

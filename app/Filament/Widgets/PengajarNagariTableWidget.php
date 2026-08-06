@@ -18,6 +18,8 @@ use Illuminate\Support\Collection;
  */
 class PengajarNagariTableWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     /** @var Collection<int, array<string, mixed>>|null */
     private ?Collection $rekap = null;
 

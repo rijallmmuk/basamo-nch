@@ -11,6 +11,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class UmkmTopProductsTableWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 'full';
@@ -21,7 +23,7 @@ class UmkmTopProductsTableWidget extends BaseWidget
     {
         $user = auth()->user();
 
-        return (bool) ($user?->hasUmkmAccess() && $user->umkmProfile()->exists());
+        return (bool) ($user?->usesUmkmSelfService() && $user->umkmProfile()->exists());
     }
 
     public function table(Table $table): Table

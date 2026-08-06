@@ -16,7 +16,7 @@
             '@type' => 'Product',
             'name' => $product->nama_produk,
             'description' => strip_tags((string) $product->deskripsi) ?: null,
-            'image' => $product->getMedia('photos')->map(fn ($media) => $media->getUrl('detail'))->values()->all() ?: [$product->coverUrl()],
+            'image' => $product->getMedia('photos')->map(fn ($media) => $product->detailPhotoUrl($media))->values()->all() ?: [$product->coverUrl()],
             'category' => $product->category?->nama,
             'url' => \App\Support\PublicSeo::umkmProduct($product),
             'brand' => [
@@ -55,13 +55,22 @@
 
 <section class="bg-surface-container-lowest py-8 lg:py-12">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+        <nav aria-label="Breadcrumb" class="mb-6 flex min-w-0 items-center gap-2 text-sm text-on-surface-variant">
+            <a href="{{ $etalaseUrl }}" class="inline-flex min-w-0 items-center gap-2 font-semibold text-primary hover:underline">
+                <x-heroicon-o-arrow-left class="h-4 w-4 shrink-0" />
+                <span class="truncate">{{ $profile->nama_usaha }}</span>
+            </a>
+            <span aria-hidden="true">/</span>
+            <span class="truncate" aria-current="page">{{ $product->nama_produk }}</span>
+        </nav>
+
         <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
             {{-- ── GALERI (kiri, sticky di desktop) ── --}}
             <div class="lg:col-span-5">
                 <div class="lg:sticky lg:top-24">
                     <div class="overflow-hidden rounded-3xl border border-outline-variant bg-background shadow-sm">
                         <img id="foto-utama"
-                             src="{{ $fotoUtama ? $fotoUtama->getUrl('detail') : $product->coverUrl() }}"
+                             src="{{ $fotoUtama ? $product->detailPhotoUrl($fotoUtama) : $product->coverUrl() }}"
                              alt="{{ $product->nama_produk }}"
                              width="1200" height="1200" fetchpriority="high" decoding="async"
                              class="aspect-square w-full object-cover">
@@ -72,10 +81,12 @@
                         <div class="mt-3 flex gap-2 overflow-x-auto pb-1" role="list" aria-label="Foto produk lainnya">
                             @foreach($photos as $i => $media)
                                 <button type="button" role="listitem"
-                                    data-galeri-thumb data-full="{{ $media->getUrl('detail') }}"
+                                    data-galeri-thumb data-full="{{ $product->detailPhotoUrl($media) }}"
+                                    data-alt="Foto {{ $i + 1 }} {{ $product->nama_produk }}"
                                     aria-label="Lihat foto {{ $i + 1 }}"
-                                    class="{{ $i === 0 ? 'ring-2 ring-primary' : 'ring-1 ring-outline-variant' }} h-20 w-20 shrink-0 overflow-hidden rounded-xl transition-shadow hover:ring-2 hover:ring-primary/60">
-                                    <img src="{{ $media->getUrl('card') }}" alt="Foto {{ $i + 1 }} {{ $product->nama_produk }}" loading="lazy" class="h-full w-full object-cover">
+                                    @if($i === 0) aria-current="true" @endif
+                                    class="{{ $i === 0 ? 'ring-2 ring-primary' : 'ring-1 ring-outline-variant' }} h-16 w-16 shrink-0 overflow-hidden rounded-xl transition-shadow hover:ring-2 hover:ring-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:h-20 sm:w-20">
+                                    <img src="{{ $product->thumbnailPhotoUrl($media) }}" alt="Foto {{ $i + 1 }} {{ $product->nama_produk }}" loading="lazy" class="h-full w-full object-cover">
                                 </button>
                             @endforeach
                         </div>
@@ -85,20 +96,17 @@
 
             {{-- ── INFO PRODUK (kanan) ── --}}
             <div class="lg:col-span-7">
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2 text-sm text-on-surface-variant">
                     @if($product->category)
-                        <span class="inline-flex items-center rounded-full bg-primary/5 px-3 py-1 text-xs font-semibold text-primary ring-1 ring-primary/10">{{ $product->category->nama }}</span>
+                        <span class="font-semibold text-primary">{{ $product->category->nama }}</span>
                     @endif
-                    <span class="inline-flex items-center gap-1 text-xs text-on-surface-variant">
-                        <x-heroicon-m-eye class="h-3.5 w-3.5 text-outline" /> {{ number_format($product->jumlah_dilihat, 0, ',', '.') }}× dilihat
-                    </span>
                 </div>
 
-                <h1 class="mt-3 text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">{{ $product->nama_produk }}</h1>
+                <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">{{ $product->nama_produk }}</h1>
 
-                <div class="mt-4 rounded-2xl bg-background px-5 py-4 ring-1 ring-outline-variant">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Harga</p>
-                    <p class="mt-0.5 text-3xl font-black tracking-tight text-secondary">
+                <div class="mt-5 border-y border-outline-variant py-5">
+                    <p class="text-sm font-semibold text-on-surface-variant">Harga</p>
+                    <p class="mt-1 text-3xl font-black tracking-tight text-primary">
                         {{ $product->harga ? 'Rp '.number_format($product->harga, 0, ',', '.') : 'Hubungi penjual' }}
                     </p>
                 </div>
@@ -106,7 +114,7 @@
                 {{-- CTA utama --}}
                 <div class="mt-5 flex flex-col gap-3 sm:flex-row">
                     <a href="{{ $profile->whatsappUrl($waText) }}" target="_blank" rel="noopener"
-                        class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-success px-6 py-3.5 font-bold text-on-success shadow-lg shadow-success/20 transition-all hover:-translate-y-0.5 sm:flex-none sm:px-10">
+                        class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-success px-6 py-3.5 font-bold text-on-success shadow-sm transition hover:bg-success/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 sm:flex-none sm:px-10">
                         <x-heroicon-s-chat-bubble-left-ellipsis class="h-5 w-5" /> Hubungi via WhatsApp
                     </a>
                 </div>
@@ -114,7 +122,7 @@
 
                 @if($product->deskripsi)
                     <div class="mt-7 border-t border-outline-variant pt-6">
-                        <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Deskripsi Produk</h2>
+                        <h2 class="text-lg font-extrabold text-on-surface">Deskripsi produk</h2>
                         <p class="mt-3 whitespace-pre-line text-pretty leading-relaxed text-on-surface">{{ $product->deskripsi }}</p>
                     </div>
                 @endif
@@ -122,21 +130,15 @@
                 @php($produkLinks = $product->tautanLinks())
                 @if($produkLinks->isNotEmpty())
                     <div class="mt-7 border-t border-outline-variant pt-6">
-                        <h2 class="mb-3 text-sm font-bold uppercase tracking-widest text-on-surface-variant">Juga tersedia di</h2>
+                        <h2 class="mb-3 text-lg font-extrabold text-on-surface">Tersedia juga di</h2>
                         <x-umkm.tautan-links :links="$produkLinks" />
                     </div>
                 @endif
 
-                {{-- Kartu penjual → tautan ke etalase toko (rumah pemilik) --}}
+                {{-- Kartu penjual → tautan ke etalase lapau usaha. --}}
                 <a href="{{ $etalaseUrl }}"
-                   class="group mt-7 flex flex-wrap items-center gap-4 rounded-2xl border border-outline-variant bg-background p-5 shadow-sm transition-colors hover:border-primary">
-                    @if($logo = $profile->logoUrl())
-                        <img src="{{ $logo }}" alt="Logo {{ $profile->nama_usaha }}" class="h-14 w-14 shrink-0 rounded-2xl object-cover">
-                    @else
-                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-xl font-extrabold text-secondary-container">
-                            {{ Str::upper(Str::substr($profile->nama_usaha, 0, 1)) }}
-                        </span>
-                    @endif
+                   class="group mt-7 flex flex-wrap items-center gap-4 rounded-2xl border border-outline-variant bg-background p-5 shadow-sm transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                    <img src="{{ $profile->logoUrl() }}" alt="Logo {{ $profile->nama_usaha }}" class="h-14 w-14 shrink-0 rounded-xl bg-white object-cover">
                     <div class="min-w-0 flex-1">
                         <p class="truncate font-bold text-on-surface group-hover:text-primary">{{ $profile->nama_usaha }}</p>
                         @if($profile->alamat)
@@ -155,14 +157,14 @@
             <div class="mt-14 border-t border-outline-variant pt-10 lg:mt-20">
                 <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <span class="text-xs font-bold uppercase tracking-widest text-secondary">Dari Usaha yang Sama</span>
+                        <span class="text-xs font-bold uppercase tracking-widest text-secondary">Dari lapau usaha yang sama</span>
                         <h2 class="mt-1 text-section text-primary">Produk lain {{ $profile->nama_usaha }}</h2>
                     </div>
                     <a href="{{ $etalaseUrl }}" class="inline-flex items-center gap-1 text-sm font-bold text-secondary hover:text-primary">
                         Kunjungi etalase <x-heroicon-o-arrow-right class="h-4 w-4" />
                     </a>
                 </div>
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div class="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     @foreach($terkait as $produkLain)
                         <a href="{{ $global ? route('public.produk', $produkLain) : ($isFallback ? route('public.nagari.produk.fallback', [$nagari, $produkLain]) : route('public.nagari.produk', [$nagari, $produkLain])) }}" class="block h-full">
                             <x-umkm.product-card :product="$produkLain" />
@@ -187,9 +189,15 @@
         thumbs.forEach((thumb) => {
             thumb.addEventListener('click', () => {
                 utama.src = thumb.dataset.full;
-                thumbs.forEach((t) => { t.classList.remove('ring-2', 'ring-primary'); t.classList.add('ring-1', 'ring-outline-variant'); });
+                utama.alt = thumb.dataset.alt;
+                thumbs.forEach((t) => {
+                    t.classList.remove('ring-2', 'ring-primary');
+                    t.classList.add('ring-1', 'ring-outline-variant');
+                    t.removeAttribute('aria-current');
+                });
                 thumb.classList.remove('ring-1', 'ring-outline-variant');
                 thumb.classList.add('ring-2', 'ring-primary');
+                thumb.setAttribute('aria-current', 'true');
             });
         });
     });

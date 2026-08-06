@@ -78,7 +78,11 @@ class PelatihanPublikController extends Controller
                 'pengajars.nagari:id,nama',
                 // Judul modul saja. Materi, berkas, dan evaluasinya TIDAK ikut:
                 // yang tidak dimuat tidak bisa bocor.
-                'modules' => fn ($modules) => $modules->ready()->orderBy('urutan')->orderBy('id'),
+                'modules' => fn ($modules) => $modules
+                    ->ready()
+                    ->with('media')
+                    ->orderBy('urutan')
+                    ->orderBy('id'),
             ])
             ->withCount(['modules' => fn ($modules) => $modules->ready()])
             ->firstOrFail();

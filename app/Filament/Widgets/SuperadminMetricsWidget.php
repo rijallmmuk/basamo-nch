@@ -13,6 +13,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class SuperadminMetricsWidget extends BaseWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?int $sort = -2;
 
     public static function canView(): bool

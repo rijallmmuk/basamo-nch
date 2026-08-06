@@ -7,6 +7,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class PengajarActivityTrendChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'pengajarActivityTrendChart';
 
     protected static ?string $heading = 'Aktivitas Belajar 4 Minggu Terakhir';

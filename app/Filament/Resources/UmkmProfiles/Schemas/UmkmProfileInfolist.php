@@ -63,20 +63,7 @@ class UmkmProfileInfolist
                         ->icon('heroicon-m-phone')
                         ->placeholder('—'),
 
-                    TextEntry::make('email')
-                        ->label('Email')
-                        ->icon('heroicon-m-envelope')
-                        ->placeholder('—'),
 
-                    TextEntry::make('jam_operasional')
-                        ->label('Jam Operasional')
-                        ->icon('heroicon-m-clock')
-                        ->placeholder('—'),
-
-                    TextEntry::make('tahun_berdiri')
-                        ->label('Tahun Berdiri')
-                        ->icon('heroicon-m-calendar')
-                        ->placeholder('—'),
 
                     TextEntry::make('alamat')
                         ->label('Alamat Lengkap')

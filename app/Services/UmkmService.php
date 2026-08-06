@@ -79,14 +79,31 @@ class UmkmService
      */
     public function createProfileForGrantedOwner(User $owner, array $data): UmkmProfile
     {
-        return DB::transaction(function () use ($owner, $data): UmkmProfile {
+        return $this->createProfileForOwner($owner, $data, false);
+    }
+
+    /**
+     * Admin membuat profil atas nama warga. Pemberian akses dan pembuatan profil
+     * berada dalam transaksi yang sama agar tidak meninggalkan keadaan setengah jadi.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function createProfileForManagedOwner(User $owner, array $data): UmkmProfile
+    {
+        return $this->createProfileForOwner($owner, $data, true);
+    }
+
+    /** @param array<string, mixed> $data */
+    private function createProfileForOwner(User $owner, array $data, bool $grantAccess): UmkmProfile
+    {
+        return DB::transaction(function () use ($owner, $data, $grantAccess): UmkmProfile {
             $lockedOwner = User::query()
                 ->with('penduduk')
                 ->lockForUpdate()
                 ->findOrFail($owner->getKey());
             $this->assertEligibleOwner($lockedOwner);
 
-            if (! $lockedOwner->hasUmkmAccess()) {
+            if (! $lockedOwner->hasUmkmAccess() && ! $grantAccess) {
                 throw ValidationException::withMessages([
                     'user_id' => 'Akses UMKM belum diberikan oleh Operator Nagari.',
                 ]);
@@ -96,6 +113,10 @@ class UmkmService
                 throw ValidationException::withMessages([
                     'user_id' => 'Warga ini sudah memiliki profil UMKM.',
                 ]);
+            }
+
+            if ($grantAccess && ! $lockedOwner->hasUmkmAccess()) {
+                $lockedOwner->update(['umkm_access_granted_at' => now()]);
             }
 
             $profile = $lockedOwner->umkmProfile()->create([

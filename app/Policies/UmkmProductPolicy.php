@@ -6,11 +6,12 @@ namespace App\Policies;
 
 use App\Models\UmkmProduct;
 use App\Models\User;
+use App\Support\NagariContext;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Otorisasi produk: pemilik mengelola produk usahanya sendiri; operator/superadmin
- * memoderasi (ubah/hapus) produk di nagarinya. superadmin dilewatkan via Gate::before.
+ * mengelola produk di nagarinya. superadmin dilewatkan via Gate::before.
  *
  * Produk tidak punya arsip, jadi tidak ada ability restore/forceDelete: `delete`
  * memang berarti hapus permanen.
@@ -21,7 +22,7 @@ class UmkmProductPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->isOperator() || $user->usesUmkmSelfService() || $user->hasRole('dpmd');
+        return $user->isSuperAdmin() || $user->isOperator() || $user->usesUmkmSelfService() || $user->hasRole('dpmd');
     }
 
     public function view(User $user, UmkmProduct $product): bool
@@ -29,16 +30,19 @@ class UmkmProductPolicy
         return $user->hasRole('dpmd') || $this->ownsProduct($user, $product) || $this->managesInNagari($user, $product);
     }
 
-    /** Pemilik menambah produk lapaknya. */
+    /** Pemilik atau admin menambah produk pada lapak yang berada dalam cakupannya. */
     public function create(User $user): bool
     {
+        if ($user->isSuperAdmin() || $user->isOperator()) {
+            return $user->managedNagariId(NagariContext::UMKM_PRODUK) !== null;
+        }
+
         return $user->usesUmkmSelfService() && $user->umkmProfile()->exists();
     }
 
     public function update(User $user, UmkmProduct $product): bool
     {
-        // Aksi ubah sepenuhnya dalam genggaman pemilik usaha.
-        return $this->ownsProduct($user, $product);
+        return $user->isSuperAdmin() || $this->ownsProduct($user, $product) || $this->managesInNagari($user, $product);
     }
 
     /**
@@ -58,7 +62,7 @@ class UmkmProductPolicy
 
     private function ownsProduct(User $user, UmkmProduct $product): bool
     {
-        return $user->hasUmkmAccess()
+        return $user->usesUmkmSelfService()
             && $product->umkmProfile?->user_id === $user->id;
     }
 

@@ -7,6 +7,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class UmkmProductViewsChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'umkmProductViewsChart';
 
     protected static ?string $heading = 'Kunjungan Produk';
@@ -19,7 +21,7 @@ class UmkmProductViewsChart extends ApexChartWidget
     {
         $user = auth()->user();
 
-        return (bool) ($user?->hasUmkmAccess() && $user->umkmProfile()->exists());
+        return (bool) ($user?->usesUmkmSelfService() && $user->umkmProfile()->exists());
     }
 
     protected function getOptions(): array

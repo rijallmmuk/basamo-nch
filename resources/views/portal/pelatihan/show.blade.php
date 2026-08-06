@@ -52,8 +52,20 @@
 
                     {{-- Deskripsi yang ditulis pengajar pada form pelatihan. --}}
                     @if(filled($pelatihan->deskripsi))
-                        <div class="mt-4 prose prose-sm max-w-none text-on-surface-variant prose-headings:text-on-surface prose-a:text-primary">
-                            {!! str($pelatihan->deskripsi)->sanitizeHtml() !!}
+                        <div x-data="{ expanded: false, overflow: false }" 
+                             x-init="$nextTick(() => { overflow = $refs.content.scrollHeight > $refs.content.clientHeight })" 
+                             class="mt-4">
+                            <div x-ref="content" 
+                                 :class="expanded ? '' : 'line-clamp-4'" 
+                                 class="prose prose-sm max-w-none text-on-surface-variant prose-headings:text-on-surface prose-a:text-primary transition-all duration-300">
+                                {!! str($pelatihan->deskripsi)->sanitizeHtml() !!}
+                            </div>
+                            <button x-show="overflow" x-cloak 
+                                    @click="expanded = !expanded" 
+                                    class="mt-2 text-sm font-bold text-primary hover:underline focus:outline-none inline-flex items-center gap-1">
+                                <span x-text="expanded ? 'Tampilkan lebih sedikit' : 'Baca selengkapnya'"></span>
+                                <x-heroicon-s-chevron-down class="h-4 w-4 transition-transform duration-300" x-bind:class="expanded ? 'rotate-180' : ''" />
+                            </button>
                         </div>
                     @endif
                 </div>

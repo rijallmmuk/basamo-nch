@@ -8,6 +8,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class OperatorLmsProgressChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 2;

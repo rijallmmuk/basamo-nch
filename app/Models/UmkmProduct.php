@@ -120,6 +120,25 @@ class UmkmProduct extends Model implements HasMedia
         return ! empty($url) ? $url : $media->getUrl();
     }
 
+    /**
+     * URL foto beresolusi besar untuk galeri detail.
+     *
+     * Produk lama mungkin hanya memiliki konversi `card`. Meminta `detail`
+     * dengan getUrl() tetap menghasilkan alamat URL walaupun berkas hasil
+     * konversinya belum pernah dibuat. getAvailableUrl() mencegah gambar rusak
+     * dengan memilih detail, lalu card, dan terakhir berkas asli.
+     */
+    public function detailPhotoUrl(Media $media): string
+    {
+        return $media->getAvailableUrl(['detail', 'card']);
+    }
+
+    /** URL thumbnail galeri dengan fallback aman ke berkas asli. */
+    public function thumbnailPhotoUrl(Media $media): string
+    {
+        return $media->getAvailableUrl(['card']);
+    }
+
     public function umkmProfile(): BelongsTo
     {
         return $this->belongsTo(UmkmProfile::class);

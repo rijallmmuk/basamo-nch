@@ -8,11 +8,13 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class UmkmOverviewWidget extends StatsOverviewWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?int $sort = -2;
 
     public static function canView(): bool
     {
-        return (bool) auth()->user()?->hasUmkmAccess();
+        return (bool) auth()->user()?->usesUmkmSelfService();
     }
 
     protected function getStats(): array

@@ -8,6 +8,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class UmkmTrenKunjunganChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'umkmTrenKunjunganChart';
 
     protected static ?string $heading = 'Tren Kunjungan 30 Hari';
@@ -22,7 +24,7 @@ class UmkmTrenKunjunganChart extends ApexChartWidget
     {
         $user = auth()->user();
 
-        return (bool) ($user?->hasUmkmAccess() && $user->umkmProfile()->exists());
+        return (bool) ($user?->usesUmkmSelfService() && $user->umkmProfile()->exists());
     }
 
     /**

@@ -8,6 +8,8 @@ use Filament\Widgets\Widget;
 
 class OperatorEwsWidget extends Widget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?int $sort = 1;

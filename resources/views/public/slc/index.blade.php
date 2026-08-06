@@ -39,37 +39,30 @@
 
 <x-public.pillar-header
     eyebrow="Pilar 2 · Medan Nan Balinduang"
-    title="Pelatihan warga dalam satu ruang belajar."
-    description="Pilih sebuah pelatihan untuk melihat pengelola dan susunan modulnya. Isi materi, evaluasi, serta diskusi dibuka melalui akun warga sesuai sasaran nagari.">
-    <x-slot:aside>
-        <div class="rounded-2xl border border-on-primary/15 bg-on-primary/8 p-5 backdrop-blur-sm">
-            <div class="flex items-start gap-3">
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary-container text-on-secondary-container">
-                    <x-heroicon-o-shield-check class="h-5 w-5" />
-                </span>
-                <div>
-                    <p class="font-extrabold text-on-primary">Katalog dapat dijelajahi publik</p>
-                    <p class="mt-1 text-sm leading-relaxed text-on-primary/65">Akun warga hanya diperlukan ketika mulai mempelajari materi.</p>
-                </div>
-            </div>
-        </div>
-    </x-slot:aside>
-</x-public.pillar-header>
+    title="Pelatihan warga yang terarah dan mudah dijelajahi."
+    description="Lihat pilihan pelatihan, pengelola, dan susunan modulnya. Akun warga diperlukan saat Anda mulai membuka materi, evaluasi, dan diskusi."
+/>
 
 <section class="border-b border-outline-variant bg-surface-container-lowest py-7">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-        <form method="GET" action="{{ $catalogUrl }}" class="grid gap-3 lg:grid-cols-12">
-            <label class="relative lg:col-span-5">
-                <span class="sr-only">Cari pelatihan atau modul di dalamnya</span>
-                <x-heroicon-o-magnifying-glass class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
-                <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Cari pelatihan atau modul…"
-                       class="input-nch rounded-full" style="padding-left: 3rem">
+        <form method="GET" action="{{ $catalogUrl }}" @class([
+            'grid gap-3 lg:items-end',
+            'lg:grid-cols-[minmax(18rem,1fr)_18rem_18rem_auto]' => ! $nagari,
+            'lg:grid-cols-[minmax(18rem,1fr)_18rem_auto]' => $nagari,
+        ])>
+            <label class="block min-w-0">
+                <span class="mb-2 block text-sm font-bold text-on-surface">Cari pelatihan atau modul</span>
+                <span class="relative block">
+                    <x-heroicon-o-magnifying-glass class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant" />
+                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Contoh: pemasaran digital" autocomplete="off"
+                           class="min-h-12 w-full rounded-xl border border-control-border bg-white py-3 pl-11 pr-4 text-sm text-on-surface shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+                </span>
             </label>
 
             @unless($nagari)
-                <label class="lg:col-span-3">
-                    <span class="sr-only">Filter nagari</span>
-                    <select name="nagari" class="select-nch w-full rounded-full">
+                <label class="block">
+                    <span class="mb-2 block text-sm font-bold text-on-surface">Nagari</span>
+                    <select name="nagari" class="min-h-12 w-full rounded-xl border border-control-border bg-white py-3 pl-4 pr-10 text-sm text-on-surface shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
                         <option value="">Semua nagari</option>
                         @foreach($nagariOptions as $option)
                             <option value="{{ $option->id }}" @selected($filters['nagari'] === (string) $option->id)>
@@ -80,9 +73,9 @@
                 </label>
             @endunless
 
-            <label class="{{ $nagari ? 'lg:col-span-5' : 'lg:col-span-3' }}">
-                <span class="sr-only">Filter pelatihan</span>
-                <select name="pelatihan" class="select-nch w-full rounded-full">
+            <label class="block">
+                <span class="mb-2 block text-sm font-bold text-on-surface">Pelatihan</span>
+                <select name="pelatihan" class="min-h-12 w-full rounded-xl border border-control-border bg-white py-3 pl-4 pr-10 text-sm text-on-surface shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
                     <option value="">Semua pelatihan</option>
                     @foreach($pelatihanOptions as $option)
                         <option value="{{ $option->id }}" @selected($filters['pelatihan'] === (string) $option->id)>{{ $option->namaTampil() }}</option>
@@ -90,11 +83,13 @@
                 </select>
             </label>
 
-            <div class="{{ $nagari ? 'lg:col-span-2' : 'lg:col-span-1' }} flex gap-2">
-                <button class="flex min-h-11 flex-1 items-center justify-center rounded-full bg-primary px-5 text-sm font-bold text-on-primary">Terapkan</button>
+            <div class="flex gap-2">
+                <button class="min-h-12 flex-1 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary shadow-sm transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:flex-none">
+                    Tampilkan
+                </button>
                 @if(collect($filters)->filter()->isNotEmpty())
-                    <a href="{{ $catalogUrl }}" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-control-border text-on-surface-variant" aria-label="Reset filter">
-                        <x-heroicon-o-arrow-path class="h-5 w-5" />
+                    <a href="{{ $catalogUrl }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Hapus semua filter">
+                        <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
                     </a>
                 @endif
             </div>
@@ -111,9 +106,9 @@
                 description="Modul tidak dipisahkan dari pelatihannya. Buka sebuah kartu untuk melihat susunan pembelajaran secara utuh."
             />
             @if($selectedNagari)
-                <span class="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-primary/8 px-4 py-2 text-sm font-bold text-primary">
-                    <x-heroicon-o-map-pin class="h-4 w-4" /> {{ $selectedNagari->nama_lengkap }}
-                </span>
+                <p class="inline-flex w-fit shrink-0 items-center gap-2 text-sm font-semibold text-on-surface-variant">
+                    <x-heroicon-o-map-pin class="h-4 w-4 text-primary" /> {{ $selectedNagari->nama_lengkap }}
+                </p>
             @endif
         </div>
 
@@ -124,6 +119,8 @@
                 title="Belum ada pelatihan yang dibuka"
                 description="Pelatihan tampil setelah pengajar menyiapkan minimal satu materi dan membuka aksesnya untuk warga." />
         @else
+            {{-- Mengikuti kepadatan kartu katalog portal: maksimal empat kolom
+                 agar cover, judul, dan pengelola tetap mudah dipindai. --}}
             <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach($pelatihans as $pelatihan)
                     <x-slc.pelatihan-card

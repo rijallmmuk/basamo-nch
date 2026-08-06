@@ -8,6 +8,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class DemografiPendidikanChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     use ScopedToNagari;
 
     protected static ?string $chartId = 'demografiPendidikanChart';

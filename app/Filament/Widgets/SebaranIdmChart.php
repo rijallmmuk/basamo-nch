@@ -7,6 +7,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class SebaranIdmChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'sebaranIdmChart';
 
     protected static ?string $heading = 'Sebaran Status IDM Nagari Mitra';

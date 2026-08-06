@@ -275,9 +275,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function usesUmkmSelfService(): bool
     {
         return $this->hasUmkmAccess()
-            // Pengajar dapat sekaligus menjadi warga pemilik UMKM. Dalam hal itu
-            // akses UMKM-nya tetap self-service, bukan akses admin lintas lapak.
-            && ! $this->hasAnyRole(['superadmin', 'operator', 'dpmd']);
+            // Pengajar hanya menangani SLC dan tidak mempunyai jalur UMKM, meski
+            // data lama pada akunnya masih memuat kapabilitas UMKM.
+            && ! $this->hasAnyRole(['superadmin', 'operator', 'pengajar', 'dpmd']);
     }
 
     /**

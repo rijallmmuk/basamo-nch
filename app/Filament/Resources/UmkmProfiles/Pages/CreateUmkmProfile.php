@@ -6,6 +6,7 @@ use App\Filament\Resources\Concerns\RedirectsToView;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\User;
 use App\Services\UmkmService;
+use App\Support\NagariContext;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,10 @@ class CreateUmkmProfile extends CreateRecord
      */
     public function mount(): void
     {
+        if (auth()->user()?->isSuperAdmin()) {
+            NagariContext::ensureDefault(NagariContext::UMKM_PROFIL);
+        }
+
         /** @var User|null $owner */
         $owner = auth()->user();
         $alasan = $owner && $owner->usesUmkmSelfService()
@@ -46,12 +51,35 @@ class CreateUmkmProfile extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        $owner = auth()->user();
+        $actor = auth()->user();
 
+        $ownerId = $data['user_id'] ?? null;
         unset($data['user_id'], $data['nagari_id']);
 
         try {
-            return app(UmkmService::class)->createProfileForGrantedOwner($owner, $data);
+            if (UmkmProfileResource::isSelfService()) {
+                return app(UmkmService::class)->createProfileForGrantedOwner($actor, $data);
+            }
+
+            $nagariId = $actor?->managedNagariId(NagariContext::UMKM_PROFIL);
+
+            if ($nagariId === null) {
+                abort(403, 'Pilih nagari yang akan dikelola terlebih dahulu.');
+            }
+
+            $owner = User::query()
+                ->role('warga')
+                ->whereKey($ownerId)
+                ->where('nagari_id', $nagariId)
+                ->first();
+
+            if (! $owner) {
+                throw ValidationException::withMessages([
+                    'user_id' => 'Warga tidak valid atau berada di luar nagari yang Anda kelola.',
+                ]);
+            }
+
+            return app(UmkmService::class)->createProfileForManagedOwner($owner, $data);
         } catch (ValidationException $exception) {
             // Penjaga kelayakan melaporkan kesalahannya pada `user_id`, isian yang
             // sengaja tidak ditampilkan kepada pemilik lapak. Tanpa ditangkap di

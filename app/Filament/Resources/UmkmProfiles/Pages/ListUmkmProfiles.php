@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\UmkmService;
 use App\Support\NagariContext;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
@@ -86,13 +87,18 @@ class ListUmkmProfiles extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            CreateAction::make('tambahUmkm')
+                ->label('Tambah UMKM')
+                ->icon('heroicon-o-plus')
+                ->color('primary')
+                ->visible(fn (): bool => auth()->user()?->hasAnyRole(['superadmin', 'operator']) ?? false),
             Action::make('beriAksesUmkm')
                 ->label('Beri Akses UMKM')
                 ->icon('heroicon-o-user-plus')
                 ->color('success')
                 ->visible(fn (): bool => $this->canGrantUmkmAccess())
                 ->modalHeading('Beri akses kelola UMKM')
-                ->modalDescription('Pilih warga yang akan diberi akses. Warga tersebut mengisi sendiri profil usahanya setelah masuk ke portal.')
+                ->modalDescription('Pilih warga yang akan diberi akses mengelola sendiri profil usahanya melalui portal.')
                 ->modalSubmitActionLabel('Beri Akses')
                 ->schema([
                     Select::make('user_id')

@@ -44,7 +44,7 @@ class UmkmProfileResource extends Resource
     public static function canAccess(): bool
     {
         return (bool) (auth()->user()?->hasAnyRole(['superadmin', 'operator', 'dpmd'])
-            || auth()->user()?->hasUmkmAccess())
+            || auth()->user()?->usesUmkmSelfService())
             && parent::canAccess();
     }
 
@@ -111,6 +111,8 @@ class UmkmProfileResource extends Resource
 
         if ($nagariId !== null) {
             $query->forNagari($nagariId);
+        } elseif ($user?->hasAnyRole(['superadmin', 'operator', 'dpmd'])) {
+            $query->whereRaw('1 = 0');
         }
 
         return $query;
@@ -121,10 +123,9 @@ class UmkmProfileResource extends Resource
         return auth()->user()?->usesUmkmSelfService() ?? false;
     }
 
-    /** Profil baru hanya diisi sendiri oleh warga setelah akses UMKM diberikan. */
     public static function canCreate(): bool
     {
-        return static::isSelfService() && parent::canCreate();
+        return parent::canCreate();
     }
 
     public static function getRelations(): array

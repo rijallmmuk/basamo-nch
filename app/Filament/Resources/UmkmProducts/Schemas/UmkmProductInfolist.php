@@ -3,10 +3,9 @@
 namespace App\Filament\Resources\UmkmProducts\Schemas;
 
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
-use App\Models\UmkmProduct;
-use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
@@ -29,11 +28,9 @@ class UmkmProductInfolist
                     'lg' => 3,
                 ])
                 ->schema([
-                    ImageEntry::make('cover')
+                    ViewEntry::make('foto')
                         ->label('Foto Produk')
-                        ->state(fn (UmkmProduct $record): string => $record->coverUrl())
-                        ->height(240)
-                        ->extraImgAttributes(['class' => 'rounded-xl object-cover shadow-sm'])
+                        ->view('filament.infolists.components.umkm-product-photo-slider')
                         ->columnSpanFull(),
 
                     TextEntry::make('nama_produk')

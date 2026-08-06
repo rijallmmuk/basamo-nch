@@ -38,7 +38,9 @@ Thumbs.db
 
 # Panduan operasional lokal — sengaja tidak dipublikasikan ke GitHub
 /DEPLOY.md
+/deploy.md.orig
 /PANDUAN-PENGAJAR.md
+/PANDUAN-PENGAJAR.pdf
 /panduan-pengajar/
 /CATATAN-OPERASIONAL.md
 /TUGAS-TERTUNDA.md
@@ -59,3 +61,9 @@ Thumbs.db
 
 # Berkas kunci OnlyOffice/LibreOffice saat dokumen sedang dibuka
 .~lock.*#
+
+# Coba-coba lokal: skrip uji HTTP, proxy Cloudflare Worker, cadangan, dan luaran sinkron
+/test*.php
+/worker.js
+/*.zip
+/kemendesa_sync_*.json

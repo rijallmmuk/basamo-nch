@@ -103,7 +103,7 @@
                 <h3 class="mt-2 text-xl font-extrabold text-primary">Ekonomi Digital</h3>
                 <dl class="mt-6 grid grid-cols-2 gap-3">
                     @foreach([
-                        ['Rumah UMKM', $overview['economy']['profiles']],
+                        ['Lapau usaha', $overview['economy']['profiles']],
                         ['Produk terbit', $overview['economy']['products']],
                         ['Kunjungan produk', $overview['economy']['product_views']],
                         ['UMKM dengan QR', $overview['economy']['qr_profiles']],
@@ -115,7 +115,7 @@
                     @endforeach
                 </dl>
                 <a href="{{ $global ? route('public.umkm', $isNagari ? ['nagari' => $nagari->id] : []) : ($isNagari ? \App\Support\PublicNavigation::rute('public.nagari.umkm', $nagari) : route('public.umkm')) }}" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary transition-all hover:gap-3">
-                    Jelajahi rumah UMKM <x-heroicon-o-arrow-right class="h-4 w-4" />
+                    Jelajahi lapau usaha <x-heroicon-o-arrow-right class="h-4 w-4" />
                 </a>
             </article>
 

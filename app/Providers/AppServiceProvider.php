@@ -103,16 +103,6 @@ class AppServiceProvider extends ServiceProvider
                     return null;
                 }
 
-                // Superadmin tidak boleh sembarangan membuat/mengubah produk atau
-                // profil UMKM milik warga (kecuali sekadar mengubah status aktif/non-aktif
-                // yang nanti diizinkan oleh Policy). Aksi tambah/edit produk sepenuhnya
-                // dalam genggaman pemilik usaha.
-                if (in_array($ability, ['create', 'update'], true)
-                    && (is_a($subject, \App\Models\UmkmProduct::class, true)
-                        || is_a($subject, \App\Models\UmkmProfile::class, true))) {
-                    return null;
-                }
-
                 return true;
             }
 

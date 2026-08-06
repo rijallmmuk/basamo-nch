@@ -41,16 +41,14 @@
         @foreach($tampil as $person)
             @php $nama = $namaTampil($person); @endphp
             @if($compact)
-                <li class="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-xs">
-                    <span class="flex min-w-0 items-center gap-1 font-bold text-on-surface" title="{{ $nama }}">
-                        <x-heroicon-s-user-circle class="h-3.5 w-3.5 shrink-0 text-primary" />
-                        <span class="truncate">{{ $nama }}</span>
-                    </span>
+                <li class="flex min-w-0 items-center gap-1.5 text-xs text-on-surface-variant">
+                    <x-heroicon-o-user-circle class="h-4 w-4 shrink-0 text-primary" />
+                    <span class="min-w-0 truncate" title="{{ $nama }}{{ $person->lembaga ? ' · '.$person->lembaga : '' }}">
+                        <span class="font-semibold text-on-surface">{{ $nama }}</span>
                     @if($person->lembaga)
-                        <span class="max-w-full truncate rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold text-primary" title="{{ $person->lembaga }}">
-                            {{ $person->lembaga }}
-                        </span>
+                            <span aria-hidden="true"> · </span>{{ $person->lembaga }}
                     @endif
+                    </span>
                 </li>
             @else
                 <li class="flex min-w-0 items-center gap-2.5 rounded-xl border border-outline-variant bg-surface-container-low p-3">

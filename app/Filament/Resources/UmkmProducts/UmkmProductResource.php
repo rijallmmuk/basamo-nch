@@ -17,7 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Katalog SEMUA produk UMKM + filter kategori untuk MODERASI admin (ubah/hapus).
+ * Katalog produk UMKM untuk dikelola pemilik, operator, dan superadmin.
  * Produk tidak punya status terbit maupun arsip: begitu dibuat ia tampil, dan
  * menghapusnya bersifat permanen. Dilihat lewat konteks nagari (NagariContext).
  */
@@ -106,6 +106,8 @@ class UmkmProductResource extends Resource
 
         if ($nagariId !== null) {
             $query->whereHas('umkmProfile', fn (Builder $q) => $q->where('nagari_id', $nagariId));
+        } elseif ($user?->hasAnyRole(['superadmin', 'operator', 'dpmd'])) {
+            $query->whereRaw('1 = 0');
         }
 
         return $query;

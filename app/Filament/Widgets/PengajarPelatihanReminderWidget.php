@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PengajarPelatihanReminderWidget extends Widget
 {
+    protected ?string $pollingInterval = null;
+
     protected string $view = 'filament.widgets.pengajar-pelatihan-reminder';
 
     protected static ?int $sort = -2;

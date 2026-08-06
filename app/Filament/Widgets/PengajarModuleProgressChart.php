@@ -7,6 +7,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class PengajarModuleProgressChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'pengajarModuleProgressChart';
 
     protected static ?string $heading = 'Status Belajar Warga per Modul';

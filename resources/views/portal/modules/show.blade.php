@@ -106,8 +106,20 @@
 
                         {{-- Description --}}
                         @if($module->deskripsi)
-                            <div class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed">
-                                {!! str($module->deskripsi)->sanitizeHtml() !!}
+                            <div x-data="{ expanded: false, overflow: false }" 
+                                 x-init="$nextTick(() => { overflow = $refs.content.scrollHeight > $refs.content.clientHeight })" 
+                                 class="mt-3">
+                                <div x-ref="content" 
+                                     :class="expanded ? '' : 'line-clamp-4'" 
+                                     class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed transition-all duration-300">
+                                    {!! str($module->deskripsi)->sanitizeHtml() !!}
+                                </div>
+                                <button x-show="overflow" x-cloak
+                                        @click="expanded = !expanded" 
+                                        class="mt-2 text-xs font-bold text-primary hover:underline focus:outline-none inline-flex items-center gap-1">
+                                    <span x-text="expanded ? 'Tampilkan lebih sedikit' : 'Baca selengkapnya'"></span>
+                                    <x-heroicon-s-chevron-down class="h-3.5 w-3.5 transition-transform duration-300" x-bind:class="expanded ? 'rotate-180' : ''" />
+                                </button>
                             </div>
                         @endif
                     </div>

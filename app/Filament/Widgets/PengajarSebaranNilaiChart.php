@@ -7,6 +7,8 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class PengajarSebaranNilaiChart extends ApexChartWidget
 {
+    protected ?string $pollingInterval = null;
+
     protected static ?string $chartId = 'pengajarSebaranNilaiChart';
 
     protected static ?string $heading = 'Sebaran Nilai Evaluasi Kegiatan';

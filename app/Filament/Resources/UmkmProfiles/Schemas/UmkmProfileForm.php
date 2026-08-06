@@ -62,7 +62,7 @@ class UmkmProfileForm
                             // 1 warga = 1 lapak (umkm_profiles.user_id UNIQUE):
                             // beri pesan validasi alih-alih error DB.
                             ->unique(UmkmProfile::class, 'user_id', ignoreRecord: true)
-                            ->helperText('Hanya warga yang belum memiliki profil usaha.')
+                            ->helperText('Pilih warga yang usahanya sedang didaftarkan. Hanya warga yang belum memiliki profil usaha.')
                             ->columnSpanFull(),
                     ]),
 
@@ -109,26 +109,6 @@ class UmkmProfileForm
                             ->validationMessages(['regex' => 'Isi nomor WhatsApp yang valid, contoh 08123456789.'])
                             ->helperText('Nomor tujuan pesanan pembeli.'),
 
-                        TextInput::make('email')
-                            ->label('Email usaha')
-                            ->placeholder('Isi email usaha')
-                            ->email()
-                            ->maxLength(255),
-
-                        TextInput::make('jam_operasional')
-                            ->label('Jam operasional')
-                            // Kolomnya teks bebas, jadi tanpa contoh pemilik menebak-nebak
-                            // bentuk yang diharapkan dan hasilnya berbeda-beda tiap lapak.
-                            ->placeholder("Senin-Jum'at, 08:00 - 17:00")
-                            ->helperText("Contoh: Senin-Jum'at, 08:00 - 17:00")
-                            ->maxLength(255),
-
-                        TextInput::make('tahun_berdiri')
-                            ->label('Tahun berdiri')
-                            ->placeholder('Isi tahun berdiri')
-                            ->integer()
-                            ->minValue(1900)
-                            ->maxValue((int) date('Y')),
 
                         Textarea::make('alamat')
                             // Pembeli memakai isian ini untuk benar-benar datang, jadi
