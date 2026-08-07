@@ -15,7 +15,7 @@
             @if ($reading)
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-success-50/50 dark:bg-gray-800/50 border border-success-100 dark:border-gray-700">
                     <div class="flex items-center gap-3">
-                        <x-filament::icon icon="heroicon-o-water" class="h-10 w-10 text-primary-500" />
+                        <x-filament::icon icon="heroicon-o-arrows-up-down" class="h-10 w-10 text-primary-500" />
                         <div>
                             <p class="text-2xl font-bold text-gray-900 dark:text-white">
                                 {{ $reading->tinggi_air ?? '0' }} cm

@@ -46,8 +46,13 @@ class Dashboard extends BaseDashboard
 
     /**
      * Widget adalah komponen Livewire TERPISAH dari halaman ini, jadi mengubah
-     * properti halaman saja tidak membuatnya menggambar ulang. Perubahan nagari
-     * disiarkan sebagai event yang didengarkan tiap widget ber-cakupan nagari.
+     * properti halaman saja tidak membuatnya menggambar ulang.
+     *
+     * Sampai 2026-08-06 perubahan nagari disiarkan sebagai event yang didengarkan
+     * tiap widget ber-cakupan nagari. Cara itu ditinggalkan karena hanya menyentuh
+     * widget yang memang memasang pendengar: satu widget yang lupa memasangnya
+     * tetap memajang angka nagari lama tanpa tanda apa pun. Memuat ulang halaman
+     * lebih tumpul, tetapi menjamin SELURUH isi dasbor berganti cakupan bersama.
      */
     public function updatedNagariId(): void
     {

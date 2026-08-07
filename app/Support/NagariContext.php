@@ -30,9 +30,6 @@ class NagariContext
 
     public const DASHBOARD = 'dashboard';
 
-    /** Siaran ke widget dasbor saat nagari yang dilihat berganti. */
-    public const DASHBOARD_EVENT = 'nagari-dasbor-diganti';
-
     private const KEY_PREFIX = 'managed_nagari_id_';
 
     public static function set(string $namespace, int $nagariId): void
@@ -68,10 +65,14 @@ class NagariContext
     }
 
     /**
-     * Dipanggil dari mount() halaman yang selalu tampil di sidebar superadmin
-     * (Warga/Wilayah/Profil UMKM/Produk UMKM) — bila menu ITU belum punya konteks,
-     * pilih nagari pertama (urut nama) secara otomatis, supaya klik langsung dari
-     * sidebar tak pernah buntu. Operator nagari & konteks yang sudah ada tak tersentuh.
+     * Bila menu ITU belum punya konteks, pilih nagari pertama (urut nama) secara
+     * otomatis, supaya klik langsung dari sidebar tak pernah buntu. Operator nagari
+     * & konteks yang sudah ada tak tersentuh.
+     *
+     * Dipanggil dari mount() halaman superadmin yang memakai konteks (Warga, Profil
+     * UMKM, Produk UMKM, Rekap SLC, Dasbor) dan dari ScopedToNagari: widget dimuat
+     * lewat request Livewire sendiri, jadi ia tidak bisa bersandar pada mount()
+     * halaman yang menampungnya.
      */
     public static function ensureDefault(string $namespace): void
     {

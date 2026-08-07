@@ -4,7 +4,6 @@ namespace App\Filament\Widgets\Concerns;
 
 use App\Models\Nagari;
 use App\Support\NagariContext;
-use Livewire\Attributes\On;
 
 /**
  * Cakupan nagari untuk widget dasbor yang menganalisis SATU nagari.
@@ -22,21 +21,6 @@ trait ScopedToNagari
     public static function canView(): bool
     {
         return (bool) auth()->user()?->hasAnyRole(['operator', 'superadmin', 'dpmd']);
-    }
-
-    /**
-     * Widget dimuat sebagai komponen Livewire sendiri, jadi ia tidak ikut tergambar
-     * ulang saat properti halaman berubah. Event dari pemilih nagari-lah yang
-     * memicunya.
-     */
-    #[On(NagariContext::DASHBOARD_EVENT)]
-    public function nagariDasborDiganti(): void
-    {
-        // Grafik menyimpan opsinya di properti, jadi harus dihitung ulang; tabel dan
-        // kartu statistik cukup tergambar ulang oleh event ini sendiri.
-        if (method_exists($this, 'updateOptions')) {
-            $this->updateOptions();
-        }
     }
 
     protected function nagariId(): ?int
