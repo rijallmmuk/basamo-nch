@@ -17,11 +17,14 @@ use RuntimeException;
 /**
  * Membuat satu warga (akun `users` + identitas `penduduk`) dari satu baris impor Excel.
  *
- * Kolom baris dibaca langsung sebagai ID mentah (agama_id, pendidikan_id, pekerjaan_id,
- * status_kawin_id) — SENGAJA disamakan dengan skema export penduduk OpenSID milik nagari
- * (tabel referensi kita diselaraskan persis ID-nya, lihat migrasi `create_warga_reference_
+ * Kolom rujukan (agama_id, pendidikan_id, pekerjaan_id, status_kawin_id) menerima ID
+ * mentah — SENGAJA disamakan dengan skema export penduduk OpenSID milik nagari (tabel
+ * referensi kita diselaraskan persis ID-nya, lihat migrasi `create_warga_reference_
  * tables`), supaya file ekspor mentah nagari (44 kolom, banyak tak relevan) bisa langsung
  * diunggah tanpa diubah — kolom yang tak dikenal cukup diabaikan.
+ *
+ * Kolom yang sama juga menerima NAMA pilihan, karena {@see WargaTemplateBuilder} kini
+ * memasang dropdown berisi nama supaya pengisi tidak perlu menghafal arti angka.
  *
  * Keamanan & best-practice:
  * - Nagari selalu ditentukan server-side: operator dipaksa ke nagarinya.
@@ -33,11 +36,11 @@ use RuntimeException;
 class WargaImportService
 {
     /**
-     * Id referensi yang sah, dimuat SEKALI per proses impor. Tanpa ini setiap baris
+     * Referensi yang sah, dimuat SEKALI per proses impor. Tanpa ini setiap baris
      * menambah empat kueri existence, dan pada berkas puluhan ribu baris itu saja
      * sudah puluhan ribu kueri sia-sia.
      *
-     * @var array<class-string<Model>, array<int, true>>|null
+     * @var array<class-string<Model>, array{id: array<int, true>, nama: array<string, int>}>|null
      */
     private ?array $referensi = null;
 
@@ -161,6 +164,13 @@ class WargaImportService
     }
 
     /**
+     * Menerima DUA bentuk isian, dan itu disengaja:
+     *
+     * - angka ID, karena ekspor mentah OpenSID memuatnya dan berkas lama yang sudah
+     *   diisi ID tidak boleh mendadak ditolak;
+     * - nama pilihan, karena template kita kini memakai dropdown berisi nama supaya
+     *   pengisi tidak perlu menghafal arti angka.
+     *
      * @param  class-string<Model>  $model  model referensi ber-kolom `id` & `aktif`
      */
     private function resolveId(string $model, string $value, string $label): ?int
@@ -169,31 +179,55 @@ class WargaImportService
             return null;
         }
 
-        if (! ctype_digit($value)) {
-            throw new RuntimeException("Kolom \"{$label}\" harus berupa angka ID — lihat sheet \"Referensi\".");
+        if (ctype_digit($value)) {
+            if (! isset($this->referensi()[$model]['id'][(int) $value])) {
+                throw new RuntimeException("\"{$label}\" {$value} tidak dikenali. Lihat sheet \"Referensi\".");
+            }
+
+            return (int) $value;
         }
 
-        $exists = isset($this->referensiIds()[$model][(int) $value]);
+        $id = $this->referensi()[$model]['nama'][$this->samakanNama($value)] ?? null;
 
-        if (! $exists) {
-            throw new RuntimeException("\"{$label}\" {$value} tidak dikenali — lihat sheet \"Referensi\".");
+        if ($id === null) {
+            throw new RuntimeException("\"{$label}\" \"{$value}\" tidak dikenali. Pilih dari dropdown template atau lihat sheet \"Referensi\".");
         }
 
-        return (int) $value;
+        return $id;
     }
 
     /**
-     * Seluruh id referensi yang sah, dibaca sekali lalu disimpan di memori. Tabel
-     * referensi ini kecil (puluhan baris), jadi aman dimuat penuh.
-     *
-     * @return array<class-string<Model>, array<int, true>>
+     * Beda huruf besar-kecil dan spasi ganda tidak boleh menggagalkan satu baris:
+     * isian sering datang dari salin-tempel, bukan hanya dari dropdown.
      */
-    private function referensiIds(): array
+    private function samakanNama(string $value): string
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/', ' ', $value)));
+    }
+
+    /**
+     * Referensi yang sah dalam dua bentuk pencarian: id dan nama. Dibaca sekali lalu
+     * disimpan di memori — tabelnya kecil (puluhan baris), jadi aman dimuat penuh,
+     * dan tanpa ini tiap baris impor menambah empat kueri.
+     *
+     * Baris aktif ditulis belakangan agar ia yang menang bila kelak ada nama kembar
+     * antara baris aktif dan baris yang sudah dinonaktifkan.
+     *
+     * @return array<class-string<Model>, array{id: array<int, true>, nama: array<string, int>}>
+     */
+    private function referensi(): array
     {
         return $this->referensi ??= collect([Agama::class, Pendidikan::class, Pekerjaan::class, StatusPerkawinan::class])
-            ->mapWithKeys(fn (string $model): array => [
-                $model => $model::query()->pluck('id')->flip()->map(fn (): bool => true)->all(),
-            ])
+            ->mapWithKeys(function (string $model): array {
+                $rows = $model::query()->orderBy('aktif')->get(['id', 'nama']);
+
+                return [$model => [
+                    'id' => $rows->pluck('id')->flip()->map(fn (): bool => true)->all(),
+                    'nama' => $rows->mapWithKeys(fn (Model $row): array => [
+                        $this->samakanNama((string) $row->nama) => (int) $row->id,
+                    ])->all(),
+                ]];
+            })
             ->all();
     }
 
@@ -210,14 +244,14 @@ class WargaImportService
             try {
                 $date = CarbonImmutable::instance(ExcelDate::excelToDateTimeObject((float) $raw))->startOfDay();
             } catch (\Throwable) {
-                throw new RuntimeException('Format "tanggallahir" tidak dikenali — pakai yyyy-mm-dd (mis. 1990-05-17).');
+                throw new RuntimeException('Format "tanggallahir" tidak dikenali. Pakai yyyy-mm-dd (mis. 1990-05-17).');
             }
         } else {
             $date = $this->parseDateText(trim((string) $raw));
         }
 
         if ($date->isFuture()) {
-            throw new RuntimeException('"tanggallahir" tidak boleh di masa depan — periksa tahunnya (format yyyy-mm-dd).');
+            throw new RuntimeException('"tanggallahir" tidak boleh di masa depan. Periksa tahunnya (format yyyy-mm-dd).');
         }
 
         return $date;
@@ -241,6 +275,6 @@ class WargaImportService
             }
         }
 
-        throw new RuntimeException('Format "tanggallahir" tidak dikenali — pakai yyyy-mm-dd (mis. 1990-05-17).');
+        throw new RuntimeException('Format "tanggallahir" tidak dikenali. Pakai yyyy-mm-dd (mis. 1990-05-17).');
     }
 }
