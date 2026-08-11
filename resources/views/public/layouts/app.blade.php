@@ -173,7 +173,7 @@
                         <button type="submit" class="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-on-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 sm:inline-flex">Keluar</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="shimmer-hover rounded-full bg-primary px-6 py-2.5 text-xs sm:text-sm font-bold text-on-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
+                    <a href="{{ \App\Support\PublicNavigation::masukUrl() }}" class="shimmer-hover rounded-full bg-primary px-6 py-2.5 text-xs sm:text-sm font-bold text-on-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
                         Masuk
                     </a>
                 @endauth
@@ -303,7 +303,7 @@
                         @else
                             {{-- Sengaja "Masuk" saja, sama persis dengan tombol di header:
                                  satu tindakan tidak boleh punya dua nama di satu situs. --}}
-                            <li><a href="{{ route('login') }}" class="transition-colors hover:text-secondary-container">Masuk</a></li>
+                            <li><a href="{{ \App\Support\PublicNavigation::masukUrl() }}" class="transition-colors hover:text-secondary-container">Masuk</a></li>
                         @endauth
                     </ul>
 

@@ -122,7 +122,7 @@
                 Masuk dengan NIK Anda untuk mengikuti pelatihan, mengerjakan evaluasi, dan berdiskusi dengan pengajar di ruang digital Anda.
             </p>
         </div>
-        <a href="{{ route('login') }}"
+        <a href="{{ \App\Support\PublicNavigation::masukUrl(\App\Enums\GerbangLogin::Belajar) }}"
            class="group inline-flex shrink-0 items-center gap-3 rounded-full bg-secondary-container px-8 py-4 text-sm font-extrabold text-on-secondary-container shadow-xl shadow-secondary-container/20 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl hover:shadow-secondary-container/30">
             Masuk Portal Warga
             <span class="flex h-6 w-6 items-center justify-center rounded-full bg-on-secondary-container/10 group-hover:bg-on-secondary-container/20 transition-colors">

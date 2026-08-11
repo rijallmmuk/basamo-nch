@@ -73,14 +73,13 @@
                         </div>
                     @endif
 
-                    <p class="text-xs font-extrabold uppercase tracking-[0.16em] text-secondary">Akses akun</p>
+                    <p class="text-xs font-extrabold uppercase tracking-[0.16em] text-secondary">{{ $konteks->gerbang?->judul() ?? 'Akses akun' }}</p>
                     <h2 class="mt-2 text-3xl font-extrabold tracking-[-0.035em] text-primary sm:text-4xl">
                         Selamat datang kembali
                     </h2>
                     <p class="mt-3 max-w-lg text-sm leading-6 text-on-surface-variant sm:text-base">
-                        {{ $situsNagari
-                            ? 'Masuk menggunakan akun yang terdaftar di nagari ini.'
-                            : 'Masuk menggunakan akun Basamo NCH Anda.' }}
+                        {{ $konteks->gerbang?->keterangan()
+                            ?? 'Masuk menggunakan akun Basamo NCH Anda.' }}
                     </p>
 
                     @if (session('error') || $errors->has('login'))
@@ -92,6 +91,12 @@
 
                     <form method="POST" action="{{ route('login') }}" class="mt-7 space-y-5">
                         @csrf
+                        {{-- Gerbang menyeberang lewat input tersembunyi, bukan lewat query
+                             string action, supaya percobaan login yang gagal (`back()` tanpa
+                             query) tidak diam-diam kehilangan konteksnya. --}}
+                        @foreach ($konteks->sebagaiParameter() as $nama => $nilai)
+                            <input type="hidden" name="{{ $nama }}" value="{{ $nilai }}">
+                        @endforeach
 
                         <div>
                             <label for="login" class="mb-2 block text-sm font-bold text-on-surface">Username atau NIK</label>

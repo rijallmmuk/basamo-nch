@@ -28,7 +28,7 @@
         </p>
 
         <div class="mt-auto pt-4">
-            <a href="{{ route('login') }}"
+            <a href="{{ \App\Support\PublicNavigation::masukUrl(\App\Enums\GerbangLogin::Belajar, $module->pelatihan_id) }}"
                class="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-extrabold text-on-primary shadow-sm transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                 Masuk untuk Belajar
                 <x-heroicon-o-arrow-right class="h-3.5 w-3.5" />

@@ -80,7 +80,7 @@
             @endif
 
             <div class="mt-8 flex flex-wrap items-center gap-3">
-                <a href="{{ route('login') }}"
+                <a href="{{ \App\Support\PublicNavigation::masukUrl(pelatihanId: $pelatihan->getKey()) }}"
                    class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-sm transition hover:bg-secondary-fixed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
                     Masuk untuk Belajar <x-heroicon-o-arrow-right class="h-4 w-4" />
                 </a>

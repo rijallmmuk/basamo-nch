@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\Nagari;
 use App\Services\SharedAccountSessionService;
+use App\Support\Auth\KonteksLogin;
+use App\Support\Auth\TujuanSetelahLogin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +20,19 @@ use RuntimeException;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly SharedAccountSessionService $sharedSession) {}
+    public function __construct(
+        private readonly SharedAccountSessionService $sharedSession,
+        private readonly TujuanSetelahLogin $tujuan,
+    ) {}
 
     public function showLogin(Request $request): View
     {
         return view('portal.auth.login', [
             'situsNagari' => Nagari::fromHost($request->getHost()),
+            // Konteks dibawa halaman publik lewat query string, lalu diteruskan
+            // sebagai input tersembunyi agar tetap hidup melewati percobaan login
+            // yang gagal (`back()` membangun ulang halaman ini tanpa query).
+            'konteks' => KonteksLogin::dariRequest($request),
         ]);
     }
 
@@ -111,36 +120,28 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        // Batas situs nagari: masuk lewat subdomain nagari lain ditolak di sini,
-        // supaya pengguna tidak sempat berstatus login lalu ditembok halaman
-        // berikutnya. Middleware `situs-nagari` menjaga sisa permintaannya.
-        $situs = Nagari::fromHost($request->getHost());
+        // Batas situs nagari TIDAK LAGI menolak login. Sejak gerbang login ada,
+        // siapa pun boleh menekan Masuk dari halaman publik mana pun, termasuk
+        // situs nagari tetangga. Yang dijaga bukan lagi TEMPAT ORANG LOGIN
+        // melainkan TEMPAT IA MENDARAT: TujuanSetelahLogin memulangkan warga dan
+        // operator ke subdomain nagarinya, dan EnsureNagariSiteMatchesUser tetap
+        // berdiri sebagai jaring lapis kedua bagi alamat yang diketik manual
+        // sesudahnya.
 
-        if ($situs !== null && ! $user->bolehMasukSitusNagari($situs)) {
+        // Peran tak dikenal → tolak (defense-in-depth). Diperiksa SEBELUM tujuan
+        // dihitung: akun tanpa peran tidak punya satu pun area yang menyasarnya.
+        if ($user->primaryRole() === null) {
             $this->terminateSession($request);
 
             return back()
-                ->withErrors(['login' => "Anda tidak terdaftar di Nagari {$situs->nama}."])
+                ->withErrors(['login' => 'Akun ini tidak memiliki akses.'])
                 ->withInput();
         }
-
-        // Peran lintas nagari tidak punya rumah di satu subdomain. Login dari
-        // subdomain nagari mana pun dipulangkan ke domain induk, supaya alamat yang
-        // tampil tidak menyiratkan mereka sedang berada di dalam nagari tertentu.
-        $pulangkanKeInduk = $situs !== null && $user->isLintasNagari();
 
         // Bersihkan rem bertarget saja; anggaran IP dibiarkan agar semprotan yang
         // sesekali sukses tetap terakumulasi menuju batas.
         RateLimiter::clear($identityKey);
         $request->session()->regenerate();
-
-        if ($pulangkanKeInduk) {
-            if ($user->hasAnyRole(['superadmin', 'operator'])) {
-                $this->sharedSession->start($user, $request);
-            }
-
-            return redirect()->to(rtrim(config('app.url'), '/').'/panel');
-        }
 
         // Akun back-office bersama (superadmin/operator) butuh referensi audit sesi
         // (EnsureAdminSessionTracked). pengajar/dpmd = akun individu → tak diaudit.
@@ -148,31 +149,17 @@ class AuthController extends Controller
             $this->sharedSession->start($user, $request);
         }
 
-        // Arahkan ke beranda peran masing-masing. Sengaja TIDAK pakai intended():
-        // "intended URL" bisa lintas-area (mis. /panel tersimpan saat tamu, lalu warga
-        // login → terlempar ke /panel & ditolak). Redirect tetap per peran lebih aman.
-        // Back-office (superadmin/operator/pengajar/dpmd) = panel Filament /panel, tiap
-        // Resource menjaga scoping perannya.
-        // Multi-role: peran utama (ROLE_PRIORITY) menentukan area tujuan.
-        switch ($user->primaryRole()) {
-            case 'superadmin':
-            case 'operator':
-            case 'pengajar':
-            case 'dpmd':
-                return redirect('/panel');
-            case 'warga':
-                if ($user->hasUmkmAccess()) {
-                    return redirect('/panel');
-                }
-                return redirect()->route('portal.home');
-        }
+        // Tujuan dihitung dari gerbang DAN identitas. Sengaja tetap TIDAK memakai
+        // intended(): URL tersimpan bisa melintasi area, mis. /panel yang tersimpan
+        // saat masih tamu lalu dibuka warga, dan berujung penolakan tepat sesudah
+        // login berhasil. Gerbang hanya satu kata dari daftar tertutup.
+        $tujuan = $this->tujuan->untuk($user, KonteksLogin::dariRequest($request));
 
-        // Peran tak dikenal → tolak (defense-in-depth).
-        $this->terminateSession($request);
+        $redirect = redirect()->to($tujuan->url);
 
-        return back()
-            ->withErrors(['login' => 'Akun ini tidak memiliki akses.'])
-            ->withInput();
+        return $tujuan->pesanInfo !== null
+            ? $redirect->with('info', $tujuan->pesanInfo)
+            : $redirect;
     }
 
     /**

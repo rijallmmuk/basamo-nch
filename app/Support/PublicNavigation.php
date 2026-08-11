@@ -2,7 +2,9 @@
 
 namespace App\Support;
 
+use App\Enums\GerbangLogin;
 use App\Models\Nagari;
+use App\Support\Auth\KonteksLogin;
 
 /**
  * Sumber tunggal navigasi situs publik.
@@ -136,6 +138,34 @@ final class PublicNavigation
     public static function indukUrl(): string
     {
         return rtrim((string) config('app.url'), '/');
+    }
+
+    /**
+     * Alamat tombol Masuk untuk halaman yang SEDANG dibuka.
+     *
+     * Halaman publik bukan cuma pintu masuk yang seragam: orang yang menekan
+     * Masuk di Lapau Nagari sedang memikirkan lapaknya, yang menekannya di Medan
+     * Nan Balinduang sedang memikirkan pelatihan. Gerbang itulah yang dititipkan
+     * di sini supaya login dapat mengantar ke area yang tepat.
+     *
+     * Diturunkan dari NAMA ROUTE halaman, bukan dari header `Referer`. Referer
+     * dapat dibuang proxy maupun setelan privasi peramban, dan fitur ini akan
+     * gagal secara acak tanpa jejak kalau bergantung padanya.
+     *
+     * $gerbang boleh diisi untuk tombol yang maksudnya lebih tegas daripada
+     * halamannya, misalnya ajakan masuk portal belajar yang berdiri di beranda
+     * nagari. Beranda itu sendiri netral, tombolnya tidak.
+     *
+     * $pelatihanId membuat tautannya menunjuk satu pelatihan tertentu, sehingga
+     * orang yang menekan Masuk dari halaman muka sebuah pelatihan mendarat di
+     * pelatihan itu juga, bukan di beranda portal. Yang dititipkan cuma ID-nya;
+     * alamatnya dirakit di sisi kita setelah hak aksesnya diperiksa.
+     */
+    public static function masukUrl(?GerbangLogin $gerbang = null, ?int $pelatihanId = null): string
+    {
+        $gerbang ??= GerbangLogin::dariNamaRute(request()->route()?->getName());
+
+        return route('login', (new KonteksLogin($gerbang, $pelatihanId))->sebagaiParameter());
     }
 
     /**
