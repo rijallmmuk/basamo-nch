@@ -162,6 +162,15 @@ EWS awal, dan akun superadmin secara idempoten. Pada instalasi pertama produksi,
 command mencetak sandi acak superadmin **sekali saja**. Catat langsung di password
 manager, login dengan username `superadmin`, lalu ganti sandi pada login pertama.
 
+Kalau nilai `EWS_TOKEN_*` berubah pada instalasi yang perangkatnya SUDAH pernah
+di-seed, misalnya karena alat terpasang tertukar antar nagari di lapangan,
+jalankan `php artisan ews:reconcile` setelah seeder. Perintah itu memindahkan
+ikatan nagari mengikuti environment tanpa menyentuh token maupun `ews_readings`,
+sehingga riwayat pembacaan tetap menempel pada alat fisik yang menghasilkannya.
+Pada instalasi baru perintah ini tidak diperlukan, dan menjalankannya tetap aman
+karena ia hanya memperbaiki selisih. Lanjutkan dengan `php artisan ews:record`
+agar cache pembacaan ikut segar.
+
 Pastikan `public/storage` adalah symlink, bukan salinan folder. Git hanya membawa
 kode, **bukan berkas unggahan**. Jika instalasi memakai database yang sudah berisi
 data, pulihkan pasangan backup yang sama untuk kedua folder berikut sebelum situs
