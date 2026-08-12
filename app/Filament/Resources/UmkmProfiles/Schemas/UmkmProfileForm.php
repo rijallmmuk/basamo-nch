@@ -94,6 +94,11 @@ class UmkmProfileForm
                         Textarea::make('deskripsi')
                             ->label('Deskripsi usaha')
                             ->placeholder('Isi deskripsi usaha')
+                            // Boleh dikosongkan, tetapi kalau diisi harus benar-benar
+                            // menjelaskan. Isian sependek "usaha" tampil apa adanya di
+                            // etalase publik dan justru membuat lapaknya terlihat
+                            // terbengkalai. Batas yang sama dipakai deskripsi produk.
+                            ->minLength(10)
                             ->maxLength(2000)
                             ->rows(4)
                             ->columnSpanFull(),
