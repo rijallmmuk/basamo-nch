@@ -70,6 +70,35 @@
                     @endif
                 </div>
 
+                @if($pelatihan->sertifikat_mode->memberiSertifikat())
+                    <div @class([
+                        'mt-6 rounded-2xl border p-5',
+                        'border-success/40 bg-success/5' => $sertifikatBerhak,
+                        'border-outline-variant bg-surface-container-low' => ! $sertifikatBerhak,
+                    ])>
+                        <div class="flex items-start gap-3">
+                            <x-heroicon-o-document-check @class([
+                                'h-6 w-6 shrink-0',
+                                'text-success' => $sertifikatBerhak,
+                                'text-on-surface-variant' => ! $sertifikatBerhak,
+                            ]) />
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-extrabold text-on-surface">Sertifikat Pelatihan</p>
+
+                                @if($sertifikatBerhak)
+                                    <p class="mt-1 text-xs text-on-surface-variant">Selamat, sertifikat Anda sudah bisa diambil.</p>
+                                    <a href="{{ route('portal.pelatihan.sertifikat', $pelatihan) }}"
+                                       class="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                                        Unduh Sertifikat <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                                    </a>
+                                @else
+                                    <p class="mt-1 text-xs text-on-surface-variant">{{ $sertifikatAlasan }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Pengajar atau Pengelola Section --}}
                 @php
                     $participants = $pelatihan->participants();

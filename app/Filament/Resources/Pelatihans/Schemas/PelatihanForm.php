@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pelatihans\Schemas;
 
 use App\Enums\ActiveStatus;
+use App\Enums\ModeSertifikat;
 use App\Models\Nagari;
 use App\Models\Pelatihan;
 use App\Models\TemaPelatihan;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Closure;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Filament\Forms\Components\OptimizedSpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -110,7 +112,48 @@ class PelatihanForm
                             ->maxSize(10240)
                             ->columnSpanFull(),
                     ]),
+
+                Section::make('Sertifikat')
+                    ->icon(Heroicon::OutlinedDocumentCheck)
+                    ->description('Sertifikat baru dapat diambil warga setelah seluruh modul selesai dan seluruh Evaluasi Kegiatan lulus.')
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('sertifikat_mode')
+                            ->label('Asal sertifikat')
+                            ->options(ModeSertifikat::class)
+                            ->default(ModeSertifikat::Tidak->value)
+                            ->required()
+                            ->native(false)
+                            ->live()
+                            ->helperText(fn (Get $get): string => self::modeSertifikat($get('sertifikat_mode'))->keterangan())
+                            ->columnSpanFull(),
+
+                        SpatieMediaLibraryFileUpload::make('sertifikat')
+                            ->label('Berkas sertifikat')
+                            ->collection('sertifikat')
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                            ->maxSize(10240)
+                            ->helperText('PDF, JPG, atau PNG. Maksimal 10 MB.')
+                            ->required(fn (Get $get): bool => self::modeSertifikat($get('sertifikat_mode')) === ModeSertifikat::Unggah)
+                            ->visible(fn (Get $get): bool => self::modeSertifikat($get('sertifikat_mode')) === ModeSertifikat::Unggah)
+                            ->columnSpanFull(),
+                    ]),
             ]);
+    }
+
+    /**
+     * Mode sertifikat dari state form.
+     *
+     * Saat Tambah nilainya string dari Select, saat Ubah sudah berupa enum karena
+     * modelnya meng-cast kolom itu. Keduanya harus diterima.
+     */
+    private static function modeSertifikat(mixed $state): ModeSertifikat
+    {
+        if ($state instanceof ModeSertifikat) {
+            return $state;
+        }
+
+        return ModeSertifikat::tryFrom((string) $state) ?? ModeSertifikat::Tidak;
     }
 
     /**

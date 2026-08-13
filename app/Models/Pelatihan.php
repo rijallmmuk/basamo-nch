@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ActiveStatus;
+use App\Enums\ModeSertifikat;
 use App\Enums\StatusPelatihan;
 use App\Models\Concerns\BelongsToNagari;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,6 +56,7 @@ class Pelatihan extends Model implements HasMedia
 
     protected $fillable = [
         'tema_pelatihan_id', 'nagari_id', 'deskripsi', 'created_by', 'status', 'semua_nagari',
+        'sertifikat_mode',
     ];
 
     protected static function booted(): void
@@ -96,6 +98,7 @@ class Pelatihan extends Model implements HasMedia
         return [
             'status' => StatusPelatihan::class,
             'semua_nagari' => 'boolean',
+            'sertifikat_mode' => ModeSertifikat::class,
         ];
     }
 
@@ -114,6 +117,12 @@ class Pelatihan extends Model implements HasMedia
             ->useDisk(config('media-library.disk_name'))
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+
+        // Berkas sertifikat siap pakai milik penyelenggara, satu untuk semua peserta.
+        $this->addMediaCollection('sertifikat')
+            ->useDisk(config('media-library.disk_name'))
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
     }
 
     public function registerMediaConversions(?Media $media = null): void

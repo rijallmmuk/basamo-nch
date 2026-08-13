@@ -13,6 +13,7 @@ use App\Http\Controllers\Portal\NotificationController;
 use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\PelatihanController;
 use App\Http\Controllers\Portal\ProfileController;
+use App\Http\Controllers\Portal\SertifikatController;
 use App\Http\Controllers\Public\HomeController as PublicHomeController;
 use App\Http\Controllers\Public\IotCatalogController;
 use App\Http\Controllers\Public\KontakController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Public\NagariHomeController;
 use App\Http\Controllers\Public\PublicMapController;
 use App\Http\Controllers\Public\PelatihanPublikController;
 use App\Http\Controllers\Public\SeoController;
+use App\Http\Controllers\Public\SertifikatVerifikasiController;
 use App\Http\Controllers\Public\SlcCatalogController;
 use App\Http\Controllers\Public\TerasCatalogController;
 use App\Http\Controllers\Public\UmkmCatalogController;
@@ -99,6 +101,10 @@ Route::redirect('umkm', '/lapau-nagari', 301);
 // Ejaan lama "medang", padanan dari pengalihan di grup nagari dan grup fallback.
 Route::get('medang-nan-balinduang', fn () => redirect()->route('public.slc', [], 301));
 Route::get('medang-nan-balinduang/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
+// Verifikasi keaslian sertifikat. Terbuka untuk umum: yang memeriksa biasanya pemberi
+// kerja atau panitia, bukan pemilik akun.
+Route::get('verifikasi-sertifikat/{nomor}', SertifikatVerifikasiController::class)
+    ->name('public.sertifikat.verifikasi');
 Route::post('kontak', [KontakController::class, 'store'])->name('public.kontak.store');
 Route::get('peta-data', [PublicMapController::class, 'data'])->name('public.peta.data');
 
@@ -156,6 +162,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
         Route::get('pelatihan', [PelatihanController::class, 'index'])->name('pelatihan.index');
         Route::get('pelatihan/{pelatihan}', [PelatihanController::class, 'show'])->name('pelatihan.show');
+        Route::get('pelatihan/{pelatihan}/sertifikat', [SertifikatController::class, 'unduh'])->name('pelatihan.sertifikat');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');

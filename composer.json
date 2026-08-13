@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "barryvdh/laravel-dompdf": "^3.1",
         "filament/filament": "^5.7",
         "filament/spatie-laravel-media-library-plugin": "^5.7",
         "hammadzafar05/mobile-bottom-nav": "^1.4",
