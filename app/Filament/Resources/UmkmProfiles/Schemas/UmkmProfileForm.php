@@ -3,15 +3,14 @@
 namespace App\Filament\Resources\UmkmProfiles\Schemas;
 
 use App\Enums\ActiveStatus;
-use App\Enums\TautanPlatform;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Support\NagariContext;
 use App\Support\PhoneNumber;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use App\Filament\Forms\Components\OptimizedSpatieMediaLibraryFileUpload;
+use App\Filament\Forms\Components\TautanPromosiRepeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -167,31 +166,7 @@ class UmkmProfileForm
                     ->icon(Heroicon::OutlinedLink)
                     ->columnSpanFull()
                     ->schema([
-                        Repeater::make('tautan')
-                            ->hiddenLabel()
-                            ->addActionLabel('Tambah tautan')
-                            ->reorderable()
-                            ->collapsible()
-                            ->defaultItems(0)
-                            ->columns(2)
-                            ->itemLabel(fn (array $state): ?string => filled($state['platform'] ?? null)
-                                ? (TautanPlatform::tryFrom($state['platform'])?->getLabel() ?? 'Tautan')
-                                : null)
-                            ->schema([
-                                Select::make('platform')
-                                    ->label('Platform')
-                                    ->options(TautanPlatform::groupedOptions())
-                                    ->required()
-                                    ->native(false)
-                                    ->searchable(),
-
-                                TextInput::make('url')
-                                    ->label('Tautan (URL)')
-                                    ->url()
-                                    ->required()
-                                    ->maxLength(500)
-                                    ->placeholder('https://...'),
-                            ]),
+                        TautanPromosiRepeater::make('tautan'),
                     ]),
             ]);
     }

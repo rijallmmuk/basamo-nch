@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\UmkmProducts\Schemas;
 
-use App\Enums\TautanPlatform;
 use App\Models\UmkmCategory;
 use App\Services\UmkmService;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use App\Filament\Forms\Components\OptimizedSpatieMediaLibraryFileUpload;
+use App\Filament\Forms\Components\TautanPromosiRepeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -113,31 +112,7 @@ class UmkmProductForm
                 ->icon(Heroicon::OutlinedLink)
                 ->columnSpanFull()
                 ->schema([
-                    Repeater::make('tautan')
-                        ->hiddenLabel()
-                        ->addActionLabel('Tambah tautan')
-                        ->reorderable()
-                        ->collapsible()
-                        ->defaultItems(0)
-                        ->columns(2)
-                        ->itemLabel(fn (array $state): ?string => filled($state['platform'] ?? null)
-                            ? (TautanPlatform::tryFrom($state['platform'])?->getLabel() ?? 'Tautan')
-                            : null)
-                        ->schema([
-                            Select::make('platform')
-                                ->label('Platform')
-                                ->options(TautanPlatform::groupedOptions())
-                                ->required()
-                                ->native(false)
-                                ->searchable(),
-
-                            TextInput::make('url')
-                                ->label('Tautan (URL)')
-                                ->url()
-                                ->required()
-                                ->maxLength(500)
-                                ->placeholder('https://...'),
-                        ]),
+                    TautanPromosiRepeater::make('tautan'),
                 ]),
         ];
     }
