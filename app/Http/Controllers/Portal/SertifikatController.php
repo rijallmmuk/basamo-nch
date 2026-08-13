@@ -50,7 +50,7 @@ class SertifikatController extends Controller
             'certificate' => $certificate,
             'pelatihan' => $pelatihan->loadMissing('tema', 'nagari'),
             'warga' => $user->loadMissing('nagari'),
-            'urlVerifikasi' => route('public.sertifikat.verifikasi', $certificate->nomor_seri),
+            'urlVerifikasi' => $certificate->urlVerifikasi(),
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('Sertifikat-'.$certificate->nomor_seri.'.pdf');

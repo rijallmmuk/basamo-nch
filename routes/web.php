@@ -103,7 +103,11 @@ Route::get('medang-nan-balinduang', fn () => redirect()->route('public.slc', [],
 Route::get('medang-nan-balinduang/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
 // Verifikasi keaslian sertifikat. Terbuka untuk umum: yang memeriksa biasanya pemberi
 // kerja atau panitia, bukan pemilik akun.
-Route::get('verifikasi-sertifikat/{nomor}', SertifikatVerifikasiController::class)
+//
+// Alamatnya sengaja pendek karena dicetak di sertifikat dan sering diketik ulang dari
+// kertas. Bentuk ini adalah janji jangka panjang: ia beredar di berkas yang tidak dapat
+// ditarik kembali, jadi jangan diubah lagi setelah ada sertifikat yang terbit.
+Route::get('verify/{nomor}', SertifikatVerifikasiController::class)
     ->name('public.sertifikat.verifikasi');
 Route::post('kontak', [KontakController::class, 'store'])->name('public.kontak.store');
 Route::get('peta-data', [PublicMapController::class, 'data'])->name('public.peta.data');

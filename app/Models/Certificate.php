@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicNavigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +19,26 @@ class Certificate extends Model
     protected function casts(): array
     {
         return ['diterbitkan_pada' => 'datetime'];
+    }
+
+    /**
+     * Alamat verifikasi, SELALU di domain utama.
+     *
+     * Tidak boleh memakai `route()` biasa. Rute publik tidak terikat domain, jadi
+     * alamatnya akan mengikuti host tempat warga menekan unduh, dan sertifikat yang
+     * diambil dari subdomain nagari akan mencetak alamat subdomain itu selamanya.
+     * Berkasnya sudah lepas dari kendali kita begitu diunduh, bahkan bisa dicetak di
+     * kertas, sementara subdomain bisa berganti slug atau belum pernah dibuat.
+     */
+    public static function urlVerifikasiUntuk(string $nomorSeri): string
+    {
+        return PublicNavigation::indukUrl()
+            .route('public.sertifikat.verifikasi', $nomorSeri, absolute: false);
+    }
+
+    public function urlVerifikasi(): string
+    {
+        return static::urlVerifikasiUntuk($this->nomor_seri);
     }
 
     public function pelatihan(): BelongsTo
