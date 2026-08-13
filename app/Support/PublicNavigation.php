@@ -55,13 +55,17 @@ final class PublicNavigation
             [
                 'href' => self::rute('public.nagari.slc', $nagari),
                 'label' => 'Medan Nan Balinduang',
-                'route' => 'public.nagari.slc*',
+                // Halaman detail memakai nama rute tersendiri, BUKAN turunan `.slc`.
+                // Tanpa pola keduanya, membuka satu pelatihan atau satu produk
+                // memadamkan seluruh menu dan pengunjung kehilangan petunjuk sedang
+                // berada di pilar mana. Versi induk sudah lama menyebutkannya.
+                'route' => ['public.nagari.slc*', 'public.nagari.pelatihan*'],
                 'icon' => 'heroicon-o-academic-cap',
             ],
             [
                 'href' => self::rute('public.nagari.umkm', $nagari),
                 'label' => 'Lapau Nagari',
-                'route' => 'public.nagari.umkm*',
+                'route' => ['public.nagari.umkm*', 'public.nagari.produk*'],
                 'icon' => 'heroicon-o-building-storefront',
             ],
             [
@@ -74,8 +78,9 @@ final class PublicNavigation
     }
 
     /**
-     * Situs induk. Empat ruang data/katalog punya halaman lintas nagari; Peta
-     * tetap berupa bagian beranda karena merupakan pengantar jaringan mitra.
+     * Situs induk. Keempat pilar punya halamannya masing-masing lintas nagari,
+     * termasuk Medan Nan Bapaneh yang isinya masih berstatus dalam perencanaan;
+     * Peta tetap berupa bagian beranda karena merupakan pengantar jaringan mitra.
      *
      * @return list<array{href: string, label: string, route: string|list<string>|null, icon: string}>
      */
@@ -105,6 +110,12 @@ final class PublicNavigation
                 'label' => 'Lapau Nagari',
                 'route' => ['public.umkm*', 'public.produk'],
                 'icon' => 'heroicon-o-building-storefront',
+            ],
+            [
+                'href' => route('public.bapaneh'),
+                'label' => 'Medan Nan Bapaneh',
+                'route' => 'public.bapaneh',
+                'icon' => 'heroicon-o-sparkles',
             ],
             [
                 'href' => route('public.iot'),

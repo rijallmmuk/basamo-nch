@@ -54,7 +54,7 @@ class NagariHomeController extends Controller
     {
         abort_unless($nagari->status === ActiveStatus::Active, 404);
 
-        return view('public.nagari.bapaneh', [
+        return view('public.bapaneh', [
             'nagari' => $nagari,
         ]);
     }

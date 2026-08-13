@@ -15,12 +15,22 @@
             ? 'Wajah digital '.$situsNagari->nama_lengkap.': data nagari, pelatihan warga, dan etalase UMKM dalam satu tempat.'
             : 'BASAMO Nagari Creative Hub menghubungkan Teras Nagari, Medan Nan Balinduang, Medan Nan Bapaneh, dan Lapau Nagari dalam satu ekosistem digital.';
 
-        $judulHalaman = trim($__env->yieldContent('title', 'Beranda'));
+        /* `@section('nama', 'isi')` menyimpan isinya lewat e(), jadi yang keluar dari
+           yieldContent() SUDAH ter-escape sekali. Mencetaknya dengan {{ }} meng-escape
+           untuk kedua kalinya, dan judul "Nagari Creative Hub & Smart Learning Center"
+           tampil sebagai "... &amp; ..." di tab peramban maupun di pratinjau tautan
+           media sosial. Dikembalikan ke teks mentah di sini supaya {{ }} menjadi
+           satu-satunya lapis escape. */
+        $seksi = fn (string $nama, string $bawaan = ''): string => trim(
+            html_entity_decode($__env->yieldContent($nama, $bawaan), ENT_QUOTES, 'UTF-8')
+        );
+
+        $judulHalaman = $seksi('title', 'Beranda');
         $judulLengkap = $judulHalaman.' · '.$namaSitus;
-        $metaDescription = trim($__env->yieldContent('meta_description', $deskripsiSitus));
-        $canonicalUrl = trim($__env->yieldContent('canonical')) ?: \App\Support\PublicSeo::canonical(request());
-        $robotsContent = trim($__env->yieldContent('robots')) ?: \App\Support\PublicSeo::robots(request());
-        $metaImage = trim($__env->yieldContent('meta_image'));
+        $metaDescription = $seksi('meta_description', $deskripsiSitus);
+        $canonicalUrl = $seksi('canonical') ?: \App\Support\PublicSeo::canonical(request());
+        $robotsContent = $seksi('robots') ?: \App\Support\PublicSeo::robots(request());
+        $metaImage = $seksi('meta_image');
         $metaImage = $metaImage !== ''
             ? $metaImage
             : ($situsNagari?->sampulUrls()->first() ?: asset('images/brand/basamo-nch-mark.png'));
@@ -271,7 +281,7 @@
                                 <a href="{{ $href }}" class="group inline-flex items-center gap-2.5 transition-colors hover:text-secondary-container">
                                     <x-dynamic-component :component="$icon" class="h-4 w-4 shrink-0 opacity-70 transition-transform group-hover:scale-110" />
                                     <span>{{ $label }}</span>
-                                    @if($nagariSitus && $label === 'Medan Nan Bapaneh')
+                                    @if($label === 'Medan Nan Bapaneh')
                                         <span class="rounded-full border border-secondary-container/30 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-secondary-container">Segera</span>
                                     @endif
                                 </a>

@@ -53,6 +53,19 @@ class HomeController extends Controller
     }
 
     /**
+     * Pilar 3 tingkat induk.
+     *
+     * Kartu pilar di beranda dulu menautkan pilar ini ke `#peta`, bagian yang isinya
+     * sama sekali lain, semata karena induk belum punya halamannya. Halaman ini yang
+     * menjadi tujuan sahnya. Tanpa data: statusnya memang masih dalam perencanaan,
+     * dan itu dinyatakan apa adanya alih-alih diisi angka karangan.
+     */
+    public function bapaneh(): View
+    {
+        return view('public.bapaneh');
+    }
+
+    /**
      * Ringkasan titik pantau EWS lintas nagari untuk pengantar pemantauan di Teras.
      *
      * Dibaca dari pembacaan TERSIMPAN, tidak menembak Blynk: beranda induk harus

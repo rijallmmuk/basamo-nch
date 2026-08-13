@@ -88,12 +88,18 @@ Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class
 Route::get('lapau-nagari', [UmkmCatalogController::class, 'globalDirectory'])->name('public.umkm');
 Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'globalShow'])->name('public.produk');
 Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'globalEtalase'])->name('public.umkm.etalase');
+Route::get('medan-nan-bapaneh', [PublicHomeController::class, 'bapaneh'])->name('public.bapaneh');
 Route::get('iot', [IotCatalogController::class, 'index'])->name('public.iot');
 
 // Alamat katalog lama tetap hidup untuk bookmark dan hasil mesin pencari.
 Route::redirect('belajar', '/medan-nan-balinduang', 301);
 Route::get('belajar/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
 Route::redirect('umkm', '/lapau-nagari', 301);
+
+// Ejaan lama "medang". Pengalihannya sudah ada di grup nagari dan grup fallback,
+// tetapi katalog tingkat induk terlewat sehingga bookmark lamanya berakhir 404.
+Route::get('medang-nan-balinduang', fn () => redirect()->route('public.slc', [], 301));
+Route::get('medang-nan-balinduang/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
 Route::post('kontak', [KontakController::class, 'store'])->name('public.kontak.store');
 Route::get('peta-data', [PublicMapController::class, 'data'])->name('public.peta.data');
 

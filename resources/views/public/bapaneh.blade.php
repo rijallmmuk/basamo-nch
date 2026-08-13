@@ -1,7 +1,16 @@
 @extends('public.layouts.app')
 
+{{-- Dipakai DUA konteks: pilar milik satu nagari ($nagari terisi) dan pilar tingkat
+     induk ($nagari null). Sengaja satu berkas, sebab isinya sama persis kecuali
+     penyebutan nama nagari, dan dua salinan pasti melenceng saat pilar ini akhirnya
+     benar-benar diisi. --}}
+@php
+    $nagari = $nagari ?? null;
+    $milik = $nagari ? $nagari->nama_lengkap : 'nagari mitra BASAMO NCH';
+@endphp
+
 @section('title', 'Medan Nan Bapaneh')
-@section('meta_description', 'Medan Nan Bapaneh '.$nagari->nama_lengkap.': ruang budaya, inovasi, arsip, dan publikasi digital yang sedang disiapkan.')
+@section('meta_description', 'Medan Nan Bapaneh '.$milik.': ruang budaya, inovasi, arsip, dan publikasi digital yang sedang disiapkan.')
 @section('robots', 'noindex, follow')
 @section('main-class', 'w-full')
 
@@ -9,7 +18,7 @@
 <x-public.pillar-header
     eyebrow="Pilar 3 · Medan Nan Bapaneh"
     title="Ruang budaya dan inovasi nagari sedang disiapkan."
-    :description="'Pilar ini direncanakan sebagai rumah arsip budaya, media digital, karya kreatif, dan publikasi '.$nagari->nama_lengkap.'.'">
+    :description="'Pilar ini direncanakan sebagai rumah arsip budaya, media digital, karya kreatif, dan publikasi '.$milik.'.'">
     <x-slot:aside>
         <div class="inline-flex items-center gap-2 rounded-full border border-secondary-container/30 bg-secondary-container/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-secondary-container">
             <span class="h-2 w-2 rounded-full bg-secondary-container" aria-hidden="true"></span>

@@ -47,7 +47,9 @@
                 ? (request()->routeIs('*.fallback')
                     ? route('public.nagari.bapaneh.fallback', $nagari)
                     : route('public.nagari.bapaneh', $nagari))
-                : route('public.home').'#peta',
+                // Dulu menunjuk `#peta`, bagian beranda yang isinya sama sekali lain,
+                // semata karena induk belum punya halaman pilar ini.
+                : route('public.bapaneh'),
             'iconBg' => 'bg-sky-500 text-white',
             'badgeColor' => 'bg-sky-50 text-sky-800 border border-sky-200',
             'btnColor' => 'bg-sky-600 text-white group-hover:bg-sky-700',
