@@ -132,9 +132,17 @@
         $situsIndukUrl = \App\Support\PublicNavigation::indukUrl();
 
         $kabupatenLogoSitus = $nagariSitus?->kabupatenLogoUrl();
-        $dashboardUrl = (auth()->user()?->hasAnyRole(['superadmin', 'operator', 'pengajar', 'dpmd']) || auth()->user()?->hasUmkmAccess())
-            ? url('/panel')
-            : route('portal.home');
+
+        /* Tautan akun dirakit di HOST MILIK PENGGUNA, bukan host yang sedang dibuka.
+           Rute portal sengaja tidak terikat domain, jadi `route()` di sini dulu
+           mengikuti hostname situs yang sedang ditampilkan: warga Nagari A yang
+           menengok situs Nagari B disodori tombol Dashboard dan Keluar yang
+           dua-duanya berakhir 403 di penjaga batas situs. Sumbernya disamakan
+           dengan tujuan setelah login, sebab pertanyaannya memang sama. */
+        $akun = auth()->user();
+        $tujuanAkun = $akun ? app(\App\Support\Auth\TujuanSetelahLogin::class) : null;
+        $dashboardUrl = $akun ? $tujuanAkun->dasbor($akun) : null;
+        $logoutUrl = $akun ? $tujuanAkun->keluar($akun) : null;
     @endphp
     <header id="site-header" class="header-shrink sticky top-0 z-50 border-b border-white/20 bg-white/70 backdrop-blur-2xl transition-all duration-500 shadow-sm dark:bg-gray-900/70 dark:border-gray-700/50">
         <div class="mx-auto flex max-w-container-page items-center justify-between gap-3 px-margin-mobile py-3.5 sm:py-4 lg:px-margin-page transition-all duration-300">
@@ -179,7 +187,7 @@
             <div class="flex shrink-0 items-center gap-2 sm:gap-3">
                 @auth
                     <a href="{{ $dashboardUrl }}" class="hidden rounded-full bg-primary/10 px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary/20 sm:inline-flex">Dashboard</a>
-                    <form method="POST" action="{{ route('portal.logout') }}">@csrf
+                    <form method="POST" action="{{ $logoutUrl }}">@csrf
                         <button type="submit" class="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-on-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 sm:inline-flex">Keluar</button>
                     </form>
                 @else
@@ -218,7 +226,7 @@
                     <a href="{{ $dashboardUrl }}" class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold text-primary sm:hidden">
                         Dashboard <x-heroicon-o-squares-2x2 class="h-4 w-4" />
                     </a>
-                    <form method="POST" action="{{ route('portal.logout') }}" class="sm:hidden">@csrf
+                    <form method="POST" action="{{ $logoutUrl }}" class="sm:hidden">@csrf
                         <button type="submit" class="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold text-error">
                             Keluar <x-heroicon-o-arrow-right-start-on-rectangle class="h-4 w-4" />
                         </button>
@@ -306,7 +314,7 @@
                         @auth
                             <li><a href="{{ $dashboardUrl }}" class="transition-colors hover:text-secondary-container">Dashboard</a></li>
                             <li>
-                                <form method="POST" action="{{ route('portal.logout') }}">@csrf
+                                <form method="POST" action="{{ $logoutUrl }}">@csrf
                                     <button type="submit" class="transition-colors hover:text-secondary-container">Keluar</button>
                                 </form>
                             </li>

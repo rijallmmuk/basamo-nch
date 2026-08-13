@@ -40,6 +40,38 @@ class TujuanSetelahLogin
     }
 
     /**
+     * Alamat dasbor akun ini, di host yang berhak ia tempati.
+     *
+     * Dipakai header situs publik, yang menghadapi persoalan yang sama persis
+     * dengan login hanya tanpa konteks halaman: pertanyaannya tetap "akun ini
+     * rumahnya di mana". Sebelumnya header merakit tautannya sendiri dengan
+     * `route('portal.home')`, dan rute portal tidak terikat domain sehingga
+     * alamatnya ikut host yang sedang dibuka. Warga Nagari A yang membuka situs
+     * Nagari B karena itu disodori tombol Dashboard menuju `nagari-b/portal`,
+     * yang dijawab 403 oleh {@see \App\Http\Middleware\EnsureNagariSiteMatchesUser}.
+     */
+    public function dasbor(User $user): string
+    {
+        [$path] = $this->area($user, new KonteksLogin);
+
+        return $this->hostKanonik($user).$path;
+    }
+
+    /**
+     * Alamat keluar, juga di host akun ini sendiri.
+     *
+     * `portal.logout` berupa POST dan bukan route `public.*`, jadi penjaga batas
+     * situs menolaknya dengan 403 saat ditekan dari situs nagari lain. Tombol
+     * Keluar pun mati persis ketika orang paling membutuhkannya. Cookie sesi
+     * berlaku lintas subdomain dan SameSite menghitung subdomain sebagai satu
+     * situs, sehingga POST ke host sendiri tetap membawa sesi dan token CSRF-nya.
+     */
+    public function keluar(User $user): string
+    {
+        return $this->hostKanonik($user).route('portal.logout', absolute: false);
+    }
+
+    /**
      * Host yang berhak ditempati akun ini, TANPA memandang dari mana ia login.
      *
      * - Peran lintas nagari bekerja di ruang global, jadi selalu domain induk.
