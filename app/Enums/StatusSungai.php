@@ -13,8 +13,8 @@ use Filament\Support\Contracts\HasLabel;
  * yang bisa diganti teknisi lapangan kapan saja. Karena itu ia dinormalkan di sini,
  * bukan dipercaya apa adanya, dan teks yang tak dikenali TIDAK dianggap aman.
  *
- * Menganggap teks asing sebagai "Aman" adalah kesalahan paling mahal yang bisa
- * dibuat sistem peringatan dini: warga membaca hijau padahal alat sedang berteriak.
+ * Teks asing TIDAK boleh jatuh ke "Aman": itu menampilkan kondisi aman saat status
+ * sebenarnya tidak diketahui.
  */
 enum StatusSungai: string implements HasColor, HasLabel
 {

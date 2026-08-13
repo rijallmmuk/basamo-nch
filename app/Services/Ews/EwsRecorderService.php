@@ -9,13 +9,9 @@ use Illuminate\Support\Facades\DB;
 /**
  * Merekam pembacaan sensor EWS ke `ews_readings` dan memangkas yang kedaluwarsa.
  *
- * Perekaman berjalan lewat penjadwal, bukan saat halaman dibuka. Dua alasannya:
- * satu panggilan Blynk memakan sekitar 2,5 detik, terlalu lama untuk ditunggu
- * pengunjung; dan riwayat harus tetap terkumpul rapat walaupun tidak seorang pun
- * membuka halamannya, justru karena banjir bandang datang di jam orang tidur.
- *
- * Efek sampingnya menguntungkan: tiap perekaman ikut menghangatkan cache yang
- * dibaca halaman publik.
+ * Perekaman berjalan lewat penjadwal, bukan saat halaman dibuka: satu panggilan
+ * Blynk memakan sekitar 2,5 detik, dan riwayat harus terkumpul terlepas dari ada
+ * tidaknya pengunjung. Tiap perekaman sekaligus menghangatkan cache halaman publik.
  */
 class EwsRecorderService
 {

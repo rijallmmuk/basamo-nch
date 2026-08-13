@@ -56,13 +56,10 @@ enum TautanPlatform: string implements HasLabel
     }
 
     /**
-     * Domain yang sah bagi platform ini. Daftar KOSONG berarti bebas.
+     * Domain yang sah bagi platform ini; daftar kosong berarti bebas.
      *
-     * Tanpa ini pemilik dapat memilih "Instagram" lalu menempel alamat apa pun, dan
-     * di etalase publik pengunjung melihat label Instagram yang membawanya ke tempat
-     * lain. Yang didaftar cukup domain induknya: pencocokannya menerima subdomain
-     * (`vt.tiktok.com`, `m.facebook.com`) sekaligus menolak domain yang sekadar
-     * kebetulan berakhiran sama (`bukan-instagram.com`).
+     * Cukup didaftar domain induknya. Pencocokan di {@see menerimaUrl()} menerima
+     * subdomain dan menolak domain yang sekadar berakhiran sama.
      *
      * @return list<string>
      */
@@ -81,9 +78,8 @@ enum TautanPlatform: string implements HasLabel
             self::Bukalapak => ['bukalapak.com'],
             self::Blibli => ['blibli.com'],
             self::GoogleMaps => ['google.com', 'goo.gl', 'app.goo.gl'],
-            // Justru untuk inilah keduanya ada: alamat yang tidak termasuk platform
-            // mana pun tetap punya tempat, tanpa memaksa pemilik berbohong soal
-            // platformnya demi lolos validasi.
+            // Jalan keluar bagi alamat di luar daftar platform, supaya pemilik tidak
+            // perlu memilih platform yang salah demi lolos validasi.
             self::Website, self::Lainnya => [],
         };
     }
@@ -125,7 +121,6 @@ enum TautanPlatform: string implements HasLabel
             return false;
         }
 
-        // `www.` dibuang lebih dulu supaya tidak perlu didaftar dua kali.
         $host = preg_replace('/^www\./', '', $host) ?? $host;
 
         foreach ($hosts as $sah) {

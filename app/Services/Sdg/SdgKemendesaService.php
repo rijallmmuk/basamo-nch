@@ -26,12 +26,10 @@ class SdgKemendesaService
     public function fetch(string $kodeBps): ?array
     {
         try {
-            // Batas connect 30 detik, dan itu BUKAN angka berlebihan. Server
-            // Kemendesa memakan ~10,3 detik hanya untuk menerima koneksi TCP,
-            // sedangkan batas sebelumnya 10 detik: putus sepersekian detik
-            // sebelum sambungannya jadi, tiap kali, di lingkungan mana pun.
-            // Gejalanya menyesatkan, "cURL error 28" terbaca seperti hosting
-            // memblokir koneksi keluar, padahal servernya memang selambat itu.
+            // Batas connect 30 detik: server Kemendesa memakan ~10,3 detik hanya
+            // untuk menerima koneksi TCP. Batas yang lebih rapat memutusnya tepat
+            // sebelum sambungan jadi, dan "cURL error 28" yang muncul mudah disalah-
+            // artikan sebagai hosting yang memblokir koneksi keluar.
             $proxyUrl = env('KEMENDESA_PROXY_URL');
             
             if (!empty($proxyUrl)) {

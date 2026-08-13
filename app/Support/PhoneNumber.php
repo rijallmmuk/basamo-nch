@@ -5,11 +5,10 @@ namespace App\Support;
 class PhoneNumber
 {
     /**
-     * Pola validasi nomor telepon/WhatsApp — dulu dulu diulang mentah di 5 tempat
-     * (ProfileController, form UMKM Filament, Filament Profil,
-     * NagariForm operator_kontak), 2 di antaranya malah TANPA validasi format sama sekali.
-     * Satukan di sini: `regex:'.PhoneNumber::REGEX` (validate() array) atau
-     * `->regex(PhoneNumber::REGEX)` (Filament TextInput).
+     * Pola tunggal validasi nomor telepon/WhatsApp.
+     *
+     * Pakai `regex:'.PhoneNumber::REGEX` pada array validate(), atau
+     * `->regex(PhoneNumber::REGEX)` pada TextInput Filament.
      */
     public const REGEX = '/^\+?[0-9][0-9 ().\-\/]{6,18}$/';
 

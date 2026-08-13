@@ -25,11 +25,9 @@ Schedule::command('sdgs:refresh-kemendesa')->quarterly()->withoutOverlapping()->
 // publikasi tahun baru begitu tersedia lewat auto-discovery tahun).
 Schedule::command('idm:refresh-kemendesa')->quarterly()->withoutOverlapping()->onOneServer();
 
-// Sensor EWS banjir bandang (Pilar 4) — tiap 5 menit. Ini peringatan dini, jadi
-// rapat: riwayat harus tetap terkumpul walau tak seorang pun membuka halamannya,
-// justru karena banjir bandang datang di jam orang tidur. Tiap perekaman sekaligus
-// menghangatkan cache yang dibaca halaman publik. Pemangkasan riwayat lama menempel
-// pada perintah yang sama.
+// Sensor EWS banjir bandang (Pilar 4), tiap 5 menit. Riwayat harus terkumpul
+// terlepas dari ada tidaknya pengunjung. Tiap perekaman sekaligus menghangatkan
+// cache halaman publik; pemangkasan riwayat lama menempel pada perintah yang sama.
 Schedule::command('ews:record')
     ->everyFiveMinutes()
     ->withoutOverlapping()

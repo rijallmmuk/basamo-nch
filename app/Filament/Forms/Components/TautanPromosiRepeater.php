@@ -12,11 +12,8 @@ use Filament\Schemas\Components\Utilities\Get;
 /**
  * Daftar tautan promosi UMKM, dipakai form Profil Usaha maupun form Produk.
  *
- * Sebelumnya repeater ini ditulis dua kali dengan isi identik, dan keduanya hanya
- * memeriksa bahwa isian berbentuk URL. Platform tidak pernah dicocokkan dengan
- * alamatnya, sehingga pemilik dapat memilih "Instagram" lalu menempel alamat apa
- * pun; di etalase publik pengunjung melihat label Instagram yang membawanya ke
- * tempat lain. Domain sahnya sendiri hidup di {@see TautanPlatform::hosts()}.
+ * Platform wajib cocok dengan domain URL-nya; daftar domain sahnya ada di
+ * {@see TautanPlatform::hosts()}.
  */
 class TautanPromosiRepeater extends Repeater
 {
@@ -40,8 +37,7 @@ class TautanPromosiRepeater extends Repeater
                     ->required()
                     ->native(false)
                     ->searchable()
-                    // Alamat yang sudah diketik ikut diperiksa ulang begitu
-                    // platformnya diganti, bukan menunggu tombol Simpan.
+                    // Mengganti platform memeriksa ulang alamat yang sudah diketik.
                     ->live(),
 
                 TextInput::make('url')
@@ -54,8 +50,7 @@ class TautanPromosiRepeater extends Repeater
                     ->rule(fn (Get $get): Closure => static function (string $attribute, mixed $value, Closure $fail) use ($get): void {
                         $platform = TautanPlatform::tryFrom((string) $get('platform'));
 
-                        // Platform kosong sudah ditangani `required` miliknya sendiri;
-                        // menambah galat kedua di sini hanya membingungkan.
+                        // Platform kosong sudah ditangani `required` miliknya sendiri.
                         if (! $platform instanceof TautanPlatform || ! is_string($value) || trim($value) === '') {
                             return;
                         }

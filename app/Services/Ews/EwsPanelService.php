@@ -13,9 +13,8 @@ use Illuminate\Support\Collection;
  * Bahan tampilan pemantauan EWS untuk halaman publik dan panel.
  *
  * Halaman dirender dari pembacaan TERAKHIR yang sudah tersimpan, bukan dengan
- * menunggu Blynk. Satu panggilan Blynk memakan sekitar 2,5 detik, dan halaman
- * kebencanaan justru harus terbuka cepat. Penyegaran nilai dilakukan terpisah
- * lewat endpoint JSON yang membaca cache.
+ * menunggu Blynk yang memakan sekitar 2,5 detik. Penyegaran nilai dilakukan
+ * terpisah lewat endpoint JSON yang membaca cache.
  */
 class EwsPanelService
 {

@@ -40,10 +40,8 @@ class NagariPerformanceTableWidget extends BaseWidget
                         'users as total_warga' => fn ($q) => $q->role('warga'),
                         'umkmProfiles as total_umkm',
                     ])
-                    // Seluruh angka dirakit jadi subquery pada query utama. Sebelumnya
-                    // tiga kolom menjalankan query sendiri UNTUK TIAP BARIS, sehingga
-                    // beban tabel tumbuh seiring banyaknya nagari dan tak satu pun
-                    // angka itu dapat diurutkan.
+                    // Seluruh angka dirakit sebagai subquery pada query utama, bukan
+                    // query per baris, supaya kolomnya dapat diurutkan.
                     ->addSelect([
                         'total_penduduk' => Penduduk::selectRaw('COUNT(*)')
                             ->whereColumn('penduduk.nagari_id', 'nagaris.id'),

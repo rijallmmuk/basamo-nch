@@ -7,18 +7,13 @@ use App\Models\Nagari;
 use App\Support\Auth\KonteksLogin;
 
 /**
- * Sumber tunggal navigasi situs publik.
+ * Sumber tunggal navigasi situs publik; header, navigasi ponsel, dan footer
+ * membaca dari sini.
  *
- * Header, panel navigasi ponsel, dan footer WAJIB membaca dari sini. Sebelumnya
- * ketiganya menyusun daftarnya masing-masing di dalam layout, lengkap dengan
- * pengulangan pemilihan rute subdomain versus rute fallback `/n/{slug}` sebanyak
- * lima kali. Setiap penambahan halaman berarti menyunting tiga tempat dan berisiko
- * satu di antaranya terlewat.
- *
- * DUA BENTUK ALAMAT. Di produksi tiap nagari memakai subdomain `{slug}.domain`;
- * di pengembangan lokal tanpa wildcard DNS dipakai `/n/{slug}`. Seluruh tautan
- * harus mengikuti bentuk yang SEDANG dipakai pengunjung, kalau tidak ia terlempar
- * ke host yang belum tentu ada. Pemilihannya dipusatkan di {@see rute()}.
+ * Nagari punya dua bentuk alamat: subdomain `{slug}.domain` di produksi dan
+ * `/n/{slug}` sebagai fallback. Tautan harus mengikuti bentuk yang sedang dipakai
+ * pengunjung, kalau tidak ia terlempar ke host yang belum tentu ada. Pemilihannya
+ * dipusatkan di {@see rute()}.
  */
 final class PublicNavigation
 {
@@ -55,10 +50,8 @@ final class PublicNavigation
             [
                 'href' => self::rute('public.nagari.slc', $nagari),
                 'label' => 'Medan Nan Balinduang',
-                // Halaman detail memakai nama rute tersendiri, BUKAN turunan `.slc`.
-                // Tanpa pola keduanya, membuka satu pelatihan atau satu produk
-                // memadamkan seluruh menu dan pengunjung kehilangan petunjuk sedang
-                // berada di pilar mana. Versi induk sudah lama menyebutkannya.
+                // Halaman detail bernama rute tersendiri, bukan turunan `.slc`, jadi
+                // polanya harus disebut agar menu tetap menyala di sana.
                 'route' => ['public.nagari.slc*', 'public.nagari.pelatihan*'],
                 'icon' => 'heroicon-o-academic-cap',
             ],
@@ -78,9 +71,8 @@ final class PublicNavigation
     }
 
     /**
-     * Situs induk. Keempat pilar punya halamannya masing-masing lintas nagari,
-     * termasuk Medan Nan Bapaneh yang isinya masih berstatus dalam perencanaan;
-     * Peta tetap berupa bagian beranda karena merupakan pengantar jaringan mitra.
+     * Situs induk. Keempat pilar punya halaman lintas nagari; Peta tetap berupa
+     * bagian beranda.
      *
      * @return list<array{href: string, label: string, route: string|list<string>|null, icon: string}>
      */
@@ -141,10 +133,9 @@ final class PublicNavigation
     /**
      * URL situs induk untuk tautan lintas situs.
      *
-     * WAJIB dari APP_URL, BUKAN route('public.home'). Rute publik tidak terikat
-     * domain, sehingga saat dipanggil dari subdomain nagari ia membangkitkan host
-     * subdomain itu sendiri, dan tautan "menuju induk" justru berputar kembali ke
-     * halaman nagari yang sama.
+     * WAJIB dari APP_URL, bukan route('public.home'). Rute publik tidak terikat
+     * domain, jadi dipanggil dari subdomain nagari ia membangkitkan host subdomain
+     * itu sendiri dan tautannya berputar kembali ke halaman yang sama.
      */
     public static function indukUrl(): string
     {
@@ -152,25 +143,16 @@ final class PublicNavigation
     }
 
     /**
-     * Alamat tombol Masuk untuk halaman yang SEDANG dibuka.
+     * Alamat tombol Masuk untuk halaman yang sedang dibuka.
      *
-     * Halaman publik bukan cuma pintu masuk yang seragam: orang yang menekan
-     * Masuk di Lapau Nagari sedang memikirkan lapaknya, yang menekannya di Medan
-     * Nan Balinduang sedang memikirkan pelatihan. Gerbang itulah yang dititipkan
-     * di sini supaya login dapat mengantar ke area yang tepat.
+     * Gerbang dititipkan lewat URL supaya login mengantar ke area yang sesuai
+     * halaman asalnya. Diturunkan dari NAMA ROUTE, bukan header `Referer`, yang
+     * dapat dibuang proxy maupun setelan privasi peramban.
      *
-     * Diturunkan dari NAMA ROUTE halaman, bukan dari header `Referer`. Referer
-     * dapat dibuang proxy maupun setelan privasi peramban, dan fitur ini akan
-     * gagal secara acak tanpa jejak kalau bergantung padanya.
-     *
-     * $gerbang boleh diisi untuk tombol yang maksudnya lebih tegas daripada
-     * halamannya, misalnya ajakan masuk portal belajar yang berdiri di beranda
-     * nagari. Beranda itu sendiri netral, tombolnya tidak.
-     *
-     * $pelatihanId membuat tautannya menunjuk satu pelatihan tertentu, sehingga
-     * orang yang menekan Masuk dari halaman muka sebuah pelatihan mendarat di
-     * pelatihan itu juga, bukan di beranda portal. Yang dititipkan cuma ID-nya;
-     * alamatnya dirakit di sisi kita setelah hak aksesnya diperiksa.
+     * $gerbang diisi untuk tombol yang maksudnya lebih tegas daripada halamannya,
+     * misalnya ajakan masuk portal belajar di beranda nagari yang netral.
+     * $pelatihanId membuat tujuannya satu pelatihan tertentu; yang dititipkan
+     * hanya ID-nya, alamatnya dirakit setelah hak akses diperiksa.
      */
     public static function masukUrl(?GerbangLogin $gerbang = null, ?int $pelatihanId = null): string
     {

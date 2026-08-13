@@ -54,10 +54,9 @@ class EnsureNagariSiteMatchesUser
         }
 
         // Halaman publik nagari tetap terbuka, termasuk bagi warga nagari lain yang
-        // kebetulan sedang login. Pengecualiannya berdasarkan awalan nama route
-        // `public.`/`seo.`, BUKAN daftar route yang ditulis satu per satu: middleware ini
-        // dipasang ke seluruh grup web supaya route terautentikasi yang ditambahkan
-        // kelak ikut terjaga tanpa perlu diingat-ingat.
+        // sedang login. Pengecualiannya memakai AWALAN nama route `public.`/`seo.`,
+        // bukan daftar route satu per satu, supaya route terautentikasi yang
+        // ditambahkan kemudian ikut terjaga dengan sendirinya.
         $routeName = (string) $request->route()?->getName();
 
         if (str_starts_with($routeName, 'public.') || str_starts_with($routeName, 'seo.')) {

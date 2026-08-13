@@ -9,29 +9,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
- * Tujuan sesudah login = fungsi dari KONTEKS dan IDENTITAS, bukan salah satunya.
+ * Tujuan sesudah login: konteks halaman menentukan AREA, identitas menentukan HOST.
  *
- * Konteks (gerbang halaman, pelatihan yang sedang dilihat) menentukan AREA,
- * identitas menentukan HOST. Pemisahan itu yang membuat "boleh login dari halaman
- * mana pun" tidak berarti "boleh berada di area privat nagari orang lain": siapa
- * pun boleh menekan Masuk di situs nagari tetangga, lalu dipulangkan ke rumahnya
- * sendiri.
- *
- * Dipisahkan dari AuthController karena inilah satu-satunya bagian login yang
- * berupa matriks. Menaruhnya di controller akan menumbuhkan rantai `if` sepanjang
- * layar di tengah alur yang sudah padat dengan rem laju, pemeriksaan status akun,
- * dan audit sesi.
+ * Host tempat orang menekan Masuk bukan masukan sama sekali. Itulah yang membuat
+ * login dapat dilakukan dari halaman publik mana pun tanpa memberi akses ke area
+ * privat nagari lain.
  */
 class TujuanSetelahLogin
 {
     public function __construct(private readonly Request $request) {}
 
-    /**
-     * Host tempat login dilakukan SENGAJA tidak menjadi masukan. Sejak warga dan
-     * operator selalu dipulangkan ke nagarinya, tujuan tidak lagi bergantung pada
-     * dari mana orang menekan Masuk, dan itulah yang membuat "boleh login dari
-     * halaman mana pun" bisa dinyatakan dalam satu kalimat.
-     */
     public function untuk(User $user, KonteksLogin $konteks): TujuanLogin
     {
         [$path, $pesan] = $this->area($user, $konteks);
@@ -40,15 +27,10 @@ class TujuanSetelahLogin
     }
 
     /**
-     * Alamat dasbor akun ini, di host yang berhak ia tempati.
+     * Alamat dasbor akun ini, dipakai header situs publik.
      *
-     * Dipakai header situs publik, yang menghadapi persoalan yang sama persis
-     * dengan login hanya tanpa konteks halaman: pertanyaannya tetap "akun ini
-     * rumahnya di mana". Sebelumnya header merakit tautannya sendiri dengan
-     * `route('portal.home')`, dan rute portal tidak terikat domain sehingga
-     * alamatnya ikut host yang sedang dibuka. Warga Nagari A yang membuka situs
-     * Nagari B karena itu disodori tombol Dashboard menuju `nagari-b/portal`,
-     * yang dijawab 403 oleh {@see \App\Http\Middleware\EnsureNagariSiteMatchesUser}.
+     * Rute portal dan panel tidak terikat domain, jadi `route()` di dalam view
+     * mengikuti host yang sedang dibuka. Tautan akun harus dirakit dari sini.
      */
     public function dasbor(User $user): string
     {
@@ -58,13 +40,11 @@ class TujuanSetelahLogin
     }
 
     /**
-     * Alamat keluar, juga di host akun ini sendiri.
+     * Alamat logout di host akun ini sendiri.
      *
-     * `portal.logout` berupa POST dan bukan route `public.*`, jadi penjaga batas
-     * situs menolaknya dengan 403 saat ditekan dari situs nagari lain. Tombol
-     * Keluar pun mati persis ketika orang paling membutuhkannya. Cookie sesi
-     * berlaku lintas subdomain dan SameSite menghitung subdomain sebagai satu
-     * situs, sehingga POST ke host sendiri tetap membawa sesi dan token CSRF-nya.
+     * `portal.logout` bukan route `public.*`, jadi POST dari situs nagari lain
+     * ditolak 403 oleh EnsureNagariSiteMatchesUser. Sesi berlaku lintas subdomain,
+     * sehingga POST ke host sendiri tetap membawa cookie dan token CSRF-nya.
      */
     public function keluar(User $user): string
     {
@@ -72,19 +52,12 @@ class TujuanSetelahLogin
     }
 
     /**
-     * Host yang berhak ditempati akun ini, TANPA memandang dari mana ia login.
+     * Host yang berhak ditempati akun ini, terlepas dari tempat ia login.
      *
-     * - Peran lintas nagari bekerja di ruang global, jadi selalu domain induk.
-     *   Alamat nagari tertentu akan menyiratkan konteks tenant yang tidak sedang
-     *   diterapkan.
-     * - Warga dan operator SELALU dipulangkan ke subdomain nagarinya, termasuk
-     *   ketika mereka login dari domain induk. Satu akun berarti satu alamat
-     *   rumah, dan itu yang membuat "boleh login dari mana saja" tidak berubah
-     *   menjadi "punya dua alamat yang sama-sama sah".
-     *
-     * Nagari yang tidak ada seharusnya mustahil di titik ini: login sudah menolak
-     * warga maupun operator tanpa relasi nagari. Kalau toh terjadi, domain induk
-     * jauh lebih baik daripada merakit hostname dari slug yang kosong.
+     * Peran lintas nagari selalu ke domain induk; warga dan operator selalu ke
+     * subdomain nagarinya, termasuk saat login dari domain induk. Warga dan
+     * operator tanpa nagari sudah ditolak saat login, jadi cabang terakhir cuma
+     * jaring pengaman.
      */
     private function hostKanonik(User $user): string
     {
@@ -99,10 +72,7 @@ class TujuanSetelahLogin
         return $rumah !== null ? $this->hostNagari($rumah) : $induk;
     }
 
-    /**
-     * Alamat situs sebuah nagari, mengikuti skema dan porta permintaan berjalan
-     * supaya tetap benar saat `php artisan serve` memakai porta selain 80/443.
-     */
+    /** Alamat situs nagari, mengikuti skema dan porta permintaan berjalan. */
     private function hostNagari(Nagari $nagari): string
     {
         $port = $this->request->getPort();
@@ -122,9 +92,7 @@ class TujuanSetelahLogin
         $panel = route('filament.panel.pages.dashboard', absolute: false);
         $portal = route('portal.home', absolute: false);
 
-        // Back-office selalu ke dasbor panel, apa pun gerbangnya. Panel sudah
-        // menampilkan menu sesuai perannya, jadi tidak ada yang perlu dituju
-        // lebih spesifik dari itu.
+        // Back-office selalu ke dasbor panel, apa pun gerbangnya.
         if (! $this->adalahWarga($user)) {
             return [$panel, null];
         }
@@ -132,16 +100,11 @@ class TujuanSetelahLogin
         return match ($konteks->gerbang) {
             GerbangLogin::Belajar => $this->tujuanBelajar($user, $konteks, $portal),
 
-            // Pemilik lapak mendarat di dasbor panel, yang bagi akun self-service
-            // memang berisi ringkasan lapaknya sendiri. Warga tanpa akses tetap
-            // boleh masuk lewat Lapau Nagari, hanya saja rumahnya bukan di sana.
             GerbangLogin::Umkm => $user->usesUmkmSelfService()
                 ? [$panel, null]
                 : [$portal, 'Akun Anda belum diberi akses pengelolaan lapak. Hubungi Operator Nagari bila usaha Anda ingin tampil di Lapau Nagari.'],
 
-            // Halaman netral: pertahankan perilaku lama persis. Warga berakses UMKM
-            // tetap mendarat di panel, sebab itulah beranda yang selama ini ia
-            // kenal, dan mengubahnya bukan bagian dari permintaan gerbang.
+            // Halaman netral: warga berakses UMKM tetap mendarat di panel.
             null => [$user->hasUmkmAccess() ? $panel : $portal, null],
         };
     }
@@ -149,11 +112,8 @@ class TujuanSetelahLogin
     /**
      * Gerbang belajar, dengan tautan langsung ke pelatihan yang sedang dilihat.
      *
-     * Id-nya diperiksa lewat penjaga yang SAMA dengan halaman tujuannya
-     * (`accessibleToWarga`, dipakai PelatihanController::show). Memakai penjaga
-     * yang berbeda akan melempar orang ke halaman yang justru membalas 404 tepat
-     * sesudah login berhasil, yang jauh lebih membingungkan daripada mendarat di
-     * beranda portal.
+     * Kelayakan id diperiksa dengan penjaga yang sama dengan halaman tujuannya
+     * (`accessibleToWarga`), supaya tidak mendarat di 404 sesudah login berhasil.
      *
      * @return array{0: string, 1: ?string}
      */

@@ -26,11 +26,8 @@ class EnsureAdminSessionTracked
         }
 
         // Masuk kembali lewat cookie "Ingat saya" berarti sesi BARU yang sah, bukan
-        // sesi lama yang lolos dari pengauditan. Sebelumnya keduanya diperlakukan
-        // sama, sehingga superadmin dan operator selalu dilempar ke halaman masuk
-        // begitu sesinya kedaluwarsa: kotak "Ingat saya" tampak ada tapi tak pernah
-        // berlaku justru bagi peran yang paling sering memakai panel. Sesi baru ini
-        // diberi referensi auditnya sendiri, jadi jejaknya tetap utuh.
+        // sesi lama yang lolos dari pengauditan. Sesi ini diberi referensi auditnya
+        // sendiri agar jejaknya tetap utuh.
         if (Auth::viaRemember()) {
             $this->sharedSession->start($user, $request);
 

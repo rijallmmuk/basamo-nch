@@ -1,9 +1,7 @@
 @extends('public.layouts.app')
 
-{{-- Dipakai DUA konteks: pilar milik satu nagari ($nagari terisi) dan pilar tingkat
-     induk ($nagari null). Sengaja satu berkas, sebab isinya sama persis kecuali
-     penyebutan nama nagari, dan dua salinan pasti melenceng saat pilar ini akhirnya
-     benar-benar diisi. --}}
+{{-- Dipakai dua konteks: pilar milik satu nagari ($nagari terisi) dan pilar tingkat
+     induk ($nagari null). --}}
 @php
     $nagari = $nagari ?? null;
     $milik = $nagari ? $nagari->nama_lengkap : 'nagari mitra BASAMO NCH';

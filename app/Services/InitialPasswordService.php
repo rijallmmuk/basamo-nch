@@ -9,10 +9,8 @@ use RuntimeException;
  * Password awal akun yang dibuatkan operator, dipakai sekali lalu WAJIB diganti
  * pemiliknya saat pertama masuk.
  *
- * Nilainya datang dari environment, TIDAK pernah dari kode. Sebelumnya lima
- * password ini tertulis sebagai konstanta di berkas ini, dan berkas ini ikut ke
- * repo: siapa pun yang membuka GitHub tahu password awal superadmin. Environment
- * tidak ikut ke repo, jadi tiap lingkungan memakai nilainya sendiri.
+ * Nilainya datang dari environment, TIDAK pernah dari kode: berkas ini ikut ke repo,
+ * environment tidak, sehingga tiap lingkungan memakai nilainya sendiri.
  *
  * Satu password bersama (`INITIAL_PASSWORD`) sudah cukup untuk semua peran.
  * `INITIAL_PASSWORD_<PERAN>` hanya perlu diisi bila satu peran memang harus
@@ -40,9 +38,8 @@ class InitialPasswordService
      * Password awal untuk sebuah peran.
      *
      * Sengaja MELEMPAR, bukan mengembalikan string kosong, bila environment belum
-     * diisi. Diam-diam memakai '' berarti membuat akun dengan password kosong yang
-     * hash-nya tetap valid, dan tak seorang pun akan menyadarinya sampai akun itu
-     * dibobol.
+     * diisi: password kosong tetap menghasilkan hash yang valid, jadi kegagalannya
+     * tidak akan terlihat.
      */
     public function forRole(?string $role): string
     {

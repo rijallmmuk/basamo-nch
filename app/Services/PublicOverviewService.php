@@ -48,10 +48,9 @@ class PublicOverviewService
             DemografiData::tanpaTanggalLahir($nagari?->getKey(), $hanyaNagariAktif),
         );
 
-        // Statistik publik sengaja dihitung dari sumber yang sama dengan dashboard,
-        // tanpa cache snapshot. Impor warga memakai bulk insert (melewati event
-        // model), sehingga cache 15 menit sebelumnya dapat mempertahankan angka 0
-        // ketika dashboard sudah membaca ribuan penduduk yang baru masuk.
+        // Dihitung dari sumber yang sama dengan dashboard, TANPA cache snapshot.
+        // Impor warga memakai bulk insert yang melewati event model, jadi cache
+        // berumur panjang akan menahan angka lama setelah ribuan penduduk masuk.
         return [
             ...$hasil,
             'gender' => $this->gender($demografi),

@@ -37,8 +37,7 @@ class SuperadminDashboardData
 
         $umkmCount = UmkmProfile::count();
         $productCount = UmkmProduct::count();
-        // Kunjungan PRODUK dijumlahkan dari produk. Sebelumnya baris ini menjumlah
-        // `umkm_profiles`, sehingga kunjungan etalase disajikan sebagai kunjungan produk.
+        // Kunjungan produk dan kunjungan etalase dua angka berbeda; jangan tertukar.
         $productTotalViews = (int) UmkmProduct::sum('jumlah_dilihat');
         $etalaseTotalViews = (int) UmkmProfile::sum('jumlah_dilihat');
 

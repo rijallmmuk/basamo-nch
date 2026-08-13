@@ -21,11 +21,10 @@ use Illuminate\Support\Facades\Log;
  * server kita sendiri.
  *
  * SATU PERMINTAAN PER LOKASI, bukan lima. Blynk menerima banyak pin sekaligus
- * (`&v0&v1&v2&v5&v6`) dan menjawab JSON. Acuan lama menembak 5 kali tiap 3 detik
- * PER PENGUNJUNG; beberapa pembuka halaman sekaligus sudah cukup menembus batas
- * laju Blynk dan mematikan pemantauan justru saat paling dibutuhkan.
+ * (`&v0&v1&v2&v5&v6`) dan menjawab JSON. Menembak per pin per pengunjung menembus
+ * batas laju Blynk begitu beberapa orang membuka halaman bersamaan.
  *
- * Ketahanan mengikuti pola BmkgWeatherService yang sudah terbukti di proyek ini:
+ * Ketahanan mengikuti pola BmkgWeatherService:
  * - Gagal ambil TIDAK BOLEH merusak halaman publik: selalu null, jangan throw.
  * - Kegagalan ikut di-cache (durasi pendek) supaya saat Blynk down tidak setiap
  *   pengunjung menunggu timeout.

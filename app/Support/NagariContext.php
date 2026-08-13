@@ -5,18 +5,15 @@ namespace App\Support;
 use App\Models\Nagari;
 
 /**
- * Konteks "nagari yang sedang dikelola" oleh super admin — SATU KEY PER MENU (namespace),
- * bukan satu key global. Dulu (sebelum 2026-07-14) satu key dipakai bersama lintas
- * menu (Warga/Wilayah/UMKM), akibatnya memilih nagari di satu menu ikut "membocor" ke
- * menu lain yang tak terkait (termasuk menyembunyikan picker SDGs/Cuaca yang membaca
- * managedNagariId() sbg sinyal "sudah ada konteks, jangan tampilkan picker sendiri") —
- * bug dilaporkan user. Sekarang: tiap menu (WARGA/UMKM_PROFIL/UMKM_PRODUK)
- * punya key sesi sendiri, sepenuhnya independen satu sama lain. Menu lain (SDGs,
- * Cuaca) TIDAK memakai kelas ini sama sekali — mereka mandiri lewat properti
- * Livewire ($nagariId) sendiri. Dasbor MEMAKAI kelas ini (namespace DASHBOARD)
- * sejak 2026-07-31: superadmin dan DPMD menganalisis satu nagari terpilih, bukan
- * rata-rata seluruh nagari.
- * Disimpan di session (per-sesi, hilang saat logout). Operator nagari tak memakainya.
+ * Konteks "nagari yang sedang dikelola" oleh super admin, SATU KEY PER MENU
+ * (namespace), bukan satu key global.
+ *
+ * Key global membuat pilihan nagari di satu menu membocor ke menu lain yang tak
+ * terkait, termasuk menyembunyikan pemilih nagari yang membaca managedNagariId()
+ * sebagai sinyal "konteks sudah ada". Halaman SDGs dan Cuaca tidak memakai kelas
+ * ini sama sekali; keduanya mandiri lewat properti Livewire sendiri.
+ *
+ * Disimpan di session, hilang saat logout. Operator nagari tidak memakainya.
  */
 class NagariContext
 {

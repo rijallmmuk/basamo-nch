@@ -32,14 +32,10 @@ enum GerbangLogin: string
     /**
      * Gerbang dari nama route halaman publik, atau null bila halaman itu netral.
      *
-     * Dicocokkan pada PENGGALAN nama, bukan daftar nama lengkap. Satu halaman
-     * publik hidup dalam tiga keluarga route sekaligus: subdomain nagari
-     * (`public.nagari.slc`), domain induk (`public.slc`), dan fallback tanpa
-     * subdomain (`public.nagari.slc.fallback`). Mendaftar nama lengkap berarti
-     * menulis tiga baris untuk satu halaman dan lupa salah satunya, biasanya
-     * fallback, yang membuat fitur ini mati diam-diam justru di lingkungan tanpa
-     * DNS wildcard. Dengan mencocokkan penggalan, satu aturan melayani ketiganya
-     * dan halaman publik baru ikut tercakup tanpa perlu diingat-ingat.
+     * Dicocokkan pada PENGGALAN nama, bukan daftar nama lengkap. Satu halaman publik
+     * hidup dalam tiga keluarga route sekaligus: subdomain nagari
+     * (`public.nagari.slc`), domain induk (`public.slc`), dan fallback
+     * (`public.nagari.slc.fallback`). Satu aturan penggalan melayani ketiganya.
      */
     public static function dariNamaRute(?string $namaRute): ?self
     {

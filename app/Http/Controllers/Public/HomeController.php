@@ -16,15 +16,10 @@ use Illuminate\Contracts\View\View;
 /**
  * Beranda situs induk: dasbor platform lintas nagari.
  *
- * ANGKANYA NYATA, dibaca dari basis data. Sebelumnya halaman ini menampilkan
- * angka simulasi yang di-hardcode (12 nagari mitra, 28.450 warga, 245 UMKM)
- * dengan alasan "sementara dipakai untuk presentasi". Pada situs yang dilayankan
- * ke publik, angka karangan bukan sekadar tidak rapi: pengunjung, calon nagari
- * mitra, dan pemangku kepentingan akan mempercayainya.
+ * Seluruh angka dibaca dari basis data. Halaman ini dilayankan ke publik, jadi
+ * TIDAK BOLEH ada angka simulasi atau nilai contoh yang di-hardcode.
  *
- * Susunannya meniru dasbor superadmin karena keduanya menjawab pertanyaan yang
- * sama, "seberapa jauh ekosistem ini berjalan", hanya saja di sini tanpa satu pun
- * data pribadi.
+ * Susunannya mengikuti dasbor superadmin, tanpa satu pun data pribadi.
  */
 class HomeController extends Controller
 {
@@ -52,14 +47,7 @@ class HomeController extends Controller
         ]);
     }
 
-    /**
-     * Pilar 3 tingkat induk.
-     *
-     * Kartu pilar di beranda dulu menautkan pilar ini ke `#peta`, bagian yang isinya
-     * sama sekali lain, semata karena induk belum punya halamannya. Halaman ini yang
-     * menjadi tujuan sahnya. Tanpa data: statusnya memang masih dalam perencanaan,
-     * dan itu dinyatakan apa adanya alih-alih diisi angka karangan.
-     */
+    /** Pilar 3 tingkat induk. Tanpa data: statusnya masih dalam perencanaan. */
     public function bapaneh(): View
     {
         return view('public.bapaneh');

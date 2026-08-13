@@ -33,10 +33,8 @@ class NagariInfolist
                             ->size(TextSize::Large)
                             ->columnSpanFull(),
 
-                        // Alamat publik nagari. Sebelumnya slug hanya ada di form, jadi
-                        // satu-satunya cara melihat alamat situs sebuah nagari adalah
-                        // membuka halaman Ubah. Ditampilkan utuh berikut domainnya supaya
-                        // bisa disalin dan langsung dipakai.
+                        // Alamat publik nagari, ditampilkan utuh berikut domainnya
+                        // supaya bisa disalin dan langsung dipakai.
                         TextEntry::make('slug')
                             ->label('Alamat Situs')
                             ->state(fn (Nagari $record): string => $record->slug.'.'.config('app.public_base_domain'))

@@ -15,12 +15,9 @@
             ? 'Wajah digital '.$situsNagari->nama_lengkap.': data nagari, pelatihan warga, dan etalase UMKM dalam satu tempat.'
             : 'BASAMO Nagari Creative Hub menghubungkan Teras Nagari, Medan Nan Balinduang, Medan Nan Bapaneh, dan Lapau Nagari dalam satu ekosistem digital.';
 
-        /* `@section('nama', 'isi')` menyimpan isinya lewat e(), jadi yang keluar dari
-           yieldContent() SUDAH ter-escape sekali. Mencetaknya dengan {{ }} meng-escape
-           untuk kedua kalinya, dan judul "Nagari Creative Hub & Smart Learning Center"
-           tampil sebagai "... &amp; ..." di tab peramban maupun di pratinjau tautan
-           media sosial. Dikembalikan ke teks mentah di sini supaya {{ }} menjadi
-           satu-satunya lapis escape. */
+        /* `@section('nama', 'isi')` menyimpan isinya lewat e(), jadi keluaran
+           yieldContent() sudah ter-escape sekali. Dikembalikan ke teks mentah di sini
+           supaya {{ }} menjadi satu-satunya lapis escape. */
         $seksi = fn (string $nama, string $bawaan = ''): string => trim(
             html_entity_decode($__env->yieldContent($nama, $bawaan), ENT_QUOTES, 'UTF-8')
         );
@@ -121,10 +118,7 @@
 
     {{-- ── HEADER ─────────────────────────────────────────────────── --}}
     @php
-        /* Navigasi, tautan brand, dan URL induk seluruhnya dibaca dari satu sumber
-           (App\Support\PublicNavigation). Sebelumnya daftar item disusun di sini
-           lengkap dengan pemilihan rute subdomain versus fallback yang diulang lima
-           kali, dan footer menyusun tautannya sendiri lagi. */
+        /* Navigasi, brand, dan URL induk dibaca dari satu sumber: PublicNavigation. */
         $nagariSitus = $situsNagari;
         $navItems = \App\Support\PublicNavigation::items($nagariSitus);
         $footerPillars = $nagariSitus ? array_slice($navItems, 1) : $navItems;
@@ -133,12 +127,9 @@
 
         $kabupatenLogoSitus = $nagariSitus?->kabupatenLogoUrl();
 
-        /* Tautan akun dirakit di HOST MILIK PENGGUNA, bukan host yang sedang dibuka.
-           Rute portal sengaja tidak terikat domain, jadi `route()` di sini dulu
-           mengikuti hostname situs yang sedang ditampilkan: warga Nagari A yang
-           menengok situs Nagari B disodori tombol Dashboard dan Keluar yang
-           dua-duanya berakhir 403 di penjaga batas situs. Sumbernya disamakan
-           dengan tujuan setelah login, sebab pertanyaannya memang sama. */
+        /* Tautan akun dirakit di host milik pengguna, bukan host yang sedang dibuka.
+           Rute portal tidak terikat domain, jadi `route()` di sini akan mengikuti
+           hostname situs yang ditampilkan dan berakhir 403 di situs nagari lain. */
         $akun = auth()->user();
         $tujuanAkun = $akun ? app(\App\Support\Auth\TujuanSetelahLogin::class) : null;
         $dashboardUrl = $akun ? $tujuanAkun->dasbor($akun) : null;
@@ -150,8 +141,7 @@
             <a href="{{ $brandUrl }}" class="group flex shrink-0 items-center gap-3 transition-transform duration-300 hover:scale-105" aria-label="Beranda {{ $namaSitus }}">
                 @include('filament.brand')
 
-                {{-- Penanda nagari: pengunjung subdomain harus langsung tahu situs
-                     nagari mana yang sedang dibukanya. --}}
+                {{-- Penanda nagari yang sedang dibuka. --}}
                 @if($nagariSitus)
                     <span class="hidden items-center gap-2 border-l border-outline-variant pl-3 md:flex">
                         @if($kabupatenLogoSitus)
@@ -249,7 +239,7 @@
 
         <div class="relative z-10 mx-auto grid max-w-container-page grid-cols-1 gap-12 px-margin-mobile text-on-primary md:grid-cols-12 lg:px-margin-page">
             {{-- Identitas situs. Di subdomain nagari yang diperkenalkan adalah
-                 NAGARINYA, bukan platformnya: pengunjung datang untuk nagari itu. --}}
+                 nagarinya, bukan platformnya. --}}
             <div class="space-y-6 md:col-span-5">
                 @if($nagariSitus)
                     <div class="flex items-center gap-4 rounded-2xl bg-white/5 p-4 backdrop-blur-sm border border-white/10">
@@ -277,8 +267,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-10 md:col-span-7 md:grid-cols-3">
-                {{-- Daftar pilar dibaca dari sumber navigasi yang sama dengan header,
-                     jadi menambah halaman cukup disunting di satu tempat. --}}
+                {{-- Pilar dibaca dari sumber navigasi yang sama dengan header. --}}
                 <div class="space-y-4">
                     <h2 class="text-xs font-bold uppercase tracking-widest text-secondary-container">
                         {{ $nagariSitus ? 'Empat Pilar' : 'Jelajah' }}
@@ -319,14 +308,11 @@
                                 </form>
                             </li>
                         @else
-                            {{-- Sengaja "Masuk" saja, sama persis dengan tombol di header:
-                                 satu tindakan tidak boleh punya dua nama di satu situs. --}}
                             <li><a href="{{ \App\Support\PublicNavigation::masukUrl() }}" class="transition-colors hover:text-secondary-container">Masuk</a></li>
                         @endauth
                     </ul>
 
-                    {{-- Alamat situs nagari ditampilkan apa adanya supaya mudah
-                         disalin dan dibagikan warga lewat pesan singkat. --}}
+                    {{-- Alamat situs ditampilkan apa adanya agar mudah disalin. --}}
                     @if($nagariSitus?->slug && config('app.public_base_domain'))
                         <div class="pt-2">
                             <p class="text-[11px] font-bold uppercase tracking-widest text-secondary-container">Alamat Situs</p>

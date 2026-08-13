@@ -96,8 +96,7 @@ Route::redirect('belajar', '/medan-nan-balinduang', 301);
 Route::get('belajar/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
 Route::redirect('umkm', '/lapau-nagari', 301);
 
-// Ejaan lama "medang". Pengalihannya sudah ada di grup nagari dan grup fallback,
-// tetapi katalog tingkat induk terlewat sehingga bookmark lamanya berakhir 404.
+// Ejaan lama "medang", padanan dari pengalihan di grup nagari dan grup fallback.
 Route::get('medang-nan-balinduang', fn () => redirect()->route('public.slc', [], 301));
 Route::get('medang-nan-balinduang/{pelatihan}', fn (string $pelatihan) => redirect()->route('public.pelatihan', $pelatihan, 301));
 Route::post('kontak', [KontakController::class, 'store'])->name('public.kontak.store');

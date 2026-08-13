@@ -21,10 +21,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * Membangun template Excel impor warga.
  *
  * Kolom pilihan (sex, agama_id, pendidikan_id, pekerjaan_id, status_kawin_id) diisi
- * lewat DROPDOWN berisi nama pilihan, bukan angka. Sebelumnya kolom-kolom itu hanya
- * menerima ID mentah dan pengisi harus bolak-balik ke sheet "Referensi" untuk tahu
- * angka 13 itu pekerjaan apa. Daftar pilihannya dibangun dari tabel referensi saat
- * berkas diunduh, jadi selalu sama persis dengan isi sistem.
+ * lewat DROPDOWN berisi nama pilihan, bukan ID mentah. Daftar pilihannya dibangun
+ * dari tabel referensi saat berkas diunduh, jadi selalu selaras dengan isi sistem.
  *
  * Nama kolom tetap berakhiran "_id" dan {@see WargaImportService} tetap menerima ID
  * mentah: skema ini SENGAJA disamakan dengan ekspor penduduk OpenSID milik nagari

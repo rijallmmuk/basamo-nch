@@ -122,8 +122,7 @@ class OperatorDashboardData
     }
 
     /**
-     * Progres enam modul teratas. Hitungannya SATU query beragregat, bukan dua query
-     * per modul seperti sebelumnya.
+     * Progres enam modul teratas, dihitung dengan satu query beragregat.
      *
      * @return array<string, mixed>
      */

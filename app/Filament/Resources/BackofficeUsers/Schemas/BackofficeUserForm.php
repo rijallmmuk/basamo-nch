@@ -119,9 +119,7 @@ class BackofficeUserForm
                     Select::make('role_names')
                         ->label('Peran')
                         ->prefixIcon('heroicon-m-shield-check')
-                        // Satu akun = satu peran. Sebelumnya field ini multiple
-                        // padahal BackofficeUserService sudah menolak lebih dari
-                        // satu, jadi pengguna baru tahu setelah menekan Simpan.
+                        // Satu akun = satu peran, sejalan dengan BackofficeUserService.
                         ->native(false)
                         ->options(function (string $operation, ?User $record): array {
                             $coreRoles = collect([

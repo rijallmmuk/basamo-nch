@@ -128,12 +128,8 @@ class MaterisRelationManager extends RelationManager
                         ->directory('modules/blocks/pdf')
                         ->visibility('private')
                         ->preventFilePathTampering(allowFilePathUsing: BlockFilePath::allow($disk, 'modules/blocks/pdf'))
-                        // TANPA kompresi. Sebelumnya PDF dilewatkan Ghostscript saat
-                        // menyimpan, dan itu berjalan di dalam request: satu materi
-                        // berisi beberapa PDF bisa menahan penyimpanan sampai menitan,
-                        // melewati batas waktu proxy, sehingga berkasnya baru muncul
-                        // jauh setelah pengajar mengira penyimpanan gagal. Hemat
-                        // penyimpanan tidak sebanding dengan itu.
+                        // TANPA kompresi. Melewatkan PDF ke Ghostscript berjalan di
+                        // dalam request dan dapat menembus batas waktu proxy.
                         ->required()
                         ->maxSize(self::MAX_UKURAN_KB)
                         ->helperText('Hanya PDF, maksimal 20 MB.')

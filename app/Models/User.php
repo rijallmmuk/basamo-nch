@@ -210,11 +210,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia
      * Nama role yang DIPENSIUNKAN dan haram dipakai ulang, ditegakkan di
      * {@see AppServiceProvider} lewat hook Role::creating/updating.
      *
-     * `umkm` dulunya role, sejak 2026-07-29 menjadi kapabilitas yang dibaca dari
-     * `umkm_access_granted_at` (lihat {@see hasUmkmAccess()}). Membuatnya kembali
-     * berbahaya karena menyesatkan: namanya menjanjikan akses UMKM, padahal tak
-     * ada satu pun kode yang membacanya, dan justru diperlakukan sebagai role
-     * custom yang MEMBATASI akses lewat allow-list permission di Gate::before.
+     * `umkm` kini kapabilitas yang dibaca dari `umkm_access_granted_at`
+     * (lihat {@see hasUmkmAccess()}), bukan role. Membuatnya kembali menyesatkan:
+     * namanya menjanjikan akses UMKM, tetapi tidak ada kode yang membacanya, dan
+     * Gate::before memperlakukannya sebagai role custom yang justru MEMBATASI akses.
      *
      * @var list<string>
      */

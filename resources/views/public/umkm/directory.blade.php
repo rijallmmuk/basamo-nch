@@ -82,10 +82,8 @@
         </div>
 
         @if($usaha->isEmpty())
-            {{-- Keadaan kosong apa adanya. Sebelumnya di sini tampil DELAPAN usaha
-                 karangan lengkap dengan nama pemilik, kategori, jumlah produk, dan
-                 deskripsinya; pengunjung tidak punya cara tahu itu bukan usaha
-                 sungguhan di nagari ini. --}}
+            {{-- Keadaan kosong apa adanya. Jangan isi dengan usaha contoh: pengunjung
+                 tidak punya cara membedakannya dari usaha sungguhan. --}}
             <x-public.empty-state
                 icon="heroicon-o-building-storefront"
                 :title="collect($filters)->filter()->isNotEmpty() ? 'Lapau usaha tidak ditemukan' : 'Belum ada lapau usaha yang tayang'"

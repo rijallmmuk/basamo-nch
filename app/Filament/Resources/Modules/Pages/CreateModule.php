@@ -31,11 +31,10 @@ class CreateModule extends CreateRecord
     {
         $actor = auth()->user();
 
-        // Setiap modul WAJIB bernaung pada satu pelatihan. Pengelola yang belum punya
-        // pelatihan sebelumnya hanya disodori pilihan kosong tanpa penjelasan, jadi
-        // ia diarahkan membuat pelatihannya lebih dulu.
+        // Setiap modul WAJIB bernaung pada satu pelatihan, jadi pengelola yang belum
+        // punya pelatihan diarahkan membuatnya lebih dulu.
         //
-        // DPMD/warga tetap jatuh ke parent::mount() agar penolakan otorisasinya
+        // DPMD dan warga tetap jatuh ke parent::mount() agar penolakan otorisasinya
         // berjalan seperti biasa, bukan berubah menjadi pengalihan.
         if (($actor?->isPengajar() || $actor?->isOperator() || $actor?->isSuperAdmin())
             && ! request()->integer('pelatihan')
