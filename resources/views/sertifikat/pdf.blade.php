@@ -7,16 +7,17 @@
     $emasMuda = '#d9ad4e';
     $redup = '#5b6672';
 
-    // Nama diturunkan ukurannya bertahap supaya tetap satu baris. Nama yang pecah
-    // dua baris mendorong blok pengesahan sampai menabrak kaki halaman.
+    /* Ukuran nama DIHITUNG, bukan dipilih dari beberapa tingkat tetap. Nama yang
+       pecah dua baris mendorong blok pengesahan sampai menabrak garis kaki, dan
+       tangga bertingkat selalu bocor pada panjang yang tidak terduga.
+
+       0.68 adalah rata-rata lebar karakter DejaVu Serif Bold dalam satuan em,
+       diukur dari hasil render, bukan dikira-kira. Lebar aman 720pt = lebar A4
+       lanskap (842pt) dikurangi margin kiri kanan dan sedikit sisa. */
     $nama = $warga->name;
-    $panjangNama = mb_strlen($nama);
-    $ukuranNama = match (true) {
-        $panjangNama > 44 => 22,
-        $panjangNama > 34 => 26,
-        $panjangNama > 24 => 30,
-        default => 34,
-    };
+    $lebarAman = 720;
+    $ukuranNama = (int) floor($lebarAman / max(1, mb_strlen($nama) * 0.68));
+    $ukuranNama = max(15, min(34, $ukuranNama));
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -51,7 +52,7 @@
         .sudut-ba { bottom: 21pt; left: 21pt; border-bottom: 3pt solid {{ $emas }}; border-left: 3pt solid {{ $emas }}; }
         .sudut-bn { bottom: 21pt; right: 21pt; border-bottom: 3pt solid {{ $emas }}; border-right: 3pt solid {{ $emas }}; }
 
-        .isi { position: absolute; top: 46pt; left: 52pt; right: 52pt; text-align: center; }
+        .isi { position: absolute; top: 40pt; left: 52pt; right: 52pt; text-align: center; }
 
         .lembaga {
             margin-top: 8pt;
@@ -88,7 +89,7 @@
             color: {{ $redup }};
         }
 
-        .antar { margin-top: 26pt; font-size: 10pt; color: {{ $redup }}; }
+        .antar { margin-top: 22pt; font-size: 10pt; color: {{ $redup }}; }
 
         .nama {
             margin-top: 4pt;
@@ -103,7 +104,7 @@
             border-top: 0.8pt solid {{ $emasMuda }};
         }
 
-        .keterangan { margin-top: 16pt; font-size: 10pt; color: {{ $redup }}; }
+        .keterangan { margin-top: 14pt; font-size: 10pt; color: {{ $redup }}; }
         .tema {
             margin-top: 6pt;
             font-family: "DejaVu Serif", serif;
@@ -116,7 +117,7 @@
            ini diterbitkan sistem, dan mencantumkan tanda tangan yang tidak pernah
            dibubuhkan siapa pun akan menjadikannya dokumen palsu. Yang dinyatakan
            hanyalah lembaga penerbit dan tanggalnya. */
-        .sah { margin-top: 30pt; }
+        .sah { margin-top: 24pt; }
         .sah-tanggal { font-size: 9pt; color: {{ $redup }}; }
         .sah-garis {
             width: 150pt;
@@ -142,7 +143,7 @@
             left: 52pt; right: 52pt; bottom: 42pt;
         }
         .kaki table { width: 100%; border-collapse: collapse; }
-        .kaki td { vertical-align: bottom; font-size: 8pt; color: {{ $redup }}; }
+        .kaki td { vertical-align: top; font-size: 8pt; color: {{ $redup }}; }
         .kaki .label {
             font-size: 6.5pt;
             font-weight: bold;
