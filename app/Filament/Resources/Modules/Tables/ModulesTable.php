@@ -20,8 +20,8 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -66,13 +66,9 @@ class ModulesTable
                     ->color('gray')
                     ->alignCenter(),
 
-                SpatieMediaLibraryImageColumn::make('cover')
+                ViewColumn::make('cover')
                     ->label('Cover')
-                    ->collection('cover')
-                    ->conversion('card')
-                    ->height(48)
-                    ->width(64)
-                    ->defaultImageUrl(asset('images/default-module-cover.svg'))
+                    ->view('filament.tables.module-cover')
                     ->alignCenter(),
 
                 TextColumn::make('judul')

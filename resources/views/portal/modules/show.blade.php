@@ -76,8 +76,7 @@
                                  loading="lazy"
                                  class="h-full w-full object-cover">
                         @else
-                            {{-- Ringkas: judul modul sudah tertera besar tepat di sebelahnya. --}}
-                            <x-slc.module-cover :judul="$module->judul" :seed="$module->getKey()" ringkas class="h-full w-full object-cover" />
+                            <x-slc.module-cover :judul="$module->judul" :seed="$module->getKey()" class="h-full w-full object-cover" />
                         @endif
                     </div>
 

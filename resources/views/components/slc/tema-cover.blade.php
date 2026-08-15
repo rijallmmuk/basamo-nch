@@ -1,10 +1,6 @@
 @props([
     'nama' => '',
     'ratio' => '4:3',
-    /* Varian tanpa tulisan nama tema, untuk tempat yang namanya sudah tertera besar
-       tepat di sebelahnya. Warna aksennya tetap diturunkan dari nama, jadi tiap
-       pelatihan tetap punya wajah sendiri. */
-    'ringkas' => false,
     /* Kunci warna aksen. Bila kosong, warnanya diturunkan dari nama tema, sehingga
        dua pelatihan bertema sama mendapat warna yang sama persis. Isi dengan id
        pelatihan supaya masing-masing punya warnanya sendiri. */
@@ -63,20 +59,19 @@
     <rect width="{{ $w }}" height="{{ $h }}" fill="url(#{{ $uid }}-bg)" />
 
     {{-- Motif gonjong: siluet atap rumah gadang, samar sebagai tekstur latar. --}}
-    <g fill="{{ $warna }}" opacity="0.10">
+    <g fill="{{ $warna }}" opacity="0.16">
         <path d="M0 {{ $h }} L{{ $w * 0.18 }} {{ $h * 0.52 }} L{{ $w * 0.36 }} {{ $h }} Z" />
         <path d="M{{ $w * 0.62 }} {{ $h }} L{{ $w * 0.8 }} {{ $h * 0.44 }} L{{ $w }} {{ $h }} Z" />
     </g>
 
-    <rect x="0" y="0" width="{{ $w }}" height="14" fill="{{ $warna }}" opacity="0.9" />
+    {{-- Tebal garis mengikuti tinggi kotak, bukan angka tetap. Pada thumbnail 64 px
+         garis 14 unit menyusut jadi kurang dari satu piksel, sehingga warna aksen yang
+         membedakan tiap catatan hilang sama sekali. --}}
+    <rect x="0" y="0" width="{{ $w }}" height="{{ round($h * 0.035) }}" fill="{{ $warna }}" opacity="0.9" />
 
-    @if($ringkas)
-        {{-- Topi wisuda, penanda pelatihan, tanpa mengulang nama tema. --}}
-        <g transform="translate({{ $w / 2 }} {{ $h / 2 }}) scale(4.2)" fill="{{ $warna }}" opacity="0.95">
-            <path d="M0 -26 L34 -8 L0 10 L-34 -8 Z" />
-            <path d="M-22 0 v18 c0 8 10 14 22 14 s22 -6 22 -14 v-18 l-22 12 z" opacity="0.85" />
-        </g>
-    @else
+    {{-- Nama tema SELALU digambar, sekecil apa pun kotaknya. Sampul bawaan adalah satu
+         satunya penanda yang dimiliki pelatihan tanpa unggahan; tanpa nama di dalamnya,
+         dua pelatihan hanya terbedakan oleh warna. --}}
     <text x="{{ $w / 2 }}" y="{{ $mulaiY }}" text-anchor="middle"
           font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
           font-size="{{ $fontSize }}" font-weight="800" fill="#ffffff">
@@ -84,7 +79,6 @@
             <tspan x="{{ $w / 2 }}" dy="{{ $i === 0 ? 0 : $lineHeight }}">{{ $teks }}</tspan>
         @endforeach
     </text>
-    @endif
 
     <text x="{{ $w / 2 }}" y="{{ $h - 72 }}" text-anchor="middle"
           font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"

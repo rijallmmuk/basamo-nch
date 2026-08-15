@@ -314,7 +314,7 @@
                                 @if ($prog->punyaCover())
                                     <img src="{{ $prog->coverUrl() }}" alt="Cover {{ $prog->temaNama() }}" loading="lazy" class="h-full w-full object-cover">
                                 @else
-                                    <x-slc.tema-cover :nama="$prog->temaNama()" :seed="$prog->getKey()" ringkas class="h-full w-full object-cover" />
+                                    <x-slc.tema-cover :nama="$prog->temaNama()" :seed="$prog->getKey()" class="h-full w-full object-cover" />
                                 @endif
                                 @if(! $prog->dapatDimasuki())
                                     <span class="absolute left-1 top-1 flex items-center gap-1 rounded bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-xs">

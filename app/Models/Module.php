@@ -145,13 +145,13 @@ class Module extends Model implements HasMedia
         return $this->getFirstMedia('cover') !== null;
     }
 
-    /** URL cover (konversi 'card') dengan fallback ke cover default global. */
-    public function coverUrl(): string
+    /** URL cover unggahan (konversi 'card'); null bila belum ada. */
+    public function coverUrl(): ?string
     {
         $media = $this->getFirstMedia('cover');
 
         if (! $media) {
-            return asset('images/default-module-cover.svg');
+            return null;
         }
 
         $url = $media->getAvailableUrl(['card']);

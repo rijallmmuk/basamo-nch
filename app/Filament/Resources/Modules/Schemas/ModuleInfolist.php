@@ -9,77 +9,87 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 
 class ModuleInfolist
 {
+    private static function cakupan(Module $record): string
+    {
+        if ($record->pelatihan?->semua_nagari) {
+            return 'Semua nagari';
+        }
+
+        $nagaris = $record->pelatihan?->nagaris ?? collect();
+
+        return match (true) {
+            $nagaris->isEmpty() => 'Belum ada',
+            $nagaris->count() === 1 => (string) $nagaris->first()->nama,
+            default => $nagaris->pluck('nama')->join(', '),
+        };
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Modul')
+            /* Susunan sama dengan halaman pelatihan: ringkasan singkat yang selalu
+               terbuka, sisanya terlipat agar tabel Halaman Materi cepat dicapai.
+               Judul modul tidak diulang karena sudah menjadi judul halaman. */
+            Section::make('Ringkasan')
                 ->icon(Heroicon::OutlinedBookOpen)
                 ->columns(3)
                 ->columnSpanFull()
                 ->schema([
+                    // Modul tidak punya saklar terbit: yang menentukan adalah ada
+                    // tidaknya materi dan status pelatihannya. Tanpa baris ini,
+                    // pengajar tak punya cara tahu mengapa modulnya belum terlihat.
+                    TextEntry::make('kesiapan')
+                        ->label('Status Tampil ke Warga')
+                        ->state(fn (Module $record): string => match (true) {
+                            ! $record->isReady() => 'Belum tampil',
+                            ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'Menunggu pelatihan dibuka',
+                            default => 'Sudah tampil',
+                        })
+                        ->badge()
+                        ->color(fn (Module $record): string => match (true) {
+                            ! $record->isReady() => 'danger',
+                            ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'warning',
+                            default => 'success',
+                        })
+                        ->helperText(fn (Module $record): ?string => match (true) {
+                            ! $record->isReady() => 'Tambahkan minimal satu materi agar modul ini terlihat warga.',
+                            ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'Buka pelatihannya lewat tombol "Buka untuk Warga" pada halaman pelatihan.',
+                            default => null,
+                        }),
+
+                    TextEntry::make('materis_count')
+                        ->label('Jumlah Materi')
+                        ->state(fn (Module $record): string => ($record->materis_count ?? $record->materis()->count()).' Materi')
+                        ->icon('heroicon-m-document-text')
+                        ->color('info')
+                        ->weight(FontWeight::Bold),
+
+                    TextEntry::make('pelatihan_nama')
+                        ->label('Pelatihan')
+                        ->state(fn (Module $record): string => $record->pelatihan?->namaTampil() ?? 'Tanpa pelatihan')
+                        ->badge()
+                        ->color('info')
+                        ->icon('heroicon-m-academic-cap'),
+                ]),
+
+            Section::make('Rincian & Sampul')
+                ->icon(Heroicon::OutlinedInformationCircle)
+                ->columns(3)
+                ->columnSpanFull()
+                ->collapsible()
+                ->collapsed()
+                // Posisi lipatan diingat per pengguna; lihat catatan yang sama pada
+                // PelatihanInfolist.
+                ->persistCollapsed()
+                ->schema([
                     Group::make()->schema([
-                        TextEntry::make('judul')
-                            ->label('Judul Modul')
-                            ->weight(FontWeight::Bold)
-                            ->size(TextSize::Large)
-                            ->columnSpanFull(),
-
-                        // Modul tidak punya saklar terbit: yang menentukan adalah ada
-                        // tidaknya materi dan status pelatihannya. Tanpa baris ini,
-                        // pengajar tak punya cara tahu mengapa modulnya belum terlihat.
-                        TextEntry::make('kesiapan')
-                            ->label('Status Tampil ke Warga')
-                            ->state(fn (Module $record): string => match (true) {
-                                ! $record->isReady() => 'Belum tampil',
-                                ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'Menunggu pelatihan dibuka',
-                                default => 'Sudah tampil',
-                            })
-                            ->badge()
-                            ->color(fn (Module $record): string => match (true) {
-                                ! $record->isReady() => 'danger',
-                                ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'warning',
-                                default => 'success',
-                            })
-                            ->helperText(fn (Module $record): ?string => match (true) {
-                                ! $record->isReady() => 'Tambahkan minimal satu materi agar modul ini terlihat warga.',
-                                ! ($record->pelatihan?->dapatDimasuki() ?? false) => 'Buka pelatihannya lewat tombol "Buka untuk Warga" pada halaman pelatihan.',
-                                default => null,
-                            }),
-
-                        TextEntry::make('pelatihan_nama')
-                            ->label('Pelatihan')
-                            ->state(fn (Module $record): string => $record->pelatihan?->namaTampil() ?? 'Tanpa pelatihan')
-                            ->badge()
-                            ->color('info')
-                            ->icon('heroicon-m-academic-cap'),
-
-                        TextEntry::make('materis_count')
-                            ->label('Jumlah Materi')
-                            ->state(fn (Module $record): string => ($record->materis_count ?? $record->materis()->count()).' Materi')
-                            ->icon('heroicon-m-document-text')
-                            ->color('info')
-                            ->weight(FontWeight::Bold),
-
                         TextEntry::make('cakupan')
                             ->label('Cakupan Nagari')
-                            ->state(function (Module $record): string {
-                                if ($record->pelatihan?->semua_nagari) {
-                                    return 'Semua nagari';
-                                }
-
-                                $nagaris = $record->pelatihan?->nagaris ?? collect();
-
-                                return match (true) {
-                                    $nagaris->isEmpty() => 'Belum ada',
-                                    $nagaris->count() === 1 => (string) $nagaris->first()->nama,
-                                    default => $nagaris->pluck('nama')->join(', '),
-                                };
-                            })
+                            ->state(fn (Module $record): string => self::cakupan($record))
                             ->badge()
                             ->color('info')
                             ->icon('heroicon-m-map-pin'),
@@ -99,19 +109,13 @@ class ModuleInfolist
                             ->label('Deskripsi Modul')
                             ->view('filament.infolists.components.deskripsi-ringkas')
                             ->columnSpanFull(),
-                    ])->columns(2)->columnSpan(fn (Module $record): int => $record->punyaCover() ? 2 : 3),
+                    ])->columns(2)->columnSpan(2),
 
-                    // Sampul HANYA ditampilkan bila benar-benar diunggah. Sampul yang
-                    // digambar sistem diturunkan dari judul modul yang sudah tertera
-                    // di halaman ini, jadi tidak ada yang bisa diperiksa darinya dan
-                    // ia cuma memakan sepertiga lebar layar.
                     Group::make()->schema([
                         ViewEntry::make('cover_view')
                             ->hiddenLabel()
                             ->view('filament.infolists.components.compact-cover'),
-                    ])
-                        ->columnSpan(1)
-                        ->visible(fn (Module $record): bool => $record->punyaCover()),
+                    ])->columnSpan(1),
                 ]),
         ]);
     }

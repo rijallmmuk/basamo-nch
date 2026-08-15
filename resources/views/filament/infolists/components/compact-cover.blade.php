@@ -1,18 +1,27 @@
 @php
-    /* Dipakai infolist Modul dan Pelatihan. Keduanya memakai sampul yang DIGAMBAR
-       bila belum ada unggahan, sama seperti portal dan halaman publik, supaya satu
-       modul tampil serupa di mana pun ia muncul. */
+    /* Sampul modul. Bila belum ada unggahan, yang tampil adalah sampul yang digambar
+       sistem, sama seperti yang dilihat warga di portal dan halaman publik. Label
+       digambar sendiri karena ViewEntry mengganti seluruh render entri. */
     $record = $getRecord();
-    $punyaUnggahan = method_exists($record, 'punyaCover') && $record->punyaCover();
+    $punyaUnggahan = $record?->punyaCover() ?? false;
     $judul = $record->judul ?? $record->temaNama();
 @endphp
 
-<div class="w-full flex flex-col items-center justify-center p-1">
-    <div class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        @if($punyaUnggahan)
-            <img src="{{ $record->coverUrl() }}" alt="Sampul {{ $judul }}" class="w-full h-full object-cover" />
+<div class="w-full max-w-xs">
+    <div class="mb-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Sampul</div>
+
+    <div class="aspect-[16/9] overflow-hidden rounded-xl ring-1 ring-gray-950/5 dark:ring-white/10">
+        @if ($punyaUnggahan)
+            <img src="{{ $record->coverUrl() }}" alt="Sampul {{ $judul }}" class="h-full w-full object-cover">
         @else
-            <x-slc.module-cover :judul="$judul" :seed="$record->getKey()" ratio="4:3" ringkas class="h-full w-full object-cover" />
+            <x-slc.module-cover :judul="$judul" :seed="$record?->getKey()" ratio="16:9"
+                class="h-full w-full object-cover" />
         @endif
     </div>
+
+    @unless ($punyaUnggahan)
+        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+            Digambar sistem dari judul modul. Unggah berkas untuk menggantinya.
+        </p>
+    @endunless
 </div>

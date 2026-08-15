@@ -10,6 +10,6 @@
             class="aspect-[4/3] w-full object-cover"
         >
     @else
-        <x-slc.tema-cover :nama="$record->temaNama()" :seed="$record->getKey()" ratio="4:3" ringkas />
+        <x-slc.tema-cover :nama="$record->temaNama()" :seed="$record->getKey()" ratio="4:3" />
     @endif
 </div>

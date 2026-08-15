@@ -1,24 +1,14 @@
 @props([
     'judul' => '',
     'ratio' => '16:9',
-    /* Varian tanpa tulisan judul, untuk tempat yang judulnya sudah tertera di
-       sebelahnya (thumbnail halaman detail). Warna aksennya tetap diturunkan dari
-       judul, jadi identitas per modul tidak hilang. */
-    'ringkas' => false,
     /* Kunci warna aksen; lihat penjelasan yang sama pada tema-cover. */
     'seed' => null,
 ])
 
 @php
     /* Sampul modul digambar, bukan diunggah, dengan pola yang sama seperti
-       {@see components/slc/tema-cover}. Berkas `default-module-cover.svg` yang
-       dipakai sebelumnya sama untuk SELURUH modul, sehingga kartu-kartu di katalog
-       tampak seperti salinan dan modul tidak dapat dibedakan sekilas. Warnanya juga
-       di luar merek, dan teks "MODUL LITERASI" ikut terpaku di dalam berkasnya
-       walau modulnya bukan tentang literasi.
-
-       Warna aksen diturunkan TETAP dari judul (crc32), jadi satu modul selalu
-       tampil sama sementara antar modul berbeda. */
+       {@see components/slc/tema-cover}. Warna aksen diturunkan TETAP dari judul,
+       jadi satu modul selalu tampil sama sementara antar modul berbeda. */
     $judul = trim((string) $judul) !== '' ? trim((string) $judul) : 'Modul';
 
     [$w, $h] = $ratio === '4:3' ? [1200, 900] : [1200, 675];
@@ -62,32 +52,28 @@
     <rect width="{{ $w }}" height="{{ $h }}" fill="url(#{{ $uid }}-bg)" />
 
     {{-- Motif gonjong, sama dengan sampul pelatihan supaya keduanya satu keluarga. --}}
-    <g fill="{{ $warna }}" opacity="0.10">
+    <g fill="{{ $warna }}" opacity="0.16">
         <path d="M0 {{ $h }} L{{ $w * 0.18 }} {{ $h * 0.52 }} L{{ $w * 0.36 }} {{ $h }} Z" />
         <path d="M{{ $w * 0.62 }} {{ $h }} L{{ $w * 0.8 }} {{ $h * 0.44 }} L{{ $w }} {{ $h }} Z" />
     </g>
 
-    <rect x="0" y="0" width="{{ $w }}" height="14" fill="{{ $warna }}" opacity="0.9" />
+    {{-- Tebal garis mengikuti tinggi kotak, bukan angka tetap. Pada thumbnail 64 px
+         garis 14 unit menyusut jadi kurang dari satu piksel, sehingga warna aksen yang
+         membedakan tiap catatan hilang sama sekali. --}}
+    <rect x="0" y="0" width="{{ $w }}" height="{{ round($h * 0.035) }}" fill="{{ $warna }}" opacity="0.9" />
 
-    @if($ringkas)
-        {{-- Penanda buku dalam WARNA AKSEN, bukan putih. Tanpa judul, warna adalah
-             satu-satunya pembeda antar modul, jadi ia harus benar-benar terlihat. --}}
-        <g transform="translate({{ $w / 2 }} {{ $h / 2 }})" fill="{{ $warna }}">
-            <path d="M-58 -74 h96 a10 10 0 0 1 10 10 v138 l-58 -34 -58 34 v-138 a10 10 0 0 1 10 -10 z" />
-        </g>
-    @else
-        <text x="{{ $w / 2 }}" y="{{ $mulaiY }}" text-anchor="middle"
-              font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
-              font-size="{{ $fontSize }}" font-weight="800" fill="#ffffff">
-            @foreach ($baris as $i => $teks)
-                <tspan x="{{ $w / 2 }}" dy="{{ $i === 0 ? 0 : $lineHeight }}">{{ $teks }}</tspan>
-            @endforeach
-        </text>
+    {{-- Judul SELALU digambar; lihat alasan yang sama pada tema-cover. --}}
+    <text x="{{ $w / 2 }}" y="{{ $mulaiY }}" text-anchor="middle"
+          font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
+          font-size="{{ $fontSize }}" font-weight="800" fill="#ffffff">
+        @foreach ($baris as $i => $teks)
+            <tspan x="{{ $w / 2 }}" dy="{{ $i === 0 ? 0 : $lineHeight }}">{{ $teks }}</tspan>
+        @endforeach
+    </text>
 
-        <text x="{{ $w / 2 }}" y="{{ $h - 38 }}" text-anchor="middle"
-              font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
-              font-size="26" font-weight="800" fill="{{ $warna }}" letter-spacing="5">
-            MODUL
-        </text>
-    @endif
+    <text x="{{ $w / 2 }}" y="{{ $h - 38 }}" text-anchor="middle"
+          font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
+          font-size="26" font-weight="800" fill="{{ $warna }}" letter-spacing="5">
+        MODUL
+    </text>
 </svg>

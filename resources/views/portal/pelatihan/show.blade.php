@@ -28,8 +28,7 @@
                     @if ($pelatihan->punyaCover())
                         <img src="{{ $pelatihan->coverUrl() }}" alt="Cover {{ $pelatihan->temaNama() }}" class="h-full w-full object-cover" loading="lazy">
                     @else
-                        {{-- Ringkas: nama pelatihan sudah tertera besar tepat di sebelahnya. --}}
-                        <x-slc.tema-cover :nama="$pelatihan->temaNama()" :seed="$pelatihan->getKey()" ringkas class="h-full w-full object-cover" />
+                        <x-slc.tema-cover :nama="$pelatihan->temaNama()" :seed="$pelatihan->getKey()" class="h-full w-full object-cover" />
                     @endif
                 </div>
             </div>

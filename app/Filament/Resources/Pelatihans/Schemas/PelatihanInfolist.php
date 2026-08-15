@@ -9,7 +9,6 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 
 class PelatihanInfolist
@@ -30,32 +29,62 @@ class PelatihanInfolist
             && $record->pengajars->contains(fn ($pengajar): bool => $pengajar->is($aktor));
     }
 
+    private static function cakupan(Pelatihan $record): string
+    {
+        if ($record->semua_nagari) {
+            return 'Semua nagari';
+        }
+
+        $nagaris = $record->nagaris;
+
+        return match (true) {
+            $nagaris->isEmpty() => 'Belum ada',
+            $nagaris->count() === 1 => (string) $nagaris->first()->nama,
+            default => $nagaris->pluck('nama')->join(', '),
+        };
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Pelatihan')
+            /* Halaman detail dipecah dua. Yang selalu terbuka hanya tiga hal yang
+               dicari operator sekali lihat; sisanya terlipat supaya tabel Daftar Modul,
+               tujuan utama halaman ini, langsung terlihat tanpa menggulir. Nama tema
+               tidak diulang di sini karena sudah menjadi judul halaman. */
+            Section::make('Ringkasan')
                 ->icon(Heroicon::OutlinedAcademicCap)
                 ->columns(3)
                 ->columnSpanFull()
                 ->schema([
+                    TextEntry::make('status')
+                        ->label('Akses Warga')
+                        ->badge(),
+
+                    TextEntry::make('modules_count')
+                        ->label('Jumlah Modul')
+                        ->state(fn (Pelatihan $record): int => $record->modules()->count())
+                        ->icon('heroicon-m-book-open')
+                        ->color('info')
+                        ->weight(FontWeight::Bold),
+
+                    TextEntry::make('cakupan')
+                        ->label('Sasaran Pelatihan')
+                        ->state(fn (Pelatihan $record): string => self::cakupan($record))
+                        ->badge()
+                        ->color('info'),
+                ]),
+
+            Section::make('Rincian & Sampul')
+                ->icon(Heroicon::OutlinedInformationCircle)
+                ->columns(3)
+                ->columnSpanFull()
+                ->collapsible()
+                ->collapsed()
+                // Posisi lipatan diingat per pengguna, jadi operator yang selalu
+                // membutuhkan rincian tidak perlu membukanya berulang kali.
+                ->persistCollapsed()
+                ->schema([
                     Group::make()->schema([
-                        TextEntry::make('tema.nama')
-                            ->label('Tema Pelatihan')
-                            ->weight(FontWeight::Bold)
-                            ->size(TextSize::Large)
-                            ->columnSpanFull(),
-
-                        TextEntry::make('status')
-                            ->label('Akses Warga')
-                            ->badge(),
-
-                        TextEntry::make('modules_count')
-                            ->label('Jumlah Modul')
-                            ->state(fn (Pelatihan $record): int => $record->modules()->count())
-                            ->icon('heroicon-m-book-open')
-                            ->color('info')
-                            ->weight(FontWeight::Bold),
-
                         // Tiap pihak melihat lawan bicaranya: pemilik melihat siapa yang
                         // ia ajak membantu, pembantu melihat pelatihan ini milik siapa.
                         // Pengawas (superadmin, DPMD, operator) melihat keduanya.
@@ -75,24 +104,6 @@ class PelatihanInfolist
                             ->badge()
                             ->helperText('Membantu mengisi modul, materi, dan evaluasi.')
                             ->hidden(fn (Pelatihan $record): bool => self::pembantu($record)),
-
-                        TextEntry::make('cakupan')
-                            ->label('Sasaran Pelatihan')
-                            ->state(function (Pelatihan $record): string {
-                                if ($record->semua_nagari) {
-                                    return 'Semua nagari';
-                                }
-
-                                $nagaris = $record->nagaris;
-
-                                return match (true) {
-                                    $nagaris->isEmpty() => 'Belum ada',
-                                    $nagaris->count() === 1 => (string) $nagaris->first()->nama,
-                                    default => $nagaris->pluck('nama')->join(', '),
-                                };
-                            })
-                            ->badge()
-                            ->color('info'),
 
                         TextEntry::make('creator.name')
                             ->label('Pemilik')
@@ -114,17 +125,13 @@ class PelatihanInfolist
                             ->label('Deskripsi')
                             ->view('filament.infolists.components.deskripsi-ringkas')
                             ->columnSpanFull(),
-                    ])->columns(2)->columnSpan(fn (Pelatihan $record): int => $record->punyaCover() ? 2 : 3),
+                    ])->columns(2)->columnSpan(2),
 
-                    // Sampul hanya bila benar-benar diunggah. Yang digambar sistem
-                    // diturunkan dari nama tema yang sudah tertera di halaman ini.
                     Group::make()->schema([
                         ViewEntry::make('cover_view')
                             ->hiddenLabel()
                             ->view('filament.infolists.components.pelatihan-cover'),
-                    ])
-                        ->columnSpan(1)
-                        ->visible(fn (Pelatihan $record): bool => $record->punyaCover()),
+                    ])->columnSpan(1),
                 ]),
         ]);
     }
