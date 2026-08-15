@@ -95,18 +95,23 @@ class ModuleInfolist
                             ->icon('heroicon-m-user')
                             ->hidden(fn (): bool => auth()->user()?->isPengajar() ?? false),
 
-                        TextEntry::make('deskripsi')
+                        ViewEntry::make('deskripsi')
                             ->label('Deskripsi Modul')
-                            ->html()
-                            ->placeholder('Belum ada deskripsi')
+                            ->view('filament.infolists.components.deskripsi-ringkas')
                             ->columnSpanFull(),
-                    ])->columns(2)->columnSpan(2),
+                    ])->columns(2)->columnSpan(fn (Module $record): int => $record->punyaCover() ? 2 : 3),
 
+                    // Sampul HANYA ditampilkan bila benar-benar diunggah. Sampul yang
+                    // digambar sistem diturunkan dari judul modul yang sudah tertera
+                    // di halaman ini, jadi tidak ada yang bisa diperiksa darinya dan
+                    // ia cuma memakan sepertiga lebar layar.
                     Group::make()->schema([
                         ViewEntry::make('cover_view')
                             ->hiddenLabel()
                             ->view('filament.infolists.components.compact-cover'),
-                    ])->columnSpan(1),
+                    ])
+                        ->columnSpan(1)
+                        ->visible(fn (Module $record): bool => $record->punyaCover()),
                 ]),
         ]);
     }

@@ -139,6 +139,12 @@ class Module extends Model implements HasMedia
             ;
     }
 
+    /** Ada cover unggahan? Bila tidak, tampilan memakai {@see components/slc/module-cover}. */
+    public function punyaCover(): bool
+    {
+        return $this->getFirstMedia('cover') !== null;
+    }
+
     /** URL cover (konversi 'card') dengan fallback ke cover default global. */
     public function coverUrl(): string
     {

@@ -15,7 +15,7 @@
     {{-- ── 1. TEKS BACAAN (RICH EDITOR KONTEN) ────────────────────────────────── --}}
     @case('teks')
         @if(filled($data['konten'] ?? null))
-            <div class="slc-readable-text mx-auto {{ $proseClass }}">
+            <div class="slc-readable-text {{ $proseClass }}">
                 {!! str($data['konten'])->sanitizeHtml() !!}
             </div>
         @endif

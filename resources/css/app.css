@@ -178,9 +178,19 @@
     --text-metric-lg--font-weight: 800;
 }
 
-/* Mode baca: media memakai kanvas lebar, sedangkan baris teks tetap nyaman. */
+/* Mode baca: media memakai kanvas lebar, sedangkan baris teks tetap nyaman.
+   Diukur dalam `ch` supaya panjang barisnya mengikuti lebar huruf, bukan lebar
+   layar: sekitar 70 karakter per baris, batas yang nyaman dibaca menerus. 56rem
+   sebelumnya menghasilkan seratusan karakter per baris. */
 .slc-readable-text {
-    max-width: 56rem;
+    max-width: 70ch;
+}
+
+/* Rata kiri mengikuti judul materi. Sebelumnya blok ini di-`mx-auto` di dalam kolom
+   yang jauh lebih lebar, sehingga teksnya menjorok 131px dari judul di atasnya. */
+.portal-reader-full .slc-readable-text {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .portal-reader-full .slc-media-wide {

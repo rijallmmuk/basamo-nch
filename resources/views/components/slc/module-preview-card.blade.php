@@ -6,10 +6,15 @@
 <article data-public-module-card
     class="group flex h-full flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg">
     <div class="aspect-[16/9] w-full shrink-0 overflow-hidden bg-surface-container-high">
-        <img src="{{ $module->coverUrl() }}"
-             alt="Sampul {{ $module->judul }}"
-             loading="lazy"
-             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+        @if($module->punyaCover())
+            <img src="{{ $module->coverUrl() }}"
+                 alt="Sampul {{ $module->judul }}"
+                 loading="lazy"
+                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+        @else
+            <x-slc.module-cover :judul="$module->judul"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        @endif
     </div>
 
     <div class="flex flex-1 flex-col p-4">

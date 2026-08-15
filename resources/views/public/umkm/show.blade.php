@@ -123,7 +123,9 @@
                 @if($product->deskripsi)
                     <div class="mt-7 border-t border-outline-variant pt-6">
                         <h2 class="text-lg font-extrabold text-on-surface">Deskripsi produk</h2>
-                        <p class="mt-3 whitespace-pre-line text-pretty leading-relaxed text-on-surface">{{ $product->deskripsi }}</p>
+                        <x-public.teks-lipat :baris="6" class="mt-3">
+                            <p class="whitespace-pre-line text-pretty leading-relaxed text-on-surface">{{ $product->deskripsi }}</p>
+                        </x-public.teks-lipat>
                     </div>
                 @endif
 

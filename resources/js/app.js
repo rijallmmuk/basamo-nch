@@ -351,3 +351,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+/**
+ * Teks panjang yang dilipat (komponen x-public.teks-lipat).
+ *
+ * Deskripsi di sistem ini tidak dibatasi panjangnya, jadi tampilan yang menahan.
+ * Tombolnya hanya ditampilkan bila teksnya BENAR-BENAR meluap, diukur dari selisih
+ * scrollHeight dan clientHeight, bukan dari menebak jumlah karakter: satu paragraf
+ * yang sama bisa meluap di ponsel dan tidak meluap di layar lebar.
+ *
+ * Vanilla dan terdelegasi, sebab halaman publik tidak memuat Alpine.
+ */
+const nyalakanTeksLipat = () => {
+    document.querySelectorAll('[data-teks-lipat]').forEach((wadah) => {
+        const isi = wadah.querySelector('[data-teks-lipat-isi]');
+        const tombol = wadah.querySelector('[data-teks-lipat-tombol]');
+
+        if (! isi || ! tombol) {
+            return;
+        }
+
+        tombol.classList.toggle('hidden', isi.scrollHeight <= isi.clientHeight + 1);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', nyalakanTeksLipat);
+// Lebar berubah → yang tadinya meluap bisa jadi tidak, dan sebaliknya.
+window.addEventListener('resize', nyalakanTeksLipat);
+
+document.addEventListener('click', (e) => {
+    const tombol = e.target.closest('[data-teks-lipat-tombol]');
+    if (! tombol) {
+        return;
+    }
+
+    const wadah = tombol.closest('[data-teks-lipat]');
+    const isi = wadah?.querySelector('[data-teks-lipat-isi]');
+    if (! isi) {
+        return;
+    }
+
+    const clamp = wadah.dataset.teksLipatClamp || 'line-clamp-4';
+    const terbuka = ! isi.classList.contains(clamp);
+
+    isi.classList.toggle(clamp, terbuka);
+    tombol.querySelector('[data-teks-lipat-label]').textContent = terbuka
+        ? tombol.dataset.labelBuka
+        : tombol.dataset.labelTutup;
+    tombol.querySelector('[data-teks-lipat-ikon]')?.classList.toggle('rotate-180', ! terbuka);
+});

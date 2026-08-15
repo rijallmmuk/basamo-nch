@@ -93,10 +93,9 @@ class UmkmProfileForm
                         Textarea::make('deskripsi')
                             ->label('Deskripsi usaha')
                             ->placeholder('Isi deskripsi usaha')
-                            // Opsional, tetapi kalau diisi harus menjelaskan. Batas
-                            // yang sama dipakai deskripsi produk.
+                            // Opsional, tetapi kalau diisi harus menjelaskan. Panjangnya
+                            // tidak dibatasi, sama seperti deskripsi produk.
                             ->minLength(10)
-                            ->maxLength(2000)
                             ->rows(4)
                             ->columnSpanFull(),
 

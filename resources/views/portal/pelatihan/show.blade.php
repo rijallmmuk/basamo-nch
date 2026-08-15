@@ -155,10 +155,15 @@
                         <div>
                             {{-- Thumbnail (16:9 Aspect Ratio) --}}
                             <div class="relative aspect-[16/9] w-full overflow-hidden bg-surface-container-high shrink-0">
-                                <img src="{{ $module->coverUrl() }}" 
-                                     alt="{{ $module->judul }}" 
-                                     loading="lazy" 
-                                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                @if($module->punyaCover())
+                                    <img src="{{ $module->coverUrl() }}"
+                                         alt="{{ $module->judul }}"
+                                         loading="lazy"
+                                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                @else
+                                    <x-slc.module-cover :judul="$module->judul"
+                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                @endif
                                 
                                 @if($isCompleted)
                                     <span class="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-xs">

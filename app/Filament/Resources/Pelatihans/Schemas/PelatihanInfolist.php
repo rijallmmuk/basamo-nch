@@ -108,19 +108,23 @@ class PelatihanInfolist
                             ->dateTime('d M Y, H:i')
                             ->icon('heroicon-m-clock'),
 
-                        TextEntry::make('deskripsi')
+                        // Dipangkas tampilannya dan menangani `<p></p>` kosong bawaan
+                        // RichEditor; lihat komponennya.
+                        ViewEntry::make('deskripsi')
                             ->label('Deskripsi')
-                            ->html()
-                            ->placeholder('Belum ada deskripsi')
+                            ->view('filament.infolists.components.deskripsi-ringkas')
                             ->columnSpanFull(),
-                    ])->columns(2)->columnSpan(2),
+                    ])->columns(2)->columnSpan(fn (Pelatihan $record): int => $record->punyaCover() ? 2 : 3),
 
+                    // Sampul hanya bila benar-benar diunggah. Yang digambar sistem
+                    // diturunkan dari nama tema yang sudah tertera di halaman ini.
                     Group::make()->schema([
-                        // Cover digambar dari nama tema, tanpa unggahan berkas.
                         ViewEntry::make('cover_view')
                             ->hiddenLabel()
                             ->view('filament.infolists.components.pelatihan-cover'),
-                    ])->columnSpan(1),
+                    ])
+                        ->columnSpan(1)
+                        ->visible(fn (Pelatihan $record): bool => $record->punyaCover()),
                 ]),
         ]);
     }

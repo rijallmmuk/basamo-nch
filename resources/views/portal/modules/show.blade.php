@@ -70,10 +70,15 @@
                     
                     {{-- Cover Image Thumbnail (Compact 16:9 Aspect Ratio) --}}
                     <div class="relative w-full sm:w-56 aspect-[16/9] shrink-0 overflow-hidden rounded-xl bg-surface-container-high border border-outline-variant shadow-xs">
-                        <img src="{{ $module->coverUrl() }}" 
-                             alt="{{ $module->judul }}" 
-                             loading="lazy" 
-                             class="h-full w-full object-cover">
+                        @if($module->punyaCover())
+                            <img src="{{ $module->coverUrl() }}"
+                                 alt="{{ $module->judul }}"
+                                 loading="lazy"
+                                 class="h-full w-full object-cover">
+                        @else
+                            {{-- Ringkas: judul modul sudah tertera besar tepat di sebelahnya. --}}
+                            <x-slc.module-cover :judul="$module->judul" ringkas class="h-full w-full object-cover" />
+                        @endif
                     </div>
 
                     {{-- Title, Badges & Description Area --}}

@@ -24,6 +24,12 @@ class ViewModule extends ViewRecord
 {
     protected static string $resource = ModuleResource::class;
 
+    /** Halaman detail menyebut modulnya, bukan "Lihat Modul" seperti bawaan Filament. */
+    public function getTitle(): string
+    {
+        return (string) $this->record->judul;
+    }
+
     public function getMaxContentWidth(): Width|string|null
     {
         return Width::Full;
@@ -40,7 +46,9 @@ class ViewModule extends ViewRecord
             Action::make('previewWarga')
                 ->label('Pratinjau Warga')
                 ->icon('heroicon-o-eye')
-                ->color('info')
+                // Abu-abu seperti aksi sekunder lainnya. Hanya Ubah yang berwarna,
+                // supaya baris tombol tidak menjadi deretan warna yang saling berebut.
+                ->color('gray')
                 ->openUrlInNewTab()
                 ->visible(fn (): bool => ! $this->record->trashed())
                 ->url(function (): string {
@@ -98,7 +106,9 @@ class ViewModule extends ViewRecord
                 ? 'heroicon-o-clipboard-document-list'
                 : 'heroicon-o-clipboard-document-check')
             ->color('gray')
-            ->badge(fn (): ?string => $ambil() ? null : 'belum ada')
+            // Tanpa badge "belum ada": Filament menggantungnya di atas baris tombol
+            // sehingga tampak lepas, dan labelnya sendiri sudah membedakan "Tambah"
+            // dari "Kelola".
             ->visible(function () use ($ambil): bool {
                 if ($this->record->trashed()) {
                     return false;

@@ -75,8 +75,13 @@
 
             <h1 class="mt-3 text-hero text-balance text-on-primary">{{ $pelatihan->temaNama() }}</h1>
 
-            @if(filled($pelatihan->deskripsi))
-                <p class="mt-5 text-lead text-pretty text-on-primary/72">{{ strip_tags($pelatihan->deskripsi) }}</p>
+            @if(filled(trim(strip_tags((string) $pelatihan->deskripsi))))
+                {{-- Hero berlatar gelap, jadi tombolnya memakai warna teks hero. --}}
+                <x-public.teks-lipat :baris="3"
+                    class="mt-5 max-w-3xl"
+                    kelas-tombol="text-on-primary hover:underline">
+                    <p class="text-lead text-pretty text-on-primary/72">{{ strip_tags($pelatihan->deskripsi) }}</p>
+                </x-public.teks-lipat>
             @endif
 
             <div class="mt-8 flex flex-wrap items-center gap-3">

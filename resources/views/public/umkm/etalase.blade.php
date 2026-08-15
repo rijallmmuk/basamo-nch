@@ -72,45 +72,9 @@
                     <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">{{ $profile->nama_usaha }}</h1>
 
                     @if($profile->deskripsi)
-                        <div class="mt-4 max-w-2xl" id="umkm-desc-container">
-                            <p class="whitespace-pre-line text-pretty leading-relaxed text-on-surface line-clamp-4 transition-all duration-300" id="umkm-desc-content">
-                                {{ $profile->deskripsi }}
-                            </p>
-                            <button type="button"
-                                    id="umkm-desc-toggle"
-                                    class="hidden mt-2 text-sm font-bold text-primary hover:underline focus:outline-none inline-flex items-center gap-1">
-                                <span class="toggle-text">Baca selengkapnya</span>
-                                <x-heroicon-s-chevron-down class="h-4 w-4 transition-transform duration-300 toggle-icon" />
-                            </button>
-                        </div>
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                const content = document.getElementById('umkm-desc-content');
-                                const toggle = document.getElementById('umkm-desc-toggle');
-                                const textNode = toggle?.querySelector('.toggle-text');
-                                const iconNode = toggle?.querySelector('.toggle-icon');
-
-                                if (content && toggle) {
-                                    if (content.scrollHeight > content.clientHeight) {
-                                        toggle.classList.remove('hidden');
-
-                                        toggle.addEventListener('click', () => {
-                                            const isExpanded = !content.classList.contains('line-clamp-4');
-
-                                            if (isExpanded) {
-                                                content.classList.add('line-clamp-4');
-                                                textNode.textContent = 'Baca selengkapnya';
-                                                iconNode.classList.remove('rotate-180');
-                                            } else {
-                                                content.classList.remove('line-clamp-4');
-                                                textNode.textContent = 'Tampilkan lebih sedikit';
-                                                iconNode.classList.add('rotate-180');
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        </script>
+                        <x-public.teks-lipat :baris="4" class="mt-4 max-w-2xl">
+                            <p class="whitespace-pre-line text-pretty leading-relaxed text-on-surface">{{ $profile->deskripsi }}</p>
+                        </x-public.teks-lipat>
                     @endif
 
                     {{-- Data usaha hanya dirender bila benar-benar tersedia. --}}

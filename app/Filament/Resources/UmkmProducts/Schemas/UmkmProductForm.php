@@ -78,8 +78,10 @@ class UmkmProductForm
                         ->label('Deskripsi')
                         ->placeholder('Isi deskripsi produk')
                         ->required()
+                        // Batas bawah saja. Panjangnya TIDAK dibatasi: pemilik boleh
+                        // menjelaskan produknya sedetail yang ia mau, dan tampilanlah
+                        // yang menahan lewat pelipatan teks di halaman produk.
                         ->minLength(10)
-                        ->maxLength(5000)
                         ->rows(4)
                         // Tanpa teks bantuan bawaan. Yang muncul HANYA panduan yang
                         // benar-benar ditulis admin pada kategori terpilih; tanpa itu
