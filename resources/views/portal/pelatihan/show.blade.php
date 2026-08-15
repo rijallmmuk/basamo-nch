@@ -19,14 +19,19 @@
         <div class="grid grid-cols-1 lg:grid-cols-3">
             
             {{-- Pelatihan Cover Image (1 Column) --}}
-            <div class="relative aspect-[16/9] lg:aspect-auto lg:h-full w-full overflow-hidden bg-surface-container-high">
-                @if ($pelatihan->punyaCover())
-<img src="{{ $pelatihan->coverUrl() }}" alt="Cover {{ $pelatihan->temaNama() }}" class="h-full w-full object-cover" loading="lazy">
-                @else
-                    {{-- Ringkas: nama pelatihan sudah tertera besar tepat di sebelahnya. --}}
-                    <x-slc.tema-cover :nama="$pelatihan->temaNama()" :seed="$pelatihan->getKey()" ringkas class="h-full w-full object-cover" />
-                @endif
-                
+            {{-- Panel kiri ikut setinggi kolom teks, sementara sampulnya ditahan oleh
+                 `lg:max-h-*`. Deskripsi tidak dibatasi panjangnya; tanpa penahan itu
+                 sampul memuai sampai ratusan piksel begitu deskripsi dibentangkan.
+                 Sisa ruang di bawahnya menjadi bidang panel, bukan lubang putih. --}}
+            <div class="bg-surface-container-high lg:h-full">
+                <div class="relative aspect-[16/9] lg:aspect-auto lg:h-full lg:max-h-[26rem] w-full overflow-hidden">
+                    @if ($pelatihan->punyaCover())
+                        <img src="{{ $pelatihan->coverUrl() }}" alt="Cover {{ $pelatihan->temaNama() }}" class="h-full w-full object-cover" loading="lazy">
+                    @else
+                        {{-- Ringkas: nama pelatihan sudah tertera besar tepat di sebelahnya. --}}
+                        <x-slc.tema-cover :nama="$pelatihan->temaNama()" :seed="$pelatihan->getKey()" ringkas class="h-full w-full object-cover" />
+                    @endif
+                </div>
             </div>
 
             {{-- Pelatihan Info & Metadata (2 Columns) --}}
