@@ -1,6 +1,10 @@
 @props([
     'nama' => '',
     'ratio' => '4:3',
+    /* Varian tanpa tulisan nama tema, untuk tempat yang namanya sudah tertera besar
+       tepat di sebelahnya. Warna aksennya tetap diturunkan dari nama, jadi tiap
+       pelatihan tetap punya wajah sendiri. */
+    'ringkas' => false,
 ])
 
 @php
@@ -57,6 +61,13 @@
 
     <rect x="0" y="0" width="{{ $w }}" height="14" fill="{{ $warna }}" opacity="0.9" />
 
+    @if($ringkas)
+        {{-- Topi wisuda, penanda pelatihan, tanpa mengulang nama tema. --}}
+        <g transform="translate({{ $w / 2 }} {{ $h / 2 }}) scale(4.2)" fill="{{ $warna }}" opacity="0.95">
+            <path d="M0 -26 L34 -8 L0 10 L-34 -8 Z" />
+            <path d="M-22 0 v18 c0 8 10 14 22 14 s22 -6 22 -14 v-18 l-22 12 z" opacity="0.85" />
+        </g>
+    @else
     <text x="{{ $w / 2 }}" y="{{ $mulaiY }}" text-anchor="middle"
           font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
           font-size="{{ $fontSize }}" font-weight="800" fill="#ffffff">
@@ -64,6 +75,7 @@
             <tspan x="{{ $w / 2 }}" dy="{{ $i === 0 ? 0 : $lineHeight }}">{{ $teks }}</tspan>
         @endforeach
     </text>
+    @endif
 
     <text x="{{ $w / 2 }}" y="{{ $h - 72 }}" text-anchor="middle"
           font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"

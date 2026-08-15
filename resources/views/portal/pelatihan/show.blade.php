@@ -22,9 +22,10 @@
             <div class="relative aspect-[16/9] lg:aspect-auto lg:h-full w-full overflow-hidden bg-surface-container-high">
                 @if ($pelatihan->punyaCover())
 <img src="{{ $pelatihan->coverUrl() }}" alt="Cover {{ $pelatihan->temaNama() }}" class="h-full w-full object-cover" loading="lazy">
-@else
-<x-slc.tema-cover :nama="$pelatihan->temaNama()" class="h-full w-full object-cover" />
-@endif
+                @else
+                    {{-- Ringkas: nama pelatihan sudah tertera besar tepat di sebelahnya. --}}
+                    <x-slc.tema-cover :nama="$pelatihan->temaNama()" ringkas class="h-full w-full object-cover" />
+                @endif
                 
             </div>
 

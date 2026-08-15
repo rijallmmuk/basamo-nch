@@ -223,77 +223,6 @@
                 @endif
             </article>
 
-            {{-- ── 2. EVALUASI KUIS & RUANG DISKUSI MODUL ─────────────────── --}}
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                
-                {{-- Evaluasi Kegiatan Card --}}
-                <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div class="flex items-start gap-3">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <x-heroicon-s-clipboard-document-check class="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-base text-on-surface">Evaluasi Kegiatan</h3>
-                            <p class="text-xs text-on-surface-variant mt-0.5">Uji pemahaman Anda tentang materi modul ini.</p>
-                        </div>
-                    </div>
-
-                    <div class="pt-2">
-                        @if($hasEvaluasi)
-                            @if($isCompleted && $evaluasiPassed)
-                                <div class="rounded-xl bg-emerald-500/10 p-3 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-                                    <x-heroicon-s-check-badge class="h-5 w-5 text-emerald-600 shrink-0" />
-                                    <span>Evaluasi Lulus, nilai {{ $evaluasiPassedScore }}</span>
-                                </div>
-                            @elseif($isCompleted)
-                                <a href="{{ $evaluasiUrl }}"
-                                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-on-primary hover:bg-surface-tint transition-all">
-                                    <x-heroicon-s-pencil-square class="h-4 w-4" />
-                                    <span>Kerjakan Evaluasi</span>
-                                </a>
-                            @else
-                                <div class="rounded-xl bg-surface-container-low p-3 border border-outline-variant text-xs text-on-surface-variant flex items-center gap-2 opacity-80">
-                                    <x-heroicon-s-lock-closed class="h-4 w-4 text-outline shrink-0" />
-                                    <span>Evaluasi Terkunci (Selesaikan materi)</span>
-                                </div>
-                            @endif
-                        @else
-                            <div class="rounded-xl bg-surface-container-low p-3 border border-outline-variant text-xs text-on-surface-variant">
-                                <span>Modul berbasis materi bacaan mandiri.</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Diskusi Card --}}
-                <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div class="flex items-start gap-3">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                            <x-heroicon-s-chat-bubble-left-right class="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-base text-on-surface">Ruang Diskusi Modul</h3>
-                            <p class="text-xs text-on-surface-variant mt-0.5">Tanya jawab & diskusi materi bersama warga.</p>
-                        </div>
-                    </div>
-
-                    <div class="pt-2">
-                        @if($isPreview)
-                            <div class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-xs font-bold text-on-surface-variant">
-                                <x-heroicon-s-eye class="h-4 w-4" />
-                                <span>Forum tidak dibuka dalam mode pratinjau</span>
-                            </div>
-                        @else
-                            <a href="{{ route('portal.modules.discuss', $module) }}"
-                                class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-xs font-extrabold text-on-surface hover:bg-surface-container-high hover:text-primary transition-all">
-                                <x-heroicon-s-chat-bubble-left-right class="h-4 w-4 text-primary" />
-                                <span>Buka Forum Diskusi →</span>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-
-            </div>
 
         </div>
 
@@ -405,6 +334,78 @@
                     </ol>
                 @endif
             </article>
+
+        {{-- ── 2. EVALUASI KUIS & RUANG DISKUSI MODUL ─────────────────── --}}
+        <div class="grid grid-cols-1 gap-4">
+            
+            {{-- Evaluasi Kegiatan Card --}}
+            <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <x-heroicon-s-clipboard-document-check class="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-on-surface">Evaluasi Kegiatan</h3>
+                        <p class="text-xs text-on-surface-variant mt-0.5">Uji pemahaman Anda tentang materi modul ini.</p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    @if($hasEvaluasi)
+                        @if($isCompleted && $evaluasiPassed)
+                            <div class="rounded-xl bg-emerald-500/10 p-3 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                                <x-heroicon-s-check-badge class="h-5 w-5 text-emerald-600 shrink-0" />
+                                <span>Evaluasi Lulus, nilai {{ $evaluasiPassedScore }}</span>
+                            </div>
+                        @elseif($isCompleted)
+                            <a href="{{ $evaluasiUrl }}"
+                                class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-on-primary hover:bg-surface-tint transition-all">
+                                <x-heroicon-s-pencil-square class="h-4 w-4" />
+                                <span>Kerjakan Evaluasi</span>
+                            </a>
+                        @else
+                            <div class="rounded-xl bg-surface-container-low p-3 border border-outline-variant text-xs text-on-surface-variant flex items-center gap-2 opacity-80">
+                                <x-heroicon-s-lock-closed class="h-4 w-4 text-outline shrink-0" />
+                                <span>Evaluasi Terkunci (Selesaikan materi)</span>
+                            </div>
+                        @endif
+                    @else
+                        <div class="rounded-xl bg-surface-container-low p-3 border border-outline-variant text-xs text-on-surface-variant">
+                            <span>Modul berbasis materi bacaan mandiri.</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Diskusi Card --}}
+            <div class="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                        <x-heroicon-s-chat-bubble-left-right class="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-on-surface">Ruang Diskusi Modul</h3>
+                        <p class="text-xs text-on-surface-variant mt-0.5">Tanya jawab & diskusi materi bersama warga.</p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    @if($isPreview)
+                        <div class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-xs font-bold text-on-surface-variant">
+                            <x-heroicon-s-eye class="h-4 w-4" />
+                            <span>Forum tidak dibuka dalam mode pratinjau</span>
+                        </div>
+                    @else
+                        <a href="{{ route('portal.modules.discuss', $module) }}"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-xs font-extrabold text-on-surface hover:bg-surface-container-high hover:text-primary transition-all">
+                            <x-heroicon-s-chat-bubble-left-right class="h-4 w-4 text-primary" />
+                            <span>Buka Forum Diskusi →</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+        </div>
         </aside>
 
     </div>
