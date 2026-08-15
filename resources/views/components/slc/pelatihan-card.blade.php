@@ -13,7 +13,7 @@
             @if ($program->punyaCover())
                 <img src="{{ $program->coverUrl() }}" alt="Cover {{ $program->temaNama() }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
             @else
-                <x-slc.tema-cover :nama="$program->temaNama()" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <x-slc.tema-cover :nama="$program->temaNama()" ringkas class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             @endif
             
         </div>

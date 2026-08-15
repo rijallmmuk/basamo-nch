@@ -66,11 +66,11 @@
     <rect x="0" y="0" width="{{ $w }}" height="14" fill="{{ $warna }}" opacity="0.9" />
 
     @if($ringkas)
-        {{-- Penanda buku, cukup sebagai tanda visual tanpa mengulang judul. --}}
-        <g transform="translate({{ $w / 2 }} {{ $h / 2 }})" fill="#ffffff" opacity="0.92">
+        {{-- Penanda buku dalam WARNA AKSEN, bukan putih. Tanpa judul, warna adalah
+             satu-satunya pembeda antar modul, jadi ia harus benar-benar terlihat. --}}
+        <g transform="translate({{ $w / 2 }} {{ $h / 2 }})" fill="{{ $warna }}">
             <path d="M-58 -74 h96 a10 10 0 0 1 10 10 v138 l-58 -34 -58 34 v-138 a10 10 0 0 1 10 -10 z" />
         </g>
-        <rect x="{{ $w / 2 - 34 }}" y="{{ $h - 46 }}" width="68" height="5" rx="2.5" fill="{{ $warna }}" />
     @else
         <text x="{{ $w / 2 }}" y="{{ $mulaiY }}" text-anchor="middle"
               font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"

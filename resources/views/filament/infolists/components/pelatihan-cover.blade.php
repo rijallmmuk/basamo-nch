@@ -7,6 +7,6 @@
         <img src="{{ $record->coverUrl() }}" alt="Cover {{ $record->temaNama() }}" class="h-full w-full object-cover">
     @else
         {{-- Belum diunggah: gambar otomatis dari nama tema. --}}
-        <x-slc.tema-cover :nama="$record?->temaNama()" ratio="4:3" />
+        <x-slc.tema-cover :nama="$record?->temaNama()" ratio="4:3" ringkas />
     @endif
 </div>
