@@ -5,6 +5,8 @@
        sebelahnya (thumbnail halaman detail). Warna aksennya tetap diturunkan dari
        judul, jadi identitas per modul tidak hilang. */
     'ringkas' => false,
+    /* Kunci warna aksen; lihat penjelasan yang sama pada tema-cover. */
+    'seed' => null,
 ])
 
 @php
@@ -22,7 +24,9 @@
     [$w, $h] = $ratio === '4:3' ? [1200, 900] : [1200, 675];
 
     $aksen = ['#fed33e', '#e8a33d', '#7ac0a0', '#8fb8e0', '#d9a7c7', '#c9d97a'];
-    $warna = $aksen[crc32($judul) % count($aksen)];
+    // Kunci angka dipakai apa adanya; lihat penjelasan pada tema-cover.
+    $kunci = $seed ?? $judul;
+    $warna = $aksen[(is_numeric($kunci) ? (int) $kunci : crc32((string) $kunci)) % count($aksen)];
 
     $panjang = mb_strlen($judul);
     $fontSize = match (true) {

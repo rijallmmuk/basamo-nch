@@ -12,7 +12,7 @@
         @if($punyaUnggahan)
             <img src="{{ $record->coverUrl() }}" alt="Sampul {{ $judul }}" class="w-full h-full object-cover" />
         @else
-            <x-slc.module-cover :judul="$judul" ratio="4:3" ringkas class="h-full w-full object-cover" />
+            <x-slc.module-cover :judul="$judul" :seed="$record->getKey()" ratio="4:3" ringkas class="h-full w-full object-cover" />
         @endif
     </div>
 </div>

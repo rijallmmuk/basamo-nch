@@ -13,7 +13,11 @@
             @if ($program->punyaCover())
                 <img src="{{ $program->coverUrl() }}" alt="Cover {{ $program->temaNama() }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
             @else
-                <x-slc.tema-cover :nama="$program->temaNama()" ringkas class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                {{-- Rasio WAJIB sama dengan kotaknya. Bawaannya 4:3 sementara kotak
+                     kartu 16:9, dan `slice` memotong bagian atas dan bawah, tempat
+                     garis aksen serta tulisan lembaga berada. --}}
+                <x-slc.tema-cover :nama="$program->temaNama()" :seed="$program->getKey()" ratio="16:9"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             @endif
             
         </div>

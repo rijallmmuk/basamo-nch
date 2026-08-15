@@ -5,6 +5,10 @@
        tepat di sebelahnya. Warna aksennya tetap diturunkan dari nama, jadi tiap
        pelatihan tetap punya wajah sendiri. */
     'ringkas' => false,
+    /* Kunci warna aksen. Bila kosong, warnanya diturunkan dari nama tema, sehingga
+       dua pelatihan bertema sama mendapat warna yang sama persis. Isi dengan id
+       pelatihan supaya masing-masing punya warnanya sendiri. */
+    'seed' => null,
 ])
 
 @php
@@ -16,7 +20,12 @@
     [$w, $h] = $ratio === '16:9' ? [1200, 675] : [1200, 900];
 
     $aksen = ['#fed33e', '#e8a33d', '#7ac0a0', '#8fb8e0', '#d9a7c7', '#c9d97a'];
-    $warna = $aksen[crc32($nama) % count($aksen)];
+    /* Kunci angka (id) dipakai APA ADANYA, bukan lewat crc32. crc32 atas angka
+       berurutan menumpuk: "4", "5", dan "6" jatuh ke warna yang sama, sehingga tiga
+       pelatihan berbeda tetap tampil kembar. Modulo langsung membuat id berurutan
+       memutari seluruh palet. */
+    $kunci = $seed ?? $nama;
+    $warna = $aksen[(is_numeric($kunci) ? (int) $kunci : crc32((string) $kunci)) % count($aksen)];
 
     // Ukuran teks menyesuaikan panjang nama: nama pendek besar, nama panjang mengecil
     // dan dipecah menjadi beberapa baris (maks 4 baris, sisanya dipangkas dengan elipsis).
