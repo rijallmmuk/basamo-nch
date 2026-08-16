@@ -4,17 +4,21 @@ namespace App\Filament\Resources\Pelatihans\Schemas;
 
 use App\Enums\ActiveStatus;
 use App\Enums\ModeSertifikat;
+use App\Models\Certificate;
 use App\Models\Nagari;
 use App\Models\Pelatihan;
 use App\Models\TemaPelatihan;
 use App\Models\User;
+use App\Support\SertifikatPdf;
 use Closure;
+use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Filament\Forms\Components\OptimizedSpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -137,8 +141,61 @@ class PelatihanForm
                             ->required(fn (Get $get): bool => self::modeSertifikat($get('sertifikat_mode')) === ModeSertifikat::Unggah)
                             ->visible(fn (Get $get): bool => self::modeSertifikat($get('sertifikat_mode')) === ModeSertifikat::Unggah)
                             ->columnSpanFull(),
+
+                        // Sertifikat adalah pernyataan ke pihak luar dan tidak dapat
+                        // ditarik setelah warga mengunduhnya, jadi asal tiap isian
+                        // disebutkan di sini, bukan dibiarkan ditebak.
+                        Callout::make()
+                            ->heading('Isian yang tercetak di sertifikat')
+                            ->description('Tema Pelatihan tercetak apa adanya sebagai nama pelatihan, jadi tulis lengkap dan tanpa singkatan. Nama penerima beserta nagarinya diambil dari data warga, sedangkan nomor seri, tanggal terbit, dan kode QR verifikasi dibuat sistem saat warga mengambil sertifikatnya.')
+                            ->icon(Heroicon::OutlinedDocumentCheck)
+                            ->color('info')
+                            ->footerActions([self::contohSertifikatAction()])
+                            ->visible(fn (Get $get): bool => self::modeSertifikat($get('sertifikat_mode')) === ModeSertifikat::Terbit)
+                            ->columnSpanFull(),
                     ]),
             ]);
+    }
+
+    /**
+     * Unduh contoh sertifikat memakai tema yang SEDANG diketik, belum perlu disimpan.
+     *
+     * Berkasnya dirakit lewat {@see SertifikatPdf} yang sama dengan pengambilan oleh
+     * warga, jadi yang dilihat pengajar di sini benar-benar tata letak yang nanti
+     * diterima. Bedanya hanya penanda contoh, dan QR tidak ikut dicetak.
+     */
+    private static function contohSertifikatAction(): Action
+    {
+        return Action::make('contohSertifikat')
+            ->label('Lihat contoh sertifikat')
+            ->icon(Heroicon::OutlinedDocumentArrowDown)
+            ->color('gray')
+            ->action(function ($livewire) {
+                $tema = trim((string) data_get($livewire, 'data.tema_nama', ''));
+
+                $pelatihan = new Pelatihan;
+                $pelatihan->setRelation('tema', new TemaPelatihan([
+                    'nama' => $tema !== '' ? $tema : 'Tema Pelatihan',
+                ]));
+
+                // Nama contoh, bukan nama pengajar yang membuka: sertifikat ini tidak
+                // pernah menyebut pembuatnya, dan memakai namanya bisa disalahpahami.
+                $warga = new User(['name' => 'Nama Lengkap Warga Penerima']);
+                $warga->setRelation('nagari', auth()->user()?->nagari
+                    ?? Nagari::query()->orderBy('nama')->first());
+
+                $certificate = new Certificate([
+                    'nomor_seri' => 'NCH-'.now()->year.'-CONTOH00',
+                    'diterbitkan_pada' => now(),
+                ]);
+
+                $pdf = SertifikatPdf::buat($certificate, $pelatihan, $warga, contoh: true);
+
+                return response()->streamDownload(
+                    fn () => print $pdf->output(),
+                    'Contoh-Sertifikat.pdf',
+                );
+            });
     }
 
     /**
@@ -178,6 +235,7 @@ class PelatihanForm
                 ->orderBy('nama')
                 ->pluck('nama')
                 ->all())
+            ->helperText('Tercetak apa adanya di sertifikat warga, jadi tulis lengkap dan tanpa singkatan.')
             ->placeholder('Isi tema pelatihan');
     }
 

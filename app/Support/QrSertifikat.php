@@ -17,6 +17,11 @@ class QrSertifikat
     /**
      * Koreksi galat Quartile, bukan Low: sertifikat berakhir di kertas yang terlipat,
      * terkena noda, dan dipindai kamera ponsel di bawah cahaya seadanya.
+     *
+     * Margin WAJIB ada. Spesifikasi QR menuntut zona sunyi selebar empat modul di
+     * sekeliling kode; tanpa itu pemindai kehilangan batas kode dan pembacaan menjadi
+     * untung-untungan, yang di sini sempat terlihat sebagai test yang gagal sesekali.
+     * Bingkai putih tipis di PDF tidak cukup menggantikannya.
      */
     public static function dataUri(string $url): string
     {
@@ -25,7 +30,7 @@ class QrSertifikat
             data: $url,
             errorCorrectionLevel: ErrorCorrectionLevel::Quartile,
             size: 320,
-            margin: 0,
+            margin: 16,
         );
 
         return 'data:image/png;base64,'.base64_encode($qr->build()->getString());

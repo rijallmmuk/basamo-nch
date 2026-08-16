@@ -6,8 +6,7 @@ use App\Enums\ModeSertifikat;
 use App\Http\Controllers\Controller;
 use App\Models\Pelatihan;
 use App\Services\SertifikatService;
-use App\Support\QrSertifikat;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\SertifikatPdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,30 +46,13 @@ class SertifikatController extends Controller
             return $this->berkasPenyelenggara($pelatihan);
         }
 
-        $pdf = Pdf::loadView('sertifikat.pdf', [
-            'certificate' => $certificate,
-            'pelatihan' => $pelatihan->loadMissing('tema', 'nagari'),
-            'warga' => $user->loadMissing('nagari'),
-            'urlVerifikasi' => $certificate->urlVerifikasi(),
-            // Ditanam sebagai data URI, bukan path maupun URL: dompdf berjalan tanpa
-            // akses jaringan di produksi, dan chroot-nya berbeda antar lingkungan.
-            'logo' => $this->logoTertanam(),
-            'qr' => QrSertifikat::dataUri($certificate->urlVerifikasi()),
-        ])->setPaper('a4', 'landscape');
+        $pdf = SertifikatPdf::buat(
+            $certificate,
+            $pelatihan->loadMissing('tema', 'nagari'),
+            $user->loadMissing('nagari'),
+        );
 
         return $pdf->download('Sertifikat-'.$certificate->nomor_seri.'.pdf');
-    }
-
-    /** Logo lembaga sebagai data URI; kosong bila berkasnya hilang, agar unduhan tetap jalan. */
-    private function logoTertanam(): string
-    {
-        $path = public_path('images/brand/basamo-nch-mark.png');
-
-        if (! is_file($path) || ! is_readable($path)) {
-            return '';
-        }
-
-        return 'data:image/png;base64,'.base64_encode((string) file_get_contents($path));
     }
 
     /** Berkas siap pakai milik penyelenggara, sama untuk seluruh peserta. */

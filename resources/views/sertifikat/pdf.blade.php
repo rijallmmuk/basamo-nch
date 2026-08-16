@@ -81,6 +81,13 @@
             margin: 7pt auto 0 auto;
             border-top: 2pt solid {{ $emas }};
         }
+        .cap-contoh {
+            margin-top: 8pt;
+            font-size: 9pt;
+            font-weight: bold;
+            letter-spacing: 4pt;
+            color: #b23c17;
+        }
         .nomor {
             margin-top: 7pt;
             font-family: "DejaVu Sans Mono", monospace;
@@ -189,6 +196,9 @@
         <div class="judul">SERTIFIKAT</div>
         <div class="garis-judul"></div>
         <div class="nomor">{{ $certificate->nomor_seri }}</div>
+        @if($contoh ?? false)
+            <div class="cap-contoh">CONTOH, BUKAN SERTIFIKAT YANG SAH</div>
+        @endif
 
         <div class="antar">Dengan ini menyatakan bahwa</div>
         <div class="nama">{{ $nama }}</div>
@@ -223,9 +233,14 @@
                     <table style="width: auto; margin-left: auto;">
                         <tr>
                             <td align="right" style="padding-right: 10pt;">
-                                <div class="label">PERIKSA KEASLIAN SERTIFIKAT INI DI</div>
-                                <div class="tautan">{{ $urlVerifikasi }}</div>
-                                <div class="qr-catatan">ATAU PINDAI KODE DI SAMPING</div>
+                                @if($contoh ?? false)
+                                    <div class="label">CONTOH TAMPILAN</div>
+                                    <div class="nilai">Nomor seri, tanggal, dan kode verifikasi baru dibuat saat warga mengambil sertifikatnya.</div>
+                                @else
+                                    <div class="label">PERIKSA KEASLIAN SERTIFIKAT INI DI</div>
+                                    <div class="tautan">{{ $urlVerifikasi }}</div>
+                                    <div class="qr-catatan">ATAU PINDAI KODE DI SAMPING</div>
+                                @endif
                             </td>
                             <td width="58" align="right" style="vertical-align: middle;">
                                 @if($qr !== '')
