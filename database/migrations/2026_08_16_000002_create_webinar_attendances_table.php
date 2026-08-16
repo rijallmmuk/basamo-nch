@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Catatan kehadiran warga pada pertemuan daring sebuah pelatihan.
  *
- * Webinar tidak punya modul maupun materi, sehingga tidak ada progres yang bisa
- * dipakai sebagai bukti mengikuti. Baris di sinilah yang menggantikannya, dan
- * menjadi satu-satunya syarat terbitnya sertifikat webinar.
+ * Pelatihan yang diisi lewat pertemuan daring boleh tidak berisi modul, sehingga tidak
+ * ada progres yang bisa dipakai sebagai bukti mengikuti. Baris di sinilah yang
+ * menggantikannya, dan menjadi satu-satunya syarat terbitnya sertifikat.
+ *
+ * Namanya diperbaiki menjadi `pelatihan_attendances` pada migrasi berikutnya.
  *
  * Unique `(pelatihan_id, user_id)` menjaga satu warga tercatat sekali saja, walau
  * tombolnya ditekan berulang atau dua permintaan datang berbarengan.

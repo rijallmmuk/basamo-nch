@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Pelatihans\RelationManagers;
 
 use App\Models\Pelatihan;
-use App\Models\WebinarAttendance;
+use App\Models\PelatihanAttendance;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -23,7 +23,7 @@ class KehadiransRelationManager extends RelationManager
 
     public static function canViewForRecord($ownerRecord, string $pageClass): bool
     {
-        return $ownerRecord instanceof Pelatihan && $ownerRecord->adalahWebinar();
+        return $ownerRecord instanceof Pelatihan && $ownerRecord->punyaPertemuan();
     }
 
     public function isReadOnly(): bool
@@ -73,6 +73,6 @@ class KehadiransRelationManager extends RelationManager
 
     protected function getTableQuery(): ?\Illuminate\Database\Eloquent\Builder
     {
-        return WebinarAttendance::query()->where('pelatihan_id', $this->getOwnerRecord()->getKey());
+        return PelatihanAttendance::query()->where('pelatihan_id', $this->getOwnerRecord()->getKey());
     }
 }

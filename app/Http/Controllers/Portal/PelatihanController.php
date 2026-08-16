@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Pelatihan;
-use App\Models\WebinarAttendance;
+use App\Models\PelatihanAttendance;
 use App\Services\SertifikatService;
 use App\Services\SlcProgressService;
 use Illuminate\Database\QueryException;
@@ -67,7 +67,7 @@ class PelatihanController extends Controller
             ? null
             : $this->sertifikatService->alasanBelumBerhak($user, $pelatihan);
 
-        $sudahHadir = $pelatihan->adalahWebinar() && $pelatihan->sudahHadir($user);
+        $sudahHadir = $pelatihan->punyaPertemuan() && $pelatihan->sudahHadir($user);
 
         return view('portal.pelatihan.show', compact(
             'pelatihan', 'modules', 'sertifikatBerhak', 'sertifikatAlasan', 'sudahHadir',
@@ -77,9 +77,10 @@ class PelatihanController extends Controller
     /**
      * Warga menandai dirinya mengikuti pertemuan daring.
      *
-     * Ini satu-satunya bukti mengikuti yang dimiliki webinar, dan ia menjadi syarat
-     * terbitnya sertifikat. Kelayakannya diperiksa ulang di sini, bukan dipercayakan
-     * pada tombol yang tampil: alamatnya dapat dikirim ke server secara langsung.
+     * Pada pelatihan yang diisi lewat pertemuan daring, inilah satu-satunya bukti
+     * mengikuti, dan ia menjadi syarat terbitnya sertifikat. Kelayakannya diperiksa
+     * ulang di sini, bukan dipercayakan pada tombol yang tampil: alamatnya dapat
+     * dikirim ke server secara langsung.
      */
     public function tandaiHadir(Request $request, Pelatihan $pelatihan): RedirectResponse
     {
@@ -93,7 +94,7 @@ class PelatihanController extends Controller
             404,
         );
 
-        abort_unless($pelatihan->adalahWebinar(), 404);
+        abort_unless($pelatihan->punyaPertemuan(), 404);
 
         $kembali = redirect()->route('portal.pelatihan.show', $pelatihan);
 
@@ -107,7 +108,7 @@ class PelatihanController extends Controller
         }
 
         try {
-            WebinarAttendance::create([
+            PelatihanAttendance::create([
                 'pelatihan_id' => $pelatihan->getKey(),
                 'user_id' => $user->getKey(),
                 'hadir_pada' => now(),

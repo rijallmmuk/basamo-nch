@@ -77,7 +77,7 @@
 
                 {{-- Pertemuan daring. Tautannya HANYA di sini, tidak pernah di halaman
                      publik: ruang yang alamatnya terbuka akan disusupi orang luar. --}}
-                @if($pelatihan->adalahWebinar())
+                @if($pelatihan->punyaPertemuan())
                     <div class="mt-6 rounded-2xl border border-primary/35 bg-primary/5 p-5">
                         <div class="flex items-start gap-3">
                             <x-heroicon-o-video-camera class="h-6 w-6 shrink-0 text-primary" />
@@ -183,13 +183,13 @@
         </div>
 
         @if($modules->isEmpty())
-            {{-- Webinar memang tidak berisi modul, jadi keterangan "sedang disiapkan"
-                 akan menyesatkan: warga mengira pelatihannya belum jadi. --}}
+            {{-- Pelatihan yang diisi lewat pertemuan daring memang boleh tanpa modul,
+                 jadi keterangan "sedang disiapkan" akan menyesatkan. --}}
             <x-portal.empty
-                :icon="$pelatihan->adalahWebinar() ? 'heroicon-o-video-camera' : 'heroicon-o-book-open'"
-                :title="$pelatihan->adalahWebinar() ? 'Pelatihan Ini Berupa Pertemuan Daring' : 'Belum Ada Modul Dalam Pelatihan Ini'"
-                :subtitle="$pelatihan->adalahWebinar()
-                    ? 'Seluruh kegiatannya berlangsung pada pertemuan daring di atas, tanpa modul yang perlu dipelajari sendiri.'
+                :icon="$pelatihan->punyaPertemuan() ? 'heroicon-o-video-camera' : 'heroicon-o-book-open'"
+                :title="$pelatihan->punyaPertemuan() ? 'Materi Disampaikan Pada Pertemuan Daring' : 'Belum Ada Modul Dalam Pelatihan Ini'"
+                :subtitle="$pelatihan->punyaPertemuan()
+                    ? 'Kegiatannya berlangsung pada pertemuan daring di atas. Modul pendukung dapat menyusul setelahnya.'
                     : 'Modul pembelajaran sedang disiapkan oleh pengelola pelatihan.'" />
         @else
             {{-- 4-Column Grid Layout for Modules --}}

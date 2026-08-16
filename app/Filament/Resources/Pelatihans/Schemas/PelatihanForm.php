@@ -117,13 +117,13 @@ class PelatihanForm
                             ->columnSpanFull(),
                     ]),
 
-                /* Webinar: pelatihan yang isinya pertemuan daring, tanpa modul dan tanpa
-                   materi. Cukup tautannya terisi, pelatihan ini diperlakukan sebagai
-                   webinar; tidak ada kolom jenis tersendiri supaya tidak lahir keadaan
-                   mustahil seperti "jenis webinar tetapi tautannya kosong". */
+                /* TIDAK ADA jenis pelatihan kedua. Ini sekadar bagian pelatihan yang boleh
+                   diisi bila pematerinya menyampaikan lewat pertemuan daring, sama
+                   kedudukannya dengan bagian Deskripsi atau Cover. Karena itu tidak ada
+                   kolom jenis, dan tidak ada satu pun teks yang menamai ulang pelatihannya. */
                 Section::make('Pertemuan Daring')
                     ->icon(Heroicon::OutlinedVideoCamera)
-                    ->description('Opsional. Isi bila pelatihan ini berupa webinar. Tautannya hanya terlihat warga yang sudah masuk, tidak pernah di halaman publik.')
+                    ->description('Opsional. Isi bila pemateri menyampaikan lewat pertemuan daring. Tautannya hanya terlihat warga yang sudah masuk, tidak pernah di halaman publik.')
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -155,8 +155,8 @@ class PelatihanForm
                             ->visible(fn (Get $get): bool => filled($get('pertemuan_url'))),
 
                         Callout::make()
-                            ->heading('Webinar tidak memerlukan modul')
-                            ->description('Warga cukup membuka ruang pertemuan lalu menandai dirinya mengikuti, dan penanda itulah syarat terbitnya sertifikat. Penandaan baru terbuka setelah waktu mulai terlewat, jadi kuncilah pelatihan ini kembali seusai sesi agar tidak ada yang menandai belakangan.')
+                            ->heading('Kehadiran menjadi syarat sertifikatnya')
+                            ->description('Selama pertemuan daring terisi, warga cukup membuka ruangnya lalu menandai dirinya mengikuti, dan penanda itulah syarat terbitnya sertifikat. Modul boleh tidak ada, boleh pula menyusul sesudah pertemuan sebagai bahan pendukung, dan tidak akan menghalangi sertifikat. Penandaan baru terbuka setelah waktu mulai terlewat, jadi kuncilah pelatihan ini kembali seusai sesi agar tidak ada yang menandai belakangan.')
                             ->icon(Heroicon::OutlinedInformationCircle)
                             ->color('warning')
                             ->visible(fn (Get $get): bool => filled($get('pertemuan_url')))

@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Warga menandai dirinya mengikuti pertemuan daring sebuah pelatihan.
  *
- * Webinar tidak punya modul maupun materi, jadi tidak ada progres yang dapat menjadi
- * bukti mengikuti. Baris inilah penggantinya, sekaligus satu-satunya syarat terbitnya
- * sertifikat webinar.
+ * Pelatihan yang diisi pemateri lewat pertemuan daring boleh tidak berisi modul sama
+ * sekali, sehingga tidak ada progres yang dapat menjadi bukti mengikutinya. Baris
+ * inilah penggantinya, sekaligus satu-satunya syarat terbitnya sertifikat pelatihan
+ * semacam itu.
  */
-class WebinarAttendance extends Model
+class PelatihanAttendance extends Model
 {
     protected $fillable = ['pelatihan_id', 'user_id', 'hadir_pada'];
 

@@ -5,11 +5,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Pertemuan daring pada pelatihan, untuk webinar.
+ * Pertemuan daring pada pelatihan.
  *
- * Sebuah pelatihan disebut webinar cukup dari terisinya `pertemuan_url`. Tidak ada
- * kolom jenis tersendiri supaya tidak lahir keadaan mustahil semacam "jenis webinar
- * tetapi tautannya kosong".
+ * TIDAK menandai jenis pelatihan yang berbeda. Ini sekadar keterangan bahwa pematerinya
+ * menyampaikan lewat ruang daring, dan cukup dilihat dari terisinya `pertemuan_url`.
+ * Tidak ada kolom jenis tersendiri, sebab pelatihan tetap satu macam saja.
  *
  * Waktunya MURNI keterangan: ditampilkan dan dapat diurutkan, tetapi tidak membuka
  * maupun mengunci apa pun. Gerbang akses tetap hanya tombol Kunci/Buka.

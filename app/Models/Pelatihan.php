@@ -259,8 +259,8 @@ class Pelatihan extends Model implements HasMedia
         $query->where(fn (Builder $target) => $target
             ->where('semua_nagari', true)
             ->orWhereHas('nagaris'))
-            // Webinar tidak punya modul: isinya memang hanya pertemuan daring. Tanpa
-            // cabang ini ia tidak akan pernah muncul di katalog warga.
+            // Pelatihan yang diisi lewat pertemuan daring boleh tidak berisi modul.
+            // Tanpa cabang ini ia tidak akan pernah muncul di katalog warga.
             ->where(fn (Builder $isi) => $isi
                 ->whereHas('modules', fn (Builder $modules) => $modules->ready())
                 ->orWhereNotNull('pertemuan_url'));
@@ -276,19 +276,19 @@ class Pelatihan extends Model implements HasMedia
             return false;
         }
 
-        return $this->adalahWebinar() || $this->modules()->ready()->exists();
+        return $this->punyaPertemuan() || $this->modules()->ready()->exists();
     }
 
-    /** Isi pelatihan ini berupa pertemuan daring? Cukup dilihat dari tautannya. */
-    public function adalahWebinar(): bool
+    /** Pelatihan ini diisi lewat pertemuan daring? Cukup dilihat dari tautannya. */
+    public function punyaPertemuan(): bool
     {
         return filled($this->pertemuan_url);
     }
 
-    /** @return HasMany<WebinarAttendance, $this> */
+    /** @return HasMany<PelatihanAttendance, $this> */
     public function kehadirans(): HasMany
     {
-        return $this->hasMany(WebinarAttendance::class);
+        return $this->hasMany(PelatihanAttendance::class);
     }
 
     public function sudahHadir(User $user): bool
@@ -297,7 +297,7 @@ class Pelatihan extends Model implements HasMedia
     }
 
     /**
-     * Pertemuannya sudah dimulai? Dipakai untuk menolak penandaan hadir pada webinar
+     * Pertemuannya sudah dimulai? Dipakai untuk menolak penandaan hadir pada pertemuan
      * yang belum berlangsung. Tanpa waktu mulai, penandaan dibiarkan terbuka.
      */
     public function pertemuanSudahMulai(): bool
