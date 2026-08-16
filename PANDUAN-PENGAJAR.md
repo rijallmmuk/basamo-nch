@@ -10,6 +10,7 @@ kecuali sejauh Anda perlu tahu kapan isi Anda sampai kepadanya.
 
 ## Daftar isi
 
+0. [Mengenal wajah aplikasi](#0-mengenal-wajah-aplikasi)
 1. [Masuk ke panel](#1-masuk-ke-panel)
 2. [Mengenali dasbor](#2-mengenali-dasbor)
 3. [Alur kerja: lima langkah](#3-alur-kerja-lima-langkah)
@@ -32,11 +33,32 @@ kecuali sejauh Anda perlu tahu kapan isi Anda sampai kepadanya.
 
 ---
 
+## 0. Mengenal wajah aplikasi
+
+Sebelum masuk, ada baiknya Anda mengenali tiga wajah Basamo NCH yang berbeda.
+
+**Beranda publik** adalah halaman yang dilihat siapa pun tanpa masuk. Di sinilah
+empat pilar Basamo NCH diperkenalkan, salah satunya **Medan Nan Balinduang**, ruang
+belajar tempat pelatihan Anda nanti tampil.
+
+![Beranda publik Basamo NCH](panduan-pengajar/gambar/01-beranda-publik.webp)
+
+**Medan Nan Balinduang** adalah katalog publik pelatihan. Pengunjung dapat melihat
+tema, deskripsi, dan daftar modul, tetapi isi materinya baru terbuka setelah masuk
+sebagai warga nagari sasaran. Beginilah pelatihan yang Anda buat akan dipandang orang
+luar, jadi tema dan deskripsi yang rapi berpengaruh langsung di sini.
+
+![Katalog publik Medan Nan Balinduang](panduan-pengajar/gambar/03-katalog-publik.webp)
+
+**Panel** adalah tempat kerja Anda, dan seluruh sisa panduan ini membahasnya.
+
+---
+
 ## 1. Masuk ke panel
 
 Buka alamat sistem, lalu **Masuk**.
 
-![Halaman masuk](panduan-pengajar/gambar/01-masuk.webp)
+![Halaman masuk](panduan-pengajar/gambar/02-masuk.webp)
 
 - **Username atau NIK** — pengajar memakai **username**, bukan NIK. NIK dipakai warga.
 - Pada login pertama Anda wajib mengisi **nama lengkap**, **lembaga atau instansi**,
@@ -57,7 +79,7 @@ untuk mendapatkan bantuan pemeriksaan akun.
 
 ## 2. Mengenali dasbor
 
-![Dasbor pengajar](panduan-pengajar/gambar/02-dasbor.webp)
+![Dasbor pengajar](panduan-pengajar/gambar/04-dasbor.webp)
 
 Empat kartu di atas adalah ringkasan kerja Anda:
 
@@ -96,12 +118,12 @@ pertemuan daring boleh **tanpa modul dan tanpa materi** sama sekali. Lihat
 
 Menu **Pelatihan** → tombol **Tambah Pelatihan** di kanan atas.
 
-![Daftar pelatihan](panduan-pengajar/gambar/03-daftar-pelatihan.webp)
+![Daftar pelatihan](panduan-pengajar/gambar/05-daftar-pelatihan.webp)
 
 Kolom **Akses Warga** pada daftar ini menunjukkan mana yang sudah dibuka
 (**Terbuka**) dan mana yang masih Anda garap (**Terkunci**).
 
-![Form tambah pelatihan](panduan-pengajar/gambar/04-tambah-pelatihan.webp)
+![Form tambah pelatihan](panduan-pengajar/gambar/06-tambah-pelatihan.webp)
 
 | Isian | Penjelasan |
 | --- | --- |
@@ -116,7 +138,7 @@ Kolom **Akses Warga** pada daftar ini menunjukkan mana yang sudah dibuka
 Tekan **Simpan**. Pelatihan tersimpan dengan status **Terkunci** dan Anda dibawa
 ke halaman detailnya.
 
-![Detail pelatihan](panduan-pengajar/gambar/05-detail-pelatihan.webp)
+![Detail pelatihan](panduan-pengajar/gambar/09-detail-pelatihan.webp)
 
 Halaman detail terbagi dua bagian:
 
@@ -141,7 +163,7 @@ Tombol di kanan atas halaman ini:
 
 Dari halaman detail pelatihan, tekan **Tambah Modul** pada bagian **Daftar Modul**.
 
-![Form tambah modul](panduan-pengajar/gambar/06-tambah-modul.webp)
+![Form tambah modul](panduan-pengajar/gambar/10-tambah-modul.webp)
 
 | Isian | Penjelasan |
 | --- | --- |
@@ -153,7 +175,7 @@ Dari halaman detail pelatihan, tekan **Tambah Modul** pada bagian **Daftar Modul
 
 Setelah disimpan, Anda mendarat di **Lihat Modul**.
 
-![Detail modul](panduan-pengajar/gambar/07-detail-modul.webp)
+![Detail modul](panduan-pengajar/gambar/11-detail-modul.webp)
 
 Susunannya sama dengan halaman pelatihan: **Ringkasan** yang selalu terbuka, lalu
 **Rincian & Sampul** yang terlipat, lalu tabel **Halaman Materi**.
@@ -185,7 +207,7 @@ sekaligus lewat **Tambah Materi Berikutnya**, lalu menyimpannya sekali jalan.
 
 Isi **Judul Materi**, lalu tekan **Tambah blok**:
 
-![Menu blok materi](panduan-pengajar/gambar/08-blok-materi.webp)
+![Menu blok materi](panduan-pengajar/gambar/12-blok-materi.webp)
 
 Satu halaman materi boleh mencampur beberapa blok dan mengurutkannya bebas. Contoh
 yang lazim: satu blok **Teks** sebagai pengantar, lalu blok **PDF** berisi panduan,
@@ -219,7 +241,7 @@ Gerbang di awal modul. Warga mengerjakannya **satu kali** sebelum materi terbuka
 
 Penutup modul. Baru terbuka setelah **seluruh materi** selesai dibaca warga.
 
-![Evaluasi kegiatan](panduan-pengajar/gambar/09-evaluasi-kegiatan.webp)
+![Evaluasi kegiatan](panduan-pengajar/gambar/13-evaluasi-kegiatan.webp)
 
 | Isian | Penjelasan |
 | --- | --- |
@@ -229,6 +251,18 @@ Penutup modul. Baru terbuka setelah **seluruh materi** selesai dibaca warga.
 **Status Pengerjaan** menunjukkan apakah evaluasi sudah **Siap dikerjakan**. Evaluasi
 yang soalnya belum lengkap tidak akan pernah muncul untuk warga, dan halaman ini
 menyebutkan apa yang kurang.
+
+### Menyusun soal
+
+Tekan **Tambah Soal** pada bagian **Daftar Soal**. Seperti pada materi, soal yang
+sudah ada ditampilkan lebih dahulu dan soal baru ditambahkan di bawahnya, lalu
+disimpan sekali jalan.
+
+![Form tambah soal evaluasi](panduan-pengajar/gambar/14-tambah-soal.webp)
+
+Tiap soal berisi pertanyaannya, lalu daftar **Pilihan Jawaban**. Saklar **Benar** di
+kanan tiap pilihan menandai jawaban yang tepat. Ikon panah dua arah dipakai untuk
+menyusun ulang urutan, ikon tong sampah merah menghapus.
 
 Aturan kelengkapan soal ada di [bagian 17](#17-aturan-soal-evaluasi).
 
@@ -259,6 +293,8 @@ tanpa menghapus apa pun.
 
 Sebagian pelatihan disampaikan langsung oleh pemateri lewat Zoom, Google Meet, atau
 Teams. Untuk itu isi bagian **Pertemuan Daring** pada form pelatihan.
+
+![Bagian Pertemuan Daring pada form pelatihan](panduan-pengajar/gambar/07-pertemuan-daring.webp)
 
 Ini **bukan jenis pelatihan yang berbeda**. Ia tetap pelatihan biasa yang kebetulan
 punya sesi daring, sama kedudukannya dengan bagian Deskripsi atau Cover.
@@ -311,6 +347,8 @@ alamatnya terbuka akan disusupi orang di luar nagari sasaran.
 Bagian **Sertifikat** pada form pelatihan menentukan apakah pelatihan ini memberi
 sertifikat, dan dari mana asalnya.
 
+![Bagian Sertifikat pada form pelatihan](panduan-pengajar/gambar/08-sertifikat.webp)
+
 | Pilihan | Artinya |
 | --- | --- |
 | **Tanpa sertifikat** | pelatihan ini tidak memberi sertifikat |
@@ -358,7 +396,7 @@ belum terlihat warga.
 
 Menu **Rekap Belajar Warga**.
 
-![Rekap belajar warga](panduan-pengajar/gambar/10-rekap-belajar-warga.webp)
+![Rekap belajar warga](panduan-pengajar/gambar/15-rekap-belajar-warga.webp)
 
 | Kolom | Artinya |
 | --- | --- |
