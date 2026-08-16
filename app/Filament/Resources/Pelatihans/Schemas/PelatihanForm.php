@@ -4,12 +4,10 @@ namespace App\Filament\Resources\Pelatihans\Schemas;
 
 use App\Enums\ActiveStatus;
 use App\Enums\ModeSertifikat;
-use App\Models\Certificate;
 use App\Models\Nagari;
 use App\Models\Pelatihan;
 use App\Models\TemaPelatihan;
 use App\Models\User;
-use App\Support\SertifikatPdf;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
@@ -22,6 +20,7 @@ use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -158,44 +157,29 @@ class PelatihanForm
     }
 
     /**
-     * Unduh contoh sertifikat memakai tema yang SEDANG diketik, belum perlu disimpan.
+     * Contoh sertifikat memakai tema yang SEDANG diketik, belum perlu disimpan.
      *
-     * Berkasnya dirakit lewat {@see SertifikatPdf} yang sama dengan pengambilan oleh
-     * warga, jadi yang dilihat pengajar di sini benar-benar tata letak yang nanti
-     * diterima. Bedanya hanya penanda contoh, dan QR tidak ikut dicetak.
+     * Ditampilkan di dalam modal, bukan diunduh: yang dicari pengajar adalah melihat
+     * wujudnya sebentar, dan memaksa berkas turun ke cakram untuk itu justru merepotkan.
+     * Tema dibaca dari state form saat modal dibuka, jadi selalu yang terbaru tanpa
+     * membuat kolom temanya `live()` dan menambah lalu lintas tiap ketikan.
      */
     private static function contohSertifikatAction(): Action
     {
         return Action::make('contohSertifikat')
             ->label('Lihat contoh sertifikat')
-            ->icon(Heroicon::OutlinedDocumentArrowDown)
+            ->icon(Heroicon::OutlinedEye)
             ->color('gray')
-            ->action(function ($livewire) {
-                $tema = trim((string) data_get($livewire, 'data.tema_nama', ''));
-
-                $pelatihan = new Pelatihan;
-                $pelatihan->setRelation('tema', new TemaPelatihan([
-                    'nama' => $tema !== '' ? $tema : 'Tema Pelatihan',
-                ]));
-
-                // Nama contoh, bukan nama pengajar yang membuka: sertifikat ini tidak
-                // pernah menyebut pembuatnya, dan memakai namanya bisa disalahpahami.
-                $warga = new User(['name' => 'Nama Lengkap Warga Penerima']);
-                $warga->setRelation('nagari', auth()->user()?->nagari
-                    ?? Nagari::query()->orderBy('nama')->first());
-
-                $certificate = new Certificate([
-                    'nomor_seri' => 'NCH-'.now()->year.'-CONTOH00',
-                    'diterbitkan_pada' => now(),
-                ]);
-
-                $pdf = SertifikatPdf::buat($certificate, $pelatihan, $warga, contoh: true);
-
-                return response()->streamDownload(
-                    fn () => print $pdf->output(),
-                    'Contoh-Sertifikat.pdf',
-                );
-            });
+            ->modalHeading('Contoh sertifikat')
+            ->modalDescription('Wujud utuh sertifikat memakai tema yang sedang Anda isi, lengkap dengan kode QR. Nomor serinya nomor contoh, jadi halaman verifikasinya akan menjawab tidak ditemukan.')
+            ->modalWidth(Width::SevenExtraLarge)
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel('Tutup')
+            ->modalContent(fn ($livewire) => view('filament.modals.contoh-sertifikat', [
+                'url' => route('admin.preview.sertifikat', [
+                    'tema' => trim((string) data_get($livewire, 'data.tema_nama', '')),
+                ]),
+            ]));
     }
 
     /**

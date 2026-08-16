@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Certificate;
 use App\Models\Materi;
 use App\Models\Module;
+use App\Models\Nagari;
+use App\Models\Pelatihan;
+use App\Models\TemaPelatihan;
 use App\Models\User;
+use App\Support\SertifikatPdf;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminPreviewController extends Controller
 {
@@ -108,6 +115,39 @@ class AdminPreviewController extends Controller
         $isPreview = true;
 
         return view('portal.evaluasi.show', compact('module', 'evaluasi', 'isPreview'));
+    }
+
+    /**
+     * Contoh sertifikat, ditampilkan di dalam peramban dan tidak diunduh.
+     *
+     * Temanya datang dari form yang sedang diisi, jadi pengajar dapat menilai wujud
+     * sertifikatnya sebelum pelatihannya disimpan. Berkasnya dirakit lewat perakit yang
+     * sama dengan sertifikat asli; yang membedakan hanya nomor seri contoh dan penanda
+     * di badan sertifikat, sehingga halaman verifikasi menjawab "tidak ditemukan".
+     */
+    public function contohSertifikat(Request $request): Response
+    {
+        $this->checkAdmin();
+
+        $tema = trim((string) $request->query('tema', ''));
+        $tema = $tema !== '' ? mb_substr($tema, 0, 200) : 'Tema Pelatihan';
+
+        $pelatihan = new Pelatihan;
+        $pelatihan->setRelation('tema', new TemaPelatihan(['nama' => $tema]));
+
+        // Nama contoh, bukan nama pengajar yang membuka: sertifikat tidak pernah
+        // menyebut pembuatnya, dan memakai namanya bisa disalahpahami.
+        $warga = new User(['name' => 'Nama Lengkap Warga Penerima']);
+        $warga->setRelation('nagari', auth()->user()?->nagari
+            ?? Nagari::query()->orderBy('nama')->first());
+
+        $certificate = new Certificate([
+            'nomor_seri' => 'NCH-'.now()->year.'-CONTOH00',
+            'diterbitkan_pada' => now(),
+        ]);
+
+        return SertifikatPdf::buat($certificate, $pelatihan, $warga, contoh: true)
+            ->stream('Contoh-Sertifikat.pdf');
     }
 
     private function checkAdmin(): void

@@ -233,14 +233,9 @@
                     <table style="width: auto; margin-left: auto;">
                         <tr>
                             <td align="right" style="padding-right: 10pt;">
-                                @if($contoh ?? false)
-                                    <div class="label">CONTOH TAMPILAN</div>
-                                    <div class="nilai">Nomor seri, tanggal, dan kode verifikasi baru dibuat saat warga mengambil sertifikatnya.</div>
-                                @else
-                                    <div class="label">PERIKSA KEASLIAN SERTIFIKAT INI DI</div>
-                                    <div class="tautan">{{ $urlVerifikasi }}</div>
-                                    <div class="qr-catatan">ATAU PINDAI KODE DI SAMPING</div>
-                                @endif
+                                <div class="label">PERIKSA KEASLIAN SERTIFIKAT INI DI</div>
+                                <div class="tautan">{{ $urlVerifikasi }}</div>
+                                <div class="qr-catatan">ATAU PINDAI KODE DI SAMPING</div>
                             </td>
                             <td width="58" align="right" style="vertical-align: middle;">
                                 @if($qr !== '')

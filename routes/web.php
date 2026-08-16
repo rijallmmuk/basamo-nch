@@ -199,4 +199,8 @@ Route::middleware(['web', 'auth'])->prefix('panel/preview')->name('admin.preview
     Route::get('modules/{module:slug}/materi/{materi?}', [AdminPreviewController::class, 'moduleMateri'])->name('modules.materi.show');
     Route::get('modules/{module:slug}/pre-test', [AdminPreviewController::class, 'pretestShow'])->name('modules.pretest.show');
     Route::get('modules/{module:slug}/evaluasi', [AdminPreviewController::class, 'evaluasiShow'])->name('modules.evaluasi.show');
+
+    // Tanpa parameter rute: temanya dibawa lewat query karena pelatihannya bisa saja
+    // belum tersimpan saat pengajar ingin melihat wujud sertifikatnya.
+    Route::get('sertifikat', [AdminPreviewController::class, 'contohSertifikat'])->name('sertifikat');
 });

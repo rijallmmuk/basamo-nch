@@ -27,13 +27,16 @@ class SertifikatPdf
             'certificate' => $certificate,
             'pelatihan' => $pelatihan,
             'warga' => $warga,
-            'urlVerifikasi' => $contoh ? '' : $certificate->urlVerifikasi(),
+            'urlVerifikasi' => $certificate->urlVerifikasi(),
             // Ditanam sebagai data URI, bukan path maupun URL: dompdf berjalan tanpa
             // akses jaringan di produksi, dan chroot-nya berbeda antar lingkungan.
             'logo' => self::logoTertanam(),
-            // Contoh tidak membawa QR: nomor serinya tidak ada di basis data, jadi kode
-            // yang dipindai hanya akan berujung pada halaman verifikasi yang kosong.
-            'qr' => $contoh ? '' : QrSertifikat::dataUri($certificate->urlVerifikasi()),
+            /* Contoh tetap membawa QR yang benar-benar dapat dipindai, supaya pengajar
+               melihat wujud utuh sertifikatnya. Kodenya menunjuk halaman verifikasi
+               seperti biasa, dan karena nomor serinya tidak pernah ada di basis data,
+               halaman itu menjawab "tidak ditemukan". Itulah yang membuatnya sekadar
+               pajangan: mirip sepenuhnya, tetapi tidak dapat dinyatakan sah. */
+            'qr' => QrSertifikat::dataUri($certificate->urlVerifikasi()),
             'contoh' => $contoh,
         ])->setPaper('a4', 'landscape');
     }
