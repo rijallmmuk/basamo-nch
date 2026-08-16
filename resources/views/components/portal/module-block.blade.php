@@ -141,11 +141,18 @@
     {{-- ── 4. GAMBAR MATERI (HIGH-RES WITH CAPTION) ────────────────────────── --}}
     @case('gambar')
         @if(filled($data['file'] ?? null))
+            @php $ukuran = \App\Support\UkuranGambarBlok::untuk($data['file']); @endphp
             <figure class="space-y-2">
                 <div class="slc-media-wide mx-auto max-w-4xl overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-high shadow-sm">
-                    <img src="{{ $fileUrl() }}" 
+                    {{-- Dimensi aslinya dipasang supaya peramban menyediakan ruang lebih dulu.
+                         Tanpa itu tiap kotak gambar bertinggi nol saat tata letak dihitung,
+                         semuanya dianggap masuk layar, dan `loading="lazy"` tidak menunda
+                         satu pun. Lihat {@see App\Support\UkuranGambarBlok}. --}}
+                    <img src="{{ $fileUrl() }}"
                          alt="{{ $data['alt'] ?? ($data['caption'] ?? 'Gambar Materi') }}"
+                         @if($ukuran) width="{{ $ukuran[0] }}" height="{{ $ukuran[1] }}" @endif
                          loading="lazy"
+                         decoding="async"
                          class="mx-auto h-auto max-h-[75vh] w-auto max-w-full object-contain">
                 </div>
                 @if(filled($data['caption'] ?? null))
