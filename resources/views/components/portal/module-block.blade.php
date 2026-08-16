@@ -172,16 +172,13 @@
                     </div>
                 </div>
 
-                {{-- `preload="none"` sudah membuat pemutar ini tidak menarik satu byte pun
-                     sebelum ditekan. Pembungkus muat-diminta dipakai demi keseragaman
-                     dengan PDF dan video, bukan karena ada muatan yang perlu ditahan. --}}
-                <x-portal.muat-diminta label="Putar audio" ikon="heroicon-s-musical-note"
-                    keterangan="Rekaman dimuat saat Anda memutarnya.">
-                    <audio controls preload="none" class="w-full rounded-xl">
-                        <source src="{{ $fileUrl() }}">
-                        Browser Anda tidak mendukung pemutar audio HTML5.
-                    </audio>
-                </x-portal.muat-diminta>
+                {{-- Tanpa pembungkus muat-diminta, dan itu disengaja: `preload="none"` sudah
+                     membuat pemutar ini tidak menarik satu byte pun sebelum ditekan, jadi
+                     tombol tambahan hanya akan menyisipkan klik tanpa menghemat apa pun. --}}
+                <audio controls preload="none" class="w-full rounded-xl">
+                    <source src="{{ $fileUrl() }}">
+                    Browser Anda tidak mendukung pemutar audio HTML5.
+                </audio>
 
                 @if(filled($data['caption'] ?? null))
                     <p class="text-xs text-on-surface-variant italic">{{ $data['caption'] }}</p>
