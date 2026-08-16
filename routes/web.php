@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminPreviewController;
+use App\Http\Controllers\Admin\PanduanGambarController;
 use App\Http\Controllers\Admin\NagariBoundaryController;
 use App\Http\Controllers\Portal\AuthController;
 use App\Http\Controllers\Portal\DiscussionController;
@@ -215,3 +216,8 @@ Route::middleware(['web', 'auth'])->prefix('panel/preview')->name('admin.preview
     // belum tersimpan saat pengajar ingin melihat wujud sertifikatnya.
     Route::get('sertifikat', [AdminPreviewController::class, 'contohSertifikat'])->name('sertifikat');
 });
+
+// Gambar panduan panel. Di luar `public/` supaya tidak terambil tanpa masuk.
+Route::middleware(['web', 'auth'])
+    ->get('panel/panduan/{peran}/gambar/{berkas}', PanduanGambarController::class)
+    ->name('panduan.gambar');
