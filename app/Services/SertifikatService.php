@@ -30,15 +30,37 @@ class SertifikatService
 {
     public function __construct(private readonly SlcProgressService $progressService) {}
 
+    /**
+     * Sertifikat yang PERNAH terbit untuk warga ini, apa pun keadaan pelatihannya kini.
+     *
+     * Penerbitan adalah peristiwa yang sudah lewat. Pengajar dapat menambah modul kapan
+     * saja sesudahnya, dan itu tidak boleh mencabut dokumen yang telanjur diperoleh:
+     * nomornya sudah beredar dan halaman verifikasi publik tetap menyatakannya sah.
+     */
+    public function milik(User $user, Pelatihan $pelatihan): ?Certificate
+    {
+        return Certificate::where('pelatihan_id', $pelatihan->getKey())
+            ->where('user_id', $user->getKey())
+            ->first();
+    }
+
     /** Pelatihan ini memberi sertifikat dan warga sudah berhak mengambilnya? */
     public function berhak(User $user, Pelatihan $pelatihan): bool
     {
-        if (! $pelatihan->sertifikat_mode->memberiSertifikat()) {
+        /* Mode unggah tidak menyimpan berkas per warga: yang diambil selalu berkas
+           penyelenggara. Tanpa berkas itu tidak ada yang bisa disajikan, bahkan kepada
+           warga yang sertifikatnya sudah terbit. Karena itu penjaga ini didahulukan. */
+        if ($pelatihan->sertifikat_mode === ModeSertifikat::Unggah
+            && $pelatihan->getFirstMedia('sertifikat') === null) {
             return false;
         }
 
-        if ($pelatihan->sertifikat_mode === ModeSertifikat::Unggah
-            && $pelatihan->getFirstMedia('sertifikat') === null) {
+        // Sudah pernah terbit: syarat di bawah tidak diperiksa ulang. Lihat {@see milik}.
+        if ($this->milik($user, $pelatihan) !== null) {
+            return true;
+        }
+
+        if (! $pelatihan->sertifikat_mode->memberiSertifikat()) {
             return false;
         }
 
