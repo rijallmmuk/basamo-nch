@@ -56,7 +56,11 @@ class ModuleFileController extends Controller
             : $disk->response($path, $name, [
                 'Content-Disposition' => 'inline; filename="'.$name.'"',
                 'X-Content-Type-Options' => 'nosniff',
-                'Cache-Control' => 'private, no-store, max-age=0',
+                /* `private` menahan berkas dari cache bersama mana pun; hanya peramban
+                   warga sendiri yang boleh menyimpannya, dan cuma sepuluh menit. Tanpa
+                   ini tiap kunjungan ulang ke materi yang sama mengunduh dokumennya dari
+                   nol, padahal warga kerap bolak-balik antar materi. */
+                'Cache-Control' => 'private, max-age=600',
             ]);
     }
 

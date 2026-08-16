@@ -40,17 +40,29 @@
 
         @if($hasVideo)
             <figure class="space-y-2">
-                <div class="slc-media-wide mx-auto aspect-video w-full max-w-4xl overflow-hidden rounded-2xl bg-black border border-outline-variant shadow-sm relative group">
-                    @if($videoId)
-                        <iframe src="https://www.youtube.com/embed/{{ $videoId }}?rel=0"
-                            title="{{ $data['caption'] ?? 'Video Materi YouTube' }}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen class="h-full w-full border-0"></iframe>
-                    @elseif($driveId)
-                        <iframe src="https://drive.google.com/file/d/{{ $driveId }}/preview"
-                            title="{{ $data['caption'] ?? 'Video Materi Google Drive' }}"
-                            allow="autoplay" allowfullscreen class="h-full w-full border-0"></iframe>
-                    @elseif($url && \Illuminate\Support\Str::startsWith(strtolower($url), ['http://', 'https://']))
+                {{-- Sematan YouTube maupun Google Drive menarik skrip pihak ketiga yang berat,
+                     jadi diperlakukan sama seperti PDF: baru dimuat saat diminta. Tautan
+                     eksternal biasa tidak memuat apa pun, jadi tetap tampil apa adanya. --}}
+                @if($videoId || $driveId)
+                    <div class="slc-media-wide mx-auto w-full max-w-4xl overflow-hidden rounded-2xl border border-outline-variant shadow-sm">
+                        <x-portal.muat-diminta label="Putar video" ikon="heroicon-s-play-circle"
+                            keterangan="Video dimuat saat Anda memutarnya, supaya halaman ini tetap ringan.">
+                            <div class="relative aspect-video w-full bg-black">
+                                @if($videoId)
+                                    <iframe src="https://www.youtube.com/embed/{{ $videoId }}?rel=0&autoplay=1"
+                                        title="{{ $data['caption'] ?? 'Video Materi YouTube' }}"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen class="h-full w-full border-0"></iframe>
+                                @else
+                                    <iframe src="https://drive.google.com/file/d/{{ $driveId }}/preview"
+                                        title="{{ $data['caption'] ?? 'Video Materi Google Drive' }}"
+                                        allow="autoplay" allowfullscreen class="h-full w-full border-0"></iframe>
+                                @endif
+                            </div>
+                        </x-portal.muat-diminta>
+                    </div>
+                @elseif($url && \Illuminate\Support\Str::startsWith(strtolower($url), ['http://', 'https://']))
+                    <div class="slc-media-wide mx-auto aspect-video w-full max-w-4xl overflow-hidden rounded-2xl bg-black border border-outline-variant shadow-sm">
                         <div class="flex h-full w-full flex-col items-center justify-center bg-surface-container-high p-8 text-center">
                             <x-heroicon-s-play-circle class="h-16 w-16 text-primary mb-3" />
                             <p class="text-sm font-bold text-on-surface mb-3">Tautan Video Eksternal</p>
@@ -60,8 +72,8 @@
                                 <span>Putar Video di Tab Baru</span>
                             </a>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
 
                 @if(filled($data['caption'] ?? null))
                     <figcaption class="flex items-center justify-center gap-1.5 text-xs text-on-surface-variant italic font-medium">
@@ -108,15 +120,19 @@
                 </div>
 
                 {{-- Pratinjau PDF. Gunakan iframe karena CSP aplikasi sengaja
-                     memblokir object/embed, sedangkan frame sesama-origin diizinkan. --}}
-                <div class="relative w-full bg-surface-container">
-                    <iframe
-                        src="{{ $pdfUrl }}"
-                        title="{{ $data['judul'] ?? 'Pratinjau Dokumen Materi PDF' }}"
-                        class="block w-full border-0"
-                        style="height: min(70vh, 650px)"
-                    ></iframe>
-                </div>
+                     memblokir object/embed, sedangkan frame sesama-origin diizinkan.
+                     Baru dimuat saat diminta; lihat {@see components/portal/muat-diminta}. --}}
+                <x-portal.muat-diminta label="Lihat dokumen"
+                    keterangan="Dokumen dimuat saat Anda membukanya, supaya halaman ini tetap ringan.">
+                    <div class="relative w-full bg-surface-container">
+                        <iframe
+                            src="{{ $pdfUrl }}"
+                            title="{{ $data['judul'] ?? 'Pratinjau Dokumen Materi PDF' }}"
+                            class="block w-full border-0"
+                            style="height: min(70vh, 650px)"
+                        ></iframe>
+                    </div>
+                </x-portal.muat-diminta>
 
             </div>
         @endif
@@ -156,10 +172,16 @@
                     </div>
                 </div>
 
-                <audio controls preload="metadata" class="w-full rounded-xl">
-                    <source src="{{ $fileUrl() }}">
-                    Browser Anda tidak mendukung pemutar audio HTML5.
-                </audio>
+                {{-- `preload="none"` sudah membuat pemutar ini tidak menarik satu byte pun
+                     sebelum ditekan. Pembungkus muat-diminta dipakai demi keseragaman
+                     dengan PDF dan video, bukan karena ada muatan yang perlu ditahan. --}}
+                <x-portal.muat-diminta label="Putar audio" ikon="heroicon-s-musical-note"
+                    keterangan="Rekaman dimuat saat Anda memutarnya.">
+                    <audio controls preload="none" class="w-full rounded-xl">
+                        <source src="{{ $fileUrl() }}">
+                        Browser Anda tidak mendukung pemutar audio HTML5.
+                    </audio>
+                </x-portal.muat-diminta>
 
                 @if(filled($data['caption'] ?? null))
                     <p class="text-xs text-on-surface-variant italic">{{ $data['caption'] }}</p>

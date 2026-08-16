@@ -171,7 +171,16 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');
             Route::get('{module:slug}/materi/{materi}', [MateriController::class, 'show'])->name('materi.show');
-            Route::get('{module:slug}/materi/{materi}/files/{block}', ModuleFileController::class)
+
+            /* Berkas materi DIKECUALIKAN dari `no-store`. Middleware itu menimpa
+               Cache-Control tiap balasan portal, sehingga dokumen yang sama diunduh
+               ulang dari nol tiap kunjungan; satu halaman berisi beberapa PDF menjadi
+               berat sekali. Alasan asli `no-store` adalah riwayat Back setelah keluar
+               yang menampilkan HALAMAN basi, dan itu tetap berlaku untuk seluruh
+               halaman di sekitarnya. Kebijakan cache berkas diatur controllernya:
+               `private` selama sepuluh menit, tak boleh singgah di cache bersama. */
+            Route::withoutMiddleware('no-store')
+                ->get('{module:slug}/materi/{materi}/files/{block}', ModuleFileController::class)
                 ->whereNumber('block')
                 ->name('materi.files.show');
             // Tandai materi selesai (eksplisit, POST) — bukan otomatis saat dibuka.
