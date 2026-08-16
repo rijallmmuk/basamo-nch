@@ -12,7 +12,6 @@ use App\Models\StatusPerkawinan;
 use App\Models\User;
 use App\Support\NagariContext;
 use App\Support\PhoneNumber;
-use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -31,17 +30,19 @@ class PendudukForm
             ->columns(1)
             ->components([
                 Section::make('Identitas Pribadi')
-                    ->description('Setiap warga otomatis memperoleh satu akun login dengan role warga.')
+                    ->description('Setiap warga otomatis memperoleh satu akun login dengan role warga. Nama dan NIK wajib; sisanya boleh dilengkapi kemudian.')
                     ->icon(Heroicon::OutlinedIdentification)
                     ->columns(2)
                     ->schema([
                         TextInput::make('nama')
                             ->label('Nama lengkap')
+                            ->helperText('Tulis sesuai KTP. Nama ini yang tercetak di sertifikat pelatihan.')
                             ->required()
                             ->maxLength(255)
                             ->prefixIcon(Heroicon::OutlinedUser),
                         TextInput::make('nik')
                             ->label('NIK')
+                            ->helperText('Dipakai warga untuk masuk. Salah satu digit membuat akunnya tidak dapat digunakan.')
                             ->required()
                             ->rules(['digits:16'])
                             ->unique(Penduduk::class, 'nik', ignoreRecord: true)
@@ -52,23 +53,22 @@ class PendudukForm
                         TextInput::make('tempat_lahir')
                             ->label('Tempat Lahir')
                             ->maxLength(100)
-                            ->prefixIcon(Heroicon::OutlinedMapPin)
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon(Heroicon::OutlinedMapPin),
                         DatePicker::make('tanggal_lahir')
                             ->label('Tanggal Lahir')
                             ->native(false)
                             ->displayFormat('d F Y')
                             ->maxDate(now())
                             ->prefixIcon(Heroicon::OutlinedCalendar)
-                            ->required(static::requiredOnCreate()),
+                            ->helperText('Dasar piramida umur pada statistik nagari.'),
                         Select::make('jenis_kelamin')
                             ->label('Jenis Kelamin')
                             ->options(JenisKelamin::class)
                             ->native(false)
-                            ->prefixIcon(Heroicon::OutlinedUserGroup)
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon(Heroicon::OutlinedUserGroup),
                     ]),
                 Section::make('Data Kependudukan')
+                    ->description('Seluruhnya opsional. Isian di sini menjadi bahan statistik nagari, tidak memengaruhi akses maupun sertifikat warga.')
                     ->icon(Heroicon::OutlinedUsers)
                     ->columns(2)
                     ->schema([
@@ -77,30 +77,26 @@ class PendudukForm
                             ->options(fn (Get $get): array => Agama::options((int) $get('agama_id') ?: null))
                             ->searchable()
                             ->preload()
-                            ->prefixIcon('heroicon-o-heart')
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon('heroicon-o-heart'),
                         Select::make('status_perkawinan_id')
                             ->label('Status Perkawinan')
                             ->options(fn (Get $get): array => StatusPerkawinan::options((int) $get('status_perkawinan_id') ?: null))
                             ->native(false)
-                            ->prefixIcon('heroicon-o-link')
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon('heroicon-o-link'),
                         Select::make('pendidikan_id')
                             ->label('Pendidikan Terakhir')
                             ->options(fn (Get $get): array => Pendidikan::options((int) $get('pendidikan_id') ?: null))
                             ->native(false)
-                            ->prefixIcon(Heroicon::OutlinedAcademicCap)
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon(Heroicon::OutlinedAcademicCap),
                         Select::make('pekerjaan_id')
                             ->label('Pekerjaan')
                             ->options(fn (Get $get): array => Pekerjaan::options((int) $get('pekerjaan_id') ?: null))
                             ->searchable()
                             ->preload()
-                            ->prefixIcon(Heroicon::OutlinedBriefcase)
-                            ->required(static::requiredOnCreate()),
+                            ->prefixIcon(Heroicon::OutlinedBriefcase),
                     ]),
                 Section::make('Kontak & Akun')
-                    ->description('Data berikut disimpan pada akun login yang terhubung satu-ke-satu.')
+                    ->description('Disimpan pada akun login yang terhubung satu-ke-satu. No. HP dan Email opsional; keduanya tidak dipakai untuk masuk maupun memulihkan sandi.')
                     ->icon(Heroicon::OutlinedPhone)
                     ->columns(2)
                     ->schema([
@@ -114,6 +110,11 @@ class PendudukForm
                             ->disabled(fn (string $operation): bool => $operation === 'edit')
                             ->required(fn (string $operation): bool => $operation === 'create'
                                 && auth()->user()?->managedNagariId(NagariContext::WARGA) === null)
+                            // Terkunci saat Ubah, dan tidak ada jalan lain memindahkannya.
+                            // Peringatannya harus dibaca sebelum disimpan, bukan sesudah.
+                            ->helperText(fn (string $operation): ?string => $operation === 'create'
+                                ? 'Tidak dapat diubah setelah disimpan. Menentukan pelatihan yang terlihat warga, dan tercetak di sertifikatnya.'
+                                : 'Nagari tidak dapat dipindahkan lewat form.')
                             ->columnSpanFull(),
                         TextInput::make('phone')
                             ->label('No. HP')
@@ -138,10 +139,5 @@ class PendudukForm
                             ->helperText('Nonaktif = akun warga tidak dapat login (mis. pindah). Gunakan Hapus untuk mengarsipkan.'),
                     ]),
             ]);
-    }
-
-    protected static function requiredOnCreate(): Closure
-    {
-        return fn (string $operation): bool => $operation === 'create';
     }
 }
