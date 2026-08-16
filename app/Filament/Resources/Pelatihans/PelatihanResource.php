@@ -95,7 +95,7 @@ class PelatihanResource extends Resource
     public static function setStatus(Pelatihan $pelatihan, StatusPelatihan $status): void
     {
         if ($status === StatusPelatihan::Terbuka && ! $pelatihan->isReady()) {
-            throw new \DomainException('Pelatihan belum memiliki sasaran nagari atau modul yang berisi materi.');
+            throw new \DomainException('Pelatihan belum memiliki sasaran nagari, dan belum punya modul berisi materi maupun pertemuan daring.');
         }
 
         $sebelumnya = $pelatihan->status;
