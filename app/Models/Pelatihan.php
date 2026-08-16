@@ -57,6 +57,7 @@ class Pelatihan extends Model implements HasMedia
     protected $fillable = [
         'tema_pelatihan_id', 'nagari_id', 'deskripsi', 'created_by', 'status', 'semua_nagari',
         'sertifikat_mode',
+        'pertemuan_url', 'pertemuan_platform', 'pertemuan_mulai', 'pertemuan_selesai',
     ];
 
     protected static function booted(): void
@@ -99,6 +100,8 @@ class Pelatihan extends Model implements HasMedia
             'status' => StatusPelatihan::class,
             'semua_nagari' => 'boolean',
             'sertifikat_mode' => ModeSertifikat::class,
+            'pertemuan_mulai' => 'datetime',
+            'pertemuan_selesai' => 'datetime',
         ];
     }
 
@@ -256,7 +259,11 @@ class Pelatihan extends Model implements HasMedia
         $query->where(fn (Builder $target) => $target
             ->where('semua_nagari', true)
             ->orWhereHas('nagaris'))
-            ->whereHas('modules', fn (Builder $modules) => $modules->ready());
+            // Webinar tidak punya modul: isinya memang hanya pertemuan daring. Tanpa
+            // cabang ini ia tidak akan pernah muncul di katalog warga.
+            ->where(fn (Builder $isi) => $isi
+                ->whereHas('modules', fn (Builder $modules) => $modules->ready())
+                ->orWhereNotNull('pertemuan_url'));
     }
 
     public function isReady(): bool
@@ -269,7 +276,33 @@ class Pelatihan extends Model implements HasMedia
             return false;
         }
 
-        return $this->modules()->ready()->exists();
+        return $this->adalahWebinar() || $this->modules()->ready()->exists();
+    }
+
+    /** Isi pelatihan ini berupa pertemuan daring? Cukup dilihat dari tautannya. */
+    public function adalahWebinar(): bool
+    {
+        return filled($this->pertemuan_url);
+    }
+
+    /** @return HasMany<WebinarAttendance, $this> */
+    public function kehadirans(): HasMany
+    {
+        return $this->hasMany(WebinarAttendance::class);
+    }
+
+    public function sudahHadir(User $user): bool
+    {
+        return $this->kehadirans()->where('user_id', $user->getKey())->exists();
+    }
+
+    /**
+     * Pertemuannya sudah dimulai? Dipakai untuk menolak penandaan hadir pada webinar
+     * yang belum berlangsung. Tanpa waktu mulai, penandaan dibiarkan terbuka.
+     */
+    public function pertemuanSudahMulai(): bool
+    {
+        return $this->pertemuan_mulai === null || $this->pertemuan_mulai->isPast();
     }
 
     /** @return Collection<int, User> */

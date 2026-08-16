@@ -10,6 +10,7 @@ use App\Models\TemaPelatihan;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -113,6 +114,52 @@ class PelatihanForm
                             ->imageResizeTargetWidth('1200')
                             ->imageResizeTargetHeight('900')
                             ->maxSize(10240)
+                            ->columnSpanFull(),
+                    ]),
+
+                /* Webinar: pelatihan yang isinya pertemuan daring, tanpa modul dan tanpa
+                   materi. Cukup tautannya terisi, pelatihan ini diperlakukan sebagai
+                   webinar; tidak ada kolom jenis tersendiri supaya tidak lahir keadaan
+                   mustahil seperti "jenis webinar tetapi tautannya kosong". */
+                Section::make('Pertemuan Daring')
+                    ->icon(Heroicon::OutlinedVideoCamera)
+                    ->description('Opsional. Isi bila pelatihan ini berupa webinar. Tautannya hanya terlihat warga yang sudah masuk, tidak pernah di halaman publik.')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('pertemuan_url')
+                            ->label('Tautan pertemuan')
+                            ->url()
+                            ->maxLength(2048)
+                            ->prefixIcon(Heroicon::OutlinedVideoCamera)
+                            ->placeholder('https://zoom.us/j/...')
+                            ->helperText('Zoom, Google Meet, Teams, atau ruang daring lain.')
+                            ->live(onBlur: true)
+                            ->columnSpanFull(),
+
+                        // Waktu MURNI keterangan: ditampilkan dan dapat diurutkan, tetapi
+                        // tidak membuka maupun mengunci apa pun. Gerbangnya tetap Kunci/Buka.
+                        DateTimePicker::make('pertemuan_mulai')
+                            ->label('Mulai')
+                            ->seconds(false)
+                            ->native(false)
+                            ->requiredWith('pertemuan_url')
+                            ->visible(fn (Get $get): bool => filled($get('pertemuan_url')))
+                            ->helperText('Hanya keterangan bagi warga; tidak membuka atau mengunci pelatihan.'),
+
+                        DateTimePicker::make('pertemuan_selesai')
+                            ->label('Selesai')
+                            ->seconds(false)
+                            ->native(false)
+                            ->after('pertemuan_mulai')
+                            ->visible(fn (Get $get): bool => filled($get('pertemuan_url'))),
+
+                        Callout::make()
+                            ->heading('Webinar tidak memerlukan modul')
+                            ->description('Warga cukup membuka ruang pertemuan lalu menandai dirinya mengikuti, dan penanda itulah syarat terbitnya sertifikat. Penandaan baru terbuka setelah waktu mulai terlewat, jadi kuncilah pelatihan ini kembali seusai sesi agar tidak ada yang menandai belakangan.')
+                            ->icon(Heroicon::OutlinedInformationCircle)
+                            ->color('warning')
+                            ->visible(fn (Get $get): bool => filled($get('pertemuan_url')))
                             ->columnSpanFull(),
                     ]),
 

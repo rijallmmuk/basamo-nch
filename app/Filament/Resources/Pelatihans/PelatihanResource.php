@@ -7,6 +7,7 @@ use App\Filament\Resources\Pelatihans\Pages\CreatePelatihan;
 use App\Filament\Resources\Pelatihans\Pages\EditPelatihan;
 use App\Filament\Resources\Pelatihans\Pages\ListPelatihans;
 use App\Filament\Resources\Pelatihans\Pages\ViewPelatihan;
+use App\Filament\Resources\Pelatihans\RelationManagers\KehadiransRelationManager;
 use App\Filament\Resources\Pelatihans\RelationManagers\ModulesRelationManager;
 use App\Filament\Resources\Pelatihans\Schemas\PelatihanForm;
 use App\Filament\Resources\Pelatihans\Schemas\PelatihanInfolist;
@@ -110,6 +111,7 @@ class PelatihanResource extends Resource
     {
         return [
             ModulesRelationManager::class,
+            KehadiransRelationManager::class,
         ];
     }
 

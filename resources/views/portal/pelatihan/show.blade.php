@@ -75,6 +75,56 @@
                     @endif
                 </div>
 
+                {{-- Pertemuan daring. Tautannya HANYA di sini, tidak pernah di halaman
+                     publik: ruang yang alamatnya terbuka akan disusupi orang luar. --}}
+                @if($pelatihan->adalahWebinar())
+                    <div class="mt-6 rounded-2xl border border-primary/35 bg-primary/5 p-5">
+                        <div class="flex items-start gap-3">
+                            <x-heroicon-o-video-camera class="h-6 w-6 shrink-0 text-primary" />
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-extrabold text-on-surface">Pertemuan Daring</p>
+
+                                @if($pelatihan->pertemuan_mulai)
+                                    <p class="mt-1 text-xs font-bold text-on-surface-variant">
+                                        {{ $pelatihan->pertemuan_mulai->translatedFormat('l, j F Y, H.i') }}
+                                        @if($pelatihan->pertemuan_selesai)
+                                            sampai {{ $pelatihan->pertemuan_selesai->translatedFormat('H.i') }}
+                                        @endif
+                                        WIB
+                                    </p>
+                                @else
+                                    <p class="mt-1 text-xs text-on-surface-variant">Waktu pelaksanaan diumumkan pengelola.</p>
+                                @endif
+
+                                <div class="mt-3 flex flex-wrap items-center gap-2">
+                                    <a href="{{ $pelatihan->pertemuan_url }}" target="_blank" rel="noopener"
+                                       class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                                        Buka Ruang Pertemuan <x-heroicon-o-arrow-top-right-on-square class="h-4 w-4" />
+                                    </a>
+
+                                    @if($sudahHadir)
+                                        <span class="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-success/10 px-4 text-sm font-bold text-success">
+                                            <x-heroicon-s-check-circle class="h-4 w-4" />
+                                            Kehadiran tercatat
+                                        </span>
+                                    @elseif($pelatihan->pertemuanSudahMulai())
+                                        <form method="POST" action="{{ route('portal.pelatihan.hadir', $pelatihan) }}">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-lowest px-5 text-sm font-bold text-on-surface transition hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                                                <x-heroicon-o-hand-raised class="h-4 w-4 text-primary" />
+                                                Saya Sudah Mengikuti
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-on-surface-variant">Penanda kehadiran terbuka setelah pertemuan dimulai.</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 @if($pelatihan->sertifikat_mode->memberiSertifikat())
                     <div @class([
                         'mt-6 rounded-2xl border p-5',
@@ -133,10 +183,14 @@
         </div>
 
         @if($modules->isEmpty())
-            <x-portal.empty 
-                icon="heroicon-o-book-open" 
-                title="Belum Ada Modul Dalam Pelatihan Ini"
-                subtitle="Modul pembelajaran sedang disiapkan oleh pengelola pelatihan." />
+            {{-- Webinar memang tidak berisi modul, jadi keterangan "sedang disiapkan"
+                 akan menyesatkan: warga mengira pelatihannya belum jadi. --}}
+            <x-portal.empty
+                :icon="$pelatihan->adalahWebinar() ? 'heroicon-o-video-camera' : 'heroicon-o-book-open'"
+                :title="$pelatihan->adalahWebinar() ? 'Pelatihan Ini Berupa Pertemuan Daring' : 'Belum Ada Modul Dalam Pelatihan Ini'"
+                :subtitle="$pelatihan->adalahWebinar()
+                    ? 'Seluruh kegiatannya berlangsung pada pertemuan daring di atas, tanpa modul yang perlu dipelajari sendiri.'
+                    : 'Modul pembelajaran sedang disiapkan oleh pengelola pelatihan.'" />
         @else
             {{-- 4-Column Grid Layout for Modules --}}
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -64,10 +64,17 @@ class SertifikatService
             return false;
         }
 
+        /* Webinar: satu-satunya buktinya adalah catatan kehadiran, sebab tidak ada modul
+           maupun materi yang bisa dituntaskan. Bila pelatihan membawa keduanya, webinar
+           DAN modul, maka dua-duanya harus terpenuhi. */
+        if ($pelatihan->adalahWebinar() && ! $pelatihan->sudahHadir($user)) {
+            return false;
+        }
+
         $modules = $pelatihan->modules()->visibleToWarga($user)->with('materis')->get();
 
         if ($modules->isEmpty()) {
-            return false;
+            return $pelatihan->adalahWebinar();
         }
 
         return $this->seluruhModulSelesai($user, $modules)
@@ -177,10 +184,16 @@ class SertifikatService
             return 'Berkas sertifikat belum diunggah pengelola pelatihan.';
         }
 
+        if ($pelatihan->adalahWebinar() && ! $pelatihan->sudahHadir($user)) {
+            return $pelatihan->pertemuanSudahMulai()
+                ? 'Tandai dulu bahwa Anda mengikuti pertemuan daring ini.'
+                : 'Sertifikat tersedia setelah pertemuan daringnya berlangsung.';
+        }
+
         $modules = $pelatihan->modules()->visibleToWarga($user)->with('materis')->get();
 
         if ($modules->isEmpty()) {
-            return 'Pelatihan ini belum berisi modul.';
+            return $pelatihan->adalahWebinar() ? null : 'Pelatihan ini belum berisi modul.';
         }
 
         if (! $this->seluruhModulSelesai($user, $modules)) {

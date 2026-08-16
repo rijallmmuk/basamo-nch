@@ -167,6 +167,8 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('pelatihan', [PelatihanController::class, 'index'])->name('pelatihan.index');
         Route::get('pelatihan/{pelatihan}', [PelatihanController::class, 'show'])->name('pelatihan.show');
         Route::get('pelatihan/{pelatihan}/sertifikat', [SertifikatController::class, 'unduh'])->name('pelatihan.sertifikat');
+        // Webinar: penanda hadir menggantikan progres modul sebagai bukti mengikuti.
+        Route::post('pelatihan/{pelatihan}/hadir', [PelatihanController::class, 'tandaiHadir'])->name('pelatihan.hadir');
 
         Route::prefix('modules')->name('modules.')->group(function () {
             Route::get('{module:slug}', [ModuleController::class, 'show'])->name('show');

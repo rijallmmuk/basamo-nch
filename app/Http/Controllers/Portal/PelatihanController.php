@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Pelatihan;
+use App\Models\WebinarAttendance;
 use App\Services\SertifikatService;
 use App\Services\SlcProgressService;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -64,8 +67,58 @@ class PelatihanController extends Controller
             ? null
             : $this->sertifikatService->alasanBelumBerhak($user, $pelatihan);
 
+        $sudahHadir = $pelatihan->adalahWebinar() && $pelatihan->sudahHadir($user);
+
         return view('portal.pelatihan.show', compact(
-            'pelatihan', 'modules', 'sertifikatBerhak', 'sertifikatAlasan',
+            'pelatihan', 'modules', 'sertifikatBerhak', 'sertifikatAlasan', 'sudahHadir',
         ));
+    }
+
+    /**
+     * Warga menandai dirinya mengikuti pertemuan daring.
+     *
+     * Ini satu-satunya bukti mengikuti yang dimiliki webinar, dan ia menjadi syarat
+     * terbitnya sertifikat. Kelayakannya diperiksa ulang di sini, bukan dipercayakan
+     * pada tombol yang tampil: alamatnya dapat dikirim ke server secara langsung.
+     */
+    public function tandaiHadir(Request $request, Pelatihan $pelatihan): RedirectResponse
+    {
+        $user = $request->user();
+
+        abort_unless(
+            Pelatihan::query()
+                ->accessibleToWarga($user)
+                ->whereKey($pelatihan->getKey())
+                ->exists(),
+            404,
+        );
+
+        abort_unless($pelatihan->adalahWebinar(), 404);
+
+        $kembali = redirect()->route('portal.pelatihan.show', $pelatihan);
+
+        if (! $pelatihan->dapatDimasuki()) {
+            return $kembali->with('error', 'Pelatihan ini sedang dikunci pengelola.');
+        }
+
+        // Mustahil menghadiri pertemuan yang belum berlangsung.
+        if (! $pelatihan->pertemuanSudahMulai()) {
+            return $kembali->with('error', 'Pertemuan daring ini belum berlangsung.');
+        }
+
+        try {
+            WebinarAttendance::create([
+                'pelatihan_id' => $pelatihan->getKey(),
+                'user_id' => $user->getKey(),
+                'hadir_pada' => now(),
+            ]);
+        } catch (QueryException $e) {
+            // Unique (pelatihan_id, user_id): tombol ditekan dua kali, bukan galat.
+            if (! $pelatihan->sudahHadir($user)) {
+                throw $e;
+            }
+        }
+
+        return $kembali->with('success', 'Kehadiran Anda pada pertemuan daring ini sudah dicatat.');
     }
 }

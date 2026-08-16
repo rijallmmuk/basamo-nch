@@ -89,9 +89,23 @@
                    class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-secondary-container px-7 py-3.5 text-sm font-extrabold text-on-secondary-container shadow-sm transition hover:bg-secondary-fixed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
                     Masuk untuk Belajar <x-heroicon-o-arrow-right class="h-4 w-4" />
                 </a>
-                <span class="text-sm text-on-primary/70">
-                    {{ $pelatihan->modules_count }} modul
-                </span>
+                @if($pelatihan->adalahWebinar())
+                    {{-- Halaman ini adalah iklannya, jadi jadwal boleh tampil. Tautan
+                         ruang pertemuan TIDAK pernah, sebab ruang yang alamatnya terbuka
+                         akan disusupi orang di luar nagari sasaran. --}}
+                    <span class="inline-flex items-center gap-1.5 text-sm font-bold text-on-primary/85">
+                        <x-heroicon-s-video-camera class="h-4 w-4" />
+                        @if($pelatihan->pertemuan_mulai)
+                            Webinar, {{ $pelatihan->pertemuan_mulai->translatedFormat('j F Y, H.i') }} WIB
+                        @else
+                            Webinar
+                        @endif
+                    </span>
+                @else
+                    <span class="text-sm text-on-primary/70">
+                        {{ $pelatihan->modules_count }} modul
+                    </span>
+                @endif
             </div>
         </div>
     </div>
@@ -120,9 +134,11 @@
         @if($pelatihan->modules->isEmpty())
             <x-public.empty-state
                 class="mt-6"
-                icon="heroicon-o-book-open"
-                title="Modul belum tersedia"
-                description="Modul tampil di sini setelah pengajar menyiapkan materinya." />
+                :icon="$pelatihan->adalahWebinar() ? 'heroicon-o-video-camera' : 'heroicon-o-book-open'"
+                :title="$pelatihan->adalahWebinar() ? 'Pelatihan ini berupa pertemuan daring' : 'Modul belum tersedia'"
+                :description="$pelatihan->adalahWebinar()
+                    ? 'Seluruh kegiatannya berlangsung pada satu pertemuan daring. Tautan ruangnya diberikan setelah Anda masuk sebagai warga nagari sasaran.'
+                    : 'Modul tampil di sini setelah pengajar menyiapkan materinya.'" />
         @else
             <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach($pelatihan->modules as $urutan => $modul)
