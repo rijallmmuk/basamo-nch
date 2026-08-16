@@ -119,6 +119,29 @@ class PelatihanInfolist
                             ->dateTime('d M Y, H:i')
                             ->icon('heroicon-m-clock'),
 
+                        /* Tanpa dua baris ini, tab Kehadiran muncul begitu saja tanpa
+                           konteks: operator tidak punya cara melihat kapan pertemuannya
+                           dan ke ruang mana warga diarahkan. */
+                        TextEntry::make('pertemuan_jadwal')
+                            ->label('Pertemuan Daring')
+                            ->state(fn (Pelatihan $record): string => $record->pertemuan_mulai
+                                ? $record->pertemuan_mulai->translatedFormat('d M Y, H:i')
+                                    .($record->pertemuan_selesai
+                                        ? ' sampai '.$record->pertemuan_selesai->translatedFormat('H:i')
+                                        : '')
+                                : 'Waktu belum diisi')
+                            ->icon('heroicon-m-video-camera')
+                            ->visible(fn (Pelatihan $record): bool => $record->punyaPertemuan()),
+
+                        TextEntry::make('pertemuan_url')
+                            ->label('Tautan Pertemuan')
+                            ->url(fn (Pelatihan $record): ?string => $record->pertemuan_url)
+                            ->openUrlInNewTab()
+                            ->color('primary')
+                            ->icon('heroicon-m-arrow-top-right-on-square')
+                            ->helperText('Hanya terlihat pengelola dan warga yang sudah masuk, tidak pernah di halaman publik.')
+                            ->visible(fn (Pelatihan $record): bool => $record->punyaPertemuan()),
+
                         // Dipangkas tampilannya dan menangani `<p></p>` kosong bawaan
                         // RichEditor; lihat komponennya.
                         ViewEntry::make('deskripsi')
