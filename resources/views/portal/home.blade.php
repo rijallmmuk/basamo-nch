@@ -185,7 +185,7 @@
         {{-- Card 4: Rata-rata Skor Evaluasi --}}
         <div class="flex flex-col justify-between rounded-xl border border-outline-variant bg-surface p-4 shadow-xs transition-all hover:border-primary/40">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rata-rata Skor Evaluasi</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rata-rata Nilai Terbaik</span>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                     <x-heroicon-s-academic-cap class="h-4 w-4" />
                 </div>

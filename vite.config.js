@@ -9,6 +9,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/public-teras-map.js',
                 'resources/css/filament/panel/theme.css',
                 'resources/js/filament/nagari-boundary-map.js',
             ],

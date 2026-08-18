@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\ModuleProgressStatus;
 use App\Enums\StatusPercobaan;
 use App\Models\EvaluasiPercobaan;
@@ -28,9 +29,11 @@ class AktivitasBelajarData
                 ->where('user_module_progress.status', ModuleProgressStatus::Completed)
                 ->whereNotNull('completed_at')
                 ->where('completed_at', '>=', $since)
-                ->when($nagariId, fn ($q) => $q
-                    ->join('users', 'users.id', '=', 'user_module_progress.user_id')
-                    ->where('users.nagari_id', $nagariId)),
+                ->whereHas('user', fn ($users) => $users
+                    ->role('warga')
+                    ->where('users.status', ActiveStatus::Active)
+                    ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active))
+                    ->when($nagariId, fn ($scope) => $scope->where('users.nagari_id', $nagariId))),
             'completed_at',
             $buckets,
         );
@@ -40,9 +43,11 @@ class AktivitasBelajarData
                 ->where('evaluasi_percobaans.status', StatusPercobaan::Passed)
                 ->whereNotNull('submitted_at')
                 ->where('submitted_at', '>=', $since)
-                ->when($nagariId, fn ($q) => $q
-                    ->join('users', 'users.id', '=', 'evaluasi_percobaans.user_id')
-                    ->where('users.nagari_id', $nagariId)),
+                ->whereHas('user', fn ($users) => $users
+                    ->role('warga')
+                    ->where('users.status', ActiveStatus::Active)
+                    ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active))
+                    ->when($nagariId, fn ($scope) => $scope->where('users.nagari_id', $nagariId))),
             'submitted_at',
             $buckets,
         );

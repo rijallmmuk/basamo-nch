@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\ModuleProgressStatus;
 use App\Models\Nagari;
 use App\Models\UmkmProduct;
@@ -33,13 +34,27 @@ class SuperadminDashboardData
         $pendudukCount = $demografi['penduduk'];
         $wargaCount = $demografi['akun_portal'];
 
-        $modulSelesaiCount = UserModuleProgress::where('status', ModuleProgressStatus::Completed->value)->count();
+        $modulSelesaiCount = UserModuleProgress::query()
+            ->where('status', ModuleProgressStatus::Completed->value)
+            ->whereHas('user', fn ($users) => $users
+                ->role('warga')
+                ->where('users.status', ActiveStatus::Active)
+                ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active)))
+            ->count();
 
-        $umkmCount = UmkmProfile::count();
-        $productCount = UmkmProduct::count();
+        $lapakAktif = fn () => UmkmProfile::query()
+            ->where('status', ActiveStatus::Active)
+            ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active));
+        $produkAktif = fn () => UmkmProduct::query()
+            ->whereHas('umkmProfile', fn ($profiles) => $profiles
+                ->where('status', ActiveStatus::Active)
+                ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active)));
+
+        $umkmCount = $lapakAktif()->count();
+        $productCount = $produkAktif()->count();
         // Kunjungan produk dan kunjungan etalase dua angka berbeda; jangan tertukar.
-        $productTotalViews = (int) UmkmProduct::sum('jumlah_dilihat');
-        $etalaseTotalViews = (int) UmkmProfile::sum('jumlah_dilihat');
+        $productTotalViews = (int) $produkAktif()->sum('jumlah_dilihat');
+        $etalaseTotalViews = (int) $lapakAktif()->sum('jumlah_dilihat');
 
         return [
             'metrics' => [

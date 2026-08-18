@@ -741,3 +741,72 @@ input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
     display: none;
 }
+
+/* Label batas nagari pada peta Teras: tanpa kotak Leaflet bawaan agar nama tetap
+   terbaca sebagai bagian peta. Visibilitas dan benturan antarnama diatur JS. */
+.leaflet-tooltip.teras-nagari-label {
+    border: 0;
+    background: rgb(255 255 255 / 78%);
+    box-shadow: none;
+    color: var(--color-on-surface-variant);
+    font-size: 9px;
+    font-weight: 650;
+    line-height: 1.15;
+    padding: 2px 4px;
+    text-align: center;
+    white-space: normal;
+}
+
+.leaflet-tooltip.teras-nagari-label::before {
+    display: none;
+}
+
+.leaflet-tooltip.teras-nagari-label--mitra {
+    background: rgb(255 255 255 / 92%);
+    color: var(--color-primary);
+    font-size: 11px;
+    font-weight: 850;
+    outline: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+/* Teras Map Custom Marker & Interactive Tooltips */
+.leaflet-marker-icon.teras-custom-marker {
+    background: transparent;
+    border: none;
+}
+
+.leaflet-tooltip.teras-kabupaten-tooltip {
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    padding: 6px 12px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.leaflet-tooltip.teras-kabupaten-tooltip::before {
+    display: none;
+}
+
+.leaflet-tooltip.teras-nagari-hover-tooltip {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 4px 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+}
+
+.leaflet-tooltip.teras-nagari-hover-tooltip::before {
+    display: none;
+}

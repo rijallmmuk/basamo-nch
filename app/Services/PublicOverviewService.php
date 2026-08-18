@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Enums\ActiveStatus;
-use App\Enums\ModuleProgressStatus;
-use App\Models\EvaluasiPercobaan;
 use App\Models\IdmStatus;
 use App\Models\Module;
 use App\Models\Nagari;
@@ -12,12 +10,40 @@ use App\Models\Pelatihan;
 use App\Models\SdgAchievement;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
-use App\Models\UserModuleProgress;
 use App\Support\Dashboard\DemografiData;
 use Illuminate\Database\Eloquent\Builder;
 
 class PublicOverviewService
 {
+    /**
+     * Angka tingkat ekosistem yang memang sah dijumlahkan. Distribusi demografi,
+     * SDGs, dan IDM sengaja tidak masuk karena ketiganya harus tetap dibaca dalam
+     * konteks masing-masing nagari.
+     *
+     * @return list<array{label: string, value: int, icon: string, description: string}>
+     */
+    public function metrikEkosistem(): array
+    {
+        $nagariAktif = Nagari::query()->where('status', ActiveStatus::Active);
+        $jumlahNagari = (clone $nagariAktif)->count();
+        $demografi = DemografiData::ringkasan(null, hanyaNagariAktif: true);
+        $umkm = $this->umkmQuery(null)->count();
+        $produk = $this->productQuery(null)->count();
+        $cakupanSdgs = (clone $nagariAktif)
+            ->whereHas('sdgAchievements', fn (Builder $query) => $query->whereNotNull('persentase'))
+            ->count();
+        $cakupanIdm = (clone $nagariAktif)->whereHas('idmStatuses')->count();
+
+        return [
+            ['label' => 'Nagari Aktif', 'value' => $jumlahNagari, 'icon' => 'heroicon-o-map-pin', 'description' => 'Mitra dalam ekosistem BASAMO NCH'],
+            ['label' => 'Penduduk', 'value' => $demografi['penduduk'], 'icon' => 'heroicon-o-user-group', 'description' => 'Penduduk terdata dalam SID'],
+            ['label' => 'UMKM', 'value' => $umkm, 'icon' => 'heroicon-o-building-storefront', 'description' => 'Rumah usaha aktif'],
+            ['label' => 'Produk', 'value' => $produk, 'icon' => 'heroicon-o-shopping-bag', 'description' => 'Produk dipublikasikan'],
+            ['label' => 'Data SDGs', 'value' => $cakupanSdgs, 'icon' => 'heroicon-o-chart-pie', 'description' => "dari {$jumlahNagari} nagari aktif"],
+            ['label' => 'Data IDM', 'value' => $cakupanIdm, 'icon' => 'heroicon-o-trophy', 'description' => "dari {$jumlahNagari} nagari aktif"],
+        ];
+    }
+
     /**
      * Ringkasan Teras Nagari. Seluruh nilai berupa agregat; tidak ada identitas,
      * NIK, alamat, tanggal lahir, atau record penduduk yang dikirim ke view.
@@ -57,8 +83,6 @@ class PublicOverviewService
             'ageGroups' => $this->distribution($kelompokUmur),
             'education' => $this->distribution(DemografiData::distribusiPendidikan($nagari?->getKey(), $hanyaNagariAktif)),
             'occupations' => $this->distribution(DemografiData::distribusiPekerjaan($nagari?->getKey(), $hanyaNagariAktif)),
-            'learning' => $this->learning($nagari),
-            'economy' => $this->economy($nagari),
         ];
     }
 
@@ -78,7 +102,7 @@ class PublicOverviewService
 
         return [
             ...$metrics,
-            ['label' => 'Penduduk', 'value' => $demografi['penduduk'], 'icon' => 'heroicon-o-user-group', 'description' => number_format($demografi['akun_portal'], 0, ',', '.').' memiliki akun portal'],
+            ['label' => 'Penduduk', 'value' => $demografi['penduduk'], 'icon' => 'heroicon-o-user-group', 'description' => 'Penduduk terdata dalam SID'],
             ['label' => 'Pelatihan', 'value' => $this->pelatihanQuery($nagari)->count(), 'icon' => 'heroicon-o-academic-cap', 'description' => 'Pelatihan siap dipelajari'],
             ['label' => 'Modul', 'value' => $this->moduleQuery($nagari)->count(), 'icon' => 'heroicon-o-book-open', 'description' => 'Modul terbit'],
             ['label' => 'UMKM', 'value' => $this->umkmQuery($nagari)->count(), 'icon' => 'heroicon-o-building-storefront', 'description' => 'Rumah usaha aktif'],
@@ -106,45 +130,6 @@ class PublicOverviewService
             ])
             ->values()
             ->all();
-    }
-
-    /** @return array<string, int> */
-    private function learning(?Nagari $nagari): array
-    {
-        $completed = UserModuleProgress::query()
-            ->where('user_module_progress.status', ModuleProgressStatus::Completed)
-            ->whereHas('user', fn (Builder $query) => $query
-                ->whereIn('nagari_id', $this->activeNagariIds($nagari)))
-            ->count();
-
-        $attempts = EvaluasiPercobaan::query()
-            ->whereHas('user', fn (Builder $query) => $query
-                ->whereIn('nagari_id', $this->activeNagariIds($nagari)))
-            ->count();
-
-        return [
-            'pelatihans' => $this->pelatihanQuery($nagari)->count(),
-            'modules' => $this->moduleQuery($nagari)->count(),
-            'completed_modules' => $completed,
-            'evaluasi_percobaans' => $attempts,
-        ];
-    }
-
-    /** @return array<string, int> */
-    private function economy(?Nagari $nagari): array
-    {
-        $profiles = $this->umkmQuery($nagari);
-        $products = $this->productQuery($nagari);
-
-        return [
-            'profiles' => (clone $profiles)->count(),
-            'products' => (clone $products)->count(),
-            'product_views' => (int) (clone $products)->sum('jumlah_dilihat'),
-            'qr_profiles' => (clone $profiles)
-                ->whereHas('media', fn (Builder $query) => $query
-                    ->where('collection_name', 'qr'))
-                ->count(),
-        ];
     }
 
     /** @return array{score: float, filled: int, total: int} */
@@ -260,12 +245,4 @@ class PublicOverviewService
                     ->when($nagari, fn (Builder $scope) => $scope->whereKey($nagari->getKey()))));
     }
 
-    /** @return Builder<Nagari> */
-    private function activeNagariIds(?Nagari $nagari): Builder
-    {
-        return Nagari::query()
-            ->select('id')
-            ->where('status', ActiveStatus::Active)
-            ->when($nagari, fn (Builder $query) => $query->whereKey($nagari->getKey()));
-    }
 }

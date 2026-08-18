@@ -41,7 +41,7 @@ class SuperadminMetricsWidget extends BaseWidget
                 ->url(NagariResource::getUrl('index')),
 
             Stat::make('Kependudukan', number_format($m['pendudukCount'], 0, ',', '.').' Penduduk')
-                ->description(number_format($m['wargaCount'], 0, ',', '.').' punya akun portal')
+                ->description(number_format($m['wargaCount'], 0, ',', '.').' akun warga aktif')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('info')
                 ->chart([100, 250, 400, $m['pendudukCount']])
@@ -54,7 +54,7 @@ class SuperadminMetricsWidget extends BaseWidget
                 ->chart([5, 12, 30, $m['modulSelesaiCount']])
                 ->url(SlcRekapResource::getUrl('index')),
 
-            Stat::make('UMKM Nagari', "{$m['umkmCount']} Usaha")
+            Stat::make('UMKM Nagari', "{$m['umkmCount']} Usaha Aktif")
                 ->description("{$m['productCount']} produk, {$m['etalaseTotalViews']}× dilihat")
                 ->descriptionIcon('heroicon-m-building-storefront')
                 ->color('warning')

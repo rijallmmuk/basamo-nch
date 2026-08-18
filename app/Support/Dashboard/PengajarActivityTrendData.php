@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\JenisEvaluasi;
 use App\Models\Discussion;
 use App\Models\Evaluasi;
@@ -34,22 +35,31 @@ class PengajarActivityTrendData
         // waktu ke PHP hanya untuk menghitungnya membuat dasbor ikut berat begitu
         // aktivitas warga menumpuk.
         $started = self::mingguan(
-            UserModuleProgress::query()->whereIn('module_id', $moduleIds),
+            UserModuleProgress::query()
+                ->whereIn('module_id', $moduleIds)
+                ->whereHas('user', self::wargaAktif(...)),
             'created_at',
             $start,
         );
         $completed = self::mingguan(
-            UserModuleProgress::query()->whereIn('module_id', $moduleIds),
+            UserModuleProgress::query()
+                ->whereIn('module_id', $moduleIds)
+                ->whereHas('user', self::wargaAktif(...)),
             'completed_at',
             $start,
         );
         $evaluations = self::mingguan(
-            EvaluasiPercobaan::query()->whereIn('evaluasi_id', $kegiatanIds),
+            EvaluasiPercobaan::query()
+                ->whereIn('evaluasi_id', $kegiatanIds)
+                ->whereHas('user', self::wargaAktif(...)),
             'submitted_at',
             $start,
         );
         $topics = self::mingguan(
-            Discussion::query()->whereIn('module_id', $moduleIds)->whereNull('parent_id'),
+            Discussion::query()
+                ->whereIn('module_id', $moduleIds)
+                ->whereNull('parent_id')
+                ->whereHas('user', self::wargaAktif(...)),
             'created_at',
             $start,
         );
@@ -100,7 +110,9 @@ class PengajarActivityTrendData
     {
         // Senin sebagai awal minggu: MariaDB WEEKDAY() memberi 0 untuk Senin, jadi
         // menguranginya dari tanggalnya menjatuhkan tiap baris ke awal minggunya.
-        $awalMinggu = "DATE_SUB(DATE({$kolom}), INTERVAL WEEKDAY({$kolom}) DAY)";
+        $awalMinggu = DB::connection()->getDriverName() === 'sqlite'
+            ? "DATE({$kolom}, '-' || ((CAST(strftime('%w', {$kolom}) AS INTEGER) + 6) % 7) || ' days')"
+            : "DATE_SUB(DATE({$kolom}), INTERVAL WEEKDAY({$kolom}) DAY)";
 
         return $query
             ->whereNotNull($kolom)
@@ -120,5 +132,13 @@ class PengajarActivityTrendData
         return $weeks
             ->map(fn (Carbon $week): int => (int) $counts->get($week->format('Y-m-d'), 0))
             ->all();
+    }
+
+    private static function wargaAktif(EloquentBuilder $users): void
+    {
+        $users
+            ->role('warga')
+            ->where('users.status', ActiveStatus::Active)
+            ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active));
     }
 }

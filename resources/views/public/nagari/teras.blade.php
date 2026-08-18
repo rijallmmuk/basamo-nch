@@ -1,7 +1,7 @@
 @extends('public.layouts.app')
 
 @section('title', 'Teras Nagari')
-@section('meta_description', 'Data terbuka '.$nagari->nama_lengkap.': capaian 18 poin SDGs Desa, Indeks Desa Membangun, prakiraan cuaca BMKG, dan demografi kependudukan.')
+@section('meta_description', 'Data terbuka '.$nagari->nama_lengkap.': demografi, pembelajaran, SDGs Desa, IDM, prakiraan cuaca BMKG, dan pemantauan IoT.')
 @section('main-class', 'w-full')
 
 @section('content')
@@ -10,7 +10,6 @@
     use App\Enums\StatusIdm;
 
     $isFallback = request()->routeIs('*.fallback');
-    $globalTeras = $globalTeras ?? false;
     $statusIdm = $idm
         ? ($idm->status instanceof StatusIdm ? $idm->status : StatusIdm::tryFrom((string) $idm->status))
         : null;
@@ -30,14 +29,7 @@
     /* Tautan buka/tutup panduan sebuah poin. Jangkarnya menunjuk kartu poin itu
        sendiri, bukan kepala section, supaya pembaca kembali tepat di tempat ia
        menekan alih-alih terlempar ke atas daftar. */
-    $tautanPoin = function (?int $nomor) use ($nagari, $isFallback, $globalTeras): string {
-        if ($globalTeras) {
-            return route('public.teras', array_filter([
-                'nagari' => $nagari->id,
-                'poin' => $nomor,
-            ])).($nomor === null ? '#sdgs' : '#poin-'.$nomor);
-        }
-
+    $tautanPoin = function (?int $nomor) use ($nagari, $isFallback): string {
         $dasar = route($isFallback ? 'public.nagari.teras.fallback' : 'public.nagari.teras', $nagari);
 
         return $nomor === null
@@ -49,28 +41,59 @@
 <x-public.pillar-header
     eyebrow="Pilar 1 · Teras Nagari"
     :title="'Data terbuka '.$nagari->nama_lengkap.'.'"
-    description="Capaian SDGs Desa, Indeks Desa Membangun, prakiraan cuaca BMKG, dan demografi kependudukan disajikan sebagai data agregat tanpa identitas pribadi warga.">
-    <x-slot:aside>
-        <div class="inline-flex w-fit items-center gap-2 rounded-full border border-on-primary/20 bg-on-primary/10 px-4 py-2 text-xs font-bold">
-            <x-heroicon-s-shield-check class="h-4 w-4" /> Data agregat non-pribadi
-        </div>
-    </x-slot:aside>
-</x-public.pillar-header>
-
-@if($globalTeras)
-    <x-public.nagari-filter :options="$nagariOptions" :selected="$nagari->id" />
-@endif
+    description="Demografi, pembelajaran, pembangunan, ekonomi, cuaca, dan IoT dalam satu pusat data nagari."
+/>
 
 {{-- ══ RINGKASAN ANGKA + DEMOGRAFI LENGKAP ══ --}}
-<x-public.teras-overview :overview="$overview" :nagari="$nagari" :global="$globalTeras" />
+<x-public.teras-overview :overview="$overview" :nagari="$nagari" />
+
+<section id="belajar" class="border-t border-outline-variant bg-surface-container-lowest py-section-gap">
+    <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+        <x-public.section-heading
+            eyebrow="Rekap Pembelajaran"
+            title="Aktivitas belajar warga nagari."
+            description="Ringkasan kegiatan belajar tanpa menampilkan nama, akun, maupun progres perorangan."
+        />
+        <x-public.stat-grid class="mt-10" :cols="count($ringkasanBelajar)">
+            @foreach($ringkasanBelajar as $metric)
+                <x-public.stat-card
+                    :label="$metric['label']"
+                    :value="$metric['value']"
+                    :icon="$metric['icon']"
+                    :description="$metric['description']"
+                    :tone="$metric['tone']" />
+            @endforeach
+        </x-public.stat-grid>
+    </div>
+</section>
+
+<section id="lingkungan" class="border-t border-outline-variant bg-background py-section-gap">
+    <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+        <x-public.section-heading
+            eyebrow="Cuaca dan IoT"
+            title="Kesiapan data lingkungan nagari."
+            description="Cakupan prakiraan BMKG dan keadaan perangkat EWS aktif berdasarkan rekaman yang tersimpan."
+        />
+        <x-public.stat-grid class="mt-10" :cols="count($ringkasanLingkungan)">
+            @foreach($ringkasanLingkungan as $metric)
+                <x-public.stat-card
+                    :label="$metric['label']"
+                    :value="$metric['value']"
+                    :icon="$metric['icon']"
+                    :description="$metric['description']"
+                    :tone="$metric['tone']" />
+            @endforeach
+        </x-public.stat-grid>
+    </div>
+</section>
 
 @if($ews)
     {{-- EWS adalah bagian pusat data dan komando. Hanya muncul pada nagari yang
          memiliki perangkat aktif; tidak ada placeholder maupun angka rekaan. --}}
-    <section id="ews" class="border-t border-outline-variant bg-background py-section-gap">
+    <section id="iot" class="border-t border-outline-variant bg-surface-container-lowest py-section-gap">
         <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
             <x-public.section-heading
-                eyebrow="Sistem Peringatan Dini"
+                eyebrow="IoT · Sistem Peringatan Dini"
                 title="Pemantauan EWS nagari."
                 description="Status sungai, pembacaan sensor, dan tren 24 jam dari titik pantau yang terdaftar. Perhatikan status sambungan serta waktu pembacaan sebelum menggunakan data."
             />

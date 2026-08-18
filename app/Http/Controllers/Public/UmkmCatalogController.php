@@ -46,7 +46,14 @@ class UmkmCatalogController extends Controller
             ->with(['media', 'nagari:id,nama,slug,kabupaten'])
             ->withCount('products as produk_count')
             ->when($search !== '', fn ($query) => $query
-                ->where('nama_usaha', 'like', '%'.$search.'%'))
+                ->where(fn ($matches) => $matches
+                    ->where('nama_usaha', 'like', '%'.$search.'%')
+                    ->orWhere('deskripsi', 'like', '%'.$search.'%')
+                    ->orWhereHas('products', fn ($products) => $products
+                        ->where('nama_produk', 'like', '%'.$search.'%')
+                        ->orWhere('deskripsi', 'like', '%'.$search.'%')
+                        ->orWhereHas('category', fn ($categories) => $categories
+                            ->where('nama', 'like', '%'.$search.'%')))))
             ->orderByDesc('produk_count')
             ->orderBy('nama_usaha')
             ->paginate(24)
@@ -74,7 +81,15 @@ class UmkmCatalogController extends Controller
             ->where('status', ActiveStatus::Active)
             ->with('media')
             ->withCount('products as produk_count')
-            ->when($search !== '', fn ($q) => $q->where('nama_usaha', 'like', '%'.$search.'%'))
+            ->when($search !== '', fn ($query) => $query
+                ->where(fn ($matches) => $matches
+                    ->where('nama_usaha', 'like', '%'.$search.'%')
+                    ->orWhere('deskripsi', 'like', '%'.$search.'%')
+                    ->orWhereHas('products', fn ($products) => $products
+                        ->where('nama_produk', 'like', '%'.$search.'%')
+                        ->orWhere('deskripsi', 'like', '%'.$search.'%')
+                        ->orWhereHas('category', fn ($categories) => $categories
+                            ->where('nama', 'like', '%'.$search.'%')))))
             ->orderByDesc('produk_count')
             ->orderBy('nama_usaha')
             ->paginate(24)

@@ -88,6 +88,10 @@ Route::prefix('n/{nagari:slug}')->group(function () {
 // Route ini khusus untuk halaman beranda utama aplikasi (di luar nagari)
 Route::get('/', [PublicHomeController::class, 'index'])->name('public.home');
 Route::get('teras-nagari', [TerasCatalogController::class, 'index'])->name('public.teras');
+Route::get('teras-nagari/batas', [PublicMapController::class, 'batasNagari'])->name('public.teras.map.boundaries');
+Route::get('teras-nagari/batas-kabupaten', [PublicMapController::class, 'batasKabupaten'])->name('public.teras.map.kabupaten');
+Route::get('teras-nagari/data', [PublicMapController::class, 'mitra'])->name('public.teras.map.data');
+Route::get('teras-nagari/data/{nagari:slug}', [TerasCatalogController::class, 'nagariData'])->name('public.teras.nagari.data');
 Route::get('medan-nan-balinduang', [SlcCatalogController::class, 'global'])->name('public.slc');
 Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'global'])->name('public.pelatihan');
 Route::get('lapau-nagari', [UmkmCatalogController::class, 'globalDirectory'])->name('public.umkm');

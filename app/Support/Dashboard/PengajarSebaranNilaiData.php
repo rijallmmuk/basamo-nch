@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\JenisEvaluasi;
 use App\Models\Evaluasi;
 use App\Models\EvaluasiPercobaan;
@@ -86,6 +87,10 @@ class PengajarSebaranNilaiData
 
         $query = EvaluasiPercobaan::query()
             ->whereIn('evaluasi_id', $evaluasiIds)
+            ->whereHas('user', fn ($users) => $users
+                ->role('warga')
+                ->where('users.status', ActiveStatus::Active)
+                ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active)))
             ->whereNotNull('nilai');
 
         foreach (self::KERANJANG as $index => $keranjang) {

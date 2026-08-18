@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\JenisEvaluasi;
 use App\Enums\ModuleProgressStatus;
 use App\Enums\StatusPercobaan;
@@ -28,7 +29,12 @@ class PengajarOverviewData
         $totalModul = $moduleIds->count();
         $modulBerisi = (clone $moduleQuery)->ready()->count();
 
-        $progress = UserModuleProgress::query()->whereIn('module_id', $moduleIds);
+        $progress = UserModuleProgress::query()
+            ->whereIn('module_id', $moduleIds)
+            ->whereHas('user', fn ($users) => $users
+                ->role('warga')
+                ->where('users.status', ActiveStatus::Active)
+                ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active)));
         $wargaAktif = (clone $progress)
             ->whereIn('status', [ModuleProgressStatus::InProgress, ModuleProgressStatus::Completed])
             ->distinct('user_id')
@@ -41,7 +47,12 @@ class PengajarOverviewData
             ->where('jenis', JenisEvaluasi::Kegiatan)
             ->whereIn('module_id', $moduleIds)
             ->pluck('id');
-        $attempts = EvaluasiPercobaan::query()->whereIn('evaluasi_id', $evaluasiIds);
+        $attempts = EvaluasiPercobaan::query()
+            ->whereIn('evaluasi_id', $evaluasiIds)
+            ->whereHas('user', fn ($users) => $users
+                ->role('warga')
+                ->where('users.status', ActiveStatus::Active)
+                ->whereHas('nagari', fn ($nagaris) => $nagaris->where('status', ActiveStatus::Active)));
         $totalPengerjaan = (clone $attempts)->count();
         $avgEvaluasiScore = (clone $attempts)->whereNotNull('nilai')->avg('nilai');
         $wargaLulus = (clone $attempts)

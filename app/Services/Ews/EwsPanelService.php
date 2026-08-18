@@ -47,6 +47,24 @@ class EwsPanelService
     }
 
     /**
+     * Seluruh titik pantau aktif milik satu nagari. Dipakai tab lingkungan pada
+     * modal Teras utama; tetap lazy-load agar tren perangkat nagari lain tidak
+     * ikut dihitung sebelum dipilih.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function semuaUntukNagari(Nagari $nagari, int $rentangJam = self::RENTANG_TREN_JAM): Collection
+    {
+        return EwsDevice::query()
+            ->siapPakai()
+            ->where('nagari_id', $nagari->getKey())
+            ->with(['nagari', 'pembacaanTerakhir'])
+            ->orderBy('nama_lokasi')
+            ->get()
+            ->map(fn (EwsDevice $device): array => $this->untukPerangkat($device, $rentangJam));
+    }
+
+    /**
      * @return array{
      *     device: EwsDevice, pembacaan: ?EwsReading, status: StatusSungai,
      *     terhubung: bool, basi: bool, tren: array{labels: list<string>,

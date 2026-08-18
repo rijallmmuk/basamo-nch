@@ -14,6 +14,7 @@
     $pembacaan = $panel['pembacaan'];
     $status = $panel['status'];
     $device = $panel['device'];
+    $tepercaya = $panel['terhubung'] && ! $panel['basi'] && $pembacaan;
 
     $angka = fn (?float $nilai, int $desimal = 0): string => $nilai === null
         ? '--'
@@ -56,7 +57,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div class="min-w-0">
                 <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Status Sungai</p>
-                <p class="mt-1 text-4xl font-black tracking-tight {{ $status->kelasWarna() }}" data-ews-status>
+                <p class="mt-1 text-4xl font-black tracking-tight {{ $tepercaya ? $status->kelasWarna() : 'text-on-surface-variant' }}" data-ews-status>
                     {{ $status->getLabel() }}
                 </p>
                 <p class="mt-2 text-sm text-on-surface-variant">

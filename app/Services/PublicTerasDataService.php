@@ -15,6 +15,7 @@ class PublicTerasDataService
         private readonly BmkgWeatherService $weather,
         private readonly PublicOverviewService $overview,
         private readonly EwsPanelService $ews,
+        private readonly PublicTerasSummaryService $summary,
     ) {}
 
     /** @return array<string, mixed> */
@@ -33,6 +34,8 @@ class PublicTerasDataService
             'idm' => $nagari->latestIdmStatus,
             'cuaca' => $this->weather->prakiraan($nagari),
             'overview' => $this->overview->overview($nagari),
+            'ringkasanBelajar' => $this->summary->belajar($nagari),
+            'ringkasanLingkungan' => $this->summary->lingkungan($nagari),
             'ews' => $this->ews->untukNagari($nagari),
         ];
     }

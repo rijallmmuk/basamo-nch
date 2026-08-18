@@ -21,7 +21,7 @@
 
 <section class="border-b border-outline-variant bg-surface-container-lowest py-6 lg:py-7">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-        <form method="GET" action="{{ $directoryUrl }}" @class([
+        <form method="GET" action="{{ $directoryUrl }}" data-live-filter data-live-target="#umkm-results" @class([
             'grid gap-3 lg:items-end',
             'lg:grid-cols-[minmax(18rem,1fr)_18rem_auto]' => ! $nagari,
             'lg:grid-cols-[minmax(18rem,1fr)_auto]' => $nagari,
@@ -54,20 +54,23 @@
                 </label>
             @endunless
             <div class="flex gap-2">
-                <button type="submit" class="min-h-12 flex-1 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary shadow-sm transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:flex-none">
-                    Tampilkan
-                </button>
-                @if(collect($filters)->filter()->isNotEmpty())
-                    <a href="{{ $directoryUrl }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Hapus semua filter">
-                        <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
-                    </a>
-                @endif
+                <span data-live-filter-status class="self-center text-xs font-semibold text-on-surface-variant" role="status" aria-live="polite"></span>
+                <noscript>
+                    <button type="submit" class="min-h-12 flex-1 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary shadow-sm lg:flex-none">Tampilkan</button>
+                </noscript>
+                <a href="{{ $directoryUrl }}" data-live-filter-reset @class([
+                    'min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'inline-flex' => collect($filters)->filter()->isNotEmpty(),
+                    'hidden' => collect($filters)->filter()->isEmpty(),
+                ]) aria-label="Hapus semua filter">
+                    <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
+                </a>
             </div>
         </form>
     </div>
 </section>
 
-<section class="bg-background py-10 lg:py-14">
+<section id="umkm-results" class="bg-background py-10 lg:py-14">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
         <div class="mb-7 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
             <div>

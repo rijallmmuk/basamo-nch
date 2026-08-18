@@ -18,13 +18,12 @@
             'badgeColor' => 'bg-primary/10 text-primary border border-primary/20',
             'btnColor' => 'bg-primary text-on-primary group-hover:bg-primary-highlight',
             'ctaText' => 'Jelajahi Teras Nagari',
-            'isComingSoon' => false,
         ],
         [
             'number' => '02',
             'name' => 'Medan Nan Balinduang',
             'function' => 'Smart Learning Center',
-            'implementation' => 'LMS, Pelatihan digital, modul, & Sertifikasi warga.',
+            'implementation' => 'Pelatihan digital, modul belajar, evaluasi, dan sertifikat warga.',
             'icon' => 'heroicon-o-academic-cap',
             'href' => $isNagari
                 ? (request()->routeIs('*.fallback')
@@ -35,7 +34,6 @@
             'badgeColor' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
             'btnColor' => 'bg-emerald-600 text-white group-hover:bg-emerald-700',
             'ctaText' => 'Masuk Ruang Belajar',
-            'isComingSoon' => false,
         ],
         [
             'number' => '03',
@@ -51,14 +49,13 @@
             'iconBg' => 'bg-sky-500 text-white',
             'badgeColor' => 'bg-sky-50 text-sky-800 border border-sky-200',
             'btnColor' => 'bg-sky-600 text-white group-hover:bg-sky-700',
-            'ctaText' => 'Coming Soon (Dalam Perencanaan)',
-            'isComingSoon' => true,
+            'ctaText' => 'Dalam perencanaan',
         ],
         [
             'number' => '04',
             'name' => 'Lapau Nagari',
             'function' => 'Ekonomi Digital',
-            'implementation' => 'Marketplace, etalase UMKM, & QR Traceability.',
+            'implementation' => 'Direktori usaha, produk lokal, dan kontak penjual.',
             'icon' => 'heroicon-o-building-storefront',
             'href' => $isNagari
                 ? (request()->routeIs('*.fallback')
@@ -69,7 +66,6 @@
             'badgeColor' => 'bg-amber-50 text-amber-800 border border-amber-200',
             'btnColor' => 'bg-amber-500 text-white group-hover:bg-amber-600',
             'ctaText' => 'Jelajahi Lapau Nagari',
-            'isComingSoon' => false,
         ],
     ];
 @endphp
@@ -87,12 +83,6 @@
                     </span>
 
                     <div class="flex items-center gap-2">
-                        @if($pillar['isComingSoon'])
-                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-500/90 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-xs">
-                                <x-heroicon-s-clock class="h-3 w-3" />
-                                <span>Coming Soon</span>
-                            </span>
-                        @endif
                         <span class="rounded-full px-3 py-1 text-xs font-black tracking-wider uppercase {{ $pillar['badgeColor'] }}">
                             Pilar {{ $pillar['number'] }}
                         </span>

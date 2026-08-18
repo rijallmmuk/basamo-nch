@@ -142,14 +142,14 @@
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-widest text-secondary">Etalase Produk</span>
-                        <h2 class="mt-1 text-section text-primary">
+                        <h2 class="mt-1 text-section text-primary" data-live-sync="product-count">
                             {{ $products->total() > 0 ? number_format($products->total(), 0, ',', '.').' produk tersedia' : 'Produk usaha ini' }}
                         </h2>
                     </div>
                 </div>
 
                 @if($products->total() > 0 || $hasProductFilters)
-                    <form method="GET" action="{{ $etalaseUrl }}" class="mt-6 grid gap-3 rounded-2xl border border-outline-variant bg-background p-4 lg:grid-cols-[minmax(16rem,1fr)_18rem_auto] lg:items-end">
+                    <form method="GET" action="{{ $etalaseUrl }}" data-live-filter data-live-target="#umkm-product-results" class="mt-6 grid gap-3 rounded-2xl border border-outline-variant bg-background p-4 lg:grid-cols-[minmax(16rem,1fr)_18rem_auto] lg:items-end">
                         <label class="block min-w-0">
                             <span class="mb-2 block text-sm font-bold text-on-surface">Cari produk</span>
                             <span class="relative block">
@@ -170,33 +170,38 @@
                         </label>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="min-h-12 flex-1 rounded-xl bg-primary px-6 text-sm font-bold text-on-primary transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:flex-none">Tampilkan</button>
-                            @if($hasProductFilters)
-                                <a href="{{ $etalaseUrl }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                                    <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
-                                </a>
-                            @endif
+                            <span data-live-filter-status class="self-center text-xs font-semibold text-on-surface-variant" role="status" aria-live="polite"></span>
+                            <noscript><button type="submit" class="min-h-12 flex-1 rounded-xl bg-primary px-6 text-sm font-bold text-on-primary lg:flex-none">Tampilkan</button></noscript>
+                            <a href="{{ $etalaseUrl }}" data-live-filter-reset @class([
+                                'min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                                'inline-flex' => $hasProductFilters,
+                                'hidden' => ! $hasProductFilters,
+                            ]) aria-label="Hapus filter produk">
+                                <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
+                            </a>
                         </div>
                     </form>
                 @endif
 
-                @if($products->isEmpty())
-                    <x-public.empty-state
-                        class="mt-6"
-                        icon="heroicon-o-shopping-bag"
-                        :title="$hasProductFilters ? 'Produk tidak ditemukan' : 'Belum ada produk'"
-                        :description="$hasProductFilters ? 'Coba kata kunci atau kategori lain, atau hapus filter yang aktif.' : 'Pemilik usaha belum menambahkan produk. Anda tetap dapat menghubunginya lewat WhatsApp.'" />
-                @else
-                    <div class="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                        @foreach($products as $product)
-                            <a href="{{ $global ? route('public.produk', $product) : ($isFallback ? route('public.nagari.produk.fallback', [$nagari, $product]) : route('public.nagari.produk', [$nagari, $product])) }}" class="block h-full">
-                                <x-umkm.product-card :product="$product" :penjual="false" />
-                            </a>
-                        @endforeach
-                    </div>
+                <div id="umkm-product-results">
+                    @if($products->isEmpty())
+                        <x-public.empty-state
+                            class="mt-6"
+                            icon="heroicon-o-shopping-bag"
+                            :title="$hasProductFilters ? 'Produk tidak ditemukan' : 'Belum ada produk'"
+                            :description="$hasProductFilters ? 'Coba kata kunci atau kategori lain, atau hapus filter yang aktif.' : 'Pemilik usaha belum menambahkan produk. Anda tetap dapat menghubunginya lewat WhatsApp.'" />
+                    @else
+                        <div class="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                            @foreach($products as $product)
+                                <a href="{{ $global ? route('public.produk', $product) : ($isFallback ? route('public.nagari.produk.fallback', [$nagari, $product]) : route('public.nagari.produk', [$nagari, $product])) }}" class="block h-full">
+                                    <x-umkm.product-card :product="$product" :penjual="false" />
+                                </a>
+                            @endforeach
+                        </div>
 
-                    <div class="mt-10">{{ $products->onEachSide(1)->links('public.pagination', ['label' => 'produk']) }}</div>
-                @endif
+                        <div class="mt-10">{{ $products->onEachSide(1)->links('public.pagination', ['label' => 'produk']) }}</div>
+                    @endif
+                </div>
             </div>
         </div>
     </section>

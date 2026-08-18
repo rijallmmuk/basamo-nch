@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\ActiveStatus;
 use App\Filament\Widgets\Concerns\ScopedToNagari;
 use App\Models\UserModuleProgress;
 use Filament\Tables\Columns\TextColumn;
@@ -28,7 +29,10 @@ class OperatorWargaActivityWidget extends BaseWidget
             ->description('Warga '.$this->namaNagari().'.')
             ->query(
                 UserModuleProgress::query()
-                    ->whereHas('user', fn ($q) => $q->where('nagari_id', $nagariId))
+                    ->whereHas('user', fn ($q) => $q
+                        ->role('warga')
+                        ->where('users.status', ActiveStatus::Active)
+                        ->where('nagari_id', $nagariId))
                     ->with(['user', 'module'])
                     ->latest('updated_at')
             )

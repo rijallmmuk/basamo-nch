@@ -42,6 +42,11 @@ class DemografiData
 
         $akun = User::query()
             ->role('warga')
+            // "Akun portal" adalah kapasitas warga yang benar-benar dapat login,
+            // bukan jumlah seluruh baris akun yang pernah dibuat. Akun nonaktif
+            // tetap dapat dilihat pada resource pengguna, tetapi tidak boleh
+            // menggelembungkan indikator adopsi platform.
+            ->where('users.status', ActiveStatus::Active)
             ->when($nagariId, fn (Builder $query) => $query->where('users.nagari_id', $nagariId))
             ->when($hanyaNagariAktif && $nagariId === null, fn (Builder $query) => $query
                 ->whereHas('nagari', fn (Builder $nagari) => $nagari->where('status', ActiveStatus::Active)))

@@ -2,6 +2,7 @@
 
 namespace App\Support\Dashboard;
 
+use App\Enums\ActiveStatus;
 use App\Enums\ModuleProgressStatus;
 use App\Models\EvaluasiPercobaan;
 use App\Models\Module;
@@ -11,6 +12,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Models\UserModuleProgress;
+use App\Services\Sdg\SdgScoringService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -45,7 +47,10 @@ class OperatorDashboardData
         // Sasaran dipakai sebagai SUBQUERY. Satu nagari dapat berisi puluhan ribu
         // warga, dan menariknya jadi daftar id di PHP membuat dasbor operator
         // menyalin seluruh tabel warga ke memori setiap kali dibuka.
-        $wargaQuery = fn (): Builder => User::role('warga')->where('nagari_id', $nagariId)->select('users.id');
+        $wargaQuery = fn (): Builder => User::role('warga')
+            ->where('users.status', ActiveStatus::Active)
+            ->where('nagari_id', $nagariId)
+            ->select('users.id');
         $akunWargaCount = $demografi['akun_portal'];
 
         // 2. Belajar
@@ -63,17 +68,25 @@ class OperatorDashboardData
         $avgEvaluasiScore = $avgEvaluasi !== null ? number_format((float) $avgEvaluasi, 1, ',', '.') : '—';
 
         // 3. Ekonomi UMKM
-        $umkmCount = UmkmProfile::where('nagari_id', $nagariId)->count();
-        $produkNagari = fn (): Builder => UmkmProduct::whereHas('umkmProfile', fn ($q) => $q->where('nagari_id', $nagariId));
+        $lapakNagari = fn (): Builder => UmkmProfile::query()
+            ->where('nagari_id', $nagariId)
+            ->where('status', ActiveStatus::Active);
+        $umkmCount = $lapakNagari()->count();
+        $produkNagari = fn (): Builder => UmkmProduct::whereHas('umkmProfile', fn ($q) => $q
+            ->where('nagari_id', $nagariId)
+            ->where('status', ActiveStatus::Active));
         $productPublishedCount = $produkNagari()->count();
         // Kunjungan PRODUK, bukan kunjungan etalase — lihat catatan yang sama di
         // SuperadminDashboardData.
         $productTotalViews = (int) $produkNagari()->sum('jumlah_dilihat');
-        $etalaseTotalViews = (int) UmkmProfile::where('nagari_id', $nagariId)->sum('jumlah_dilihat');
+        $etalaseTotalViews = (int) $lapakNagari()->sum('jumlah_dilihat');
 
         // 4. SDGs & IDM
-        $sdgAvg = SdgAchievement::where('nagari_id', $nagariId)->avg('persentase');
-        $sdgAvgScore = $sdgAvg !== null ? number_format((float) $sdgAvg, 1, ',', '.').'%' : '0%';
+        $sdg = app(SdgScoringService::class);
+        $sdgCoverage = $sdg->kelengkapan($nagariId);
+        $sdgAvgScore = $sdgCoverage['terisi'] > 0
+            ? number_format($sdg->skorNagari($nagariId), 1, ',', '.').'%'
+            : '—';
 
         // Nagari yang belum pernah ditarik datanya TIDAK boleh diberi status karangan:
         // "Berkembang" terbaca operator sebagai fakta resmi Kemendesa.
@@ -94,6 +107,7 @@ class OperatorDashboardData
                 'productTotalViews' => $productTotalViews,
                 'etalaseTotalViews' => $etalaseTotalViews,
                 'sdgAvgScore' => $sdgAvgScore,
+                'sdgCoverage' => $sdgCoverage['terisi'].' / '.$sdgCoverage['total'].' poin terdata',
                 'statusIdm' => $statusIdm,
             ],
             'lmsModules' => self::progresModul($nagariId, $wargaQuery()),
@@ -116,7 +130,8 @@ class OperatorDashboardData
             'productPublishedCount' => 0,
             'productTotalViews' => 0,
             'etalaseTotalViews' => 0,
-            'sdgAvgScore' => '0%',
+            'sdgAvgScore' => '—',
+            'sdgCoverage' => '0 / 18 poin terdata',
             'statusIdm' => 'Belum ada data',
         ];
     }

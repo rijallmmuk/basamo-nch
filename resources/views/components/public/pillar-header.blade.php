@@ -13,10 +13,13 @@
 
     <div class="relative mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
         <div class="grid items-end gap-8 lg:grid-cols-12">
-            <div class="{{ isset($aside) ? 'lg:col-span-8' : 'lg:col-span-9' }}">
+            <div @class([
+                'lg:col-span-8' => isset($aside),
+                'lg:col-span-11' => ! isset($aside),
+            ])>
                 <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary-container">{{ $eyebrow }}</p>
-                <h1 class="mt-3 max-w-4xl text-hero text-balance text-on-primary">{{ $title }}</h1>
-                <p class="mt-5 max-w-3xl text-lead text-pretty text-on-primary/72">{{ $description }}</p>
+                <h1 class="mt-3 max-w-5xl text-hero text-balance text-on-primary">{{ $title }}</h1>
+                <p class="mt-5 max-w-4xl text-lead text-pretty text-on-primary/72">{{ $description }}</p>
             </div>
 
             @isset($aside)

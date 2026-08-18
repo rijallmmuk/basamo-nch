@@ -45,10 +45,10 @@
 
 <section class="border-b border-outline-variant bg-surface-container-lowest py-7">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-        <form method="GET" action="{{ $catalogUrl }}" @class([
+        <form method="GET" action="{{ $catalogUrl }}" data-live-filter data-live-target="#slc-results" @class([
             'grid gap-3 lg:items-end',
-            'lg:grid-cols-[minmax(18rem,1fr)_18rem_18rem_auto]' => ! $nagari,
-            'lg:grid-cols-[minmax(18rem,1fr)_18rem_auto]' => $nagari,
+            'lg:grid-cols-[minmax(18rem,1fr)_18rem_auto]' => ! $nagari,
+            'lg:grid-cols-[minmax(18rem,1fr)_auto]' => $nagari,
         ])>
             <label class="block min-w-0">
                 <span class="mb-2 block text-sm font-bold text-on-surface">Cari pelatihan atau modul</span>
@@ -73,31 +73,24 @@
                 </label>
             @endunless
 
-            <label class="block">
-                <span class="mb-2 block text-sm font-bold text-on-surface">Pelatihan</span>
-                <select name="pelatihan" class="min-h-12 w-full rounded-xl border border-control-border bg-white py-3 pl-4 pr-10 text-sm text-on-surface shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-                    <option value="">Semua pelatihan</option>
-                    @foreach($pelatihanOptions as $option)
-                        <option value="{{ $option->id }}" @selected($filters['pelatihan'] === (string) $option->id)>{{ $option->namaTampil() }}</option>
-                    @endforeach
-                </select>
-            </label>
-
             <div class="flex gap-2">
-                <button class="min-h-12 flex-1 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary shadow-sm transition hover:bg-primary-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:flex-none">
-                    Tampilkan
-                </button>
-                @if(collect($filters)->filter()->isNotEmpty())
-                    <a href="{{ $catalogUrl }}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Hapus semua filter">
-                        <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
-                    </a>
-                @endif
+                <span data-live-filter-status class="self-center text-xs font-semibold text-on-surface-variant" role="status" aria-live="polite"></span>
+                <noscript>
+                    <button class="min-h-12 flex-1 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary shadow-sm lg:flex-none">Tampilkan</button>
+                </noscript>
+                <a href="{{ $catalogUrl }}" data-live-filter-reset @class([
+                    'min-h-12 items-center justify-center gap-2 rounded-xl border border-control-border bg-white px-4 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'inline-flex' => collect($filters)->filter()->isNotEmpty(),
+                    'hidden' => collect($filters)->filter()->isEmpty(),
+                ]) aria-label="Hapus semua filter">
+                    <x-heroicon-o-x-mark class="h-4 w-4" /> <span class="hidden sm:inline">Hapus filter</span>
+                </a>
             </div>
         </form>
     </div>
 </section>
 
-<section class="bg-background py-section-gap">
+<section id="slc-results" class="bg-background py-section-gap">
     <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
         <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <x-public.section-heading

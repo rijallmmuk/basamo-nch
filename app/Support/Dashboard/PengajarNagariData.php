@@ -73,6 +73,11 @@ class PengajarNagariData
         }
 
         $nagariIds = $nagaris->modelKeys();
+        $wargaAktifIds = User::query()
+            ->select('users.id')
+            ->role('warga')
+            ->where('users.status', ActiveStatus::Active)
+            ->whereIn('users.nagari_id', $nagariIds);
 
         // Berapa modul yang benar-benar ditujukan ke tiap nagari. Nagari yang hanya
         // disasar satu pelatihan tidak boleh diukur dengan modul pelatihan lain.
@@ -100,6 +105,7 @@ class PengajarNagariData
             ->join('users', 'users.id', '=', 'user_module_progress.user_id')
             ->whereIn('user_module_progress.module_id', $moduleIds)
             ->whereIn('users.nagari_id', $nagariIds)
+            ->whereIn('users.id', $wargaAktifIds)
             ->selectRaw('users.nagari_id, COUNT(DISTINCT user_module_progress.user_id) as jumlah')
             ->groupBy('users.nagari_id')
             ->pluck('jumlah', 'nagari_id');
@@ -108,13 +114,14 @@ class PengajarNagariData
             ->join('users', 'users.id', '=', 'user_module_progress.user_id')
             ->whereIn('user_module_progress.module_id', $moduleIds)
             ->whereIn('users.nagari_id', $nagariIds)
+            ->whereIn('users.id', $wargaAktifIds)
             ->where('user_module_progress.status', ModuleProgressStatus::Completed->value)
             ->selectRaw('users.nagari_id, COUNT(*) as jumlah')
             ->groupBy('users.nagari_id')
             ->pluck('jumlah', 'nagari_id');
 
-        $nilai = self::nilaiPerNagari($moduleIds, $nagariIds);
-        $diskusi = self::diskusiPerNagari($moduleIds, $nagariIds);
+        $nilai = self::nilaiPerNagari($moduleIds, $nagariIds, $wargaAktifIds);
+        $diskusi = self::diskusiPerNagari($moduleIds, $nagariIds, $wargaAktifIds);
 
         return $nagaris
             ->map(function (Nagari $nagari) use ($warga, $modulPerNagari, $mulai, $selesai, $nilai, $diskusi): array {
@@ -185,7 +192,7 @@ class PengajarNagariData
      * @param  list<int>  $nagariIds
      * @return Collection<int, object>
      */
-    private static function nilaiPerNagari(array $moduleIds, array $nagariIds): Collection
+    private static function nilaiPerNagari(array $moduleIds, array $nagariIds, $wargaAktifIds): Collection
     {
         $evaluasiIds = Evaluasi::query()
             ->ready()
@@ -202,6 +209,7 @@ class PengajarNagariData
             ->join('users', 'users.id', '=', 'evaluasi_percobaans.user_id')
             ->whereIn('evaluasi_percobaans.evaluasi_id', $evaluasiIds)
             ->whereIn('users.nagari_id', $nagariIds)
+            ->whereIn('users.id', $wargaAktifIds)
             ->selectRaw('users.nagari_id, AVG(evaluasi_percobaans.nilai) as rata, COUNT(*) as pengerjaan')
             ->selectRaw('SUM(evaluasi_percobaans.status = ?) as lulus', [StatusPercobaan::Passed->value])
             ->groupBy('users.nagari_id')
@@ -214,12 +222,13 @@ class PengajarNagariData
      * @param  list<int>  $nagariIds
      * @return Collection<int, object>
      */
-    private static function diskusiPerNagari(array $moduleIds, array $nagariIds): Collection
+    private static function diskusiPerNagari(array $moduleIds, array $nagariIds, $wargaAktifIds): Collection
     {
         return Discussion::query()
             ->join('users', 'users.id', '=', 'discussions.user_id')
             ->whereIn('discussions.module_id', $moduleIds)
             ->whereIn('users.nagari_id', $nagariIds)
+            ->whereIn('users.id', $wargaAktifIds)
             ->selectRaw('users.nagari_id')
             ->selectRaw('SUM(discussions.parent_id IS NULL) as topik')
             ->selectRaw('SUM(discussions.parent_id IS NOT NULL) as balasan')

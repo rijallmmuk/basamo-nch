@@ -58,7 +58,6 @@ class SeoController extends Controller
             ['loc' => $root.'/teras-nagari', 'lastmod' => null],
             ['loc' => $root.'/medan-nan-balinduang', 'lastmod' => null],
             ['loc' => $root.'/lapau-nagari', 'lastmod' => null],
-            ['loc' => $root.'/iot', 'lastmod' => null],
         ]);
 
         Pelatihan::query()

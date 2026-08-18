@@ -1,22 +1,15 @@
-@props(['overview', 'nagari' => null, 'global' => false])
+@props(['overview', 'nagari' => null])
 
 @php($isNagari = $nagari instanceof \App\Models\Nagari)
 
 <section id="teras" class="relative overflow-hidden bg-background py-section-gap">
     <div class="gonjong-bg absolute inset-0 opacity-30" aria-hidden="true"></div>
     <div class="relative mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
-        <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-            <x-public.section-heading
-                eyebrow="Ringkasan Statistik"
-                :title="$isNagari ? 'Angka utama '.$nagari->nama_lengkap.'.' : 'Potret terbuka ekosistem BASAMO NCH.'"
-                description="Data ditampilkan dalam bentuk agregat untuk mendukung keterbukaan informasi tanpa mengekspos identitas pribadi warga."
-            />
-            @unless($isNagari)
-                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-success-container/40 bg-success-container px-4 py-2 text-xs font-bold text-on-success-container shadow-sm backdrop-blur-sm transition-transform hover:scale-105">
-                    <x-heroicon-s-shield-check class="h-4 w-4 animate-pulse" /> Data agregat non-pribadi
-                </div>
-            @endunless
-        </div>
+        <x-public.section-heading
+            eyebrow="Ringkasan Statistik"
+            :title="$isNagari ? 'Ringkasan '.$nagari->nama_lengkap.'.' : 'Ekosistem BASAMO NCH dalam angka.'"
+            description="Penduduk, layanan belajar, UMKM, dan indikator pembangunan yang tersedia saat ini."
+        />
 
         <x-public.stat-grid class="stagger-children revealed mt-10" :cols="count($overview['metrics'])">
             @foreach($overview['metrics'] as $metric)
@@ -28,8 +21,17 @@
             @endforeach
         </x-public.stat-grid>
 
+        <div class="mt-5 flex flex-wrap gap-5">
+            <a href="{{ $isNagari ? \App\Support\PublicNavigation::rute('public.nagari.slc', $nagari) : route('public.slc') }}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+                Lihat katalog belajar <x-heroicon-o-arrow-right class="h-4 w-4" />
+            </a>
+            <a href="{{ $isNagari ? \App\Support\PublicNavigation::rute('public.nagari.umkm', $nagari) : route('public.umkm') }}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+                Jelajahi lapau usaha <x-heroicon-o-arrow-right class="h-4 w-4" />
+            </a>
+        </div>
+
         <div class="mt-8 grid gap-5 lg:grid-cols-12">
-            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-4">
+            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-3">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/8 text-primary shadow-sm"><x-heroicon-o-users class="h-6 w-6" /></span>
                     <div>
@@ -40,7 +42,7 @@
                 <div class="mt-6"><x-public.distribution-list :items="$overview['gender']" /></div>
             </article>
 
-            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-4">
+            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-3">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary-container text-on-secondary-container shadow-sm"><x-heroicon-o-chart-bar class="h-6 w-6" /></span>
                     <div>
@@ -51,7 +53,7 @@
                 <div class="mt-6"><x-public.distribution-list :items="$overview['ageGroups']" /></div>
             </article>
 
-            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-4">
+            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-3">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-tertiary-container text-on-tertiary-container shadow-sm"><x-heroicon-o-academic-cap class="h-6 w-6" /></span>
                     <div>
@@ -62,7 +64,7 @@
                 <div class="mt-6"><x-public.distribution-list :items="$overview['education']" /></div>
             </article>
 
-            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-4">
+            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-3">
                 <div class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-container text-on-primary-container shadow-sm"><x-heroicon-o-briefcase class="h-6 w-6" /></span>
                     <div>
@@ -71,52 +73,6 @@
                     </div>
                 </div>
                 <div class="mt-6"><x-public.distribution-list :items="$overview['occupations']" /></div>
-            </article>
-
-            <article class="relative overflow-hidden rounded-3xl bg-primary p-6 text-on-primary shadow-xl transition-all duration-300 hover:shadow-2xl lg:col-span-4">
-                <div class="songket-pattern absolute inset-0 opacity-10" aria-hidden="true"></div>
-                <div class="floating-orb floating-orb--gold -right-12 -top-12 h-40 w-40 bg-secondary-container/20"></div>
-                <div class="relative">
-                    <p class="text-xs font-bold uppercase tracking-widest text-secondary-container">Smart Learning Center</p>
-                    <h3 class="mt-2 text-xl font-extrabold">Aktivitas Pembelajaran</h3>
-                    <dl class="mt-6 grid grid-cols-2 gap-4">
-                        @foreach([
-                            ['Pelatihan', $overview['learning']['pelatihans']],
-                            ['Modul terbit', $overview['learning']['modules']],
-                            ['Modul selesai', $overview['learning']['completed_modules']],
-                            ['Percobaan kuis', $overview['learning']['evaluasi_percobaans']],
-                        ] as [$label, $value])
-                            <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm transition-transform hover:scale-105">
-                                <dd class="text-2xl font-extrabold text-secondary-container count-up" data-count-target="{{ $value }}">{{ number_format($value, 0, ',', '.') }}</dd>
-                                <dt class="mt-1 text-xs font-semibold text-on-primary/75">{{ $label }}</dt>
-                            </div>
-                        @endforeach
-                    </dl>
-                    <a href="{{ $global ? route('public.slc', $isNagari ? ['nagari' => $nagari->id] : []) : ($isNagari ? \App\Support\PublicNavigation::rute('public.nagari.slc', $nagari) : route('public.slc')) }}" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-secondary-container transition-all hover:gap-3">
-                        Lihat katalog belajar <x-heroicon-o-arrow-right class="h-4 w-4" />
-                    </a>
-                </div>
-            </article>
-
-            <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-4">
-                <p class="text-xs font-bold uppercase tracking-widest text-secondary">Lapau Nagari</p>
-                <h3 class="mt-2 text-xl font-extrabold text-primary">Ekonomi Digital</h3>
-                <dl class="mt-6 grid grid-cols-2 gap-3">
-                    @foreach([
-                        ['Lapau usaha', $overview['economy']['profiles']],
-                        ['Produk terbit', $overview['economy']['products']],
-                        ['Kunjungan produk', $overview['economy']['product_views']],
-                        ['UMKM dengan QR', $overview['economy']['qr_profiles']],
-                    ] as [$label, $value])
-                        <div class="rounded-2xl bg-surface-container-low p-4 transition-transform hover:scale-105">
-                            <dd class="text-2xl font-extrabold text-primary count-up" data-count-target="{{ $value }}">{{ number_format($value, 0, ',', '.') }}</dd>
-                            <dt class="mt-1 text-xs font-semibold text-on-surface-variant">{{ $label }}</dt>
-                        </div>
-                    @endforeach
-                </dl>
-                <a href="{{ $global ? route('public.umkm', $isNagari ? ['nagari' => $nagari->id] : []) : ($isNagari ? \App\Support\PublicNavigation::rute('public.nagari.umkm', $nagari) : route('public.umkm')) }}" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary transition-all hover:gap-3">
-                    Jelajahi lapau usaha <x-heroicon-o-arrow-right class="h-4 w-4" />
-                </a>
             </article>
 
             <article class="rounded-3xl border border-outline-variant bg-surface-container-lowest p-6 card-shadow transition-all duration-300 hover:shadow-lg lg:col-span-12">

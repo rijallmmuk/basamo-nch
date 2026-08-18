@@ -42,14 +42,14 @@ class OperatorMetricsWidget extends BaseWidget
                 ->color('success')
                 ->url(SlcRekapResource::getUrl('index')),
 
-            Stat::make('UMKM Nagari', "{$m['umkmCount']} Usaha · {$m['productPublishedCount']} Produk")
+            Stat::make('UMKM Nagari', "{$m['umkmCount']} Usaha Aktif · {$m['productPublishedCount']} Produk")
                 ->description("Etalase dilihat {$m['etalaseTotalViews']}× · produk {$m['productTotalViews']}×")
                 ->descriptionIcon('heroicon-m-building-storefront')
                 ->color('warning')
                 ->url(UmkmProfileResource::getUrl('index')),
 
             Stat::make('SDGs & IDM Nagari', "Capaian SDGs {$m['sdgAvgScore']}")
-                ->description("Status IDM Kemendesa: {$m['statusIdm']}")
+                ->description("{$m['sdgCoverage']} · Status IDM: {$m['statusIdm']}")
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color('primary')
                 // Rincian IKS/IKE/IKL sudah punya halaman sendiri; kartu ini menuju
@@ -60,7 +60,7 @@ class OperatorMetricsWidget extends BaseWidget
             // digabung dalam satu angka: pembagian laki-laki/perempuan berlaku untuk
             // penduduk, sedangkan jumlah akun disebut terpisah.
             Stat::make('Kependudukan Nagari', "{$m['pendudukCount']} Penduduk Terdata")
-                ->description("{$m['priaCount']} laki-laki · {$m['wanitaCount']} perempuan · {$m['akunWargaCount']} punya akun portal")
+                ->description("{$m['priaCount']} laki-laki · {$m['wanitaCount']} perempuan · {$m['akunWargaCount']} akun warga aktif")
                 ->descriptionIcon('heroicon-m-users')
                 ->color('info')
                 ->url(PendudukResource::getUrl('index')),

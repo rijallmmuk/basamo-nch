@@ -292,7 +292,7 @@
                     <ul class="space-y-3 text-sm text-on-primary/70">
                         {{-- Dari situs nagari, kedua tautan ini menuju induknya. --}}
                         <li><a href="{{ $situsIndukUrl }}" class="transition-colors hover:text-secondary-container">Beranda BASAMO NCH</a></li>
-                        <li><a href="{{ $situsIndukUrl }}#peta" class="transition-colors hover:text-secondary-container">Peta Nagari Mitra</a></li>
+                        <li><a href="{{ $situsIndukUrl }}/teras-nagari" class="transition-colors hover:text-secondary-container">Peta Teras Nagari</a></li>
                         <li><a href="{{ $situsIndukUrl }}#faq" class="transition-colors hover:text-secondary-container">Pertanyaan Umum</a></li>
                     </ul>
                 </div>
@@ -365,25 +365,35 @@
                 panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
             }
 
-            // Global reveal-up scroll observer
-            if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                const revealObserver = new IntersectionObserver((entries) => {
+            // Daftarkan juga elemen yang disisipkan kemudian oleh filter katalog.
+            // Tanpa ini, elemen baru tetap transparan karena kelas `revealed`
+            // sebelumnya hanya diberikan sekali saat halaman pertama kali dimuat.
+            const kurangiGerak = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const revealObserver = 'IntersectionObserver' in window && ! kurangiGerak
+                ? new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         if (entry.isIntersecting) {
                             entry.target.classList.add('revealed');
                             revealObserver.unobserve(entry.target);
                         }
                     });
-                }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+                }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+                : null;
 
-                document.querySelectorAll('.reveal-up, .stagger-children').forEach((el) => {
-                    revealObserver.observe(el);
+            const nyalakanReveal = (root = document, langsung = false) => {
+                root.querySelectorAll('.reveal-up:not(.revealed), .stagger-children:not(.revealed)').forEach((el) => {
+                    if (revealObserver && ! langsung) {
+                        revealObserver.observe(el);
+                    } else {
+                        el.classList.add('revealed');
+                    }
                 });
-            } else {
-                document.querySelectorAll('.reveal-up, .stagger-children').forEach((el) => {
-                    el.classList.add('revealed');
-                });
-            }
+            };
+
+            nyalakanReveal();
+            document.addEventListener('public:content-updated', (event) => {
+                nyalakanReveal(event.detail?.root ?? document, true);
+            });
         });
     </script>
     @if(! ($nagariSitus instanceof \App\Models\Nagari) && request()->routeIs('public.home'))

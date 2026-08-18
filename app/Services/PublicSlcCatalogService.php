@@ -15,10 +15,9 @@ class PublicSlcCatalogService
      * @param  array<string, mixed>  $rawFilters
      * @return array{
      *   pelatihans: LengthAwarePaginator,
-     *   pelatihanOptions: Collection<int, Pelatihan>,
      *   nagariOptions: Collection<int, Nagari>,
      *   selectedNagari: Nagari|null,
-     *   filters: array{q: string, nagari: string, pelatihan: string}
+     *   filters: array{q: string, nagari: string}
      * }
      */
     public function catalog(?Nagari $tenant, array $rawFilters): array
@@ -26,7 +25,6 @@ class PublicSlcCatalogService
         $filters = [
             'q' => trim((string) ($rawFilters['q'] ?? '')),
             'nagari' => trim((string) ($rawFilters['nagari'] ?? '')),
-            'pelatihan' => trim((string) ($rawFilters['pelatihan'] ?? '')),
         ];
 
         $selectedNagari = $tenant ?? $this->selectedNagari($filters['nagari']);
@@ -40,21 +38,6 @@ class PublicSlcCatalogService
                 fn (Builder $query) => $query->forNagari($selectedNagari->getKey()),
                 fn (Builder $query) => $query->withPublicAudience(),
             );
-
-        $pelatihanOptions = (clone $pelatihanBase)
-            ->with('tema')
-            ->get()
-            ->sortBy(fn (Pelatihan $pelatihan): string => $pelatihan->namaTampil())
-            ->values();
-
-        $selectedPelatihanId = ctype_digit($filters['pelatihan'])
-            && $pelatihanOptions->contains('id', (int) $filters['pelatihan'])
-                ? (int) $filters['pelatihan']
-                : null;
-
-        if ($filters['pelatihan'] !== '' && $selectedPelatihanId === null) {
-            $filters['pelatihan'] = '';
-        }
 
         $pelatihans = (clone $pelatihanBase)
             ->when($filters['q'] !== '', fn (Builder $query) => $query
@@ -71,7 +54,6 @@ class PublicSlcCatalogService
                                 ->where('judul', 'like', '%'.$filters['q'].'%')
                                 ->orWhere('deskripsi', 'like', '%'.$filters['q'].'%')));
                 }))
-            ->when($selectedPelatihanId, fn (Builder $query) => $query->whereKey($selectedPelatihanId))
             ->with(['tema', 'creator:id,name,lembaga,nagari_id', 'creator.roles', 'creator.nagari:id,nama', 'pengajars:id,name,lembaga,nagari_id', 'pengajars.roles', 'pengajars.nagari:id,nama'])
             ->withCount(['modules' => fn (Builder $modules) => $modules
                 ->ready()])
@@ -81,7 +63,6 @@ class PublicSlcCatalogService
 
         return [
             'pelatihans' => $pelatihans,
-            'pelatihanOptions' => $pelatihanOptions,
             'nagariOptions' => Nagari::query()
                 ->where('status', ActiveStatus::Active)
                 ->orderBy('nama')

@@ -71,8 +71,8 @@ final class PublicNavigation
     }
 
     /**
-     * Situs induk. Keempat pilar punya halaman lintas nagari; Peta tetap berupa
-     * bagian beranda.
+     * Situs induk: beranda dan tepat empat pilar. IoT, cuaca, serta rekap belajar
+     * merupakan data Teras Nagari, bukan tujuan navigasi yang berdiri sendiri.
      *
      * @return list<array{href: string, label: string, route: string|list<string>|null, icon: string}>
      */
@@ -108,18 +108,6 @@ final class PublicNavigation
                 'label' => 'Medan Nan Bapaneh',
                 'route' => 'public.bapaneh',
                 'icon' => 'heroicon-o-sparkles',
-            ],
-            [
-                'href' => route('public.iot'),
-                'label' => 'IoT',
-                'route' => 'public.iot',
-                'icon' => 'heroicon-o-cpu-chip',
-            ],
-            [
-                'href' => route('public.home').'#peta',
-                'label' => 'Peta Nagari',
-                'route' => null,
-                'icon' => 'heroicon-o-map',
             ],
         ];
     }

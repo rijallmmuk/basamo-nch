@@ -327,7 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const status = panel.querySelector('[data-ews-status]');
             if (status) {
-                status.className = `mt-1 text-4xl font-black tracking-tight ${data.status_kelas}`;
+                const statusClass = data.terhubung && ! data.basi
+                    ? data.status_kelas
+                    : 'text-on-surface-variant';
+                status.className = `mt-1 text-4xl font-black tracking-tight ${statusClass}`;
             }
 
             const lampu = panel.querySelector('[data-ews-lampu]');
@@ -399,4 +402,183 @@ document.addEventListener('click', (e) => {
         ? tombol.dataset.labelBuka
         : tombol.dataset.labelTutup;
     tombol.querySelector('[data-teks-lipat-ikon]')?.classList.toggle('rotate-180', ! terbuka);
+});
+
+/**
+ * Filter katalog publik tanpa muat ulang halaman.
+ *
+ * Server tetap menjadi sumber kebenaran: browser meminta HTML hasil filter yang
+ * sama dengan kunjungan biasa, lalu hanya mengganti section hasilnya. URL ikut
+ * diperbarui supaya dapat disalin dan tombol kembali/maju tetap bermakna. Tanpa
+ * JavaScript, tombol di dalam <noscript> mempertahankan alur GET biasa.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('form[data-live-filter]').forEach((form) => {
+        const targetSelector = form.dataset.liveTarget;
+        const status = form.querySelector('[data-live-filter-status]');
+        const reset = form.querySelector('[data-live-filter-reset]');
+        let timer = null;
+        let request = null;
+        let statusTimer = null;
+
+        const setStatus = (message) => {
+            if (! status) {
+                return;
+            }
+
+            clearTimeout(statusTimer);
+            status.textContent = message;
+
+            if (message === 'Hasil diperbarui.') {
+                statusTimer = setTimeout(() => { status.textContent = ''; }, 1200);
+            }
+        };
+
+        const hasFilters = () => [...form.elements].some((control) =>
+            control.name && ! ['submit', 'button'].includes(control.type) && String(control.value).trim() !== '');
+
+        const syncReset = () => {
+            if (! reset) {
+                return;
+            }
+
+            const active = hasFilters();
+            reset.classList.toggle('hidden', ! active);
+            reset.classList.toggle('inline-flex', active);
+        };
+
+        const urlFromForm = () => {
+            const url = new URL(form.action, window.location.href);
+            const params = new URLSearchParams();
+
+            new FormData(form).forEach((value, key) => {
+                const normalized = String(value).trim();
+                if (normalized !== '') {
+                    params.append(key, normalized);
+                }
+            });
+
+            url.search = params.toString();
+            return url;
+        };
+
+        const syncFormFromUrl = (url) => {
+            const params = new URL(url, window.location.href).searchParams;
+
+            form.querySelectorAll('[name]').forEach((control) => {
+                if (control instanceof HTMLInputElement || control instanceof HTMLSelectElement) {
+                    control.value = params.get(control.name) ?? '';
+                }
+            });
+
+            syncReset();
+        };
+
+        const load = async (url, pushHistory = true) => {
+            const currentTarget = document.querySelector(targetSelector);
+            if (! currentTarget) {
+                window.location.assign(url);
+                return;
+            }
+
+            request?.abort();
+            request = new AbortController();
+            const thisRequest = request;
+
+            currentTarget.setAttribute('aria-busy', 'true');
+            currentTarget.classList.add('opacity-60');
+            setStatus('Memuat hasil…');
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Accept: 'text/html',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    signal: thisRequest.signal,
+                });
+
+                if (! response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+                const nextTarget = page.querySelector(targetSelector);
+                if (! nextTarget) {
+                    throw new Error(`Target ${targetSelector} tidak ditemukan`);
+                }
+
+                currentTarget.replaceWith(nextTarget);
+                page.querySelectorAll('[data-live-sync]').forEach((nextElement) => {
+                    const key = nextElement.dataset.liveSync;
+                    const currentElement = document.querySelector(`[data-live-sync="${CSS.escape(key)}"]`);
+                    currentElement?.replaceWith(nextElement);
+                });
+                document.title = page.title;
+
+                if (pushHistory && url.toString() !== window.location.href) {
+                    window.history.pushState({ liveFilter: true }, '', url);
+                }
+
+                document.dispatchEvent(new CustomEvent('public:content-updated', {
+                    detail: { root: nextTarget },
+                }));
+                nyalakanTeksLipat();
+                setStatus('Hasil diperbarui.');
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+
+                // Kegagalan enhancement tidak boleh membuat filter mati. Navigasi
+                // GET biasa masih memberi hasil dan pesan kesalahan browser standar.
+                window.location.assign(url);
+            } finally {
+                if (request === thisRequest) {
+                    request = null;
+                    document.querySelector(targetSelector)?.removeAttribute('aria-busy');
+                    document.querySelector(targetSelector)?.classList.remove('opacity-60');
+                }
+            }
+        };
+
+        const schedule = (immediate = false) => {
+            clearTimeout(timer);
+            syncReset();
+            timer = setTimeout(() => load(urlFromForm()), immediate ? 0 : 350);
+        };
+
+        form.addEventListener('input', (event) => {
+            if (event.target.matches('input[type="search"], input[type="text"]')) {
+                schedule(false);
+            }
+        });
+
+        form.addEventListener('change', (event) => {
+            if (! event.target.matches('input[type="search"], input[type="text"]')) {
+                schedule(true);
+            }
+        });
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            schedule(true);
+        });
+
+        reset?.addEventListener('click', (event) => {
+            event.preventDefault();
+            form.querySelectorAll('[name]').forEach((control) => {
+                if (control instanceof HTMLInputElement || control instanceof HTMLSelectElement) {
+                    control.value = '';
+                }
+            });
+            schedule(true);
+        });
+
+        window.addEventListener('popstate', () => {
+            syncFormFromUrl(window.location.href);
+            load(new URL(window.location.href), false);
+        });
+
+        syncReset();
+    });
 });

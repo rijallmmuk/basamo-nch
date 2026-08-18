@@ -56,7 +56,11 @@ class HomeController extends Controller
             ->orderBy('id')
             ->get();
 
+        // Ringkasan dashboard hanya membandingkan modul yang masih tersedia bagi
+        // warga saat ini. Riwayat modul lama tetap ada di transkrip, tetapi tidak
+        // boleh membuat pembilang dashboard melebihi penyebut katalog aktif.
         $completedModuleIds = UserModuleProgress::where('user_id', $user->id)
+            ->whereIn('module_id', $modules->modelKeys())
             ->where('status', ModuleProgressStatus::Completed)
             ->pluck('module_id')
             ->all();
@@ -103,14 +107,21 @@ class HomeController extends Controller
         // 5. Statistik Evaluasi Kegiatan (Pre-test adalah baseline, tidak masuk nilai akhir).
         $evaluasiAttempts = EvaluasiPercobaan::where('user_id', $user->id)
             ->whereHas('evaluasi', fn ($evaluasis) => $evaluasis
-                ->where('jenis', JenisEvaluasi::Kegiatan))
+                ->where('jenis', JenisEvaluasi::Kegiatan)
+                ->whereIn('module_id', $modules->modelKeys()))
             ->get();
-        $totalEvaluasiPercobaans = $evaluasiAttempts->count();
+        // Satu evaluasi dapat dicoba beberapa kali. Dashboard capaian pribadi
+        // memakai nilai terbaik per evaluasi agar satu kegagalan awal tidak
+        // menggandakan penyebut atau merendahkan capaian yang akhirnya lulus.
+        $hasilEvaluasi = $evaluasiAttempts
+            ->groupBy('evaluasi_id')
+            ->map(fn ($attempts) => $attempts->sortByDesc('nilai')->first());
+        $totalEvaluasiPercobaans = $hasilEvaluasi->count();
         $passedAttempts = $evaluasiAttempts->where('status', StatusPercobaan::Passed);
         $passedEvaluasiCount = $passedAttempts->pluck('evaluasi_id')->unique()->count();
-        $averageEvaluasiScore = $totalEvaluasiPercobaans > 0 ? (int) round($evaluasiAttempts->avg('nilai')) : 0;
-        $highestEvaluasiScore = $totalEvaluasiPercobaans > 0 ? (int) $evaluasiAttempts->max('nilai') : 0;
-        $evaluasiPassRate = $totalEvaluasiPercobaans > 0 ? (int) round(($passedAttempts->count() / $totalEvaluasiPercobaans) * 100) : 0;
+        $averageEvaluasiScore = $totalEvaluasiPercobaans > 0 ? (int) round($hasilEvaluasi->avg('nilai')) : 0;
+        $highestEvaluasiScore = $totalEvaluasiPercobaans > 0 ? (int) $hasilEvaluasi->max('nilai') : 0;
+        $evaluasiPassRate = $totalEvaluasiPercobaans > 0 ? (int) round(($passedEvaluasiCount / $totalEvaluasiPercobaans) * 100) : 0;
 
         // 6. Data Chart (ApexCharts)
         $chartModuleLabels = [];
