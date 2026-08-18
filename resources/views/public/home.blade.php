@@ -6,6 +6,118 @@
 @section('content')
 <x-public.ecosystem-hero />
 
+{{-- ══ TENTANG SISTEM & TIM PENGEMBANG ══════════════════════════════════ --}}
+<section id="tentang-sistem" class="relative overflow-hidden border-t border-outline-variant bg-surface-container-lowest py-section-gap">
+    <div class="songket-pattern absolute inset-0 opacity-10" aria-hidden="true"></div>
+    <div class="gonjong-peak absolute left-0 top-0 h-72 w-full -translate-y-36 transform bg-primary/5" aria-hidden="true"></div>
+
+    <div class="relative z-10 mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+        {{-- Header Tentang BASAMO NCH --}}
+        <div class="mx-auto max-w-3xl text-center">
+            <x-public.section-heading
+                align="center"
+                eyebrow="Tentang BASAMO NCH"
+                title="Empat pilar inovasi untuk kemandirian nagari."
+                description="BASAMO NCH (Nagari Creative Hub & Smart Learning Center) dirancang sebagai ekosistem digital terpadu untuk memperkuat tata kelola data, pembelajaran warga, inovasi budaya, dan pemberdayaan ekonomi lokal di Sumatera Barat."
+            />
+        </div>
+
+        {{-- Bagian Tim Pengembang (Struktur Berjenjang Simetris & Rapi) --}}
+        <div class="mx-auto mt-12 max-w-5xl">
+            {{-- 1. Ketua Tim Pengembang & Peneliti Utama --}}
+            <div class="mx-auto max-w-xl">
+                <div class="group relative overflow-hidden rounded-3xl border-2 border-secondary/40 bg-gradient-to-br from-surface-container-lowest via-background to-secondary/10 p-5 shadow-sm transition-all duration-300 hover:border-secondary hover:shadow-md">
+                    <div class="flex items-center gap-4">
+                        <div class="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-secondary text-on-secondary shadow-md ring-4 ring-secondary/20 transition-transform duration-300 group-hover:scale-105">
+                            <span class="text-xl font-black">YH</span>
+                            <span class="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-black shadow" title="Ketua Tim">★</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <span class="inline-block rounded-md bg-secondary/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-secondary">Ketua Tim Pengembang &amp; Peneliti Utama</span>
+                            <h3 class="mt-1 text-base font-black text-primary sm:text-lg leading-tight">Dr. Yasdinul Huda, S.Pd., M.T.</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. Tim Peneliti & Dosen Ahli --}}
+            <div class="mt-8">
+                <div class="mb-3.5 text-center">
+                    <h4 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant">Tim Peneliti &amp; Dosen Ahli</h4>
+                </div>
+                <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+                    {{-- Dr. Phil. Dony Novaliendry, M.Kom. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-black text-primary transition-transform duration-200 group-hover:scale-105">
+                            DN
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Dr. Phil. Dony Novaliendry, M.Kom.</h5>
+                    </div>
+
+                    {{-- Dr. Syafrijon, S.Pd., M.Kom. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-black text-primary transition-transform duration-200 group-hover:scale-105">
+                            SJ
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Dr. Syafrijon, S.Pd., M.Kom.</h5>
+                    </div>
+
+                    {{-- Hafiz Elmi, S.Pd., M.Pd.T. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-black text-primary transition-transform duration-200 group-hover:scale-105">
+                            HE
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Hafiz Elmi, S.Pd., M.Pd.T.</h5>
+                    </div>
+
+                    {{-- Ryan Fikri, S.Pd., M.T. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-black text-primary transition-transform duration-200 group-hover:scale-105">
+                            RF
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Ryan Fikri, S.Pd., M.T.</h5>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3. Tim Rekayasa Perangkat Lunak & Implementasi --}}
+            <div class="mt-8">
+                <div class="mb-3.5 text-center">
+                    <h4 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant">Tim Rekayasa Perangkat Lunak &amp; Implementasi</h4>
+                </div>
+                <div class="mx-auto grid max-w-4xl grid-cols-1 gap-3.5 sm:grid-cols-3">
+                    {{-- Mukhtarijal, S.Kom. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-xs font-black text-secondary transition-transform duration-200 group-hover:scale-105">
+                            MJ
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Mukhtarijal, S.Kom.</h5>
+                    </div>
+
+                    {{-- Kimi Maulana Najna, S.Kom. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-xs font-black text-teal-800 transition-transform duration-200 group-hover:scale-105">
+                            KM
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Kimi Maulana Najna, S.Kom.</h5>
+                    </div>
+
+                    {{-- Ranny Erzitha, S.Kom. --}}
+                    <div class="group flex items-center gap-3 rounded-2xl border border-outline-variant/80 bg-background p-3.5 shadow-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-xs font-black text-rose-800 transition-transform duration-200 group-hover:scale-105">
+                            RE
+                        </div>
+                        <h5 class="min-w-0 flex-1 text-xs font-bold leading-snug text-primary sm:text-sm">Ranny Erzitha, S.Kom.</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ══ PEMISAH MINANG ══ --}}
+<div class="minang-divider" aria-hidden="true"></div>
+
 {{-- Beranda hanya memberi pintasan ringkas. Seluruh data publik dihimpun di Teras
      Nagari agar tidak tersebar sebagai halaman statistik tambahan. --}}
 <section class="relative overflow-hidden border-t border-outline-variant bg-surface-container-lowest py-section-gap">
