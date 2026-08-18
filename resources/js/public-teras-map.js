@@ -27,6 +27,28 @@ if (root) {
     const toggleNagariBtn = root.querySelector('[data-teras-toggle-nagari]');
     const toggleIotBtn = root.querySelector('[data-teras-toggle-iot]');
 
+    // Mobile drawer elements
+    const drawer = root.querySelector('[data-teras-drawer]');
+    const drawerToggles = root.querySelectorAll('[data-teras-drawer-toggle]');
+    const drawerIconOpen = root.querySelector('[data-drawer-icon-open]');
+    const drawerIconClose = root.querySelector('[data-drawer-icon-close]');
+
+    const toggleDrawer = (expand = null) => {
+        if (!drawer) return;
+        const isCurrentlyCollapsed = drawer.dataset.collapsed === 'true';
+        const willBeCollapsed = expand !== null ? !expand : !isCurrentlyCollapsed;
+        drawer.dataset.collapsed = willBeCollapsed ? 'true' : 'false';
+        if (drawerIconOpen && drawerIconClose) {
+            drawerIconOpen.classList.toggle('hidden', willBeCollapsed);
+            drawerIconClose.classList.toggle('hidden', !willBeCollapsed);
+        }
+    };
+
+    drawerToggles.forEach((btn) => btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleDrawer();
+    }));
+
     // Leaderboard table elements
     const tableLeaderboard = document.querySelector('[data-teras-leaderboard]');
     const tableSearch = tableLeaderboard?.querySelector('[data-table-search]');
@@ -43,7 +65,7 @@ if (root) {
     // Viewport padding for desktop sidebar offset
     const getDesktopPadding = () => (window.innerWidth >= 1024
         ? { paddingTopLeft: [420, 40], paddingBottomRight: [40, 40] }
-        : { padding: [30, 30] });
+        : { padding: [20, 20] });
 
     const map = L.map(canvas, {
         zoomControl: false,
@@ -53,6 +75,19 @@ if (root) {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     const boundaryRenderer = L.canvas({ padding: 0.5 });
+
+    const updateZoomLevelClasses = () => {
+        const zoom = map.getZoom();
+        const container = map.getContainer();
+        if (zoom >= 11) {
+            container.classList.add('teras-show-nagari-labels');
+        } else {
+            container.classList.remove('teras-show-nagari-labels');
+        }
+    };
+
+    map.on('zoomend', updateZoomLevelClasses);
+    updateZoomLevelClasses();
 
     // Crisp high-contrast Voyager tile layer with OpenStreetMap fallback
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -76,33 +111,33 @@ if (root) {
 
     const markerIcon = (nagariName, active = false, idmStatus = null, hasIot = false) => {
         let dotBg = active ? 'bg-amber-600 border-amber-800' : 'bg-primary border-primary';
-        let badgeBg = active ? 'bg-amber-900 text-white' : 'bg-slate-900/90 text-white';
+        let badgeBg = active ? 'bg-amber-900 text-white' : 'bg-slate-900/95 text-white';
 
         if (!active) {
             if (idmStatus === 'MANDIRI' || idmStatus === 'Mandiri') {
                 dotBg = 'bg-emerald-600 border-emerald-800';
-                badgeBg = 'bg-emerald-950/90 text-white';
+                badgeBg = 'bg-emerald-950/95 text-white';
             } else if (idmStatus === 'MAJU' || idmStatus === 'Maju') {
                 dotBg = 'bg-sky-600 border-sky-800';
-                badgeBg = 'bg-sky-950/90 text-white';
+                badgeBg = 'bg-sky-950/95 text-white';
             } else if (idmStatus === 'BERKEMBANG' || idmStatus === 'Berkembang') {
                 dotBg = 'bg-amber-600 border-amber-800';
-                badgeBg = 'bg-amber-950/90 text-white';
+                badgeBg = 'bg-amber-950/95 text-white';
             }
         }
 
         const size = active ? 28 : 22;
         const iconHtml = `
-            <div class="group relative flex flex-col items-center cursor-pointer transition-transform hover:scale-110">
+            <div class="group relative flex flex-col items-center cursor-pointer transition-transform duration-200 hover:scale-110">
                 <div class="relative flex items-center justify-center">
-                    ${hasIot ? '<span class="absolute h-7 w-7 animate-ping rounded-full bg-emerald-400 opacity-75"></span>' : ''}
+                    ${hasIot ? '<span class="absolute h-8 w-8 animate-ping rounded-full bg-emerald-400 opacity-75"></span>' : ''}
                     <span class="relative flex h-[${size}px] w-[${size}px] items-center justify-center rounded-full border-2 border-white shadow-xl ${dotBg}">
-                        <span class="h-2 w-2 rounded-full bg-white"></span>
+                        <span class="h-2.5 w-2.5 rounded-full bg-white"></span>
                     </span>
                 </div>
-                <div class="mt-1 flex items-center gap-1 rounded-full ${badgeBg} px-2 py-0.5 text-[10px] font-black tracking-tight shadow-md backdrop-blur-sm whitespace-nowrap border border-white/30">
+                <div class="mt-1 flex items-center gap-1.5 rounded-full ${badgeBg} px-3 py-1 text-xs font-black tracking-tight shadow-xl backdrop-blur-sm whitespace-nowrap border border-white/40">
                     <span>${escapeHtml(nagariName)}</span>
-                    ${hasIot ? '<span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>' : ''}
+                    ${hasIot ? '<span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" title="Sensor IoT Aktif"></span>' : ''}
                 </div>
             </div>
         `;
@@ -110,8 +145,8 @@ if (root) {
         return L.divIcon({
             className: 'teras-custom-marker',
             html: iconHtml,
-            iconSize: [140, 44],
-            iconAnchor: [70, 14],
+            iconSize: [220, 50],
+            iconAnchor: [110, 14],
         });
     };
 
@@ -262,6 +297,10 @@ if (root) {
                 .setLatLng(targetLatLng)
                 .setContent(createPopupContent(item))
                 .openOn(map);
+        }
+
+        if (window.innerWidth < 640 && dispatch) {
+            toggleDrawer(false);
         }
 
         if (dispatch) {
@@ -1030,6 +1069,41 @@ if (root) {
             }
         }
 
+        const boundaryNagariCenters = [];
+        const labelLayerGroup = L.layerGroup().addTo(map);
+
+        const renderDynamicLabels = () => {
+            labelLayerGroup.clearLayers();
+            if (! showNagariLayer) return;
+
+            const zoom = map.getZoom();
+            if (zoom < 10) return; // Tampilan luas tetap lapang dan bersih
+
+            const bounds = map.getBounds();
+            const visibleNagaris = boundaryNagariCenters.filter((n) => bounds.contains([n.lat, n.lng]));
+
+            // Kerapatan label menyesuaikan zoom agar tidak bertabrakan
+            let stride = 1;
+            if (zoom === 10) stride = 4;
+            else if (zoom === 11) stride = 2;
+            else stride = 1; // Zoom >= 12: seluruh nama nagari di viewport tampil
+
+            visibleNagaris.forEach((nagari, index) => {
+                if (nagari.isRegistered) return; // Nagari mitra sudah memiliki marker badge permanen
+
+                if (index % stride === 0) {
+                    const labelIcon = L.divIcon({
+                        className: 'teras-map-nagari-label',
+                        html: `<span class="teras-map-label-text">${escapeHtml(nagari.name)}</span>`,
+                        iconSize: null,
+                    });
+                    labelLayerGroup.addLayer(L.marker([nagari.lat, nagari.lng], { icon: labelIcon, interactive: false }));
+                }
+            });
+        };
+
+        map.on('zoomend moveend', renderDynamicLabels);
+
         // 2. Batas Nagari Polygons
         if (boundaryResult.status === 'fulfilled' && boundaryResult.value.features?.length) {
             boundaryResult.value.features.forEach((feature) => {
@@ -1044,10 +1118,27 @@ if (root) {
                 onEachFeature: (feature, layer) => {
                     const item = feature.properties.slug ? nagariItems.get(feature.properties.slug) : null;
                     const isRegistered = feature.properties.terdaftar || Boolean(item);
+                    const center = layer.getBounds().getCenter();
+
+                    boundaryNagariCenters.push({
+                        name: feature.properties.nama,
+                        lat: center.lat,
+                        lng: center.lng,
+                        slug: feature.properties.slug,
+                        isRegistered,
+                    });
+
+                    // Tooltip interaktif saat di-hover/di-sentuh untuk SEMUA nagari di semua level zoom
+                    layer.bindTooltip(`<span class="font-sans text-xs font-bold text-slate-800">${escapeHtml(feature.properties.nama)}</span>`, {
+                        sticky: true,
+                        direction: 'auto',
+                        className: 'teras-nagari-hover-tooltip',
+                    });
 
                     if (isRegistered && item) {
                         polygonLayers.set(item.slug, layer);
                         mapBounds.extend(layer.getBounds());
+
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
                             selectNagari(item, false, true, true);
@@ -1055,24 +1146,34 @@ if (root) {
                         layer.on('mouseover', () => layer.setStyle({ weight: 3.5, fillOpacity: 0.85 }));
                         layer.on('mouseout', () => layer.setStyle(nagariStyle(feature, feature.properties.slug === activeItem?.slug)));
                     } else {
-                        // Tooltip on hover for unregistered nagari
-                        layer.bindTooltip(`<span class="font-sans text-xs font-semibold text-slate-700">${escapeHtml(feature.properties.nama)}</span>`, {
-                            sticky: true,
-                            direction: 'auto',
-                            className: 'teras-nagari-hover-tooltip',
+                        layer.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            L.popup({ offset: [0, -10] })
+                                .setLatLng(layer.getBounds().getCenter())
+                                .setContent(`<div class="p-1 font-sans text-xs font-bold text-slate-800">${escapeHtml(feature.properties.nama)}</div>`)
+                                .openOn(map);
                         });
                         layer.on('mouseover', () => layer.setStyle({ weight: 2, color: '#475569', fillOpacity: 0.35 }));
                         layer.on('mouseout', () => layer.setStyle(nagariStyle(feature, false)));
                     }
                 },
             }).addTo(map);
+
+            renderDynamicLabels();
         }
 
-        // 3. Markers for Nagari points
+        // 3. Markers for Nagari points (showing all partner nagari names permanently on map)
         items.forEach((item) => {
-            if (! item.koordinat) return;
+            let latLng = null;
+            if (item.koordinat && Array.isArray(item.koordinat) && item.koordinat.length === 2) {
+                latLng = [item.koordinat[1], item.koordinat[0]];
+            } else if (polygonLayers.has(item.slug)) {
+                const center = polygonLayers.get(item.slug).getBounds().getCenter();
+                latLng = [center.lat, center.lng];
+            }
 
-            const latLng = [item.koordinat[1], item.koordinat[0]];
+            if (! latLng) return;
+
             const marker = L.marker(latLng, {
                 icon: markerIcon(item.nama, false, item.ringkasan?.idm, Boolean(item.ringkasan?.titik_iot)),
                 riseOnHover: true,
@@ -1088,7 +1189,16 @@ if (root) {
             mapBounds.extend(latLng);
         });
 
-        if (mapBounds.isValid()) {
+        const partnerBounds = L.latLngBounds([]);
+        items.forEach((item) => {
+            if (item.koordinat && Array.isArray(item.koordinat)) {
+                partnerBounds.extend([item.koordinat[1], item.koordinat[0]]);
+            }
+        });
+
+        if (partnerBounds.isValid()) {
+            map.fitBounds(partnerBounds.pad(0.4), { ...getDesktopPadding(), maxZoom: 10 });
+        } else if (mapBounds.isValid()) {
             map.fitBounds(mapBounds, { ...getDesktopPadding(), maxZoom: 9 });
         } else if (boundaryLayer?.getBounds().isValid()) {
             map.fitBounds(boundaryLayer.getBounds(), { ...getDesktopPadding() });

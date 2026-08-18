@@ -773,6 +773,45 @@ input[type='password']::-ms-clear {
 .leaflet-marker-icon.teras-custom-marker {
     background: transparent;
     border: none;
+    overflow: visible !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Dynamic Map Labels (Zoom-Dependent Viewport Labels) */
+.leaflet-marker-icon.teras-map-nagari-label {
+    background: transparent;
+    border: none;
+    pointer-events: none;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.teras-map-label-text {
+    display: inline-block;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 6px;
+    padding: 1.5px 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    pointer-events: none;
+    user-select: none;
+}
+
+.teras-map-label-text.is-partner {
+    font-size: 11px;
+    font-weight: 900;
+    color: #064e3b;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1.5px solid #059669;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .leaflet-tooltip.teras-kabupaten-tooltip {
@@ -809,4 +848,14 @@ input[type='password']::-ms-clear {
 
 .leaflet-tooltip.teras-nagari-hover-tooltip::before {
     display: none;
+}
+
+/* Mobile drawer collapsed state */
+@media (max-width: 639px) {
+    [data-teras-drawer][data-collapsed="true"] {
+        max-height: 4.25rem !important;
+    }
+    [data-teras-drawer][data-collapsed="true"] [data-drawer-body] {
+        display: none !important;
+    }
 }
