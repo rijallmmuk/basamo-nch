@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UmkmProfiles\Pages;
 
 use App\Enums\ActiveStatus;
+use App\Filament\Concerns\ExportsTableReports;
 use App\Filament\Concerns\HasListTitle;
 use App\Filament\Resources\UmkmProfiles\UmkmProfileResource;
 use App\Models\User;
@@ -18,11 +19,13 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use App\Support\Reports\ReportColumn;
 
 class ListUmkmProfiles extends ListRecords
 {
     protected static string $resource = UmkmProfileResource::class;
 
+    use ExportsTableReports;
     use HasListTitle;
 
     // Super admin selalu tampil di sidebar (2026-07-14) — tanpa konteks, otomatis
@@ -87,6 +90,7 @@ class ListUmkmProfiles extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            $this->reportActionGroup(),
             CreateAction::make('tambahUmkm')
                 ->label('Tambah UMKM')
                 ->icon('heroicon-o-plus')
@@ -128,6 +132,32 @@ class ListUmkmProfiles extends ListRecords
                         ->success()
                         ->send();
                 }),
+        ];
+    }
+
+    protected function reportTitle(): string { return UmkmProfileResource::isSelfService() ? 'Profil Usaha Saya' : 'Daftar UMKM'; }
+
+    protected function reportMetadata(): array
+    {
+        $nagariId = $this->managedNagariId();
+        return ['Cakupan' => \App\Models\Nagari::find($nagariId)?->nama ?? (UmkmProfileResource::isSelfService() ? 'Usaha sendiri' : 'Sesuai hak akses')];
+    }
+
+    protected function reportColumns(): array
+    {
+        return [
+            new ReportColumn('nama_usaha', 'Nama Usaha', 30),
+            new ReportColumn('owner.name', 'Pemilik', 25),
+            new ReportColumn('nagari.nama', 'Nagari', 24),
+            new ReportColumn('deskripsi', 'Deskripsi', 45, fn ($value): string => trim(strip_tags((string) $value))),
+            new ReportColumn('whatsapp', 'WhatsApp Usaha', 18),
+            new ReportColumn('email', 'Email Usaha', 25),
+            new ReportColumn('jam_operasional', 'Jam Operasional', 24),
+            new ReportColumn('tahun_berdiri', 'Tahun Berdiri', 14),
+            new ReportColumn('products_count', 'Jumlah Produk', 14),
+            new ReportColumn('jumlah_dilihat', 'Kunjungan Etalase', 17),
+            new ReportColumn('status', 'Status', 14, fn ($value): string => $value instanceof \BackedEnum ? $value->value : (string) $value),
+            new ReportColumn('created_at', 'Dibuat', 20, fn ($value): string => $value?->format('d/m/Y H:i') ?? '—'),
         ];
     }
 

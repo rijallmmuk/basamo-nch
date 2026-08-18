@@ -83,6 +83,7 @@ class UmkmProfileResource extends Resource
         return static::scopeToActor(
             parent::getEloquentQuery()
                 ->with(['nagari', 'owner'])
+                ->withCount('products')
                 ->withoutGlobalScopes([SoftDeletingScope::class])
         );
     }

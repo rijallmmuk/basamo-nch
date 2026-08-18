@@ -1,6 +1,23 @@
 {{-- Panduan panel: daftar isi yang menempel di kanan, isi panduan di kiri.
      Tautan lompatnya memakai id judul yang dipasang App\Support\Panduan. --}}
 <x-filament-panels::page>
+    <details data-panduan-mobile-toc class="panduan-daftar-isi-ringkas group rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 xl:hidden dark:bg-gray-900 dark:ring-white/10">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold text-gray-950 marker:content-none dark:text-white">
+            <span class="flex items-center gap-2">
+                <x-filament::icon icon="heroicon-o-list-bullet" class="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                <span>Daftar Isi</span>
+                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-white/10 dark:text-gray-400">
+                    {{ count($this->getDaftarIsi()) }} bagian
+                </span>
+            </span>
+            <x-filament::icon icon="heroicon-m-chevron-down"
+                class="h-5 w-5 shrink-0 text-gray-500 transition-transform group-open:rotate-180 dark:text-gray-400" />
+        </summary>
+        <nav class="panduan-daftar-isi-mobile overflow-y-auto border-t border-gray-200 px-3 py-3 dark:border-white/10" aria-label="Daftar isi panduan">
+            @include('filament.pages.partials.panduan-daftar-isi', ['daftarIsi' => $this->getDaftarIsi()])
+        </nav>
+    </details>
+
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-4">
 
         <article class="fi-section rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 sm:p-8 xl:col-span-3 dark:bg-gray-900 dark:ring-white/10">
@@ -10,24 +27,33 @@
         </article>
 
         <aside class="hidden xl:block">
-            <nav class="sticky top-24 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                <p class="mb-3 text-sm font-semibold text-gray-950 dark:text-white">Daftar Isi</p>
-                <ol class="space-y-1">
-                    @foreach($this->getDaftarIsi() as $bagian)
-                        <li @class(['pl-3' => $bagian['tingkat'] === 3])>
-                            <a href="#{{ $bagian['id'] }}"
-                               class="block rounded-lg px-2 py-1 text-sm text-gray-600 transition hover:bg-gray-50 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-primary-400">
-                                {{ $bagian['teks'] }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ol>
+            <nav data-panduan-desktop-toc class="panduan-daftar-isi-desktop sticky top-24 overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10"
+                 aria-label="Daftar isi panduan">
+                <div class="sticky top-0 z-10 flex items-center gap-2 border-b border-gray-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-gray-900">
+                    <x-filament::icon icon="heroicon-o-list-bullet" class="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                    <p class="text-sm font-semibold text-gray-950 dark:text-white">Daftar Isi</p>
+                </div>
+                <div class="px-3 py-3">
+                    @include('filament.pages.partials.panduan-daftar-isi', ['daftarIsi' => $this->getDaftarIsi()])
+                </div>
             </nav>
         </aside>
     </div>
 
     @push('styles')
         <style>
+            .panduan-daftar-isi-mobile {
+                max-height: 60vh;
+                overscroll-behavior: contain;
+            }
+            .panduan-daftar-isi-desktop {
+                max-height: calc(100vh - 7rem);
+                overscroll-behavior: contain;
+                scrollbar-gutter: stable;
+            }
+            @media (min-width: 1280px) {
+                .panduan-daftar-isi-ringkas { display: none; }
+            }
             /* Judul diberi jarak aman dari bilah atas panel supaya tidak tertutup
                saat pembaca melompat lewat daftar isi. */
             .panduan-isi h2, .panduan-isi h3 { scroll-margin-top: 6rem; }

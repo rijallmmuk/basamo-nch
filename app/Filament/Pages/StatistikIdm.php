@@ -14,6 +14,9 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
+use App\Support\Reports\ReportActionGroup;
+use App\Support\Reports\ReportColumn;
+use App\Support\Reports\TabularReport;
 
 /**
  * Statistik IDM (Indeks Desa Membangun) per nagari: skor total + status, 3 sub-indeks
@@ -120,6 +123,7 @@ class StatistikIdm extends Page
     protected function getHeaderActions(): array
     {
         return [
+            ReportActionGroup::make(fn (): TabularReport => $this->idmReport()),
             Action::make('perbaruiIdm')
                 ->label('Perbarui dari Kemendesa')
                 ->icon('heroicon-o-arrow-path')
@@ -184,5 +188,34 @@ class StatistikIdm extends Page
                     };
                 }),
         ];
+    }
+
+    private function idmReport(): TabularReport
+    {
+        $nagari = $this->nagariTerpilih;
+        $idm = $this->idm;
+        abort_unless($nagari && $idm, 404, 'Data IDM belum tersedia.');
+
+        return new TabularReport(
+            title: 'Statistik Indeks Desa Membangun (IDM)',
+            filename: 'statistik-idm-'.$nagari->nama.'-'.$idm->tahun,
+            query: IdmIndicator::query()->where('idm_status_id', $idm->getKey())->orderBy('dimensi')->orderBy('nomor'),
+            columns: [
+                new ReportColumn('dimensi', 'Dimensi', 18, fn ($value): string => $value?->value ?? '—'),
+                new ReportColumn('nomor', 'No.', 8),
+                new ReportColumn('indikator', 'Indikator', 42),
+                new ReportColumn('skor', 'Skor', 10),
+                new ReportColumn('keterangan', 'Kondisi', 40),
+                new ReportColumn('kegiatan', 'Rekomendasi Kegiatan', 48),
+                new ReportColumn('nilai', 'Potensi Kenaikan', 16),
+                new ReportColumn('pelaksana', 'Pelaksana/Sumber', 35, fn ($value): string => collect($value ?? [])->map(fn ($item, $key): string => is_array($item) ? implode(': ', $item) : "{$key}: {$item}")->join('; ')),
+            ],
+            metadata: [
+                'Cakupan' => $nagari->nama,
+                'Tahun' => (string) $idm->tahun,
+                'Skor IDM' => number_format((float) $idm->skor, 4, ',', '.'),
+                'Status' => (string) $idm->status,
+            ],
+        );
     }
 }

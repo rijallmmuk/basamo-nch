@@ -31,13 +31,40 @@
             margin: 0;
             font-family: "DejaVu Sans", sans-serif;
             color: #1a1a1a;
+            background: #fbfaf7;
+        }
+
+        .pita-atas {
+            position: absolute;
+            top: 14pt; right: 14pt; left: 14pt;
+            height: 9pt;
+            background: {{ $navy }};
+            border-bottom: 2pt solid {{ $emas }};
+        }
+        .pita-samping-kiri, .pita-samping-kanan {
+            position: absolute;
+            top: 23pt; bottom: 14pt;
+            width: 5pt;
+            background: {{ $navy }};
+        }
+        .pita-samping-kiri { left: 14pt; }
+        .pita-samping-kanan { right: 14pt; }
+        .watermark {
+            position: absolute;
+            top: 185pt; left: 0; right: 0;
+            text-align: center;
+            font-family: "DejaVu Serif", serif;
+            font-size: 142pt;
+            font-weight: bold;
+            letter-spacing: 10pt;
+            color: #f1f3f6;
         }
 
         /* Bingkai: garis tebal navy di luar, garis tipis emas di dalam. */
         .tepi {
             position: absolute;
             top: 14pt; right: 14pt; bottom: 14pt; left: 14pt;
-            border: 3pt solid {{ $navy }};
+            border: 2pt solid {{ $navy }};
         }
         .tepi-dalam {
             position: absolute;
@@ -52,10 +79,10 @@
         .sudut-ba { bottom: 21pt; left: 21pt; border-bottom: 3pt solid {{ $emas }}; border-left: 3pt solid {{ $emas }}; }
         .sudut-bn { bottom: 21pt; right: 21pt; border-bottom: 3pt solid {{ $emas }}; border-right: 3pt solid {{ $emas }}; }
 
-        .isi { position: absolute; top: 40pt; left: 52pt; right: 52pt; text-align: center; }
+        .isi { position: absolute; top: 35pt; left: 52pt; right: 52pt; text-align: center; }
 
         .lembaga {
-            margin-top: 8pt;
+            margin-top: 5pt;
             font-size: 9pt;
             font-weight: bold;
             letter-spacing: 4pt;
@@ -69,12 +96,19 @@
         }
 
         .judul {
-            margin-top: 14pt;
+            margin-top: 11pt;
             font-family: "DejaVu Serif", serif;
-            font-size: 38pt;
+            font-size: 36pt;
             font-weight: bold;
-            letter-spacing: 8pt;
+            letter-spacing: 6pt;
             color: {{ $navy }};
+        }
+        .jenis {
+            margin-top: 1pt;
+            font-size: 7.5pt;
+            font-weight: bold;
+            letter-spacing: 3pt;
+            color: {{ $emas }};
         }
         .garis-judul {
             width: 120pt;
@@ -95,8 +129,18 @@
             letter-spacing: 1pt;
             color: {{ $redup }};
         }
+        .status-digital {
+            display: inline-block;
+            margin-top: 5pt;
+            padding: 2pt 8pt;
+            border: .7pt solid #d9ad4e;
+            font-size: 6pt;
+            font-weight: bold;
+            letter-spacing: 1.2pt;
+            color: {{ $navy }};
+        }
 
-        .antar { margin-top: 22pt; font-size: 10pt; color: {{ $redup }}; }
+        .antar { margin-top: 16pt; font-size: 10pt; color: {{ $redup }}; }
 
         .nama {
             margin-top: 4pt;
@@ -124,7 +168,7 @@
            ini diterbitkan sistem, dan mencantumkan tanda tangan yang tidak pernah
            dibubuhkan siapa pun akan menjadikannya dokumen palsu. Yang dinyatakan
            hanyalah lembaga penerbit dan tanggalnya. */
-        .sah { margin-top: 24pt; }
+        .sah { margin-top: 20pt; }
         .sah-tanggal { font-size: 9pt; color: {{ $redup }}; }
         .sah-garis {
             width: 150pt;
@@ -147,7 +191,10 @@
         /* Kaki dipaku ke bawah supaya posisinya tetap walau panjang nama berubah. */
         .kaki {
             position: absolute;
-            left: 52pt; right: 52pt; bottom: 42pt;
+            left: 34pt; right: 34pt; bottom: 31pt;
+            padding: 9pt 18pt 7pt;
+            background: #f3f5f8;
+            border-top: 1pt solid #d9ad4e;
         }
         .kaki table { width: 100%; border-collapse: collapse; }
         .kaki td { vertical-align: top; font-size: 8pt; color: {{ $redup }}; }
@@ -165,8 +212,7 @@
             color: {{ $navy }};
         }
         .pemisah-kaki {
-            border-top: 0.8pt solid #d8dde4;
-            margin-bottom: 8pt;
+            display: none;
         }
         .qr { border: 2pt solid #ffffff; }
         .qr-catatan {
@@ -178,8 +224,12 @@
     </style>
 </head>
 <body>
+    <div class="watermark">NCH</div>
     <div class="tepi"></div>
     <div class="tepi-dalam"></div>
+    <div class="pita-atas"></div>
+    <div class="pita-samping-kiri"></div>
+    <div class="pita-samping-kanan"></div>
     <div class="sudut sudut-ka"></div>
     <div class="sudut sudut-kn"></div>
     <div class="sudut sudut-ba"></div>
@@ -187,15 +237,17 @@
 
     <div class="isi">
         @if($logo !== '')
-            <img src="{{ $logo }}" alt="" height="76">
+            <img src="{{ $logo }}" alt="" height="66">
         @endif
 
         <div class="lembaga">BASAMO NAGARI CREATIVE HUB</div>
         <div class="sub-lembaga">SMART LEARNING CENTER</div>
 
         <div class="judul">SERTIFIKAT</div>
+        <div class="jenis">PENYELESAIAN PELATIHAN</div>
         <div class="garis-judul"></div>
         <div class="nomor">{{ $certificate->nomor_seri }}</div>
+        <div class="status-digital">DOKUMEN DIGITAL TERVERIFIKASI</div>
         @if($contoh ?? false)
             <div class="cap-contoh">CONTOH, BUKAN SERTIFIKAT YANG SAH</div>
         @endif

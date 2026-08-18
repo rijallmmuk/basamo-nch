@@ -62,26 +62,24 @@
         {{-- ── LEFT COLUMN (2 Columns Wide on Large Screen) ──────────────── --}}
         <div class="space-y-6 lg:col-span-2">
             
-            {{-- ── 1. COMPACT ELEGANT MODULE HERO CARD ─────────────── --}}
-            <article class="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 sm:p-7 shadow-sm space-y-6">
-                
-                {{-- Compact Side-by-side / Flex Header --}}
-                <div class="flex flex-col sm:flex-row sm:items-start gap-5 sm:gap-6">
-                    
-                    {{-- Cover Image Thumbnail (Compact 16:9 Aspect Ratio) --}}
-                    <div class="relative w-full sm:w-56 aspect-[16/9] shrink-0 overflow-hidden rounded-xl bg-surface-container-high border border-outline-variant shadow-xs">
-                        @if($module->punyaCover())
-                            <img src="{{ $module->coverUrl() }}"
-                                 alt="{{ $module->judul }}"
-                                 loading="lazy"
-                                 class="h-full w-full object-cover">
-                        @else
-                            <x-slc.module-cover :judul="$module->judul" :seed="$module->getKey()" class="h-full w-full object-cover" />
-                        @endif
-                    </div>
+            {{-- ── 1. FULL-WIDTH MODULE HERO CARD ──────────────────── --}}
+            <article class="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+                {{-- Sampul memakai lebar kartu penuh agar menjadi identitas utama modul,
+                     baik untuk unggahan maupun sampul otomatis. --}}
+                <div data-module-cover class="relative aspect-[16/9] w-full overflow-hidden border-b border-outline-variant bg-surface-container-high">
+                    @if($module->punyaCover())
+                        <img src="{{ $module->coverUrl() }}"
+                             alt="{{ $module->judul }}"
+                             loading="lazy"
+                             class="h-full w-full object-cover">
+                    @else
+                        <x-slc.module-cover :judul="$module->judul" :seed="$module->getKey()" class="h-full w-full object-cover" />
+                    @endif
+                </div>
 
+                <div class="space-y-6 p-5 sm:p-7">
                     {{-- Title, Badges & Description Area --}}
-                    <div class="flex-1 space-y-3">
+                    <div class="space-y-3">
                         {{-- Badges Header --}}
                         <div class="flex flex-wrap items-center gap-2">
                             <x-portal.status-badge :status="$status" />
@@ -127,7 +125,6 @@
                             </div>
                         @endif
                     </div>
-                </div>
 
                 {{-- Progress Bar (Show when in progress or has new material) --}}
                 @if(($progress && ! $isCompleted) || $hasNewMaterial)
@@ -220,6 +217,7 @@
                         @endif
                     </div>
                 @endif
+                </div>
             </article>
 
 

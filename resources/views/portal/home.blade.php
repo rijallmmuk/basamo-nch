@@ -113,6 +113,13 @@
 @section('content')
 <div class="space-y-8">
 
+    <div class="flex justify-end">
+        <a href="{{ route('portal.transcript.download') }}" class="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 py-2.5 text-xs font-bold text-on-surface shadow-xs transition hover:border-primary/40 hover:text-primary">
+            <x-heroicon-s-arrow-down-tray class="h-4 w-4" />
+            <span>Unduh Transkrip Belajar</span>
+        </a>
+    </div>
+
     {{-- ── 1. RINGKASAN KPIS (STAT CARDS FILAMENT STYLE) ──────────────── --}}
     <section class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {{-- Card 1: Pelatihan Tuntas --}}

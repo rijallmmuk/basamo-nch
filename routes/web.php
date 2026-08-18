@@ -15,6 +15,8 @@ use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\PelatihanController;
 use App\Http\Controllers\Portal\ProfileController;
 use App\Http\Controllers\Portal\SertifikatController;
+use App\Http\Controllers\Portal\TranscriptController;
+use App\Http\Controllers\Portal\PersonalDataController;
 use App\Http\Controllers\Public\HomeController as PublicHomeController;
 use App\Http\Controllers\Public\IotCatalogController;
 use App\Http\Controllers\Public\KontakController;
@@ -153,6 +155,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::post('ganti-sandi', [PasswordController::class, 'update'])->name('password.update');
 
         Route::get('/', [HomeController::class, 'index'])->name('home');
+        Route::get('transkrip.pdf', TranscriptController::class)->name('transcript.download');
 
         // Notifikasi ditampilkan lewat modal di header (bukan halaman terpisah);
         // endpoint ini hanya menandai semua notifikasi sudah dibaca saat modal dibuka.
@@ -161,6 +164,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         // Profil warga: foto, kontak (email/HP), & ganti sandi. Data kependudukan
         // read-only (hanya admin yang boleh mengubah — cegah salah ubah).
         Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('profil/data-saya.pdf', PersonalDataController::class)->name('profile.data.download');
         Route::post('profil', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('profil/kontak', [ProfileController::class, 'updateContact'])->name('profile.contact');
         Route::post('profil/sandi', [ProfileController::class, 'updatePassword'])->name('profile.password');

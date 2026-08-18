@@ -21,22 +21,17 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 await page.goto('file://' + berkasHtml, { waitUntil: 'networkidle0' });
 
-const kaki = `
-  <div style="width:100%; font-family:'Segoe UI',Arial,sans-serif; font-size:8pt;
-              color:#5b6672; padding:0 16mm; display:flex;
-              justify-content:space-between; align-items:center;">
-    <span>Panduan Pengajar Smart Learning Center</span>
-    <span>Halaman <span class="pageNumber"></span> dari <span class="totalPages"></span></span>
-  </div>`;
-
+/* Dokumen harus dicetak dalam satu operasi. Memisahkan sampul dan badan lalu
+   menggabungkannya dengan utilitas PDF menghilangkan anotasi tautan internal dan
+   named destination, sehingga daftar isi tampak dapat diklik tetapi tidak bekerja. */
 await page.pdf({
   path: berkasPdf,
   format: 'A4',
   printBackground: true,
-  displayHeaderFooter: true,
-  headerTemplate: '<div></div>',
-  footerTemplate: kaki,
-  margin: { top: '16mm', bottom: '18mm', left: '16mm', right: '16mm' },
+  displayHeaderFooter: false,
+  // Margin diatur lewat @page agar halaman pertama dapat full-bleed sementara
+  // halaman isi tetap memiliki ruang baca yang aman.
+  margin: { top: 0, bottom: 0, left: 0, right: 0 },
   // Penanda PDF supaya pembaca bisa melompat lewat panel bookmark, bukan hanya
   // lewat daftar isi di halaman kedua.
   outline: true,

@@ -7,6 +7,8 @@ use App\Services\SlcRekapService;
 use App\Support\NagariContext;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Enums\Width;
+use Filament\Actions\Action;
+use App\Support\Reports\SlcTranscriptExporter;
 
 class ViewSlcRekap extends ViewRecord
 {
@@ -40,6 +42,16 @@ class ViewSlcRekap extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('unduhTranskrip')
+                ->label('Unduh Transkrip PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->action(fn () => app(SlcTranscriptExporter::class)->download(
+                    $this->record,
+                    auth()->user(),
+                    auth()->user()?->managedNagariId(NagariContext::LMS_REKAP),
+                )),
+        ];
     }
 }

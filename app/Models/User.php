@@ -303,6 +303,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia
             return NagariContext::id($namespace);
         }
 
+        if ($namespace === NagariContext::WARGA
+            && $this->hasAnyRole(['superadmin', 'dpmd'])) {
+            return NagariContext::id($namespace);
+        }
+
         if ($this->isSuperAdmin() && $namespace !== null) {
             return NagariContext::id($namespace);
         }
@@ -385,5 +390,15 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     public function discussions(): HasMany
     {
         return $this->hasMany(Discussion::class);
+    }
+
+    public function pelatihanAttendances(): HasMany
+    {
+        return $this->hasMany(PelatihanAttendance::class);
+    }
+
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
     }
 }

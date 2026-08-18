@@ -74,6 +74,19 @@ class WargaExport
             }
 
             $writer->close();
+
+            if ($actor = auth()->user()) {
+                activity('ekspor')
+                    ->causedBy($actor)
+                    ->performedOn($this->nagari)
+                    ->event('exported')
+                    ->withProperties([
+                        'laporan' => 'Data Warga untuk Impor Ulang',
+                        'format' => 'xlsx',
+                        'nagari_id' => $this->nagari->getKey(),
+                    ])
+                    ->log('Ekspor data warga untuk impor ulang (xlsx)');
+            }
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);

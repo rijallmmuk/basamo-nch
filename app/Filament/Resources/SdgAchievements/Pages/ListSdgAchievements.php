@@ -9,6 +9,9 @@ use App\Models\SdgAchievement;
 use App\Models\SdgGoal;
 use App\Services\Sdg\SdgRefreshService;
 use App\Services\Sdg\SdgScoringService;
+use App\Support\Reports\ReportActionGroup;
+use App\Support\Reports\ReportColumn;
+use App\Support\Reports\TabularReport;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -44,6 +47,7 @@ class ListSdgAchievements extends Page
     protected function getHeaderActions(): array
     {
         return [
+            ReportActionGroup::make(fn (): TabularReport => $this->sdgReport()),
             Action::make('perbaruiSdgs')
                 ->label('Perbarui dari Kemendesa')
                 ->icon('heroicon-o-arrow-path')
@@ -98,6 +102,27 @@ class ListSdgAchievements extends Page
                     };
                 }),
         ];
+    }
+
+    private function sdgReport(): TabularReport
+    {
+        $nagari = $this->getNagariTerpilihProperty();
+        abort_unless($nagari, 404);
+
+        return new TabularReport(
+            title: 'Capaian SDGs Nagari',
+            filename: 'capaian-sdgs-'.$nagari->nama,
+            query: SdgAchievement::query()->where('nagari_id', $nagari->getKey())->with(['goal.pillar'])->orderBy('sdg_goal_id'),
+            columns: [
+                new ReportColumn('goal.nomor', 'Poin', 10),
+                new ReportColumn('goal.nama', 'Tujuan SDGs', 42),
+                new ReportColumn('goal.pillar.nama', 'Pilar', 24),
+                new ReportColumn('persentase', 'Capaian (%)', 15, fn ($value): string => number_format((float) $value, 2, ',', '.')),
+                new ReportColumn('fetched_at', 'Terakhir Diperbarui', 22, fn ($value): string => $value?->format('d/m/Y H:i') ?? 'Belum tersedia'),
+            ],
+            metadata: ['Cakupan' => $nagari->nama],
+            orientation: 'portrait',
+        );
     }
 
     public function mount(): void

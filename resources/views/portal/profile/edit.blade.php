@@ -31,11 +31,16 @@
 
     {{-- ── 1. NAVIGASI BACK LINK ───────────────────────────────────────── --}}
     <div>
+        <div class="flex flex-wrap items-center justify-between gap-3">
         <a href="{{ route('portal.home') }}"
             class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
             <x-heroicon-s-arrow-left class="h-4 w-4" />
             <span>Kembali ke Beranda</span>
         </a>
+        <a href="{{ route('portal.profile.data.download') }}" class="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface px-3.5 py-2 text-xs font-bold text-on-surface shadow-xs transition hover:border-primary/40 hover:text-primary">
+            <x-heroicon-s-arrow-down-tray class="h-4 w-4" /><span>Unduh Data Saya</span>
+        </a>
+        </div>
     </div>
 
     {{-- ── 2. HERO PROFILE BANNER CARD ────────────────────────────────── --}}

@@ -1,7 +1,8 @@
 # Panduan Pengajar Smart Learning Center
 
-Panduan lengkap mengisi pelatihan di Basamo NCH, dari masuk sampai menerbitkan
-sertifikat. Seluruh tangkapan layar di bawah diambil dari sistem yang berjalan.
+Panduan operasional mengelola pelatihan di Basamo NCH, dari masuk, menyusun materi,
+memantau warga, sampai mengatur penerbitan sertifikat. Seluruh tangkapan layar di
+bawah diambil dari sistem yang berjalan.
 
 Panduan ini **khusus sisi pengajar**. Yang dilihat warga tidak dibahas di sini,
 kecuali sejauh Anda perlu tahu kapan isi Anda sampai kepadanya.
@@ -14,11 +15,11 @@ kecuali sejauh Anda perlu tahu kapan isi Anda sampai kepadanya.
 1. [Masuk ke panel](#1-masuk-ke-panel)
 2. [Mengenali dasbor](#2-mengenali-dasbor)
 3. [Alur kerja: lima langkah](#3-alur-kerja-lima-langkah)
-4. [Langkah 1 — Membuat pelatihan](#langkah-1--membuat-pelatihan)
-5. [Langkah 2 — Menambah modul](#langkah-2--menambah-modul)
-6. [Langkah 3 — Mengisi materi](#langkah-3--mengisi-materi)
-7. [Langkah 4 — Pre-test dan Evaluasi Kegiatan](#langkah-4--pre-test-dan-evaluasi-kegiatan)
-8. [Langkah 5 — Membuka untuk warga](#langkah-5--membuka-untuk-warga)
+4. [Langkah 1 — Membuat pelatihan](#langkah-1-membuat-pelatihan)
+5. [Langkah 2 — Menambah modul](#langkah-2-menambah-modul)
+6. [Langkah 3 — Mengisi materi](#langkah-3-mengisi-materi)
+7. [Langkah 4 — Pre-test dan Evaluasi Kegiatan](#langkah-4-pre-test-dan-evaluasi-kegiatan)
+8. [Langkah 5 — Membuka untuk warga](#langkah-5-membuka-untuk-warga)
 9. [Pelatihan dengan pertemuan daring](#9-pelatihan-dengan-pertemuan-daring)
 10. [Sertifikat](#10-sertifikat)
 11. [Memantau belajar warga](#11-memantau-belajar-warga)
@@ -90,6 +91,18 @@ Empat kartu di atas adalah ringkasan kerja Anda:
 | **Evaluasi Kegiatan** | rata-rata nilai, jumlah pengerjaan, dan berapa warga lulus |
 | **Forum Belum Dibaca** | topik diskusi warga yang belum Anda buka atau tandai telah dibaca |
 
+Di bawah kartu tersedia ringkasan operasional lain:
+
+- **Kinerja Modul yang Saya Kelola** memperlihatkan perbandingan aktivitas dan
+  penyelesaian pada modul yang dapat Anda kelola.
+- **Sebaran Belajar per Nagari** membantu melihat nagari mana yang sudah aktif dan
+  mana yang perlu didorong.
+- Grafik aktivitas, progres modul, dan sebaran nilai membantu membaca tren; gunakan
+  **Rekap Belajar Warga** ketika Anda membutuhkan rincian per orang.
+
+Kartu ringkasan dapat ditekan untuk menuju data terkait. Angka pada dasbor hanya
+mencakup pelatihan milik Anda atau pelatihan tempat Anda menjadi kolaborator.
+
 Menu **SLC** di kiri adalah tempat seluruh pekerjaan Anda:
 Pelatihan, Modul, Pre-test, Evaluasi Kegiatan, Forum Diskusi, dan Rekap Belajar Warga.
 
@@ -154,7 +167,7 @@ Tombol di kanan atas halaman ini:
 
 - **Ubah Pelatihan** — mengubah tema, sasaran, deskripsi, cover, kolaborasi,
   pertemuan daring, dan sertifikat
-- **Buka untuk Warga** / **Kunci** — saklar akses warga (lihat [Langkah 5](#langkah-5--membuka-untuk-warga))
+- **Buka untuk Warga** / **Kunci** — saklar akses warga (lihat [Langkah 5](#langkah-5-membuka-untuk-warga))
 - **Aksi Lainnya** — arsipkan atau hapus
 
 ---
@@ -192,10 +205,15 @@ mengikuti kelengkapan:
 Tombol di kanan atas:
 
 - **Ubah Modul** — judul, prasyarat, deskripsi, cover
-- **Pratinjau Warga** — melihat modul persis seperti tampilan warga, tanpa perlu akun warga
+- **Pratinjau Warga** — memeriksa susunan visual modul tanpa perlu akun warga
 - **Kelola Pre-test** / **Tambah Pre-test**
 - **Kelola Evaluasi Kegiatan** / **Tambah Evaluasi Kegiatan**
 - **Tambah Materi** (tombol pada bagian **Halaman Materi**)
+
+> **Pratinjau Warga bukan simulasi proses belajar.** Mode ini melewati gerbang
+> sasaran, prasyarat, dan pre-test supaya Anda dapat memeriksa tampilan. Jawaban,
+> nilai, dan progres tidak disimpan. Untuk menguji seluruh alur sebagaimana dialami
+> warga, tetap gunakan akun warga uji yang berada di nagari sasaran.
 
 ---
 
@@ -394,7 +412,9 @@ belum terlihat warga.
 
 ## 11. Memantau belajar warga
 
-Menu **Rekap Belajar Warga**.
+Mulailah dari menu **Rekap Belajar Warga**. Bila akun Anda menangani lebih dari satu
+nagari, pastikan konteks nagari pada pemilih di bagian atas panel sudah sesuai.
+Daftar dan angka hanya memuat pelatihan yang boleh Anda kelola.
 
 ![Rekap belajar warga](panduan-pengajar/gambar/15-rekap-belajar-warga.webp)
 
@@ -407,11 +427,45 @@ Menu **Rekap Belajar Warga**.
 | **Forum Diskusi** | topik dan balasan warga |
 | **Aktivitas Terakhir** | kapan terakhir warga menyentuh materi Anda |
 
-Untuk pelatihan yang punya pertemuan daring, daftar hadirnya ada di halaman detail
-pelatihan, tab **Kehadiran Pertemuan Daring**.
+Tekan nama warga untuk membuka rincian. Di sana Anda dapat membaca progres modul dan
+materi, hasil pre-test, percobaan serta kelulusan Evaluasi Kegiatan, dan aktivitas
+forum. Tombol **Unduh Transkrip PDF** menghasilkan ringkasan belajar warga itu.
 
-Menu **Forum Diskusi** menampilkan pertanyaan warga per modul. Kartu **Forum Belum
-Dibaca** di dasbor adalah pengingat cepatnya.
+Untuk pelatihan yang punya pertemuan daring, buka halaman detail pelatihan lalu tab
+**Kehadiran Pertemuan Daring**. Daftar ini berbeda dari progres materi: warga
+tercatat hadir ketika menekan **Saya Sudah Mengikuti** setelah sesi dimulai.
+
+### Menangani Forum Diskusi
+
+Menu **Forum Diskusi** menampilkan pertanyaan warga pada modul yang Anda kelola.
+Anda dapat membalas, menyematkan topik penting, serta menandai topik telah atau belum
+dibaca. Gunakan penyaring status baca, status balasan, nagari, pelatihan, modul, atau
+topik yang disematkan agar antrean mudah ditangani. Tombol **Tandai Semua Telah
+Dibaca** berguna setelah seluruh percakapan benar-benar diperiksa.
+
+Kartu **Forum Belum Dibaca** di dasbor adalah pengingat cepat; tekan kartu itu untuk
+membuka antrean yang masih memerlukan perhatian.
+
+### Mengunduh laporan dan transkrip
+
+Tombol **Ekspor** berada di kanan atas daftar atau tabel terkait. Data yang diunduh
+mengikuti pencarian, penyaring, konteks nagari, dan batas akses akun Anda. Atur
+penyaring lebih dahulu bila laporan hanya untuk periode, pelatihan, atau nagari
+tertentu.
+
+| Halaman | Data yang tersedia | Format |
+| --- | --- | --- |
+| **Pelatihan** | daftar pelatihan yang dapat Anda kelola | Excel dan PDF |
+| **Detail Pelatihan** | laporan peserta pelatihan | Excel dan PDF |
+| **Kehadiran Pertemuan Daring** | daftar kehadiran pada sesi | Excel dan PDF |
+| **Modul** | daftar modul yang dapat Anda kelola | Excel |
+| **Pre-test** | daftar dan status pre-test | Excel |
+| **Evaluasi Kegiatan** | daftar dan status evaluasi | Excel |
+| **Rekap Belajar Warga** | rekap progres seluruh warga dalam cakupan Anda | Excel dan PDF |
+| **Detail Rekap Warga** | transkrip belajar satu warga | PDF |
+
+Gunakan **Excel** untuk mengolah atau menyaring data lebih lanjut. Gunakan **PDF**
+untuk laporan yang siap dibaca, dicetak, atau disampaikan tanpa pengolahan ulang.
 
 ---
 
@@ -468,7 +522,9 @@ langkah yang masih kurang.
 | **Audio** | rekaman suara yang diputar di halaman | MP3, M4A, WAV, atau OGG |
 | **Lampiran** | berkas yang diunduh warga | PowerPoint, Word, Excel, PDF, gambar, ZIP |
 
-**Batas ukuran setiap berkas unggahan: 20 MB.**
+**Batas ukuran setiap berkas materi: 20 MB.** Cover pelatihan dan modul menerima
+JPG, PNG, atau WEBP hingga **10 MB**. Berkas sertifikat dari penyelenggara menerima
+PDF, JPG, atau PNG hingga **10 MB**.
 
 Berkas materi disimpan privat. Warga hanya dapat membukanya lewat halaman modul
 setelah gerbang aksesnya terpenuhi; tautannya tidak bisa dibagikan ke luar.
@@ -521,7 +577,9 @@ Satu soal dianggap lengkap bila punya **minimal dua pilihan jawaban**, dengan
 sedikitnya **satu jawaban benar** dan **satu jawaban salah**. Maksimal lima pilihan.
 
 Soal boleh punya lebih dari satu jawaban benar. Bila begitu, warga memilih beberapa
-jawaban sekaligus dan nilainya dihitung sebagian sesuai berapa yang tepat.
+jawaban sekaligus. Sistem memberi nilai parsial untuk pilihan benar, lalu mengurangi
+bagian nilai untuk pilihan salah yang ikut dipilih. Nilai satu soal tidak pernah
+kurang dari nol.
 
 Evaluasi yang soalnya belum lengkap tidak akan muncul untuk warga.
 
@@ -529,9 +587,15 @@ Evaluasi yang soalnya belum lengkap tidak akan muncul untuk warga.
 
 ## 18. Menghapus dan mengubah
 
-- Menghapus **pelatihan** ikut mengarsipkan seluruh modul, materi, evaluasi, dan
-  diskusi di dalamnya. Semuanya dapat dipulihkan bersama.
-- Menghapus **materi** juga menghapus berkas yang menempel padanya.
+- Tombol **Hapus** pada data aktif memindahkan data ke **Sampah**. Ini bukan
+  penghapusan permanen; gunakan penyaring **Sampah** lalu **Pulihkan** bila keliru.
+- Menghapus **pelatihan** ikut memindahkan seluruh modul, materi, evaluasi, dan
+  diskusi di dalamnya ke Sampah. Memulihkan pelatihan memulihkan rangkaian tersebut.
+- **Hapus permanen** hanya tersedia untuk data di Sampah. Tindakan ini tidak dapat
+  dibatalkan dan dapat menghapus berkas yang menempel, jadi periksa targetnya sebelum
+  mengonfirmasi.
+- Menghapus **materi** memindahkan materi beserta bloknya ke Sampah. Berkas terkait
+  baru benar-benar dibuang saat penghapusan permanen.
 - Mengganti **tema pelatihan** tidak menggandakan tema. Mengetik tema yang sudah
   pernah dipakai akan memakai tema yang sama.
 - Mengubah materi pada modul yang sudah dipelajari warga **tidak menghapus
@@ -546,12 +610,14 @@ Evaluasi yang soalnya belum lengkap tidak akan muncul untuk warga.
 
 | Gejala | Penyebab |
 | --- | --- |
-| Berkas gagal diunggah | ukurannya lebih dari 20 MB |
+| Berkas materi gagal diunggah | format tidak sesuai jenis blok, atau ukurannya lebih dari 20 MB |
+| Cover pelatihan atau modul gagal diunggah | bukan JPG, PNG, atau WEBP, atau ukurannya lebih dari 10 MB |
+| Berkas sertifikat penyelenggara gagal diunggah | bukan PDF, JPG, atau PNG, atau ukurannya lebih dari 10 MB |
 | Video tidak tayang, hanya kotak kosong | setelan videonya masih private |
 | Warga bilang modulnya tidak ada | modul belum berisi materi, atau pelatihan belum dibuka |
 | Evaluasi tidak muncul untuk warga | masih ada soal tanpa jawaban benar atau tanpa jawaban salah |
 | Warga tidak bisa membuka materi | modul prasyaratnya belum dituntaskan, atau pre-test belum dikerjakan |
-| Tidak bisa menekan Buka untuk Warga | pelatihan belum punya sasaran nagari, dan belum punya modul berisi materi maupun pertemuan daring |
+| Tidak bisa menekan Buka untuk Warga | pelatihan belum punya sasaran nagari, atau belum punya modul berisi materi maupun pertemuan daring |
 | Warga tidak menemukan tombol Saya Sudah Mengikuti | waktu mulai pertemuan belum terlewat, atau pelatihannya sedang terkunci |
 | Warga sudah hadir tetapi sertifikatnya belum bisa diambil | asal sertifikat masih **Tanpa sertifikat**, atau pada mode Berkas dari penyelenggara berkasnya belum diunggah |
 | Sertifikat tidak bisa diambil padahal modul sudah selesai | masih ada Evaluasi Kegiatan yang belum dilulusi |

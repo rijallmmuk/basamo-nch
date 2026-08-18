@@ -6,6 +6,8 @@ use App\Filament\Resources\Nagaris\NagariResource;
 use App\Filament\Resources\Nagaris\Support\NagariActions;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Actions\Action;
+use App\Support\Reports\NagariProfileExporter;
 
 /**
  * Ringkasan nagari + pusat semua aksi. Akses: superadmin (penuh) & dpmd (read-only).
@@ -25,6 +27,11 @@ class ViewNagari extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('eksporProfilPdf')
+                ->label('Unduh Profil PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->action(fn () => app(NagariProfileExporter::class)->download($this->record, auth()->user())),
             ...NagariActions::navigation(),
 
             ActionGroup::make(NagariActions::lifecycle())

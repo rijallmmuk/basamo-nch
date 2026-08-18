@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Penduduks\Pages;
 
 use App\Exports\WargaExport;
+use App\Filament\Concerns\ExportsTableReports;
 use App\Filament\Concerns\HasListTitle;
 use App\Filament\Resources\Penduduks\PendudukResource;
 use App\Imports\WargaImport;
@@ -21,11 +22,14 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Support\Reports\ReportColumn;
+use App\Support\Reports\DemographicReportExporter;
 
 class ListPenduduks extends ListRecords
 {
     protected static string $resource = PendudukResource::class;
 
+    use ExportsTableReports;
     use HasListTitle;
 
     public ?int $nagariId = null;
@@ -40,7 +44,7 @@ class ListPenduduks extends ListRecords
     {
         parent::mount();
 
-        if (auth()->user()?->isSuperAdmin() ?? false) {
+        if (auth()->user()?->hasAnyRole(['superadmin', 'dpmd']) ?? false) {
             NagariContext::ensureDefault(NagariContext::WARGA);
             $this->nagariId = NagariContext::id(NagariContext::WARGA);
         }
@@ -48,7 +52,7 @@ class ListPenduduks extends ListRecords
 
     public function updatedNagariId(): void
     {
-        if ((auth()->user()?->isSuperAdmin() ?? false) && $this->nagariId !== null) {
+        if ((auth()->user()?->hasAnyRole(['superadmin', 'dpmd']) ?? false) && $this->nagariId !== null) {
             NagariContext::set(NagariContext::WARGA, $this->nagariId);
         }
     }
@@ -71,7 +75,18 @@ class ListPenduduks extends ListRecords
             $actions[] = ActionGroup::make([
                 $this->unduhTemplateAction(),
                 $this->imporExcelAction($nagari),
-                $this->exportExcelAction($nagari),
+                Action::make('eksporUntukImpor')
+                    ->label('Excel untuk Impor Ulang')
+                    ->icon('heroicon-o-arrow-path-rounded-square')
+                    ->visible(fn (): bool => ! (auth()->user()?->isDpmd() ?? false))
+                    ->action(fn (): StreamedResponse => (new WargaExport($nagari))->download('data-warga-impor-ulang.xlsx')),
+                $this->reportActionGroup()->visible(fn (): bool => ! (auth()->user()?->isDpmd() ?? false)),
+                ActionGroup::make([
+                    Action::make('demografiExcel')->label('Excel Demografi')->icon('heroicon-o-table-cells')
+                        ->action(fn () => app(DemographicReportExporter::class)->xlsx($nagari, auth()->user())),
+                    Action::make('demografiPdf')->label('PDF Demografi')->icon('heroicon-o-document-text')
+                        ->action(fn () => app(DemographicReportExporter::class)->pdf($nagari, auth()->user())),
+                ])->label('Laporan Demografi')->icon('heroicon-o-chart-bar'),
             ])
                 ->label('Impor / Ekspor')
                 ->icon('heroicon-o-table-cells')
@@ -94,12 +109,34 @@ class ListPenduduks extends ListRecords
             ->action(fn (): StreamedResponse => app(WargaTemplateBuilder::class)->download(auth()->user()));
     }
 
-    private function exportExcelAction(Nagari $nagari): Action
+    protected function reportTitle(): string { return 'Data Warga'; }
+
+    protected function reportFormats(): array { return ['xlsx']; }
+
+    protected function reportMetadata(): array
     {
-        return Action::make('exportExcel')
-            ->label('Export')
-            ->icon('heroicon-o-document-arrow-down')
-            ->action(fn (): StreamedResponse => (new WargaExport($nagari))->download());
+        $nagariId = auth()->user()?->managedNagariId(NagariContext::WARGA);
+        return ['Cakupan' => Nagari::find($nagariId)?->nama ?? 'Sesuai hak akses'];
+    }
+
+    protected function reportColumns(): array
+    {
+        $mask = auth()->user()?->isDpmd() ?? false;
+
+        return [
+            new ReportColumn('nama', 'Nama Lengkap', 28),
+            new ReportColumn('nik', 'NIK', 20, fn ($value): string => $mask ? substr((string) $value, 0, 6).'******'.substr((string) $value, -4) : (string) $value),
+            new ReportColumn('jenis_kelamin', 'Jenis Kelamin', 15, fn ($value): string => $value?->getLabel() ?? 'Belum terdata'),
+            new ReportColumn('tempat_lahir', 'Tempat Lahir', 20),
+            new ReportColumn('tanggal_lahir', 'Tanggal Lahir', 15, fn ($value): string => $value?->format('d/m/Y') ?? '—'),
+            new ReportColumn('agama.nama', 'Agama', 16),
+            new ReportColumn('pendidikan.nama', 'Pendidikan', 25),
+            new ReportColumn('pekerjaan.nama', 'Pekerjaan', 25),
+            new ReportColumn('statusPerkawinan.nama', 'Status Perkawinan', 20),
+            new ReportColumn('user.status', 'Status Akun', 15, fn ($value): string => $value instanceof \BackedEnum ? $value->value : ($value ?: 'Belum ada akun')),
+            new ReportColumn('user.umkm_access_granted_at', 'Akses UMKM', 14, fn ($value): string => $value ? 'Ya' : 'Tidak'),
+            new ReportColumn('created_at', 'Didaftarkan', 20, fn ($value): string => $value?->format('d/m/Y H:i') ?? '—'),
+        ];
     }
 
     private function imporExcelAction(Nagari $nagari): Action

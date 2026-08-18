@@ -69,7 +69,8 @@ class PelatihanResource extends Resource
         $user = auth()->user();
 
         return parent::getEloquentQuery()
-            ->with(['tema', 'nagaris', 'media'])
+            ->with(['tema', 'nagaris', 'media', 'creator', 'pengajars'])
+            ->withCount('modules')
             ->when($user, fn (Builder $query) => $query->visibleTo($user));
     }
 

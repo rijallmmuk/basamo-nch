@@ -87,13 +87,16 @@ $isi = preg_replace_callback('/<img src="([^"]+)"([^>]*)>/', function (array $m)
     return '<img src="'.$dataUri($m[1]).'"'.$m[2].'>';
 }, $isi);
 
-$logo = $dataUri('public/images/brand/basamo-nch-mark.png');
+$logo = $dataUri('public/images/brand/basamo-nch-mark-light.png');
 $tanggal = (new DateTimeImmutable)->format('j') // translatedFormat tak tersedia di luar Laravel
     .' '.[1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
         'Agustus', 'September', 'Oktober', 'November', 'Desember'][(int) date('n')]
     .' '.date('Y');
 
 $gaya = <<<'CSS'
+@page { size: A4; margin: 16mm 16mm 18mm; }
+@page :first { margin: 0; }
+
 * { box-sizing: border-box; }
 body {
     font-family: "Segoe UI", "DejaVu Sans", Arial, sans-serif;
@@ -102,31 +105,60 @@ body {
 
 /* ── Sampul ───────────────────────────────────────────────────────────── */
 .sampul {
-    height: 246mm; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; text-align: center;
-    page-break-after: always; position: relative;
+    width: 210mm; height: 297mm; page-break-after: always; position: relative; overflow: hidden;
+    padding: 24mm 22mm; color: #ffffff;
+    background:
+        radial-gradient(circle at 88% 12%, rgba(201,147,44,.24) 0, rgba(201,147,44,0) 30%),
+        linear-gradient(145deg, #0e2a59 0%, #173b73 58%, #0a2148 100%);
 }
 .sampul::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10mm;
-    background: linear-gradient(90deg, #0e2a59 0%, #0e2a59 62%, #c9932c 62%, #c9932c 100%);
+    content: ""; position: absolute; top: 0; left: 0; width: 7mm; height: 100%;
+    background: #c9932c;
 }
-.sampul img { width: 42mm; height: auto; margin-bottom: 10mm; }
+.sampul::after {
+    content: ""; position: absolute; right: -42mm; bottom: -42mm;
+    width: 112mm; height: 112mm; border: 1px solid rgba(255,255,255,.16);
+    border-radius: 50%; box-shadow: 0 0 0 12mm rgba(255,255,255,.035), 0 0 0 25mm rgba(255,255,255,.025);
+}
+.sampul .identitas { display: flex; align-items: center; position: relative; z-index: 2; }
+.sampul .wadah-logo {
+    width: 32mm; height: 25mm;
+}
+.sampul img {
+    width: 100%; height: 100%; object-fit: contain;
+    margin: 0; border: 0; border-radius: 0;
+}
+.sampul .nama-lembaga { margin-left: 7mm; }
 .sampul .lembaga {
-    font-size: 10pt; font-weight: 700; letter-spacing: 3pt; color: #0e2a59;
+    font-size: 10pt; font-weight: 700; letter-spacing: 2.4pt; color: #ffffff;
 }
 .sampul .sub-lembaga {
-    font-size: 8pt; letter-spacing: 2pt; color: #5b6672; margin-top: 2mm;
+    font-size: 7.5pt; letter-spacing: 2pt; color: #d9ad4e; margin-top: 2mm;
+}
+.sampul .isi-sampul { position: relative; z-index: 2; margin-top: 39mm; max-width: 148mm; }
+.sampul .penanda {
+    display: inline-block; padding: 2.5mm 5mm; border: 1px solid rgba(255,255,255,.32);
+    border-radius: 20mm; font-size: 8pt; font-weight: 700; letter-spacing: 1.8pt;
+    color: #f4d389;
 }
 .sampul h1 {
-    font-size: 30pt; line-height: 1.2; color: #0e2a59; margin: 14mm 0 0;
-    border: 0; padding: 0; max-width: 140mm;
+    font-size: 34pt; line-height: 1.08; color: #ffffff; margin: 9mm 0 0;
+    border: 0; padding: 0; letter-spacing: -.5pt;
 }
-.sampul .garis { width: 40mm; height: 3px; background: #c9932c; margin: 7mm auto; }
-.sampul .ringkas { font-size: 11pt; color: #5b6672; max-width: 125mm; margin: 0 auto; }
+.sampul h1 span { color: #f0c66b; }
+.sampul .garis { width: 22mm; height: 3px; background: #c9932c; margin: 8mm 0 7mm; }
+.sampul .ringkas { font-size: 11pt; line-height: 1.65; color: #e7edf6; max-width: 132mm; margin: 0; }
+.sampul .edisi {
+    display: inline-block; margin-top: 13mm; padding: 3mm 4mm;
+    background: rgba(255,255,255,.08); border-left: 2px solid #c9932c;
+    font-size: 8.5pt; letter-spacing: .5pt; color: #e7edf6;
+}
 .sampul .kaki-sampul {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    font-size: 9pt; color: #5b6672;
+    position: absolute; z-index: 2; bottom: 19mm; left: 22mm; right: 22mm;
+    padding-top: 5mm; border-top: 1px solid rgba(255,255,255,.22);
+    font-size: 8.5pt; color: #cbd6e6; letter-spacing: .4pt;
 }
+.sampul .kaki-sampul strong { float: right; color: #f0c66b; }
 
 /* ── Daftar isi ───────────────────────────────────────────────────────── */
 .daftar-isi { page-break-after: always; }
@@ -195,14 +227,22 @@ CSS;
 
 $sampul = <<<HTML
 <div class="sampul">
-    <img src="{$logo}" alt="">
-    <div class="lembaga">BASAMO NAGARI CREATIVE HUB</div>
-    <div class="sub-lembaga">SMART LEARNING CENTER</div>
-    <h1>Panduan Pengajar<br>Smart Learning Center</h1>
-    <div class="garis"></div>
-    <p class="ringkas">Panduan lengkap mengisi pelatihan di Basamo NCH, dari mengenal
-    wajah aplikasi sampai menerbitkan sertifikat.</p>
-    <div class="kaki-sampul">Diperbarui {$tanggal}</div>
+    <div class="identitas">
+        <div class="wadah-logo"><img src="{$logo}" alt=""></div>
+        <div class="nama-lembaga">
+            <div class="lembaga">BASAMO NAGARI CREATIVE HUB</div>
+            <div class="sub-lembaga">SMART LEARNING CENTER</div>
+        </div>
+    </div>
+    <div class="isi-sampul">
+        <div class="penanda">PANDUAN OPERASIONAL</div>
+        <h1>Panduan<br><span>Pengajar</span></h1>
+        <div class="garis"></div>
+        <p class="ringkas">Pedoman mengelola pelatihan, menyusun materi dan evaluasi,
+        memantau proses belajar warga, serta mengatur penerbitan sertifikat.</p>
+        <div class="edisi">Edisi sistem berjalan &nbsp;•&nbsp; Diperbarui {$tanggal}</div>
+    </div>
+    <div class="kaki-sampul">Dokumen internal pengajar <strong>Basamo NCH</strong></div>
 </div>
 HTML;
 
