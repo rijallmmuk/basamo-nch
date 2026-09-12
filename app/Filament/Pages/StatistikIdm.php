@@ -132,7 +132,7 @@ class StatistikIdm extends Page
                     && (auth()->user()?->can('update', $this->nagariTerpilih) ?? false))
                 ->visible(fn (): bool => $this->nagariTerpilih !== null
                     && ! (auth()->user()?->isDpmd() ?? false)
-                    && in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1']))
+                    && (app()->environment('local') || str_ends_with(request()->getHost(), '.test') || in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])))
                 ->schema([
                     Select::make('tahun')
                         ->label('Tahun data')

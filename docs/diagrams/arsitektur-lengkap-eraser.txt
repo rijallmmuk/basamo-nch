@@ -1,0 +1,135 @@
+// =====================================================================
+// ARSITEKTUR LENGKAP PLATFORM BASAMO NCH (100% SESUAI SISTEM NYATA)
+// Server: Hostinger | Framework: Laravel 13 | Multi-Tenant Subdomain
+// Sintaks Resmi Eraser.io (https://eraser.readme.io/docs/syntax)
+// =====================================================================
+
+title Arsitektur Lengkap Platform BASAMO NCH (Hostinger)
+direction down
+colorMode bold
+styleMode shadow
+typeface clean
+
+// ---------------------------------------------------------------------
+// 1. PEMANGKU KEPENTINGAN & 5 PERAN RESMI SPATIE + KAPABILITAS UMKM
+// ---------------------------------------------------------------------
+Peran Pengguna Platform BASAMO [icon: users, color: blue] {
+  SuperAdmin [icon: shield, color: red, label: "Super Admin (superadmin)"]
+  OperatorNagari [icon: user-check, color: orange, label: "Operator Nagari (operator)"]
+  PengajarPkM [icon: award, color: green, label: "Pengajar PkM (pengajar)"]
+  DPMD [icon: eye, color: blue, label: "DPMD Pengawas (dpmd)"]
+  WargaNagari [icon: user, color: slate, label: "Warga Nagari (warga)"]
+  WargaUMKM [icon: shopping-bag, color: purple, label: "Warga Pelaku UMKM (hasUmkmAccess)"]
+}
+
+// ---------------------------------------------------------------------
+// 2. INFRASTRUKTUR HOSTING HOSTINGER & JARINGAN
+// ---------------------------------------------------------------------
+Infrastruktur Hostinger dan Jaringan [icon: server, color: slate] {
+  CloudflareEdge [icon: shield, color: orange, label: "Cloudflare Edge & SSL (Trusted Proxies)"]
+  HostingerDNS [icon: globe, color: blue, label: "Hostinger hPanel & DNS Routing"]
+  LiteSpeedServer [icon: server, color: slate, label: "LiteSpeed Web Server (public_html)"]
+  SubdomainResolver [icon: router, color: yellow, label: "Laravel Subdomain & Tenant Resolver"]
+}
+
+// ---------------------------------------------------------------------
+// 3. GERBANG OTENTIKASI GANDA
+// ---------------------------------------------------------------------
+Gerbang Masuk dan Otentikasi [icon: lock, color: yellow] {
+  LoginNIK [icon: key, color: blue, label: "Login Warga via NIK (16 Digit)"]
+  LoginUsername [icon: lock, color: orange, label: "Login Pengelola via Username"]
+  SessionSSO [icon: zap, color: green, label: "Single Sign-On Session (.basamonch.com)"]
+}
+
+// ---------------------------------------------------------------------
+// 4. EKOSISTEM MODUL KANONIK BASAMO NCH
+// ---------------------------------------------------------------------
+Ekosistem Modul Kanonik BASAMO [icon: layers, color: blue] {
+
+  Teras Nagari [icon: bar-chart-2, color: orange] {
+    SDGsDashboard [icon: bar-chart, label: "Dashboard 18 Indikator SDGs Nagari"]
+    IDMMonitoring [icon: activity, label: "Monitoring Indeks Desa Membangun (IDM)"]
+  }
+
+  Medan Nan Balinduang [icon: book-open, color: green] {
+    KurikulumModul [icon: file-text, label: "Kurikulum & Modul Ajar Terurut"]
+    EvaluasiBelajar [icon: check-circle, label: "Evaluasi Belajar (Pretest & Kuis KKM >= 70)"]
+    SertifikatDigital [icon: award, label: "Penerbitan Sertifikat Digital Ber-QR Code"]
+    ForumDiskusi [icon: message-square, label: "Forum Diskusi Warga (Anti-Flood Limit)"]
+  }
+
+  Lapau Nagari [icon: shopping-bag, color: purple] {
+    ProfilLapak [icon: user, label: "Profil Lapak Binaan (1 Warga 1 Usaha)"]
+    KatalogProduk [icon: search, label: "Katalog Komoditas & MySQL FullText Search"]
+    OrderWhatsApp [icon: message-circle, label: "Pemesanan Langsung WhatsApp (wa.me)"]
+    PelacakKunjungan [icon: eye, label: "Pelacak Minat Produk (UmkmView)"]
+  }
+
+  Medan Nan Bapaneh [icon: users, color: blue] {
+    InformasiPublik [icon: info, label: "Keterbukaan Informasi Publik Nagari"]
+    KanalAspirasi [icon: mail, label: "Kanal Aspirasi & Kontak Masuk"]
+  }
+
+  Sistem IoT dan EWS [icon: radio, color: red] {
+    SensorFisik [icon: cpu, label: "Perangkat Sensor Telemetri (EwsDevice)"]
+    TelemetriBencana [icon: alert-triangle, label: "Pembacaan Realtime Indikator Bencana (EwsReading)"]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 5. PANEL PENGELOLA & VERIFIKASI PUBLIK
+// ---------------------------------------------------------------------
+Panel Pengelola dan Layanan Publik [icon: settings, color: slate] {
+  BackofficeFilament [icon: sliders, color: orange, label: "Backoffice Filament v5 (ApexCharts)"]
+  VerifikasiPublik [icon: check-square, color: green, label: "Verifikasi Sertifikat Publik (/verify/{nomor})"]
+}
+
+// ---------------------------------------------------------------------
+// 6. LAPISAN PENYIMPANAN DATA HOSTINGER
+// ---------------------------------------------------------------------
+Penyimpanan Data Hostinger [icon: server, color: slate] {
+  DatabaseMySQL [icon: database, color: blue, label: "MySQL/MariaDB Server (basamo_nch)"]
+  FileStorage [icon: hard-drive, color: slate, label: "File Storage (public_html/storage)"]
+}
+
+// ---------------------------------------------------------------------
+// LEGENDA ARSITEKTUR
+// ---------------------------------------------------------------------
+legend {
+  [shape: rectangle, color: red, label: "Wewenang Global Lintas Nagari (superadmin, pengajar, dpmd)"]
+  [shape: rectangle, color: orange, label: "Wewenang Terisolasi Per Nagari (operator)"]
+  [shape: rectangle, color: slate, label: "Warga Nagari Terdaftar (NIK 16 Digit)"]
+  [shape: rectangle, color: purple, label: "Kapabilitas Khusus Wirausaha Warga (hasUmkmAccess)"]
+  [connection: >, label: "Alur Permintaan Akses / Request Flow"]
+}
+
+// ---------------------------------------------------------------------
+// ALUR HUBUNGAN & KONEKSI SISTEM
+// ---------------------------------------------------------------------
+
+// Akses Pengguna ke Edge Hosting Hostinger
+SuperAdmin, OperatorNagari, PengajarPkM, DPMD, WargaNagari, WargaUMKM > CloudflareEdge: Permintaan HTTPS
+CloudflareEdge > HostingerDNS > LiteSpeedServer > SubdomainResolver
+
+// Perutean Otentikasi Ganda
+SubdomainResolver > LoginNIK: Otentikasi Warga (NIK)
+SubdomainResolver > LoginUsername: Otentikasi Pengelola (Username)
+
+LoginNIK, LoginUsername > SessionSSO: Sesi Multi-Tenant
+
+// Akses ke Modul Kanonik BASAMO
+SessionSSO > Teras Nagari, Medan Nan Balinduang, Lapau Nagari, Medan Nan Bapaneh
+
+// Integrasi Sensor Telemetri IoT / EWS
+SensorFisik > TelemetriBencana > Teras Nagari: Telemetri Kebencanaan
+
+// Alur Belajar & Verifikasi Sertifikat
+KurikulumModul > EvaluasiBelajar > SertifikatDigital
+SertifikatDigital > VerifikasiPublik: Pemindaian QR Code Dokumen
+
+// Manajemen Backoffice & Persistensi Data
+Ekosistem Modul Kanonik BASAMO > BackofficeFilament: Pemantauan Pengelola
+Ekosistem Modul Kanonik BASAMO > DatabaseMySQL: Transaksi Data Relasional
+
+SertifikatDigital > FileStorage: Arsip PDF DomPDF
+ProfilLapak > FileStorage: Foto Produk Spatie MediaLibrary

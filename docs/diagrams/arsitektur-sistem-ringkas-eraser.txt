@@ -1,0 +1,125 @@
+// =====================================================================
+// ARSITEKTUR PLATFORM BASAMO NCH (OPSI 2: DIET VISUAL SEIMBANG & CLEAN)
+// Validasi Faktual: Laravel 13 | Filament v3 (/panel) | MySQL 8 | Hostinger VPS
+// Karakteristik: Lebih Ramping, Tanpa Bloating, 5 Pintu Layanan Simetris
+// Format: Eraser.io (https://app.eraser.io)
+// =====================================================================
+
+title Arsitektur Resmi Platform BASAMO NCH (Clean & Balanced Architecture)
+direction down
+colorMode bold
+styleMode shadow
+typeface clean
+
+// ---------------------------------------------------------------------
+// 1. LAPISAN PENGGUNA (5 PERAN SPATIE RBAC)
+// ---------------------------------------------------------------------
+Pengguna Platform [icon: users, color: blue, label: "1. Pengguna Platform (5 Peran Spatie RBAC)"] {
+  Warga [icon: user, color: blue, label: "Warga (NIK Login)"]
+  Pengajar [icon: award, color: green, label: "Pengajar (Instruktur PkM)"]
+  DPMD [icon: eye, color: blue, label: "DPMD (Pengawas Daerah)"]
+  Operator [icon: user-check, color: orange, label: "Operator (Perangkat Nagari)"]
+  Superadmin [icon: shield, color: red, label: "Superadmin (Pengelola Sistem)"]
+}
+
+// ---------------------------------------------------------------------
+// 2. JARINGAN & SUBDOMAIN GATEWAY (HOSTINGER VPS)
+// ---------------------------------------------------------------------
+Infrastruktur Jaringan [icon: globe, color: blue, label: "2. Jaringan & Subdomain Gateway (Hostinger VPS)"] {
+  Cloudflare Edge SSL [icon: shield, color: orange, label: "Cloudflare Edge SSL & CDN"]
+  Subdomain Tenant Resolver [icon: globe, color: blue, label: "Subdomain Tenant Resolver (*.basamonch.com)"]
+}
+
+// ---------------------------------------------------------------------
+// 3. LAPISAN ANTARMUKA LAYANAN (5 PINTU KANONIK BASAMO)
+// ---------------------------------------------------------------------
+Lapisan Antarmuka [icon: monitor, color: blue, label: "3. Lapisan Antarmuka Layanan (Kanonik BASAMO NCH)"] {
+  Teras Nagari SDGs [icon: bar-chart-2, color: orange, label: "Teras Nagari & IoT (/teras-nagari)"]
+  Medan Nan Balinduang [icon: book-open, color: green, label: "Medan Nan Balinduang (/portal & /verify)"]
+  Medan Nan Bapaneh [icon: sparkles, color: teal, label: "Medan Nan Bapaneh (/medan-nan-bapaneh)"]
+  Lapau Nagari UMKM [icon: shopping-bag, color: purple, label: "Lapau Nagari (/lapau-nagari)"]
+  Backoffice Panel [icon: settings, color: slate, label: "Backoffice Panel (/panel) - Filament v3"]
+}
+
+// ---------------------------------------------------------------------
+// 4. BACKEND PLATFORM & LOGIKA BISNIS (LARAVEL 13 CORE)
+// ---------------------------------------------------------------------
+Backend Platform BASAMO [icon: server, color: red, label: "4. Backend Platform & Logika Bisnis (Laravel 13 Core)"] {
+  
+  SDGs Nagari Engine [icon: bar-chart-2, color: orange, label: "Pilar 1: Teras SDGs Nagari Engine"] {
+    SDGs Goals Indikator [icon: bar-chart, label: "4 Pilar & 18 Goals SDGs Desa"]
+    Peta Spasial Capaian [icon: map, label: "Batas Spasial GeoJSON & Capaian Riil"]
+  }
+
+  EWS Blynk IoT Engine [icon: activity, color: red, label: "Modul Telemetri: EWS Mitigasi Bencana"] {
+    Sensor dan API Blynk [icon: radio, label: "Sensor Air, Hujan & EwsBlynkService"]
+    Status Bahaya Sungai [icon: alert-triangle, label: "Indikator Status (Normal/Waspada/Bahaya)"]
+  }
+
+  LMS Core Engine [icon: award, color: green, label: "Pilar 2: Medan Nan Balinduang (LMS Core)"] {
+    Alur Pembelajaran [icon: book-open, label: "Pelatihan, Modul, Materi & Forum Diskusi"]
+    Evaluasi dan Sertifikat [icon: check-circle, label: "Kuis Evaluasi (KKM >= 70) & Sertifikat QR"]
+  }
+
+  Bapaneh Engine [icon: sparkles, color: teal, label: "Pilar 3: Medan Nan Bapaneh (Budaya & Inovasi)"] {
+    Arsip Budaya Lokal [icon: archive, label: "Arsip & Dokumentasi Pengetahuan Lokal"]
+    Ruang Inovasi Nagari [icon: zap, label: "Ruang Karya Kreatif & Publikasi Nagari"]
+  }
+
+  Lapau Nagari Engine [icon: shopping-bag, color: purple, label: "Pilar 4: Lapau Nagari UMKM Engine"] {
+    Katalog Produk UMKM [icon: shopping-bag, label: "Profil UMKM Binaan & Katalog Komoditas"]
+    Direct Order WA [icon: message-circle, label: "Direct Order WhatsApp & UmkmView Tracker"]
+  }
+
+  Security and Core [icon: shield, color: blue, label: "Fondasi Keamanan & Multi-Tenant Core"] {
+    Spatie RBAC Auth [icon: lock, label: "Spatie RBAC (5 Peran) & Autentikasi NIK"]
+    Global Nagari Scope [icon: layers, label: "Global Tenant Scope (where nagari_id = ?)"]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 5. BASIS DATA & PENYIMPANAN PERSISTEN (HOSTINGER)
+// ---------------------------------------------------------------------
+Penyimpanan Data [icon: database, color: slate, label: "5. Penyimpanan Data & Layanan Eksternal (Hostinger)"] {
+  Layanan Blynk IoT [icon: cloud, color: red, label: "Blynk IoT Cloud (Telemetri Sensor)"]
+  Database MySQL Delapan [icon: mysql, color: blue, label: "MySQL 8 Relasional (InnoDB nagari_id)"]
+  Storage Berkas Hostinger [icon: hard-drive, color: slate, label: "Hostinger Storage (PDF Sertifikat & Media)"]
+  WhatsApp Gateway API [icon: message-circle, color: purple, label: "WhatsApp Gateway (Direct Order)"]
+  Session dan Cache State [icon: zap, color: yellow, label: "Session & Cache (.basamonch.com)"]
+}
+
+// =====================================================================
+// ALUR PERGERAKAN DATA (LANGSUNG, BERSIH, MINIMAL DISTORSI)
+// =====================================================================
+
+// 1. Pengguna ke Jaringan
+Warga, Pengajar, DPMD, Operator, Superadmin > Cloudflare Edge SSL: Permintaan Web HTTPS
+Cloudflare Edge SSL > Subdomain Tenant Resolver: Resolusi Host Subdomain Nagari
+
+// 2. Distribusi ke 5 Pintu Layanan Kanonik BASAMO
+Subdomain Tenant Resolver > Teras Nagari SDGs
+Subdomain Tenant Resolver > Medan Nan Balinduang
+Subdomain Tenant Resolver > Medan Nan Bapaneh
+Subdomain Tenant Resolver > Lapau Nagari UMKM
+Subdomain Tenant Resolver > Backoffice Panel
+
+// 3. Antarmuka Layanan ke Service Engine Backend
+Teras Nagari SDGs > SDGs Nagari Engine: Visualisasi Capaian SDGs & Peta
+Teras Nagari SDGs > EWS Blynk IoT Engine: Widget Telemetri Sensor Sungai (#iot)
+Medan Nan Balinduang > LMS Core Engine: Portal Belajar Mandiri & Verifikasi QR
+Medan Nan Bapaneh > Bapaneh Engine: Eksplorasi Budaya & Karya Inovasi
+Lapau Nagari UMKM > Lapau Nagari Engine: Etalase Komoditas UMKM Warga
+Backoffice Panel > Security and Core: Manajemen 5 Peran & Tenant nagari_id
+
+// 4. Backend ke Lapisan Basis Data & Layanan Eksternal
+SDGs Nagari Engine > Database MySQL Delapan: 4 Pilar, 18 Goals & Capaian
+EWS Blynk IoT Engine > Database MySQL Delapan: Riwayat Pembacaan Sensor
+EWS Blynk IoT Engine > Layanan Blynk IoT: Telemetri Blynk IoT Cloud
+LMS Core Engine > Database MySQL Delapan: Nilai Kuis KKM 70 & Presensi
+LMS Core Engine > Storage Berkas Hostinger: Arsip PDF Sertifikat & Transkrip
+Bapaneh Engine > Database MySQL Delapan: Metadata Budaya & Inovasi
+Bapaneh Engine > Storage Berkas Hostinger: File Media & Dokumentasi
+Lapau Nagari Engine > Database MySQL Delapan: Profil UMKM, Produk & Kategori
+Lapau Nagari Engine > WhatsApp Gateway API: Kontak Direct Order WhatsApp
+Security and Core > Database MySQL Delapan: Pengguna & Peran Spatie
+Security and Core > Session dan Cache State: Sesi Multi-Tenant & Token

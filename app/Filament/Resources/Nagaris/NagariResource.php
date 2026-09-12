@@ -223,7 +223,7 @@ class NagariResource extends Resource
      */
     public static function fetchSdgsOnCreate(Nagari $nagari): void
     {
-        if (!in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])) {
+        if (!app()->environment('local') && !str_ends_with(request()->getHost(), '.test') && !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])) {
             $hasil = ['status' => 'hostinger_blocked'];
         } else {
             try {
@@ -266,7 +266,7 @@ class NagariResource extends Resource
      */
     public static function fetchIdmOnCreate(Nagari $nagari): void
     {
-        if (!in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])) {
+        if (!app()->environment('local') && !str_ends_with(request()->getHost(), '.test') && !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])) {
             $hasil = ['status' => 'hostinger_blocked'];
         } else {
             try {

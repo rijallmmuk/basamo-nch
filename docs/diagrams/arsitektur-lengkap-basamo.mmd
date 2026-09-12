@@ -1,0 +1,107 @@
+flowchart TB
+    %% 1. PENGGUNA & ROLE RESMI
+    subgraph UsersLayer ["1. Pemangku Kepentingan & Peran Resmi (5 Peran Spatie + Kapabilitas UMKM)"]
+        direction LR
+        SuperAdmin["Super Admin (superadmin)<br/>Wewenang Penuh Lintas Nagari"]
+        Operator["Operator Nagari (operator)<br/>Perangkat Nagari (Tenant Scoped)"]
+        Pengajar["Pengajar / Instruktur (pengajar)<br/>Tim Dosen PkM (Lintas Nagari)"]
+        DPMD["DPMD (dpmd)<br/>Pengawas Daerah (Lintas Nagari)"]
+        Warga["Warga Nagari (warga)<br/>Peserta Belajar & Pengguna Layanan"]
+        WargaUMKM["Warga Pelaku UMKM<br/>(warga + hasUmkmAccess)<br/>Pemilik 1 Lapak Binaan"]
+    end
+
+    %% 2. INFRASTRUKTUR HOSTING HOSTINGER & JARINGAN
+    subgraph HostingLayer ["2. Infrastruktur Server Hostinger & Jaringan Multi-Tenant"]
+        direction TB
+        Cloudflare["Cloudflare Edge & Security<br/>SSL Termination, DDoS Protection, Trusted Proxies"]
+        HostingerDNS["Hostinger hPanel & DNS Routing<br/>AutoSSL per Subdomain"]
+        LiteSpeedServer["Hostinger Web Server (LiteSpeed / Apache)<br/>Document Root Tunggal: public_html"]
+        SubdomainResolver["Laravel Subdomain & Tenant Resolver<br/>Memetakan Host Header: {slug}.basamonch.com vs basamonch.com"]
+    end
+
+    %% 3. GERBANG OTENTIKASI GANDA
+    subgraph AuthGateway ["3. Gerbang Masuk & Otentikasi Ganda (/login)"]
+        direction LR
+        LoginNIK["Login Warga via NIK (16 Digit)<br/>Tervalidasi Data Kependudukan Nagari"]
+        LoginUser["Login Pengelola via Username<br/>(Superadmin, Operator, Pengajar, DPMD)"]
+        SessionDomain["Single Sign-On Session<br/>Cookie: SESSION_DOMAIN=.basamonch.com"]
+    end
+
+    %% 4. MODUL KANONIK ADAT BASAMO NCH
+    subgraph PlatformModules ["4. Ekosistem Modul Kanonik BASAMO NCH (Core Domain Engines)"]
+        direction TB
+
+        subgraph Teras ["Teras Nagari (/teras-nagari)"]
+            SDGs18["Dashboard SDGs Nagari (18 Indikator)<br/>4 Pilar: Sosial, Ekonomi, Lingkungan, Tata Kelola"]
+            IDMNagari["Monitoring Indeks Desa Membangun (IDM)"]
+        end
+
+        subgraph Balinduang ["Medan Nan Balinduang (Smart Learning Center / LMS)"]
+            TemaModul["Kurikulum & Modul Ajar Multimedia Berjenjang"]
+            EvaluasiKKM["Evaluasi Belajar (Pre-test & Kuis KKM >= 70)"]
+            SertifikatQR["Penerbitan Sertifikat Digital Ber-QR Code"]
+            ForumDiskusi["Forum Diskusi Warga (Anti-Flood Rate Limit)"]
+        end
+
+        subgraph Lapau ["Lapau Nagari (/lapau-nagari)"]
+            ProfilLapak["Profil Usaha (1 Warga = 1 Lapak Binaan)"]
+            KatalogSearch["Katalog Komoditas & MySQL FullText Search"]
+            OrderWA["Pemesanan Langsung WhatsApp Tanpa Biaya Perantara"]
+            AnalyticsView["Pelacak Minat Kunjungan Produk (UmkmView)"]
+        end
+
+        subgraph Bapaneh ["Medan Nan Bapaneh (/medan-nan-bapaneh)"]
+            InfoPublik["Keterbukaan Informasi & Pengumuman Nagari"]
+            KanalAspirasi["Kanal Kontak Masuk & Aspirasi Warga"]
+        end
+
+        subgraph IoT_EWS ["Sistem IoT & EWS (Early Warning System)"]
+            DeviceSensor["Perangkat Sensor Telemetri Fisik (EwsDevice)"]
+            ReadingBencana["Pembacaan Real-time Indikator Bencana (EwsReading)"]
+        end
+    end
+
+    %% 5. PANEL BACKOFFICE & VERIFIKASI
+    subgraph ControlLayer ["5. Panel Pengelola & Layanan Publik"]
+        direction LR
+        BackofficeFilament["Backoffice Terpadu (Filament v5)<br/>Widget ApexCharts SDGs, LMS Progress, & Lapau Views"]
+        VerifyEndpoint["Verifikasi Sertifikat Publik (/verify/{nomor})<br/>Pemindai QR Code Dokumen Fisik"]
+    end
+
+    %% 6. PERSISTENCE LAYER HOSTINGER
+    subgraph DataStorage ["6. Lapisan Penyimpanan Data Hostinger"]
+        direction LR
+        MariaDB[("Database MySQL/MariaDB Hostinger<br/>Database: basamo_nch (Multi-Tenant Relational)")]
+        FileStorage[("Hostinger File Storage (public_html/storage)<br/>Spatie MediaLibrary & Arsip Sertifikat PDF DomPDF")]
+    end
+
+    %% ALUR RELASI LENGKAP
+    SuperAdmin --> Cloudflare
+    Operator --> Cloudflare
+    Pengajar --> Cloudflare
+    DPMD --> Cloudflare
+    Warga --> Cloudflare
+    WargaUMKM --> Cloudflare
+
+    Cloudflare --> HostingerDNS
+    HostingerDNS --> LiteSpeedServer
+    LiteSpeedServer --> SubdomainResolver
+
+    SubdomainResolver --> LoginNIK
+    SubdomainResolver --> LoginUser
+    LoginNIK --> SessionDomain
+    LoginUser --> SessionDomain
+
+    SessionDomain --> Teras
+    SessionDomain --> Balinduang
+    SessionDomain --> Lapau
+    SessionDomain --> Bapaneh
+    IoT_EWS --> Teras
+
+    Balinduang --> SertifikatQR
+    SertifikatQR --> VerifyEndpoint
+    PlatformModules --> BackofficeFilament
+
+    PlatformModules --> MariaDB
+    Balinduang --> FileStorage
+    Lapau --> FileStorage

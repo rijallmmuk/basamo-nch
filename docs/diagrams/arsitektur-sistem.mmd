@@ -1,0 +1,120 @@
+flowchart TB
+    %% 1. LAPISAN PENGGUNA (5 PERAN SPATIE RBAC)
+    subgraph Tier1 ["1. Lapisan Pengguna Platform (5 Peran Spatie RBAC)"]
+        Warga["Warga (NIK Login)"]
+        Pengajar["Pengajar (Instruktur PkM)"]
+        DPMD["DPMD (Pengawas Daerah)"]
+        Operator["Operator (Perangkat Nagari)"]
+        Superadmin["Superadmin (Pengelola Sistem)"]
+    end
+
+    %% 2. JARINGAN & SUBDOMAIN RESOLVER
+    subgraph Tier2 ["2. Jaringan & Subdomain Gateway (Hostinger VPS)"]
+        Cloudflare["Cloudflare Edge SSL & CDN"]
+        TenantResolver["Subdomain Tenant Resolver (*.basamonch.com)"]
+        Cloudflare --> TenantResolver
+    end
+
+    %% 3. LAPISAN ANTARMUKA LAYANAN
+    subgraph Tier3 ["3. Lapisan Antarmuka Layanan (Kanonik BASAMO NCH)"]
+        PortalTeras["Teras Nagari & IoT\n(/teras-nagari)"]
+        PortalBalinduang["Medan Nan Balinduang\n(/portal)"]
+        PortalVerify["Verifikasi QR\n(/verify/{nomor})"]
+        PortalBapaneh["Medan Nan Bapaneh\n(/medan-nan-bapaneh)"]
+        PortalLapau["Lapau Nagari\n(/lapau-nagari)"]
+        PortalBackoffice["Backoffice Panel\n(/panel) - Filament v3"]
+    end
+
+    %% 4. BACKEND PLATFORM & LOGIKA BISNIS
+    subgraph Tier4 ["4. Backend Platform & Logika Bisnis (Laravel 13 Core)"]
+        %% PILAR 1: TERAS NAGARI SDGs
+        subgraph SDGsEngine ["Pilar 1: Teras SDGs Nagari Engine"]
+            SDGsPoint["4 Pilar & 18 Goals SDGs"]
+            SDGsIndikator["Indikator Terukur SDGs"]
+            SDGsGeo["Batas Spasial GeoJSON"]
+            SDGsCapaian["Pencatatan Capaian Riil"]
+        end
+
+        %% MODUL TELEMETRI: EWS KEBENCANAAN
+        subgraph EWSEngine ["Modul Telemetri: EWS Mitigasi Bencana"]
+            EWSSensor["Sensor Air, Hujan, pH & Getaran"]
+            EWSService["EwsBlynkService (API Telemetri)"]
+            EWSStatus["Status Sungai (Normal/Waspada/Bahaya)"]
+        end
+
+        %% PILAR 2: LMS
+        subgraph LMSEngine ["Pilar 2: Medan Nan Balinduang (Smart Learning Center)"]
+            Modul["Pelatihan, Modul & Pre-Test"]
+            Materi["Materi Teks, Video & PDF"]
+            Diskusi["Forum Diskusi Modul (Throttle)"]
+            Kuis["Kuis Evaluasi (KKM >= 70)"]
+            Presensi["Presensi Tatap Muka / Zoom"]
+            Sertifikat["Sertifikat Digital QR & Transkrip"]
+        end
+
+        %% PILAR 3: MEDAN NAN BAPANEH (BUDAYA & INOVASI)
+        subgraph BapanehEngine ["Pilar 3: Medan Nan Bapaneh (Budaya & Inovasi)"]
+            BudayaArsip["Arsip Budaya & Pengetahuan"]
+            BudayaMedia["Media Digital & Rekam Jejak"]
+            BudayaInovasi["Ruang Inovasi & Karya Kreatif"]
+            BudayaPublikasi["Kabar & Publikasi Nagari"]
+        end
+
+        %% PILAR 4: LAPAU NAGARI UMKM
+        subgraph UMKMEngine ["Pilar 4: Lapau Nagari UMKM Engine"]
+            UMKMProfile["Profil UMKM Warga Binaan"]
+            UMKMProduct["Katalog Produk & Kategori"]
+            UMKMView["Tracker Kunjungan (UmkmView)"]
+            UMKMOk["Direct Order WhatsApp Gateway"]
+        end
+
+        %% FONDASI KEAMANAN & MULTI-TENANT
+        subgraph CoreSecurity ["Keamanan & Multi-Tenant Core"]
+            RBAC["Spatie RBAC (5 Peran Resmi)"]
+            TenantScope["Global Scope (nagari_id)"]
+            AuthNIK["Autentikasi Terpadu NIK & Username"]
+        end
+    end
+
+    %% 5. PENYIMPANAN DATA & EKSTERNAL
+    subgraph Tier5 ["5. Penyimpanan Data & Layanan Eksternal (Hostinger)"]
+        BlynkCloud["Blynk IoT Cloud\n(Telemetri Sensor)"]
+        MySQLDB[("MySQL 8 Relasional\n(InnoDB nagari_id)")]
+        FileStorage[("Hostinger Storage\n(PDF Sertifikat & Media)")]
+        WAGateway["WhatsApp Gateway\n(Direct Order UMKM)"]
+        SessionCache[("Session & Cache\n(.basamonch.com)")]
+    end
+
+    %% ALUR PENGGUNA KE GATEWAY
+    Warga -->|HTTPS| Cloudflare
+    Pengajar -->|HTTPS| Cloudflare
+    DPMD -->|HTTPS| Cloudflare
+    Operator -->|HTTPS| Cloudflare
+    Superadmin -->|HTTPS| Cloudflare
+
+    TenantResolver --> PortalTeras
+    TenantResolver --> PortalBalinduang
+    TenantResolver --> PortalVerify
+    TenantResolver --> PortalBapaneh
+    TenantResolver --> PortalLapau
+    TenantResolver --> PortalBackoffice
+
+    PortalTeras --> SDGsEngine
+    PortalTeras --> EWSEngine
+    PortalBalinduang --> LMSEngine
+    PortalVerify --> Sertifikat
+    PortalBapaneh --> BapanehEngine
+    PortalLapau --> UMKMEngine
+    PortalBackoffice --> CoreSecurity
+
+    SDGsEngine --> MySQLDB
+    EWSEngine --> MySQLDB
+    EWSEngine --> BlynkCloud
+    LMSEngine --> MySQLDB
+    LMSEngine --> FileStorage
+    BapanehEngine --> MySQLDB
+    BapanehEngine --> FileStorage
+    UMKMEngine --> MySQLDB
+    UMKMEngine --> WAGateway
+    CoreSecurity --> MySQLDB
+    CoreSecurity --> SessionCache

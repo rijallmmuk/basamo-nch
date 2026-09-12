@@ -25,13 +25,17 @@ class SdgRefreshService
      * Ambil & simpan skor 18 poin untuk satu nagari. Tak pernah melempar exception —
      * kegagalan dikembalikan sebagai status agar pemanggil (mis. create nagari) aman.
      *
-     * @return array{status: 'ok'|'gagal'|'tanpa_bps', average?: float}
+     * @param Nagari $nagari Nagari sasaran yang akan disimpan capaiannya
+     * @param string|null $customKodeBps Kode BPS alternatif/rujukan (misal untuk nagari pemekaran)
+     * @return array{status: 'ok'|'gagal'|'tanpa_bps', average?: float, kode_bps?: string}
      */
-    public function refreshNagari(Nagari $nagari): array
+    public function refreshNagari(Nagari $nagari, ?string $customKodeBps = null): array
     {
-        $kodeBps = $nagari->wilayah_kode
-            ? RefWilayah::query()->where('kode', $nagari->wilayah_kode)->value('kode_bps')
-            : null;
+        $kodeBps = filled($customKodeBps) ? trim((string) $customKodeBps) : (
+            $nagari->wilayah_kode
+                ? RefWilayah::query()->where('kode', $nagari->wilayah_kode)->value('kode_bps')
+                : null
+        );
 
         if (! $kodeBps) {
             return ['status' => 'tanpa_bps'];
@@ -40,7 +44,7 @@ class SdgRefreshService
         $hasil = $this->kemendesa->fetch($kodeBps);
 
         if ($hasil === null) {
-            return ['status' => 'gagal'];
+            return ['status' => 'gagal', 'kode_bps' => $kodeBps];
         }
 
         $goalIdByNomor = SdgGoal::query()->pluck('id', 'nomor');
@@ -63,10 +67,10 @@ class SdgRefreshService
             // batch command / aksi tombol — skor lama tetap tersimpan, dicoba lagi nanti.
             report($e);
 
-            return ['status' => 'gagal'];
+            return ['status' => 'gagal', 'kode_bps' => $kodeBps];
         }
 
-        return ['status' => 'ok', 'average' => $hasil['average']];
+        return ['status' => 'ok', 'average' => $hasil['average'], 'kode_bps' => $kodeBps];
     }
 
     /** Waktu pengambilan terakhir untuk nagari (null bila belum pernah ditarik). */

@@ -1,0 +1,90 @@
+flowchart TB
+    %% STAKEHOLDERS
+    subgraph Actors ["1. Pemangku Kepentingan & Pengguna"]
+        direction LR
+        Warga["Warga Nagari<br/>(Peserta Belajar & Pengguna)"]
+        UMKM["Pelaku UMKM Warga<br/>(Pengelola Lapak Dagang)"]
+        Pengajar["Instruktur / Pengajar PkM<br/>(Penyusun Modul Ajar)"]
+        Operator["Perangkat & Operator Nagari<br/>(Pemerintah Nagari)"]
+        DPMD["DPMD & Pemangku Kebijakan<br/>(Pengawas Pembangunan)"]
+    end
+
+    %% GATEWAY & ACCESS
+    subgraph Gateway ["2. Gerbang Akses Multi-Tenant & Otentikasi"]
+        direction TB
+        Subdomain["Subdomain Nagari Mitra<br/>({slug}.basamonch.com)<br/>Wajah Nagari Terisolasi"]
+        PortalInduk["Portal Induk NCH Aggregator<br/>(basamonch.com)<br/>Monitoring Lintas Nagari"]
+        AuthGateway["Gerbang Otentikasi Terpadu<br/>• Warga: Login NIK Kependudukan<br/>• Pengelola: Login Username"]
+    end
+
+    %% CORE CANONICAL MODULES
+    subgraph CorePlatform ["3. Pilar Modul Kanonik Platform BASAMO NCH"]
+        direction TB
+
+        subgraph Teras ["Teras Nagari"]
+            SDGs["Dashboard 18 Indikator SDGs Nagari<br/>(4 Pilar Pembangunan Berkelanjutan)"]
+            IDM["Monitoring Indeks Desa Membangun (IDM)"]
+        end
+
+        subgraph Balinduang ["Medan Nan Balinduang (Smart Learning Center / LMS)"]
+            ModulBelajar["Kurikulum & Modul Ajar Terurut"]
+            EvaluasiKKM["Evaluasi Belajar (Pre-test & Kuis KKM)"]
+            SertifikatQR["Penerbitan Sertifikat Digital Ber-QR Code"]
+            DiskusiForum["Forum Diskusi Warga Interaktif"]
+        end
+
+        subgraph Lapau ["Lapau Nagari (Sentra UMKM Digital)"]
+            ProfilLapak["Profil Usaha (1 Warga = 1 Lapak Binaan)"]
+            KatalogSearch["Katalog Komoditas & MySQL FullText Search"]
+            CheckoutWA["Pemesanan Langsung WhatsApp Tanpa Perantara"]
+            AnalitikView["Audit Trafik & Pelacak Kunjungan Produk"]
+        end
+
+        subgraph Bapaneh ["Medan Nan Bapaneh"]
+            InfoPublik["Keterbukaan Informasi Publik Nagari"]
+            KanalAspirasi["Kanal Aspirasi & Kontak Masuk Warga"]
+        end
+
+        subgraph IoT_EWS ["Sistem IoT & EWS (Early Warning System)"]
+            TelemetriSensor["Telemetri Perangkat Sensor Nagari (EwsDevice)"]
+            BacaanBencana["Pembacaan Real-time Indikator Bencana (EwsReading)"]
+        end
+    end
+
+    %% BACKOFFICE & VERIFIKASI
+    subgraph Management ["4. Pengelolaan Backoffice & Verifikasi Publik"]
+        direction LR
+        Backoffice["Panel Backoffice Terpadu (Filament v5)<br/>ApexCharts SDGs, Progres Belajar, & Trafik Lapau"]
+        VerifikasiPublik["Verifikasi Sertifikat Publik<br/>(/verify/{nomor}) via QR Code Scanner"]
+    end
+
+    %% PERSISTENCE
+    subgraph Persistence ["5. Penyimpanan & Basis Data Terpadu"]
+        direction LR
+        MySQL[("Database Relasional MySQL BASAMO<br/>Isolasi Tenant & Strict Integrity")]
+        MediaStorage[("Gudang Berkas Digital & PDF<br/>Spatie MediaLibrary & Arsip Sertifikat")]
+    end
+
+    %% RELATIONS
+    Warga --> Subdomain
+    UMKM --> Subdomain
+    Pengajar --> PortalInduk
+    Operator --> Subdomain
+    DPMD --> PortalInduk
+
+    Subdomain --> AuthGateway
+    PortalInduk --> AuthGateway
+
+    AuthGateway --> Teras
+    AuthGateway --> Balinduang
+    AuthGateway --> Lapau
+    AuthGateway --> Bapaneh
+    IoT_EWS --> Teras
+
+    Balinduang --> SertifikatQR
+    SertifikatQR --> VerifikasiPublik
+    CorePlatform --> Backoffice
+
+    CorePlatform --> MySQL
+    Balinduang --> MediaStorage
+    Lapau --> MediaStorage

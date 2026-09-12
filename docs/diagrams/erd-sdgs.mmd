@@ -1,0 +1,47 @@
+erDiagram
+    SDG_PILLARS ||--o{ SDG_GOALS : "sdg_pillar_id"
+    SDG_GOALS ||--o{ SDG_TARGETS : "sdg_goal_id"
+    SDG_TARGETS ||--o{ SDG_INDICATORS : "sdg_target_id"
+    NAGARIS ||--o{ SDG_ACHIEVEMENTS : "nagari_id"
+    SDG_GOALS ||--o{ SDG_ACHIEVEMENTS : "sdg_goal_id"
+
+    SDG_PILLARS {
+        bigint id PK
+        string kode UK
+        string nama
+    }
+    SDG_GOALS {
+        bigint id PK
+        bigint sdg_pillar_id FK
+        integer nomor UK
+        string nama
+        string slug UK
+        string warna
+        string ikon
+    }
+    SDG_TARGETS {
+        bigint id PK
+        bigint sdg_goal_id FK
+        string nomor
+        text deskripsi
+    }
+    SDG_INDICATORS {
+        bigint id PK
+        bigint sdg_target_id FK
+        string kode UK
+        string nama
+        string satuan
+    }
+    SDG_ACHIEVEMENTS {
+        bigint id PK
+        bigint nagari_id FK
+        bigint sdg_goal_id FK
+        decimal persentase
+        timestamp fetched_at
+    }
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+        string wilayah_kode
+    }

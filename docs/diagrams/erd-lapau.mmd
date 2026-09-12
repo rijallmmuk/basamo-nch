@@ -1,0 +1,54 @@
+erDiagram
+    NAGARIS ||--o{ UMKM_PROFILES : "nagari_id"
+    USERS ||--|| UMKM_PROFILES : "user_id"
+    UMKM_CATEGORIES ||--o{ UMKM_PRODUCTS : "umkm_category_id"
+    UMKM_PROFILES ||--o{ UMKM_PRODUCTS : "umkm_profile_id"
+    UMKM_PRODUCTS ||--o{ UMKM_VIEWS : "umkm_product_id"
+
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+    }
+    USERS {
+        bigint id PK
+        string name
+        string phone
+    }
+    UMKM_PROFILES {
+        bigint id PK
+        bigint nagari_id FK
+        bigint user_id FK
+        string nama_usaha
+        string slug UK
+        text deskripsi
+        text alamat
+        string whatsapp
+        integer jumlah_dilihat
+        json tautan
+        string status
+    }
+    UMKM_CATEGORIES {
+        bigint id PK
+        string nama
+        string slug UK
+        string ikon
+    }
+    UMKM_PRODUCTS {
+        bigint id PK
+        bigint umkm_profile_id FK
+        bigint umkm_category_id FK
+        string nama_produk
+        string slug UK
+        text deskripsi
+        bigint harga
+        json tautan
+        integer jumlah_dilihat
+    }
+    UMKM_VIEWS {
+        bigint id PK
+        bigint umkm_product_id FK
+        string ip_address
+        text user_agent
+        timestamp viewed_at
+    }

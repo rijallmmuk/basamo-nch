@@ -1,0 +1,413 @@
+// =====================================================================
+// SKEMA ERD RESMI PLATFORM BASAMO NCH (NAGARI CREATIVE HUB)
+// Standar Pemodelan Basis Data untuk https://dbdiagram.io
+// =====================================================================
+
+Project basamo_nch {
+  database_type: 'MySQL'
+  Note: 'Pemodelan Data Relasional Platform Digital BASAMO NCH (PkM)'
+}
+
+// ---------------------------------------------------------------------
+// 1. CORE & MULTI-TENANT
+// ---------------------------------------------------------------------
+
+Table ref_wilayah {
+  kode varchar(13) [pk, note: 'Kode Wilayah Resmi Kepmendagri']
+  nama varchar(100)
+  tingkat int [note: '1:Prov, 2:Kab, 3:Kec, 4:Nagari']
+}
+
+Table nagaris {
+  id bigint [pk, increment]
+  nama varchar(150)
+  slug varchar(160) [unique, note: 'Subdomain Nagari ({slug}.basamonch.com)']
+  wilayah_kode varchar(13)
+  provinsi varchar(100)
+  kabupaten varchar(100)
+  kecamatan varchar(100)
+  koordinat_lat decimal(10,8)
+  koordinat_lng decimal(11,8)
+  status varchar(20)
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table users {
+  id bigint [pk, increment]
+  nagari_id bigint [note: 'Isolasi Akun Warga/Operator per Nagari']
+  name varchar(255)
+  email varchar(255) [unique]
+  username varchar(100) [unique]
+  password varchar(255)
+  phone varchar(30)
+  status varchar(20)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar(50) [note: 'superadmin, operator, pengajar, dpmd, warga']
+  guard_name varchar(50)
+}
+
+Table model_has_roles {
+  role_id bigint
+  model_type varchar(255)
+  model_id bigint
+
+  indexes {
+    (model_id, model_type, role_id) [pk]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 2. LEARNING MANAGEMENT SYSTEM (LMS / SLC)
+// ---------------------------------------------------------------------
+
+Table tema_pelatihans {
+  id bigint [pk, increment]
+  nama varchar(150)
+  slug varchar(160) [unique]
+  deskripsi text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table pelatihans {
+  id bigint [pk, increment]
+  tema_pelatihan_id bigint
+  nagari_id bigint [note: 'Nagari penyelenggara (null jika lintas nagari)']
+  created_by bigint [note: 'Pengajar pembuat pelatihan']
+  deskripsi text
+  status varchar(20) [note: 'terkunci / terbuka']
+  semua_nagari boolean [note: 'true: dapat diakses seluruh nagari']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table pelatihan_nagari {
+  pelatihan_id bigint
+  nagari_id bigint
+
+  indexes {
+    (pelatihan_id, nagari_id) [pk]
+  }
+}
+
+Table pelatihan_pengajar {
+  pelatihan_id bigint
+  user_id bigint
+
+  indexes {
+    (pelatihan_id, user_id) [pk]
+  }
+}
+
+Table modules {
+  id bigint [pk, increment]
+  pelatihan_id bigint
+  judul varchar(200)
+  slug varchar(220) [unique]
+  deskripsi text
+  urutan int
+  prasyarat_module_id bigint [note: 'Modul prasyarat sebelum membuka modul ini']
+  created_by bigint
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table materis {
+  id bigint [pk, increment]
+  module_id bigint
+  judul varchar(200)
+  slug varchar(220) [unique]
+  tipe varchar(20) [note: 'video / artikel / pdf']
+  durasi_menit int
+  urutan int
+  konten text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table user_module_progress {
+  id bigint [pk, increment]
+  user_id bigint
+  module_id bigint
+  status varchar(20) [note: 'belum / selesai']
+  completed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (user_id, module_id) [unique]
+  }
+}
+
+Table evaluasis {
+  id bigint [pk, increment]
+  module_id bigint
+  jenis varchar(20) [note: 'pretest / kegiatan']
+  nilai_lulus int [note: 'Standar KKM']
+  maks_percobaan int [note: '0: tak terbatas']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table evaluasi_pertanyaans {
+  id bigint [pk, increment]
+  evaluasi_id bigint
+  pertanyaan text
+  urutan int
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table evaluasi_opsis {
+  id bigint [pk, increment]
+  pertanyaan_id bigint
+  opsi_teks text
+  is_benar boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table evaluasi_percobaans {
+  id bigint [pk, increment]
+  evaluasi_id bigint
+  user_id bigint
+  nilai int [note: 'Skor capaian 0-100']
+  is_lulus boolean
+  waktu_selesai timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table certificates {
+  id bigint [pk, increment]
+  pelatihan_id bigint
+  user_id bigint
+  nomor_seri varchar(32) [unique, note: 'Hash unik verifikasi kelulusan']
+  diterbitkan_pada timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (pelatihan_id, user_id) [unique]
+  }
+}
+
+Table discussions {
+  id bigint [pk, increment]
+  module_id bigint
+  user_id bigint
+  parent_id bigint [note: 'Balasan komentar bertingkat']
+  pesan text
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ---------------------------------------------------------------------
+// 3. DASHBOARD SDGS NAGARI (18 INDIKATOR)
+// ---------------------------------------------------------------------
+
+Table sdg_pillars {
+  id bigint [pk, increment]
+  kode varchar(10) [unique, note: 'Pilar 1 s.d 4']
+  nama varchar(100) [note: 'Sosial, Ekonomi, Lingkungan, Tata Kelola']
+}
+
+Table sdg_goals {
+  id bigint [pk, increment]
+  sdg_pillar_id bigint
+  nomor int [unique, note: '1 s.d 18 Poin Tujuan SDGs']
+  nama varchar(150)
+  slug varchar(160) [unique]
+  deskripsi text
+  warna varchar(7)
+  ikon varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table sdg_targets {
+  id bigint [pk, increment]
+  sdg_goal_id bigint
+  nomor varchar(20)
+  deskripsi text
+}
+
+Table sdg_indicators {
+  id bigint [pk, increment]
+  sdg_target_id bigint
+  kode varchar(20) [unique]
+  nama varchar(255)
+  satuan varchar(50)
+}
+
+Table sdg_achievements {
+  id bigint [pk, increment]
+  nagari_id bigint
+  sdg_goal_id bigint
+  persentase decimal(5,2) [note: 'Persentase capaian 0.00% - 100.00%']
+  fetched_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (nagari_id, sdg_goal_id) [unique]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 4. E-COMMERCE LAPAU NAGARI
+// ---------------------------------------------------------------------
+
+Table umkm_profiles {
+  id bigint [pk, increment]
+  nagari_id bigint
+  user_id bigint [unique, note: '1 Warga = 1 Profil Lapak']
+  nama_usaha varchar(150)
+  slug varchar(160) [unique]
+  deskripsi text
+  alamat text
+  whatsapp varchar(20) [note: 'Kontak Pemesanan WhatsApp']
+  jumlah_dilihat int
+  email varchar(100)
+  jam_operasional varchar(100)
+  tahun_berdiri smallint
+  tautan json
+  status varchar(20)
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table umkm_categories {
+  id bigint [pk, increment]
+  nama varchar(100)
+  slug varchar(120) [unique]
+  ikon varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table umkm_products {
+  id bigint [pk, increment]
+  umkm_profile_id bigint
+  umkm_category_id bigint
+  nama_produk varchar(200)
+  slug varchar(220) [unique]
+  deskripsi text
+  tautan json
+  harga bigint [note: 'Harga rupiah integer']
+  jumlah_dilihat int
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table umkm_views {
+  id bigint [pk, increment]
+  umkm_product_id bigint
+  ip_address varchar(45)
+  user_agent text
+  viewed_at timestamp
+}
+
+// =====================================================================
+// KELOMPOK VISUALISASI MODUL (TABLE GROUPS)
+// =====================================================================
+
+TableGroup "1. Core & Multi-Tenant" [color: #1e3a8a] {
+  ref_wilayah
+  nagaris
+  users
+  roles
+  model_has_roles
+}
+
+TableGroup "2. LMS Smart Learning Center" [color: #059669] {
+  tema_pelatihans
+  pelatihans
+  pelatihan_nagari
+  pelatihan_pengajar
+  modules
+  materis
+  user_module_progress
+  evaluasis
+  evaluasi_pertanyaans
+  evaluasi_opsis
+  evaluasi_percobaans
+  certificates
+  discussions
+}
+
+TableGroup "3. Dashboard SDGs Nagari (18 Poin)" [color: #d97706] {
+  sdg_pillars
+  sdg_goals
+  sdg_targets
+  sdg_indicators
+  sdg_achievements
+}
+
+TableGroup "4. Lapau Nagari E-Commerce" [color: #7c3aed] {
+  umkm_profiles
+  umkm_categories
+  umkm_products
+  umkm_views
+}
+
+// =====================================================================
+// DEFINISI RELASI ENTITAS (CARDINALITY SESUAI ILMU ERD)
+// Operator '>?' = Relasi Many-to-One Opsional (Nullable FK di sisi kiri)
+// Operator '-?' = Relasi One-to-One Opsional (Nullable FK di sisi kiri)
+// =====================================================================
+
+// Relasi Modul Core
+Ref: nagaris.wilayah_kode >? ref_wilayah.kode
+Ref: users.nagari_id >? nagaris.id
+Ref: model_has_roles.role_id > roles.id
+
+// Relasi Modul LMS
+Ref: pelatihans.tema_pelatihan_id >? tema_pelatihans.id
+Ref: pelatihans.nagari_id >? nagaris.id
+Ref: pelatihans.created_by >? users.id
+Ref: pelatihan_nagari.pelatihan_id > pelatihans.id
+Ref: pelatihan_nagari.nagari_id > nagaris.id
+Ref: pelatihan_pengajar.pelatihan_id > pelatihans.id
+Ref: pelatihan_pengajar.user_id > users.id
+Ref: modules.pelatihan_id >? pelatihans.id
+Ref: modules.prasyarat_module_id >? modules.id
+Ref: modules.created_by >? users.id
+Ref: materis.module_id >? modules.id
+Ref: user_module_progress.module_id >? modules.id
+Ref: user_module_progress.user_id >? users.id
+Ref: evaluasis.module_id >? modules.id
+Ref: evaluasi_pertanyaans.evaluasi_id >? evaluasis.id
+Ref: evaluasi_opsis.pertanyaan_id >? evaluasi_pertanyaans.id
+Ref: evaluasi_percobaans.evaluasi_id >? evaluasis.id
+Ref: evaluasi_percobaans.user_id >? users.id
+Ref: certificates.pelatihan_id >? pelatihans.id
+Ref: certificates.user_id >? users.id
+Ref: discussions.module_id >? modules.id
+Ref: discussions.user_id >? users.id
+Ref: discussions.parent_id >? discussions.id
+
+// Relasi Modul SDGs Nagari
+Ref: sdg_goals.sdg_pillar_id >? sdg_pillars.id
+Ref: sdg_targets.sdg_goal_id >? sdg_goals.id
+Ref: sdg_indicators.sdg_target_id >? sdg_targets.id
+Ref: sdg_achievements.nagari_id >? nagaris.id
+Ref: sdg_achievements.sdg_goal_id >? sdg_goals.id
+
+// Relasi Modul E-Commerce Lapau Nagari
+Ref: umkm_profiles.nagari_id >? nagaris.id
+Ref: umkm_profiles.user_id -? users.id
+Ref: umkm_products.umkm_profile_id >? umkm_profiles.id
+Ref: umkm_products.umkm_category_id >? umkm_categories.id
+Ref: umkm_views.umkm_product_id >? umkm_products.id

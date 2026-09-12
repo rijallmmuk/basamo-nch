@@ -1,0 +1,93 @@
+erDiagram
+    TEMA_PELATIHAN ||--o{ PELATIHAN : "tema_pelatihan_id"
+    PELATIHAN ||--o{ PELATIHAN_NAGARI : "pelatihan_id"
+    PELATIHAN ||--o{ PELATIHAN_PENGAJAR : "pelatihan_id"
+    PELATIHAN ||--o{ MODULES : "pelatihan_id"
+    MODULES ||--o{ MATERIS : "module_id"
+    MODULES ||--o{ USER_MODULE_PROGRESS : "module_id"
+    MODULES ||--o{ EVALUASIS : "module_id"
+    EVALUASIS ||--o{ EVALUASI_PERTANYAANS : "evaluasi_id"
+    EVALUASI_PERTANYAANS ||--o{ EVALUASI_OPSIS : "pertanyaan_id"
+    EVALUASIS ||--o{ EVALUASI_PERCOBAANS : "evaluasi_id"
+    PELATIHAN ||--o{ CERTIFICATES : "pelatihan_id"
+    MODULES ||--o{ DISCUSSIONS : "module_id"
+
+    TEMA_PELATIHAN {
+        bigint id PK
+        string nama
+        string slug UK
+        text deskripsi
+    }
+    PELATIHAN {
+        bigint id PK
+        bigint tema_pelatihan_id FK
+        bigint nagari_id FK
+        bigint created_by FK
+        string status
+        boolean semua_nagari
+    }
+    MODULES {
+        bigint id PK
+        bigint pelatihan_id FK
+        string judul
+        string slug UK
+        integer urutan
+        bigint prasyarat_module_id FK
+    }
+    MATERIS {
+        bigint id PK
+        bigint module_id FK
+        string judul
+        string slug UK
+        string tipe
+        integer durasi_menit
+        integer urutan
+    }
+    USER_MODULE_PROGRESS {
+        bigint id PK
+        bigint user_id FK
+        bigint module_id FK
+        string status
+        timestamp completed_at
+    }
+    EVALUASIS {
+        bigint id PK
+        bigint module_id FK
+        string jenis
+        integer nilai_lulus
+        integer maks_percobaan
+    }
+    EVALUASI_PERTANYAANS {
+        bigint id PK
+        bigint evaluasi_id FK
+        text pertanyaan
+        integer urutan
+    }
+    EVALUASI_OPSIS {
+        bigint id PK
+        bigint pertanyaan_id FK
+        text opsi_teks
+        boolean is_benar
+    }
+    EVALUASI_PERCOBAANS {
+        bigint id PK
+        bigint evaluasi_id FK
+        bigint user_id FK
+        integer nilai
+        boolean is_lulus
+        timestamp waktu_selesai
+    }
+    CERTIFICATES {
+        bigint id PK
+        bigint pelatihan_id FK
+        bigint user_id FK
+        string nomor_seri UK
+        timestamp diterbitkan_pada
+    }
+    DISCUSSIONS {
+        bigint id PK
+        bigint module_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        text pesan
+    }

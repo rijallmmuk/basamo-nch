@@ -8,7 +8,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('sdgs:refresh-kemendesa {--nagari= : ID nagari tunggal (default: semua nagari)}')]
+#[Signature('sdgs:refresh-kemendesa {--nagari= : ID nagari tunggal (default: semua nagari)} {--kode-bps= : Override kode BPS rujukan (misal untuk nagari pemekaran)}')]
 #[Description('Tarik skor SDGs 18 poin dari API Kemendesa dan simpan ke sdg_achievements')]
 class SdgsRefreshKemendesa extends Command
 {
@@ -29,11 +29,12 @@ class SdgsRefreshKemendesa extends Command
             return self::FAILURE;
         }
 
+        $overrideBps = $this->option('kode-bps') ? (string) $this->option('kode-bps') : null;
         $berhasil = 0;
         $gagal = 0;
 
         foreach ($nagaris as $index => $nagari) {
-            $hasil = $service->refreshNagari($nagari);
+            $hasil = $service->refreshNagari($nagari, $overrideBps);
 
             if ($hasil['status'] === 'tanpa_bps') {
                 $this->warn("Lewati {$nagari->nama}: kode BPS tidak ditemukan.");

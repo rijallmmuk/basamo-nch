@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artefak Teknis Laporan Kemajuan PkM - Platform BASAMO NCH</title>
+  <!-- Mermaid.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #0284c7;
+      --success: #059669;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: white;
+      padding: 2.5rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 2rem;
+      border-bottom: 4px solid var(--accent);
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 0.3rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: #93c5fd;
+      font-size: 0.95rem;
+      max-width: 800px;
+    }
+
+    /* Navigasi Tab */
+    .tabs-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--surface);
+      padding: 0.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 1rem;
+      z-index: 100;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+    }
+
+    /* Card Box */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: #fafafa;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .btn-primary {
+      background: var(--primary-light);
+      border-color: var(--primary-light);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .diagram-container {
+      background: #ffffff;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      min-height: 200px;
+    }
+
+    .card-footer {
+      padding: 1rem 1.5rem;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary-light);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      color: #1e3a8a;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    pre.code-tree {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 1.25rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .code-tree .folder { color: #60a5fa; font-weight: 600; }
+    .code-tree .file { color: #f1f5f9; }
+    .code-tree .comment { color: #94a3b8; font-style: italic; }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      .tabs-nav, .card-actions, header p, .btn {
+        display: none !important;
+      }
+      body {
+        padding: 0;
+        background: white;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+      }
+      .tab-content {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="badge">Dokumen Teknis Luaran PkM</div>
+    <h1>Platform Digital BASAMO (Nagari Creative Hub)</h1>
+    <p>Artefak Pendukung Laporan Kemajuan & Artikel Publikasi: Pemodelan Database MySQL, Arsitektur LMS (Smart Learning Center), Dashboard SDGs Nagari (18 Indikator), Modul E-Commerce Lapau Nagari, dan Struktur Kode Backend Laravel 13.</p>
+    <div style="margin-top: 1.2rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
+      <a href="Deskripsi-Teknis-Arsitektur-BASAMO-NCH.docx" download class="btn" style="background: white; color: #1e3a8a; font-weight: 700; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        📄 Unduh Naskah Artikel Lengkap (.docx — Format Baku Margin 4433 & TNR 12)
+      </a>
+    </div>
+  </header>
+
+  <!-- Navigasi Tab -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('erd-master')">📊 ERD Master Terpadu</button>
+    <button class="tab-btn" onclick="switchTab('erd-lms')">🎓 ERD Modul LMS</button>
+    <button class="tab-btn" onclick="switchTab('erd-sdgs')">🎯 ERD SDGs 18 Indikator</button>
+    <button class="tab-btn" onclick="switchTab('erd-lapau')">🛒 ERD Lapau Nagari</button>
+    <button class="tab-btn" onclick="switchTab('arsitektur-lengkap')">🏛️ Arsitektur Lengkap (Hostinger & 5 Role)</button>
+    <button class="tab-btn" onclick="switchTab('arsitektur')">🌐 Arsitektur Sistem 3-Tier</button>
+    <button class="tab-btn" onclick="switchTab('alur-lms')">🔄 Alur Belajar LMS</button>
+    <button class="tab-btn" onclick="switchTab('struktur-kode')">💻 Struktur Kode Backend</button>
+  </div>
+
+  <!-- TAB 1: MASTER ERD -->
+  <div id="erd-master" class="tab-content active">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Opsi A: Skema ERD Terpadu / Makro (Master Database MySQL)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-master', 'ERD-Master-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-master', 'ERD-Master-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Keterangan untuk Laporan:</strong>
+          Diagram relasi entitas terpadu ini menggambarkan keterkaitan antara modul Multi-Tenant Nagari, Smart Learning Center (LMS), Indikator SDGs Nagari, dan Lapau Nagari dalam satu basis data MySQL/MariaDB terpusat.
+        </div>
+        <div class="diagram-container" id="diagram-master">
+          <pre class="mermaid">
+erDiagram
+    REF_WILAYAH ||--o{ NAGARIS : "wilayah_kode"
+    NAGARIS ||--o{ USERS : "nagari_id"
+    USERS ||--o{ MODEL_HAS_ROLES : "model_id"
+    ROLES ||--o{ MODEL_HAS_ROLES : "role_id"
+
+    TEMA_PELATIHAN ||--o{ PELATIHAN : "tema_pelatihan_id"
+    NAGARIS ||--o{ PELATIHAN : "nagari_id"
+    USERS ||--o{ PELATIHAN : "created_by"
+    PELATIHAN ||--o{ PELATIHAN_NAGARI : "pelatihan_id"
+    NAGARIS ||--o{ PELATIHAN_NAGARI : "nagari_id"
+    PELATIHAN ||--o{ PELATIHAN_PENGAJAR : "pelatihan_id"
+    USERS ||--o{ PELATIHAN_PENGAJAR : "user_id"
+    PELATIHAN ||--o{ MODULES : "pelatihan_id"
+    MODULES ||--o{ MATERIS : "module_id"
+    MODULES ||--o{ USER_MODULE_PROGRESS : "module_id"
+    USERS ||--o{ USER_MODULE_PROGRESS : "user_id"
+    MODULES ||--o{ EVALUASIS : "module_id"
+    EVALUASIS ||--o{ EVALUASI_PERTANYAANS : "evaluasi_id"
+    EVALUASI_PERTANYAANS ||--o{ EVALUASI_OPSIS : "pertanyaan_id"
+    EVALUASIS ||--o{ EVALUASI_PERCOBAANS : "evaluasi_id"
+    USERS ||--o{ EVALUASI_PERCOBAANS : "user_id"
+    PELATIHAN ||--o{ CERTIFICATES : "pelatihan_id"
+    USERS ||--o{ CERTIFICATES : "user_id"
+
+    SDG_PILLARS ||--o{ SDG_GOALS : "sdg_pillar_id"
+    SDG_GOALS ||--o{ SDG_TARGETS : "sdg_goal_id"
+    SDG_TARGETS ||--o{ SDG_INDICATORS : "sdg_target_id"
+    NAGARIS ||--o{ SDG_ACHIEVEMENTS : "nagari_id"
+    SDG_GOALS ||--o{ SDG_ACHIEVEMENTS : "sdg_goal_id"
+
+    NAGARIS ||--o{ UMKM_PROFILES : "nagari_id"
+    USERS ||--|| UMKM_PROFILES : "user_id"
+    UMKM_CATEGORIES ||--o{ UMKM_PRODUCTS : "umkm_category_id"
+    UMKM_PROFILES ||--o{ UMKM_PRODUCTS : "umkm_profile_id"
+    UMKM_PRODUCTS ||--o{ UMKM_VIEWS : "umkm_product_id"
+
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+        string wilayah_kode FK
+        string status
+    }
+    USERS {
+        bigint id PK
+        bigint nagari_id FK
+        string name
+        string email UK
+        string username UK
+    }
+    PELATIHAN {
+        bigint id PK
+        bigint tema_pelatihan_id FK
+        string status
+        boolean semua_nagari
+    }
+    MODULES {
+        bigint id PK
+        bigint pelatihan_id FK
+        string judul
+        string slug UK
+        integer urutan
+    }
+    MATERIS {
+        bigint id PK
+        bigint module_id FK
+        string judul
+        string tipe
+    }
+    EVALUASIS {
+        bigint id PK
+        bigint module_id FK
+        string jenis
+        integer nilai_lulus
+    }
+    CERTIFICATES {
+        bigint id PK
+        bigint pelatihan_id FK
+        bigint user_id FK
+        string nomor_seri UK
+    }
+    SDG_GOALS {
+        bigint id PK
+        integer nomor UK
+        string nama
+    }
+    SDG_ACHIEVEMENTS {
+        bigint id PK
+        bigint nagari_id FK
+        bigint sdg_goal_id FK
+        decimal persentase
+    }
+    UMKM_PROFILES {
+        bigint id PK
+        bigint nagari_id FK
+        bigint user_id FK
+        string nama_usaha
+        string whatsapp
+    }
+    UMKM_PRODUCTS {
+        bigint id PK
+        bigint umkm_profile_id FK
+        string nama_produk
+        bigint harga
+    }
+          </pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 1.</strong> Skema Hubungan Entitas (ERD) Basis Data MySQL Platform BASAMO NCH.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: ERD LMS -->
+  <div id="erd-lms" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Opsi B.1: ERD Detail Arsitektur LMS (Smart Learning Center)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-lms', 'ERD-LMS-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-lms', 'ERD-LMS-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Keterangan Khusus LMS:</strong>
+          Menunjukkan struktur materi pembelajaran berjenjang, pelacakan progres belajar mandiri, evaluasi pre-test dan kuis kelulusan (KKM), serta sertifikasi otomatis dengan nomor seri unik terverifikasi QR.
+        </div>
+        <div class="diagram-container" id="diagram-lms">
+          <pre class="mermaid">
+erDiagram
+    TEMA_PELATIHAN ||--o{ PELATIHAN : "tema_pelatihan_id"
+    PELATIHAN ||--o{ PELATIHAN_NAGARI : "pelatihan_id"
+    PELATIHAN ||--o{ PELATIHAN_PENGAJAR : "pelatihan_id"
+    PELATIHAN ||--o{ MODULES : "pelatihan_id"
+    MODULES ||--o{ MATERIS : "module_id"
+    MODULES ||--o{ USER_MODULE_PROGRESS : "module_id"
+    MODULES ||--o{ EVALUASIS : "module_id"
+    EVALUASIS ||--o{ EVALUASI_PERTANYAANS : "evaluasi_id"
+    EVALUASI_PERTANYAANS ||--o{ EVALUASI_OPSIS : "pertanyaan_id"
+    EVALUASIS ||--o{ EVALUASI_PERCOBAANS : "evaluasi_id"
+    PELATIHAN ||--o{ CERTIFICATES : "pelatihan_id"
+    MODULES ||--o{ DISCUSSIONS : "module_id"
+
+    TEMA_PELATIHAN {
+        bigint id PK
+        string nama
+        string slug UK
+        text deskripsi
+    }
+    PELATIHAN {
+        bigint id PK
+        bigint tema_pelatihan_id FK
+        bigint nagari_id FK
+        bigint created_by FK
+        string status "terkunci/terbuka"
+        boolean semua_nagari
+    }
+    MODULES {
+        bigint id PK
+        bigint pelatihan_id FK
+        string judul
+        string slug UK
+        integer urutan
+        bigint prasyarat_module_id FK
+    }
+    MATERIS {
+        bigint id PK
+        bigint module_id FK
+        string judul
+        string slug UK
+        string tipe "video/artikel/pdf"
+        integer durasi_menit
+        integer urutan
+    }
+    USER_MODULE_PROGRESS {
+        bigint id PK
+        bigint user_id FK
+        bigint module_id FK
+        string status "selesai/belum"
+        timestamp completed_at
+    }
+    EVALUASIS {
+        bigint id PK
+        bigint module_id FK
+        string jenis "pretest/kegiatan"
+        integer nilai_lulus "KKM"
+        integer maks_percobaan
+    }
+    EVALUASI_PERTANYAANS {
+        bigint id PK
+        bigint evaluasi_id FK
+        text pertanyaan
+        integer urutan
+    }
+    EVALUASI_OPSIS {
+        bigint id PK
+        bigint pertanyaan_id FK
+        text opsi_teks
+        boolean is_benar
+    }
+    EVALUASI_PERCOBAANS {
+        bigint id PK
+        bigint evaluasi_id FK
+        bigint user_id FK
+        integer nilai
+        boolean is_lulus
+        timestamp waktu_selesai
+    }
+    CERTIFICATES {
+        bigint id PK
+        bigint pelatihan_id FK
+        bigint user_id FK
+        string nomor_seri UK
+        timestamp diterbitkan_pada
+    }
+    DISCUSSIONS {
+        bigint id PK
+        bigint module_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        text pesan
+    }
+          </pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 1.b.</strong> Skema Relasi Modul Learning Management System (LMS) BASAMO.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: ERD SDGS -->
+  <div id="erd-sdgs" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Opsi B.2: ERD Detail Dashboard SDGs Nagari (18 Indikator)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-sdgs', 'ERD-SDGs-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-sdgs', 'ERD-SDGs-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Struktur 18 Poin SDGs Desa/Nagari:</strong>
+          Data dikelompokkan ke dalam 4 Pilar: Sosial, Ekonomi, Lingkungan, dan Tata Kelola. Menghubungkan profil nagari dengan agregat capaian indikator secara periodik.
+        </div>
+        <div class="diagram-container" id="diagram-sdgs">
+          <pre class="mermaid">
+erDiagram
+    SDG_PILLARS ||--o{ SDG_GOALS : "sdg_pillar_id"
+    SDG_GOALS ||--o{ SDG_TARGETS : "sdg_goal_id"
+    SDG_TARGETS ||--o{ SDG_INDICATORS : "sdg_target_id"
+    NAGARIS ||--o{ SDG_ACHIEVEMENTS : "nagari_id"
+    SDG_GOALS ||--o{ SDG_ACHIEVEMENTS : "sdg_goal_id"
+
+    SDG_PILLARS {
+        bigint id PK
+        string kode UK "P-1 s.d P-4"
+        string nama "Sosial, Ekonomi, Lingkungan, Tata Kelola"
+    }
+    SDG_GOALS {
+        bigint id PK
+        bigint sdg_pillar_id FK
+        integer nomor UK "1..18 Poin SDGs"
+        string nama "Nama Tujuan"
+        string slug UK
+        string warna "Hex Code Warna"
+        string ikon "Aset Ikon"
+    }
+    SDG_TARGETS {
+        bigint id PK
+        bigint sdg_goal_id FK
+        string nomor
+        text deskripsi
+    }
+    SDG_INDICATORS {
+        bigint id PK
+        bigint sdg_target_id FK
+        string kode UK
+        string nama
+        string satuan
+    }
+    SDG_ACHIEVEMENTS {
+        bigint id PK
+        bigint nagari_id FK
+        bigint sdg_goal_id FK
+        decimal persentase "0..100%"
+        timestamp fetched_at
+    }
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+        string wilayah_kode
+    }
+          </pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 1.c.</strong> Skema Relasi Database Dashboard SDGs Nagari (18 Indikator).
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: ERD LAPAU -->
+  <div id="erd-lapau" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Opsi B.3: ERD Detail Modul E-Commerce Lapau Nagari</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-lapau', 'ERD-LapauNagari-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-lapau', 'ERD-LapauNagari-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Konsep Lapau Nagari:</strong>
+          Satu warga nagari mengelola 1 profil lapak usaha (1-to-1 relationship dengan User). Produk diklasifikasikan berdasarkan kategori umum dan terindeks Full-Text Search untuk penelusuran cepat pembeli.
+        </div>
+        <div class="diagram-container" id="diagram-lapau">
+          <pre class="mermaid">
+erDiagram
+    NAGARIS ||--o{ UMKM_PROFILES : "nagari_id"
+    USERS ||--|| UMKM_PROFILES : "user_id"
+    UMKM_CATEGORIES ||--o{ UMKM_PRODUCTS : "umkm_category_id"
+    UMKM_PROFILES ||--o{ UMKM_PRODUCTS : "umkm_profile_id"
+    UMKM_PRODUCTS ||--o{ UMKM_VIEWS : "umkm_product_id"
+
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+    }
+    USERS {
+        bigint id PK
+        string name
+        string phone
+    }
+    UMKM_PROFILES {
+        bigint id PK
+        bigint nagari_id FK
+        bigint user_id FK "1 Warga = 1 Lapak"
+        string nama_usaha
+        string slug UK
+        text deskripsi
+        text alamat
+        string whatsapp "Kontak Order"
+        integer jumlah_dilihat
+        json tautan "Sosmed/Marketplace"
+        string status "active"
+    }
+    UMKM_CATEGORIES {
+        bigint id PK
+        string nama
+        string slug UK
+        string ikon
+    }
+    UMKM_PRODUCTS {
+        bigint id PK
+        bigint umkm_profile_id FK
+        bigint umkm_category_id FK
+        string nama_produk
+        string slug UK
+        text deskripsi
+        bigint harga "Rupiah Integer"
+        json tautan
+        integer jumlah_dilihat
+    }
+    UMKM_VIEWS {
+        bigint id PK
+        bigint umkm_product_id FK
+        string ip_address
+        text user_agent
+        timestamp viewed_at
+    }
+          </pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 1.d.</strong> Skema Relasi Modul E-Commerce Lapau Nagari.
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- TAB: ARSITEKTUR LENGKAP SISTEM & HOSTINGER -->
+  <div id="arsitektur-lengkap" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Arsitektur Lengkap Platform BASAMO NCH (Hostinger & Multi-Role RBAC)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-lengkap', 'Arsitektur-Lengkap-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-lengkap', 'Arsitektur-Lengkap-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+          <button class="btn" style="background: #6366f1; color: white; border-color: #6366f1;" onclick="copyEraserText()">📋 Salin Skrip Eraser.io</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Validasi Sistem Nyata 100%:</strong>
+          Arsitektur ini merefleksikan arsitektur produksi sesungguhnya di server <strong>Hostinger Shared Hosting</strong>, mencakup <strong>5 Peran Resmi Spatie</strong> (`superadmin`, `operator`, `pengajar`, `dpmd`, `warga`) ditambah <strong>Kapabilitas UMKM Warga</strong> (`hasUmkmAccess`), gerbang otentikasi ganda (NIK 16 digit & Username), perutean multi-tenant subdomain (`{slug}.basamonch.com`), integrasi <strong>Sistem IoT/EWS</strong> kebencanaan, serta 5 modul kanonik adat Minangkabau.
+        </div>
+        <div class="diagram-container" id="diagram-lengkap">
+          <pre class="mermaid">flowchart TB
+    %% 1. PENGGUNA & ROLE RESMI
+    subgraph UsersLayer ["1. Pemangku Kepentingan & Peran Resmi (5 Peran Spatie + Kapabilitas UMKM)"]
+        direction LR
+        SuperAdmin["Super Admin (superadmin)<br/>Wewenang Penuh Lintas Nagari"]
+        Operator["Operator Nagari (operator)<br/>Perangkat Nagari (Tenant Scoped)"]
+        Pengajar["Pengajar / Instruktur (pengajar)<br/>Tim Dosen PkM (Lintas Nagari)"]
+        DPMD["DPMD (dpmd)<br/>Pengawas Daerah (Lintas Nagari)"]
+        Warga["Warga Nagari (warga)<br/>Peserta Belajar & Pengguna Layanan"]
+        WargaUMKM["Warga Pelaku UMKM<br/>(warga + hasUmkmAccess)<br/>Pemilik 1 Lapak Binaan"]
+    end
+
+    %% 2. INFRASTRUKTUR HOSTING HOSTINGER & JARINGAN
+    subgraph HostingLayer ["2. Infrastruktur Server Hostinger & Jaringan Multi-Tenant"]
+        direction TB
+        Cloudflare["Cloudflare Edge & Security<br/>SSL Termination, DDoS Protection, Trusted Proxies"]
+        HostingerDNS["Hostinger hPanel & DNS Routing<br/>AutoSSL per Subdomain"]
+        LiteSpeedServer["Hostinger Web Server (LiteSpeed / Apache)<br/>Document Root Tunggal: public_html"]
+        SubdomainResolver["Laravel Subdomain & Tenant Resolver<br/>Memetakan Host Header: {slug}.basamonch.com vs basamonch.com"]
+    end
+
+    %% 3. GERBANG OTENTIKASI GANDA
+    subgraph AuthGateway ["3. Gerbang Masuk & Otentikasi Ganda (/login)"]
+        direction LR
+        LoginNIK["Login Warga via NIK (16 Digit)<br/>Tervalidasi Data Kependudukan Nagari"]
+        LoginUser["Login Pengelola via Username<br/>(Superadmin, Operator, Pengajar, DPMD)"]
+        SessionDomain["Single Sign-On Session<br/>Cookie: SESSION_DOMAIN=.basamonch.com"]
+    end
+
+    %% 4. MODUL KANONIK ADAT BASAMO NCH
+    subgraph PlatformModules ["4. Ekosistem Modul Kanonik BASAMO NCH (Core Domain Engines)"]
+        direction TB
+
+        subgraph Teras ["Teras Nagari (/teras-nagari)"]
+            SDGs18["Dashboard SDGs Nagari (18 Indikator)<br/>4 Pilar: Sosial, Ekonomi, Lingkungan, Tata Kelola"]
+            IDMNagari["Monitoring Indeks Desa Membangun (IDM)"]
+        end
+
+        subgraph Balinduang ["Medan Nan Balinduang (Smart Learning Center / LMS)"]
+            TemaModul["Kurikulum & Modul Ajar Multimedia Berjenjang"]
+            EvaluasiKKM["Evaluasi Belajar (Pre-test & Kuis KKM >= 70)"]
+            SertifikatQR["Penerbitan Sertifikat Digital Ber-QR Code"]
+            ForumDiskusi["Forum Diskusi Warga (Anti-Flood Rate Limit)"]
+        end
+
+        subgraph Lapau ["Lapau Nagari (/lapau-nagari)"]
+            ProfilLapak["Profil Usaha (1 Warga = 1 Lapak Binaan)"]
+            KatalogSearch["Katalog Komoditas & MySQL FullText Search"]
+            OrderWA["Pemesanan Langsung WhatsApp Tanpa Biaya Perantara"]
+            AnalyticsView["Pelacak Minat Kunjungan Produk (UmkmView)"]
+        end
+
+        subgraph Bapaneh ["Medan Nan Bapaneh (/medan-nan-bapaneh)"]
+            InfoPublik["Keterbukaan Informasi & Pengumuman Nagari"]
+            KanalAspirasi["Kanal Kontak Masuk & Aspirasi Warga"]
+        end
+
+        subgraph IoT_EWS ["Sistem IoT & EWS (Early Warning System)"]
+            DeviceSensor["Perangkat Sensor Telemetri Fisik (EwsDevice)"]
+            ReadingBencana["Pembacaan Real-time Indikator Bencana (EwsReading)"]
+        end
+    end
+
+    %% 5. PANEL BACKOFFICE & VERIFIKASI
+    subgraph ControlLayer ["5. Panel Pengelola & Layanan Publik"]
+        direction LR
+        BackofficeFilament["Backoffice Terpadu (Filament v5)<br/>Widget ApexCharts SDGs, LMS Progress, & Lapau Views"]
+        VerifyEndpoint["Verifikasi Sertifikat Publik (/verify/{nomor})<br/>Pemindai QR Code Dokumen Fisik"]
+    end
+
+    %% 6. PERSISTENCE LAYER HOSTINGER
+    subgraph DataStorage ["6. Lapisan Penyimpanan Data Hostinger"]
+        direction LR
+        MariaDB[("Database MySQL/MariaDB Hostinger<br/>Database: basamo_nch (Multi-Tenant Relational)")]
+        FileStorage[("Hostinger File Storage (public_html/storage)<br/>Spatie MediaLibrary & Arsip Sertifikat PDF DomPDF")]
+    end
+
+    %% ALUR RELASI LENGKAP
+    SuperAdmin --> Cloudflare
+    Operator --> Cloudflare
+    Pengajar --> Cloudflare
+    DPMD --> Cloudflare
+    Warga --> Cloudflare
+    WargaUMKM --> Cloudflare
+
+    Cloudflare --> HostingerDNS
+    HostingerDNS --> LiteSpeedServer
+    LiteSpeedServer --> SubdomainResolver
+
+    SubdomainResolver --> LoginNIK
+    SubdomainResolver --> LoginUser
+    LoginNIK --> SessionDomain
+    LoginUser --> SessionDomain
+
+    SessionDomain --> Teras
+    SessionDomain --> Balinduang
+    SessionDomain --> Lapau
+    SessionDomain --> Bapaneh
+    IoT_EWS --> Teras
+
+    Balinduang --> SertifikatQR
+    SertifikatQR --> VerifyEndpoint
+    PlatformModules --> BackofficeFilament
+
+    PlatformModules --> MariaDB
+    Balinduang --> FileStorage
+    Lapau --> FileStorage
+</pre>
+        </div>
+
+        <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Spesifikasi Komponen Arsitektur Produksi</h3>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: #f1f5f9; text-align: left;">
+              <th style="padding: 0.75rem; border: 1px solid var(--border);">Komponen</th>
+              <th style="padding: 0.75rem; border: 1px solid var(--border);">Implementasi Teknis</th>
+              <th style="padding: 0.75rem; border: 1px solid var(--border);">Keterangan Fungsional</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">5 Peran Resmi Spatie RBAC</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);"><code>superadmin</code>, <code>operator</code>, <code>pengajar</code>, <code>dpmd</code>, <code>warga</code></td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Hierarki wewenang resmi platform. Role <code>superadmin</code>, <code>pengajar</code>, dan <code>dpmd</code> berwenang lintas nagari (<i>isLintasNagari</i>), sedangkan <code>operator</code> dan <code>warga</code> terisolasi per tenant (<i>nagari_id</i>).</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">Kapabilitas UMKM Warga</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);"><code>warga</code> + <code>hasUmkmAccess()</code></td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">UMKM bukan role terpisah melainkan kapabilitas wirausaha warga yang diverifikasi oleh operator nagari. Setiap warga berhak mengelola 1 profil lapak binaan (1-to-1).</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">Infrastruktur Server Hostinger</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Hostinger Shared Hosting, LiteSpeed Web Server, Document Root <code>public_html</code></td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Semua subdomain (<code>{slug}.basamonch.com</code>) dipetakan ke direktori tunggal <code>public_html</code>. Wildcard DNS tidak didukung di Hostinger shared, sehingga subdomain dibuat per nagari di hPanel dengan sertifikat AutoSSL aktif per host.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">Multi-Tenant Resolver</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);"><code>Nagari::fromHost()</code> Middleware</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Mendeteksi Host Header request. Jika subdomain cocok dengan slug nagari aktif, konteks tenant diinisialisasi. Sedia fallback route <code>/n/{nagari:slug}</code> jika DNS propagasi belum tuntas.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">Gerbang Otentikasi Ganda</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">NIK 16 Digit (Warga) vs Username (Pengelola)</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Warga nagari login dengan NIK 16 digit tervalidasi data kependudukan. Pengelola masuk via username. Sesi disinkronkan antar-subdomain menggunakan <code>SESSION_DOMAIN=.basamonch.com</code>.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.75rem; border: 1px solid var(--border); font-weight: 600;">Sistem IoT & EWS Kebencanaan</td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Tabel <code>ews_devices</code> & <code>ews_readings</code></td>
+              <td style="padding: 0.75rem; border: 1px solid var(--border);">Menerima telemetri pembacaan sensor kebencanaan lapangan nagari (tinggi air, curah hujan) untuk peringatan dini warga di modul Teras Nagari.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary);">Kode Skrip Diagram untuk Eraser.io (Copy-Paste Ready)</h4>
+        <div style="position: relative;">
+          <pre id="eraser-code" style="background: #0f172a; color: #f8fafc; padding: 1rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; max-height: 250px; overflow-y: auto; line-height: 1.4;">// =====================================================================
+// ARSITEKTUR LENGKAP PLATFORM BASAMO NCH (100% SESUAI SISTEM NYATA)
+// Server: Hostinger | Framework: Laravel 13 | Multi-Tenant Subdomain
+// Sintaks Resmi Eraser.io (https://eraser.readme.io/docs/syntax)
+// =====================================================================
+
+title Arsitektur Lengkap Platform BASAMO NCH (Hostinger)
+direction down
+colorMode bold
+styleMode shadow
+typeface clean
+
+Peran Pengguna Platform BASAMO [icon: users, color: blue] {
+  SuperAdmin [icon: shield, color: red, label: "Super Admin (superadmin)"]
+  OperatorNagari [icon: user-check, color: orange, label: "Operator Nagari (operator)"]
+  PengajarPkM [icon: award, color: green, label: "Pengajar PkM (pengajar)"]
+  DPMD [icon: eye, color: blue, label: "DPMD Pengawas (dpmd)"]
+  WargaNagari [icon: user, color: slate, label: "Warga Nagari (warga)"]
+  WargaUMKM [icon: shopping-bag, color: purple, label: "Warga Pelaku UMKM (hasUmkmAccess)"]
+}
+
+Infrastruktur Hostinger dan Jaringan [icon: server, color: slate] {
+  CloudflareEdge [icon: shield, color: orange, label: "Cloudflare Edge & SSL (Trusted Proxies)"]
+  HostingerDNS [icon: globe, color: blue, label: "Hostinger hPanel & DNS Routing"]
+  LiteSpeedServer [icon: server, color: slate, label: "LiteSpeed Web Server (public_html)"]
+  SubdomainResolver [icon: router, color: yellow, label: "Laravel Subdomain & Tenant Resolver"]
+}
+
+Gerbang Masuk dan Otentikasi [icon: lock, color: yellow] {
+  LoginNIK [icon: key, color: blue, label: "Login Warga via NIK (16 Digit)"]
+  LoginUsername [icon: lock, color: orange, label: "Login Pengelola via Username"]
+  SessionSSO [icon: zap, color: green, label: "Single Sign-On Session (.basamonch.com)"]
+}
+
+Ekosistem Modul Kanonik BASAMO [icon: layers, color: blue] {
+  Teras Nagari [icon: bar-chart-2, color: orange] {
+    SDGsDashboard [icon: bar-chart, label: "Dashboard 18 Indikator SDGs Nagari"]
+    IDMMonitoring [icon: activity, label: "Monitoring Indeks Desa Membangun (IDM)"]
+  }
+
+  Medan Nan Balinduang [icon: book-open, color: green] {
+    KurikulumModul [icon: file-text, label: "Kurikulum & Modul Ajar Terurut"]
+    EvaluasiBelajar [icon: check-circle, label: "Evaluasi Belajar (Pretest & Kuis KKM >= 70)"]
+    SertifikatDigital [icon: award, label: "Penerbitan Sertifikat Digital Ber-QR Code"]
+    ForumDiskusi [icon: message-square, label: "Forum Diskusi Warga (Anti-Flood Limit)"]
+  }
+
+  Lapau Nagari [icon: shopping-bag, color: purple] {
+    ProfilLapak [icon: user, label: "Profil Lapak Binaan (1 Warga 1 Usaha)"]
+    KatalogProduk [icon: search, label: "Katalog Komoditas & MySQL FullText Search"]
+    OrderWhatsApp [icon: message-circle, label: "Pemesanan Langsung WhatsApp (wa.me)"]
+    PelacakKunjungan [icon: eye, label: "Pelacak Minat Produk (UmkmView)"]
+  }
+
+  Medan Nan Bapaneh [icon: users, color: blue] {
+    InformasiPublik [icon: info, label: "Keterbukaan Informasi Publik Nagari"]
+    KanalAspirasi [icon: mail, label: "Kanal Aspirasi & Kontak Masuk"]
+  }
+
+  Sistem IoT dan EWS [icon: radio, color: red] {
+    SensorFisik [icon: cpu, label: "Perangkat Sensor Telemetri (EwsDevice)"]
+    TelemetriBencana [icon: alert-triangle, label: "Pembacaan Realtime Indikator Bencana (EwsReading)"]
+  }
+}
+
+Panel Pengelola dan Layanan Publik [icon: settings, color: slate] {
+  BackofficeFilament [icon: sliders, color: orange, label: "Backoffice Filament v5 (ApexCharts)"]
+  VerifikasiPublik [icon: check-square, color: green, label: "Verifikasi Sertifikat Publik (/verify/{nomor})"]
+}
+
+Penyimpanan Data Hostinger [icon: server, color: slate] {
+  DatabaseMySQL [icon: database, color: blue, label: "MySQL/MariaDB Server (basamo_nch)"]
+  FileStorage [icon: hard-drive, color: slate, label: "File Storage (public_html/storage)"]
+}
+
+legend {
+  [shape: rectangle, color: red, label: "Wewenang Global Lintas Nagari (superadmin, pengajar, dpmd)"]
+  [shape: rectangle, color: orange, label: "Wewenang Terisolasi Per Nagari (operator)"]
+  [shape: rectangle, color: slate, label: "Warga Nagari Terdaftar (NIK 16 Digit)"]
+  [shape: rectangle, color: purple, label: "Kapabilitas Khusus Wirausaha Warga (hasUmkmAccess)"]
+  [connection: >, label: "Alur Permintaan Akses / Request Flow"]
+}
+
+SuperAdmin, OperatorNagari, PengajarPkM, DPMD, WargaNagari, WargaUMKM > CloudflareEdge: Permintaan HTTPS
+CloudflareEdge > HostingerDNS > LiteSpeedServer > SubdomainResolver
+
+SubdomainResolver > LoginNIK: Otentikasi Warga (NIK)
+SubdomainResolver > LoginUsername: Otentikasi Pengelola (Username)
+
+LoginNIK, LoginUsername > SessionSSO: Sesi Multi-Tenant
+
+SessionSSO > Teras Nagari, Medan Nan Balinduang, Lapau Nagari, Medan Nan Bapaneh
+
+SensorFisik > TelemetriBencana > Teras Nagari: Telemetri Kebencanaan
+
+KurikulumModul > EvaluasiBelajar > SertifikatDigital
+SertifikatDigital > VerifikasiPublik: Pemindaian QR Code Dokumen
+
+Ekosistem Modul Kanonik BASAMO > BackofficeFilament: Pemantauan Pengelola
+Ekosistem Modul Kanonik BASAMO > DatabaseMySQL: Transaksi Data Relasional
+
+SertifikatDigital > FileStorage: Arsip PDF DomPDF
+ProfilLapak > FileStorage: Foto Produk Spatie MediaLibrary</pre>
+        </div>
+
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 2.</strong> Diagram Arsitektur Lengkap Platform BASAMO NCH pada Lingkungan Produksi Hostinger.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ARSITEKTUR SISTEM BERSIH (LMS & 5 ROLE) -->
+  <div id="arsitektur" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Arsitektur Sistem Platform BASAMO (Fokus Utama: LMS & 5 Role Pengguna)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-arch', 'Arsitektur-Sistem-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-arch', 'Arsitektur-Sistem-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+          <button class="btn" style="background: #6366f1; color: white; border-color: #6366f1;" onclick="copyEraserSistemText()">📋 Salin Skrip Eraser.io</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Fokus Arsitektur:</strong>
+          Diagram ini merefleksikan model arsitektur berjenjang yang bersih dan terstruktur dengan menempatkan <strong>Learning Management System (LMS / Smart Learning Center)</strong> sebagai *core engine* utama serta memetakan <strong>5 Peran Resmi Sistem</strong> (`superadmin`, `operator`, `pengajar`, `dpmd`, `warga`).
+        </div>
+        <div class="diagram-container" id="diagram-arch">
+          <pre class="mermaid">
+flowchart TB
+    %% 1. LAPISAN PENGGUNA (5 PERAN SPATIE RBAC)
+    subgraph Tier1 ["1. Lapisan Pengguna Platform (5 Peran Spatie RBAC)"]
+        Warga["Warga (NIK Login)"]
+        Pengajar["Pengajar (Instruktur PkM)"]
+        DPMD["DPMD (Pengawas Daerah)"]
+        Operator["Operator (Perangkat Nagari)"]
+        Superadmin["Superadmin (Pengelola Sistem)"]
+    end
+
+    %% 2. JARINGAN & SUBDOMAIN RESOLVER
+    subgraph Tier2 ["2. Jaringan & Subdomain Gateway (Hostinger VPS)"]
+        Cloudflare["Cloudflare Edge SSL & CDN"]
+        TenantResolver["Subdomain Tenant Resolver (*.basamonch.com)"]
+        Cloudflare --> TenantResolver
+    end
+
+    %% 3. LAPISAN ANTARMUKA LAYANAN (5 KANONIK GATEWAYS)
+    subgraph Tier3 ["3. Lapisan Antarmuka Layanan (Kanonik BASAMO NCH)"]
+        PortalTeras["Teras Nagari & IoT\n(/teras-nagari)"]
+        PortalBalinduang["Medan Nan Balinduang\n(/portal & /verify)"]
+        PortalBapaneh["Medan Nan Bapaneh\n(/medan-nan-bapaneh)"]
+        PortalLapau["Lapau Nagari\n(/lapau-nagari)"]
+        PortalBackoffice["Backoffice Panel\n(/panel) - Filament v3"]
+    end
+
+    %% 4. BACKEND PLATFORM & LOGIKA BISNIS
+    subgraph Tier4 ["4. Backend Platform & Logika Bisnis (Laravel 13 Core)"]
+        direction LR
+
+        %% PILAR 1: TERAS NAGARI SDGs
+        subgraph SDGsEngine ["Pilar 1: Teras SDGs Nagari Engine"]
+            direction TB
+            SDGsGoals["4 Pilar & 18 Goals SDGs Desa"]
+            SDGsMap["Batas GeoJSON & Capaian Riil"]
+        end
+
+        %% MODUL TELEMETRI: EWS KEBENCANAAN
+        subgraph EWSEngine ["Modul Telemetri: EWS Mitigasi Bencana"]
+            direction TB
+            EWSSensor["Sensor Air, Hujan & EwsBlynkService"]
+            EWSAlert["Indikator Status (Normal/Waspada/Bahaya)"]
+        end
+
+        %% PILAR 2: LMS
+        subgraph LMSEngine ["Pilar 2: Medan Nan Balinduang (LMS)"]
+            direction TB
+            LMSLearn["Pelatihan, Modul, Materi & Diskusi"]
+            LMSCert["Kuis Evaluasi (KKM >= 70) & Sertifikat QR"]
+        end
+
+        %% PILAR 3: MEDAN NAN BAPANEH (BUDAYA & INOVASI)
+        subgraph BapanehEngine ["Pilar 3: Medan Nan Bapaneh (Budaya)"]
+            direction TB
+            BapanehArsip["Arsip & Dokumentasi Pengetahuan Lokal"]
+            BapanehKarya["Ruang Karya Kreatif & Publikasi Nagari"]
+        end
+
+        %% PILAR 4: LAPAU NAGARI UMKM
+        subgraph UMKMEngine ["Pilar 4: Lapau Nagari UMKM Engine"]
+            direction TB
+            UMKMKatalog["Profil UMKM & Katalog Komoditas"]
+            UMKMWA["Direct Order WhatsApp & UmkmView"]
+        end
+
+        %% FONDASI KEAMANAN & MULTI-TENANT
+        subgraph CoreSecurity ["Keamanan & Multi-Tenant Core"]
+            direction TB
+            CoreRBAC["Spatie RBAC (5 Peran) & Auth NIK"]
+            CoreTenant["Scope Multi-Tenant (nagari_id)"]
+        end
+    end
+
+    %% 5. PENYIMPANAN DATA & EKSTERNAL
+    subgraph Tier5 ["5. Penyimpanan Data & Layanan Eksternal (Hostinger)"]
+        BlynkCloud["Blynk IoT Cloud\n(Telemetri Sensor)"]
+        MySQLDB[("MySQL 8 Relasional\n(InnoDB nagari_id)")]
+        FileStorage[("Hostinger Storage\n(PDF Sertifikat & Media)")]
+        WAGateway["WhatsApp Gateway\n(Direct Order UMKM)"]
+        SessionCache[("Session & Cache\n(.basamonch.com)")]
+    end
+
+    %% ALUR PENGGUNA KE GATEWAY
+    Warga -->|HTTPS| Cloudflare
+    Pengajar -->|HTTPS| Cloudflare
+    DPMD -->|HTTPS| Cloudflare
+    Operator -->|HTTPS| Cloudflare
+    Superadmin -->|HTTPS| Cloudflare
+
+    TenantResolver --> PortalTeras
+    TenantResolver --> PortalBalinduang
+    TenantResolver --> PortalBapaneh
+    TenantResolver --> PortalLapau
+    TenantResolver --> PortalBackoffice
+
+    PortalTeras --> SDGsEngine
+    PortalTeras --> EWSEngine
+    PortalBalinduang --> LMSEngine
+    PortalBapaneh --> BapanehEngine
+    PortalLapau --> UMKMEngine
+    PortalBackoffice --> CoreSecurity
+
+    SDGsEngine --> MySQLDB
+    EWSEngine --> MySQLDB
+    EWSEngine --> BlynkCloud
+    LMSEngine --> MySQLDB
+    LMSEngine --> FileStorage
+    BapanehEngine --> MySQLDB
+    BapanehEngine --> FileStorage
+    UMKMEngine --> MySQLDB
+    UMKMEngine --> WAGateway
+    CoreSecurity --> MySQLDB
+    CoreSecurity --> SessionCache
+          </pre>
+        </div>
+
+        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary);">Kode Skrip Diagram untuk Eraser.io (Berdasarkan PRD Resmi BASAMO NCH)</h4>
+        <div style="position: relative;">
+          <pre id="eraser-sistem-code" style="background: #0f172a; color: #f8fafc; padding: 1rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; max-height: 250px; overflow-y: auto; line-height: 1.4;">// =====================================================================
+// ARSITEKTUR PLATFORM BASAMO NCH (OPSI 2: DIET VISUAL SEIMBANG & CLEAN)
+// Validasi Faktual: Laravel 13 | Filament v3 (/panel) | MySQL 8 | Hostinger VPS
+// Karakteristik: Lebih Ramping, Tanpa Bloating, 5 Pintu Layanan Simetris
+// Format: Eraser.io (https://app.eraser.io)
+// =====================================================================
+
+title Arsitektur Resmi Platform BASAMO NCH (Clean & Balanced Architecture)
+direction down
+colorMode bold
+styleMode shadow
+typeface clean
+
+// ---------------------------------------------------------------------
+// 1. LAPISAN PENGGUNA (5 PERAN SPATIE RBAC)
+// ---------------------------------------------------------------------
+Pengguna Platform [icon: users, color: blue, label: "1. Pengguna Platform (5 Peran Spatie RBAC)"] {
+  Warga [icon: user, color: blue, label: "Warga (NIK Login)"]
+  Pengajar [icon: award, color: green, label: "Pengajar (Instruktur PkM)"]
+  DPMD [icon: eye, color: blue, label: "DPMD (Pengawas Daerah)"]
+  Operator [icon: user-check, color: orange, label: "Operator (Perangkat Nagari)"]
+  Superadmin [icon: shield, color: red, label: "Superadmin (Pengelola Sistem)"]
+}
+
+// ---------------------------------------------------------------------
+// 2. JARINGAN & SUBDOMAIN GATEWAY (HOSTINGER VPS)
+// ---------------------------------------------------------------------
+Infrastruktur Jaringan [icon: globe, color: blue, label: "2. Jaringan & Subdomain Gateway (Hostinger VPS)"] {
+  Cloudflare Edge SSL [icon: shield, color: orange, label: "Cloudflare Edge SSL & CDN"]
+  Subdomain Tenant Resolver [icon: globe, color: blue, label: "Subdomain Tenant Resolver (*.basamonch.com)"]
+}
+
+// ---------------------------------------------------------------------
+// 3. LAPISAN ANTARMUKA LAYANAN (5 PINTU KANONIK BASAMO)
+// ---------------------------------------------------------------------
+Lapisan Antarmuka [icon: monitor, color: blue, label: "3. Lapisan Antarmuka Layanan (Kanonik BASAMO NCH)"] {
+  Teras Nagari SDGs [icon: bar-chart-2, color: orange, label: "Teras Nagari & IoT (/teras-nagari)"]
+  Medan Nan Balinduang [icon: book-open, color: green, label: "Medan Nan Balinduang (/portal & /verify)"]
+  Medan Nan Bapaneh [icon: sparkles, color: teal, label: "Medan Nan Bapaneh (/medan-nan-bapaneh)"]
+  Lapau Nagari UMKM [icon: shopping-bag, color: purple, label: "Lapau Nagari (/lapau-nagari)"]
+  Backoffice Panel [icon: settings, color: slate, label: "Backoffice Panel (/panel) - Filament v3"]
+}
+
+// ---------------------------------------------------------------------
+// 4. BACKEND PLATFORM & LOGIKA BISNIS (LARAVEL 13 CORE)
+// ---------------------------------------------------------------------
+Backend Platform BASAMO [icon: server, color: red, label: "4. Backend Platform & Logika Bisnis (Laravel 13 Core)"] {
+  
+  SDGs Nagari Engine [icon: bar-chart-2, color: orange, label: "Pilar 1: Teras SDGs Nagari Engine"] {
+    SDGs Goals Indikator [icon: bar-chart, label: "4 Pilar & 18 Goals SDGs Desa"]
+    Peta Spasial Capaian [icon: map, label: "Batas Spasial GeoJSON & Capaian Riil"]
+  }
+
+  EWS Blynk IoT Engine [icon: activity, color: red, label: "Modul Telemetri: EWS Mitigasi Bencana"] {
+    Sensor dan API Blynk [icon: radio, label: "Sensor Air, Hujan & EwsBlynkService"]
+    Status Bahaya Sungai [icon: alert-triangle, label: "Indikator Status (Normal/Waspada/Bahaya)"]
+  }
+
+  LMS Core Engine [icon: award, color: green, label: "Pilar 2: Medan Nan Balinduang (LMS Core)"] {
+    Alur Pembelajaran [icon: book-open, label: "Pelatihan, Modul, Materi & Forum Diskusi"]
+    Evaluasi dan Sertifikat [icon: check-circle, label: "Kuis Evaluasi (KKM >= 70) & Sertifikat QR"]
+  }
+
+  Bapaneh Engine [icon: sparkles, color: teal, label: "Pilar 3: Medan Nan Bapaneh (Budaya & Inovasi)"] {
+    Arsip Budaya Lokal [icon: archive, label: "Arsip & Dokumentasi Pengetahuan Lokal"]
+    Ruang Inovasi Nagari [icon: zap, label: "Ruang Karya Kreatif & Publikasi Nagari"]
+  }
+
+  Lapau Nagari Engine [icon: shopping-bag, color: purple, label: "Pilar 4: Lapau Nagari UMKM Engine"] {
+    Katalog Produk UMKM [icon: shopping-bag, label: "Profil UMKM Binaan & Katalog Komoditas"]
+    Direct Order WA [icon: message-circle, label: "Direct Order WhatsApp & UmkmView Tracker"]
+  }
+
+  Security and Core [icon: shield, color: blue, label: "Fondasi Keamanan & Multi-Tenant Core"] {
+    Spatie RBAC Auth [icon: lock, label: "Spatie RBAC (5 Peran) & Autentikasi NIK"]
+    Global Nagari Scope [icon: layers, label: "Global Tenant Scope (where nagari_id = ?)"]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 5. BASIS DATA & PENYIMPANAN PERSISTEN (HOSTINGER)
+// ---------------------------------------------------------------------
+Penyimpanan Data [icon: database, color: slate, label: "5. Penyimpanan Data & Layanan Eksternal (Hostinger)"] {
+  Layanan Blynk IoT [icon: cloud, color: red, label: "Blynk IoT Cloud (Telemetri Sensor)"]
+  Database MySQL Delapan [icon: mysql, color: blue, label: "MySQL 8 Relasional (InnoDB nagari_id)"]
+  Storage Berkas Hostinger [icon: hard-drive, color: slate, label: "Hostinger Storage (PDF Sertifikat & Media)"]
+  WhatsApp Gateway API [icon: message-circle, color: purple, label: "WhatsApp Gateway (Direct Order)"]
+  Session dan Cache State [icon: zap, color: yellow, label: "Session & Cache (.basamonch.com)"]
+}
+
+// =====================================================================
+// ALUR PERGERAKAN DATA (LANGSUNG, BERSIH, MINIMAL DISTORSI)
+// =====================================================================
+
+// 1. Pengguna ke Jaringan
+Warga, Pengajar, DPMD, Operator, Superadmin > Cloudflare Edge SSL: Permintaan Web HTTPS
+Cloudflare Edge SSL > Subdomain Tenant Resolver: Resolusi Host Subdomain Nagari
+
+// 2. Distribusi ke 5 Pintu Layanan Kanonik BASAMO
+Subdomain Tenant Resolver > Teras Nagari SDGs
+Subdomain Tenant Resolver > Medan Nan Balinduang
+Subdomain Tenant Resolver > Medan Nan Bapaneh
+Subdomain Tenant Resolver > Lapau Nagari UMKM
+Subdomain Tenant Resolver > Backoffice Panel
+
+// 3. Antarmuka Layanan ke Service Engine Backend
+Teras Nagari SDGs > SDGs Nagari Engine: Visualisasi Capaian SDGs & Peta
+Teras Nagari SDGs > EWS Blynk IoT Engine: Widget Telemetri Sensor Sungai (#iot)
+Medan Nan Balinduang > LMS Core Engine: Portal Belajar Mandiri & Verifikasi QR
+Medan Nan Bapaneh > Bapaneh Engine: Eksplorasi Budaya & Karya Inovasi
+Lapau Nagari UMKM > Lapau Nagari Engine: Etalase Komoditas UMKM Warga
+Backoffice Panel > Security and Core: Manajemen 5 Peran & Tenant nagari_id
+
+// 4. Backend ke Lapisan Basis Data & Layanan Eksternal
+SDGs Nagari Engine > Database MySQL Delapan: 4 Pilar, 18 Goals & Capaian
+EWS Blynk IoT Engine > Database MySQL Delapan: Riwayat Pembacaan Sensor
+EWS Blynk IoT Engine > Layanan Blynk IoT: Telemetri Blynk IoT Cloud
+LMS Core Engine > Database MySQL Delapan: Nilai Kuis KKM 70 & Presensi
+LMS Core Engine > Storage Berkas Hostinger: Arsip PDF Sertifikat & Transkrip
+Bapaneh Engine > Database MySQL Delapan: Metadata Budaya & Inovasi
+Bapaneh Engine > Storage Berkas Hostinger: File Media & Dokumentasi
+Lapau Nagari Engine > Database MySQL Delapan: Profil UMKM, Produk & Kategori
+Lapau Nagari Engine > WhatsApp Gateway API: Kontak Direct Order WhatsApp
+Security and Core > Database MySQL Delapan: Pengguna & Peran Spatie
+Security and Core > Session dan Cache State: Sesi Multi-Tenant & Token</pre>
+        </div>
+
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 3.</strong> Diagram Arsitektur Sistem Platform BASAMO NCH (Berdasarkan PRD Resmi Versi 1.1 Final).
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: ALUR BISNIS LMS -->
+  <div id="alur-lms" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Alur Bisnis & Proses Pembelajaran LMS (Sequence Diagram)</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="downloadSVG('diagram-seq', 'Alur-LMS-BASAMO.svg')">💾 Unduh SVG</button>
+          <button class="btn btn-success" onclick="downloadPNG('diagram-seq', 'Alur-LMS-BASAMO.png')">📷 Unduh PNG (300 DPI)</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Tahapan Belajar Warga:</strong>
+          Menjelaskan interaksi sistem mulai dari pendaftaran kelas, pengerjaan pre-test, pembelajaran modul daring, ujian kuis akhir, hingga penerbitan sertifikat resmi yang dapat diverifikasi oleh publik.
+        </div>
+        <div class="diagram-container" id="diagram-seq">
+          <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Warga as Warga / Peserta Belajar
+    participant UI as Antarmuka Portal Belajar
+    participant LmsCtrl as Controller & Engine LMS
+    participant DB as Database MySQL
+    participant Cert as DomPDF & QR Generator
+
+    Warga->>UI: 1. Pilih Pelatihan di Nagari
+    UI->>LmsCtrl: Cek Akses & Status Pelatihan
+    LmsCtrl->>DB: Query `pelatihans` (status = terbuka)
+    DB-->>LmsCtrl: Data Pelatihan & Daftar Modul
+    LmsCtrl-->>UI: Tampilkan Materi Ajar
+
+    opt Pre-test Sebelum Belajar
+        Warga->>UI: 2. Kerjakan Pre-test Awal
+        UI->>LmsCtrl: Kirim Jawaban Pre-test
+        LmsCtrl->>DB: Simpan Skor di `evaluasi_percobaans`
+    end
+
+    loop Belajar Tiap Materi
+        Warga->>UI: 3. Baca Materi / Putar Video
+        UI->>LmsCtrl: Tandai Selesai
+        LmsCtrl->>DB: Update `user_module_progress`
+    end
+
+    Warga->>UI: 4. Kerjakan Kuis Akhir (Evaluasi Kegiatan)
+    UI->>LmsCtrl: Submit Lembar Jawaban
+    LmsCtrl->>DB: Evaluasi Nilai terhadap KKM (>= 70)
+
+    alt Nilai Lulus
+        LmsCtrl->>Cert: Generate Sertifikat Digital
+        Cert->>DB: Catat Nomor Seri Unik di `certificates`
+        Cert-->>Warga: Unduh Berkas PDF Sertifikat + QR Code
+    else Nilai Belum Mencukupi
+        LmsCtrl-->>Warga: Notifikasi Remedial / Ulangi Materi
+    end
+          </pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 3.</strong> Diagram Alur Proses Pembelajaran dan Sertifikasi LMS BASAMO.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: STRUKTUR KODE BACKEND -->
+  <div id="struktur-kode" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Struktur Direktori Backend PHP/Laravel & Tangkapan Layar Resmi</span>
+        </div>
+        <div class="card-actions">
+          <a href="diagrams/struktur-kode-backend.png" download class="btn btn-secondary">📥 Unduh Gambar PNG</a>
+          <button class="btn btn-primary" onclick="copyCodeTree()">📋 Salin Teks Tree</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="callout">
+          <strong>Bukti Implementasi Nyata:</strong>
+          Tangkapan layar resolusi tinggi struktur direktori kode backend PHP/Laravel Platform BASAMO siap disematkan langsung ke dalam naskah Laporan Kemajuan PkM:
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0;">
+          <img src="diagrams/struktur-kode-backend.png" alt="Tangkapan Layar Struktur Kode Backend" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        </div>
+
+        <pre class="code-tree" id="tree-text"><span class="folder">basamo-nch/</span>
+├── <span class="folder">app/</span>
+│   ├── <span class="folder">Filament/</span>                       <span class="comment"># Panel Backoffice & Analitik (Filament v3)</span>
+│   │   ├── <span class="folder">Resources/</span>
+│   │   │   ├── <span class="folder">Nagaris/</span>                <span class="comment"># Manajemen Multi-Tenant Subdomain Nagari</span>
+│   │   │   ├── <span class="folder">Pelatihans/</span>             <span class="comment"># Modul LMS: Pengelolaan Kelas & Pengajar</span>
+│   │   │   ├── <span class="folder">Modules/</span>                <span class="comment"># Modul LMS: Kurikulum Buku Ajar Berurutan</span>
+│   │   │   ├── <span class="folder">Evaluasis/</span>              <span class="comment"># Modul LMS: Pre-test & Kuis Evaluasi Kelulusan</span>
+│   │   │   ├── <span class="folder">SdgAchievements/</span>        <span class="comment"># Modul SDGs: Input & Visualisasi 18 Indikator Nagari</span>
+│   │   │   ├── <span class="folder">UmkmProfiles/</span>           <span class="comment"># Modul Lapau: Profil Lapak UMKM Warga</span>
+│   │   │   ├── <span class="folder">UmkmCategories/</span>         <span class="comment"># Modul Lapau: Taksonomi Kategori Produk</span>
+│   │   │   ├── <span class="folder">UmkmProducts/</span>           <span class="comment"># Modul Lapau: Katalog Produk & Full-Text Search</span>
+│   │   │   └── <span class="folder">BackofficeUsers/</span>        <span class="comment"># Otorisasi Multi-Role Pengguna (5 Peran)</span>
+│   │   └── <span class="folder">Widgets/</span>
+│   │       ├── <span class="file">OperatorSdgsChart.php</span>   <span class="comment"># Visualisasi Grafik Capaian SDGs Nagari</span>
+│   │       ├── <span class="file">OperatorLmsProgressChart.php</span> <span class="comment"># Metrik Analisis Progres Belajar Warga</span>
+│   │       └── <span class="file">UmkmProductViewsChart.php</span> <span class="comment"># Tren Analitik Minat Pengunjung Lapau</span>
+│   ├── <span class="folder">Http/Controllers/</span>
+│   │   ├── <span class="folder">Portal/</span>                 <span class="comment"># Area Pembelajaran Mandiri Warga</span>
+│   │   │   ├── <span class="file">PelatihanController.php</span>
+│   │   │   ├── <span class="file">ModuleController.php</span>
+│   │   │   ├── <span class="file">MateriController.php</span>
+│   │   │   ├── <span class="file">EvaluasiController.php</span>
+│   │   │   └── <span class="file">SertifikatController.php</span>
+│   │   └── <span class="folder">Public/</span>                 <span class="comment"># Subdomain Publik Nagari</span>
+│   │       ├── <span class="file">NagariHomeController.php</span>
+│   │       ├── <span class="file">SlcCatalogController.php</span>
+│   │       ├── <span class="file">UmkmCatalogController.php</span>
+│   │       └── <span class="file">SertifikatVerifikasiController.php</span>
+│   └── <span class="folder">Models/</span>                         <span class="comment"># Eloquent Data Modeling & Relasi</span>
+│       ├── <span class="file">Nagari.php</span>                  <span class="comment"># Isolasi Tenant & Konfigurasi Wilayah</span>
+│       ├── <span class="file">User.php</span>                    <span class="comment"># Akun & Relasi Hak Akses</span>
+│       ├── <span class="file">Pelatihan.php</span>               <span class="comment"># Entitas Kelas Belajar</span>
+│       ├── <span class="file">Module.php</span>                  <span class="comment"># Entitas Modul Terurut</span>
+│       ├── <span class="file">Materi.php</span>                  <span class="comment"># Entitas Bahan Ajar Multimedia</span>
+│       ├── <span class="file">Evaluasi.php</span>                <span class="comment"># Entitas Ujian & Standar KKM</span>
+│       ├── <span class="file">Certificate.php</span>             <span class="comment"># Entitas Sertifikat Ber-QR Code</span>
+│       ├── <span class="file">SdgGoal.php</span>                 <span class="comment"># Entitas 18 Poin Tujuan SDGs Desa</span>
+│       ├── <span class="file">SdgAchievement.php</span>          <span class="comment"># Entitas Capaian Persentase SDGs per Nagari</span>
+│       ├── <span class="file">UmkmProfile.php</span>             <span class="comment"># Entitas Lapak Dagang Warga</span>
+│       └── <span class="file">UmkmProduct.php</span>             <span class="comment"># Entitas Produk & Harga Lapau Nagari</span>
+└── <span class="folder">database/migrations/</span>                <span class="comment"># 60+ Skema Migrasi DDL MySQL</span>
+    ├── <span class="file">2026_06_15_000003_create_nagaris_table.php</span>
+    ├── <span class="file">2026_06_15_000004_create_modules_table.php</span>
+    ├── <span class="file">2026_06_15_000009_create_evaluasis_table.php</span>
+    ├── <span class="file">2026_06_15_000015_create_umkm_profiles_table.php</span>
+    ├── <span class="file">2026_06_15_000016_create_umkm_products_table.php</span>
+    ├── <span class="file">2026_07_08_000002_create_sdg_goals_table.php</span>
+    ├── <span class="file">2026_07_08_000005_create_sdg_achievements_table.php</span>
+    ├── <span class="file">2026_07_21_000001_create_pelatihans_table.php</span>
+    └── <span class="file">2026_08_13_000003_create_certificates_table.php</span></pre>
+      </div>
+      <div class="card-footer">
+        <strong>Gambar 4.</strong> Tangkapan Layar Struktur Hirarki Kode Backend PHP/Laravel Platform BASAMO.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    er: {
+      useMaxWidth: false,
+      layoutDirection: 'TB'
+    },
+    flowchart: {
+      useMaxWidth: false,
+      curve: 'basis'
+    },
+    sequence: {
+      useMaxWidth: false
+    }
+  });
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    const target = document.getElementById(tabId);
+    if (target) {
+      target.classList.add('active');
+    }
+    
+    event.currentTarget.classList.add('active');
+  }
+
+  function downloadSVG(containerId, filename) {
+    const container = document.getElementById(containerId);
+    const svgEl = container.querySelector('svg');
+    if (!svgEl) {
+      alert('Diagram sedang dirender, tunggu sejenak...');
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadPNG(containerId, filename) {
+    const container = document.getElementById(containerId);
+    const svgEl = container.querySelector('svg');
+    if (!svgEl) {
+      alert('Diagram sedang dirender, tunggu sejenak...');
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const img = new Image();
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = function () {
+      const scale = 2.5;
+      const canvas = document.createElement('canvas');
+      canvas.width = svgEl.getBoundingClientRect().width * scale;
+      canvas.height = svgEl.getBoundingClientRect().height * scale;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+
+      const pngUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = pngUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    img.src = url;
+  }
+
+  function copyCodeTree() {
+    const text = document.getElementById('tree-text').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Teks hierarki struktur kode berhasil disalin ke clipboard!');
+    }).catch(err => {
+      console.error('Gagal menyalin: ', err);
+    });
+  }
+
+  function copyEraserText() {
+    const text = document.getElementById('eraser-code').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Skrip diagram Eraser.io berhasil disalin ke clipboard! Silakan tempel di https://app.eraser.io');
+    }).catch(err => {
+      console.error('Gagal menyalin: ', err);
+    });
+  }
+
+  function copyEraserSistemText() {
+    const text = document.getElementById('eraser-sistem-code').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Skrip diagram arsitektur sistem (fokus LMS) berhasil disalin ke clipboard! Silakan tempel di https://app.eraser.io');
+    }).catch(err => {
+      console.error('Gagal menyalin: ', err);
+    });
+  }
+</script>
+
+</body>
+</html>

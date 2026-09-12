@@ -1,0 +1,109 @@
+// =====================================================================
+// ARSITEKTUR FUNGSIONAL & EKOSISTEM BISNIS PLATFORM BASAMO NCH
+// Berbasis Nomenklatur Kanonik Minangkabau (Sesuai Codebase BASAMO)
+// Format: Eraser.io (https://app.eraser.io)
+// =====================================================================
+
+direction: down
+
+// ---------------------------------------------------------------------
+// 1. PEMANGKU KEPENTINGAN & PENGGUNA (ACTORS)
+// ---------------------------------------------------------------------
+Pemangku Kepentingan Nagari [icon: users, color: blue] {
+  Warga Nagari [icon: user, color: blue]
+  Pelaku UMKM Warga [icon: shopping-bag, color: purple]
+  Instruktur & Pengajar PkM [icon: award, color: green]
+  Perangkat & Operator Nagari [icon: shield, color: orange]
+  DPMD & Pemangku Kebijakan [icon: user-check, color: slate]
+}
+
+// ---------------------------------------------------------------------
+// 2. GERBANG AKSES MULTI-TENANT & OTENTIKASI
+// ---------------------------------------------------------------------
+Gerbang Akses Multi-Tenant [icon: globe, color: blue] {
+  Subdomain Nagari Mitra [icon: layout, color: blue]
+  Portal Induk NCH Aggregator [icon: globe, color: slate]
+  Gerbang Otentikasi Ganda [icon: lock, color: yellow]
+}
+
+// ---------------------------------------------------------------------
+// 3. PILAR MODUL KANONIK BASAMO NCH
+// ---------------------------------------------------------------------
+Ekosistem Platform BASAMO NCH [icon: layers, color: blue] {
+
+  Teras Nagari [icon: bar-chart-2, color: orange] {
+    Dashboard 18 Indikator SDGs Nagari [icon: bar-chart]
+    Monitoring Indeks Desa Membangun (IDM) [icon: activity]
+  }
+
+  Medan Nan Balinduang (LMS SLC) [icon: book-open, color: green] {
+    Kurikulum & Modul Ajar Terurut [icon: file-text]
+    Evaluasi Kuis & Ujian Standar KKM [icon: check-circle]
+    Penerbitan Sertifikat Ber-QR Code [icon: award]
+    Forum Diskusi Interaktif [icon: message-square]
+  }
+
+  Lapau Nagari (Sentra UMKM) [icon: shopping-bag, color: purple] {
+    Profil Usaha (1 Warga 1 Lapak) [icon: user]
+    Katalog Komoditas & FullText Search [icon: search]
+    Pemesanan Langsung WhatsApp [icon: message-circle]
+    Analitik Minat Kunjungan Produk [icon: eye]
+  }
+
+  Medan Nan Bapaneh [icon: users, color: blue] {
+    Ruang Informasi Publik Nagari [icon: info]
+    Kanal Aspirasi & Kontak Masuk [icon: mail]
+  }
+
+  Sistem IoT dan EWS [icon: radio, color: red] {
+    Telemetri Perangkat Sensor Nagari [icon: cpu]
+    Pembacaan Indikator Bencana EWS [icon: alert-triangle]
+  }
+}
+
+// ---------------------------------------------------------------------
+// 4. PANEL PENGELOLA & VERIFIKASI PUBLIK
+// ---------------------------------------------------------------------
+Pengelolaan & Verifikasi Publik [icon: settings, color: slate] {
+  Backoffice Operator & Pengajar (Filament v5) [icon: sliders, color: orange]
+  Verifikasi Sertifikat Publik (/verify) [icon: check-square, color: green]
+}
+
+// ---------------------------------------------------------------------
+// 5. BASIS DATA & PENYIMPANAN TERPADU
+// ---------------------------------------------------------------------
+Basis Data & Berkas Digital [icon: server, color: slate] {
+  Database Relasional MySQL BASAMO [icon: mysql, color: blue]
+  Penyimpanan Berkas Media & Sertifikat PDF [icon: hard-drive, color: slate]
+}
+
+// =====================================================================
+// ALUR INTEGRASI & INTERAKSI
+// =====================================================================
+
+// Interaksi Aktor ke Gerbang Akses
+Warga Nagari > Subdomain Nagari Mitra: Akses Layanan {slug}.basamonch.com
+Pelaku UMKM Warga > Subdomain Nagari Mitra: Kelola Lapak di Subdomain
+Instruktur & Pengajar PkM > Portal Induk NCH Aggregator: Akses Kurikulum Lintas Nagari
+Perangkat & Operator Nagari > Subdomain Nagari Mitra: Kelola Administrasi Nagari
+DPMD & Pemangku Kebijakan > Portal Induk NCH Aggregator: Monitoring Agregat
+
+// Otentikasi Ganda
+Subdomain Nagari Mitra > Gerbang Otentikasi Ganda: Login Warga via NIK / Pengelola via Username
+Portal Induk NCH Aggregator > Gerbang Otentikasi Ganda: SSO Sesi (.basamonch.com)
+
+// Gerbang Akses ke Modul Kanonik
+Gerbang Akses Multi-Tenant > Teras Nagari: Akses Capaian SDGs & IDM
+Gerbang Akses Multi-Tenant > Medan Nan Balinduang (LMS SLC): Pembelajaran Daring Warga
+Gerbang Akses Multi-Tenant > Lapau Nagari (Sentra UMKM): Etalase Digital Produk
+Gerbang Akses Multi-Tenant > Medan Nan Bapaneh: Interaksi Publik & Pengumuman
+Sistem IoT dan EWS > Teras Nagari: Umpan Data Cuaca & Peringatan Dini
+
+// Modul ke Pengelolaan & Verifikasi
+Medan Nan Balinduang (LMS SLC) > Verifikasi Sertifikat Publik (/verify): Validasi QR Code Sertifikat
+Ekosistem Platform BASAMO NCH > Backoffice Operator & Pengajar (Filament v5): Kontrol Panel & ApexCharts
+
+// Integrasi ke Penyimpanan Data
+Ekosistem Platform BASAMO NCH > Database Relasional MySQL BASAMO: Transaksi Data Terisolasi Tenant
+Medan Nan Balinduang (LMS SLC) > Penyimpanan Berkas Media & Sertifikat PDF: Arsip PDF Sertifikat DomPDF
+Lapau Nagari (Sentra UMKM) > Penyimpanan Berkas Media & Sertifikat PDF: Foto Produk MediaLibrary

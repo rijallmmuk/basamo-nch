@@ -1,0 +1,106 @@
+erDiagram
+    REF_WILAYAH ||--o{ NAGARIS : "wilayah_kode"
+    NAGARIS ||--o{ USERS : "nagari_id"
+    USERS ||--o{ MODEL_HAS_ROLES : "model_id"
+    ROLES ||--o{ MODEL_HAS_ROLES : "role_id"
+
+    TEMA_PELATIHAN ||--o{ PELATIHAN : "tema_pelatihan_id"
+    NAGARIS ||--o{ PELATIHAN : "nagari_id"
+    USERS ||--o{ PELATIHAN : "created_by"
+    PELATIHAN ||--o{ PELATIHAN_NAGARI : "pelatihan_id"
+    NAGARIS ||--o{ PELATIHAN_NAGARI : "nagari_id"
+    PELATIHAN ||--o{ PELATIHAN_PENGAJAR : "pelatihan_id"
+    USERS ||--o{ PELATIHAN_PENGAJAR : "user_id"
+    PELATIHAN ||--o{ MODULES : "pelatihan_id"
+    MODULES ||--o{ MATERIS : "module_id"
+    MODULES ||--o{ USER_MODULE_PROGRESS : "module_id"
+    USERS ||--o{ USER_MODULE_PROGRESS : "user_id"
+    MODULES ||--o{ EVALUASIS : "module_id"
+    EVALUASIS ||--o{ EVALUASI_PERTANYAANS : "evaluasi_id"
+    EVALUASI_PERTANYAANS ||--o{ EVALUASI_OPSIS : "pertanyaan_id"
+    EVALUASIS ||--o{ EVALUASI_PERCOBAANS : "evaluasi_id"
+    USERS ||--o{ EVALUASI_PERCOBAANS : "user_id"
+    PELATIHAN ||--o{ CERTIFICATES : "pelatihan_id"
+    USERS ||--o{ CERTIFICATES : "user_id"
+
+    SDG_PILLARS ||--o{ SDG_GOALS : "sdg_pillar_id"
+    SDG_GOALS ||--o{ SDG_TARGETS : "sdg_goal_id"
+    SDG_TARGETS ||--o{ SDG_INDICATORS : "sdg_target_id"
+    NAGARIS ||--o{ SDG_ACHIEVEMENTS : "nagari_id"
+    SDG_GOALS ||--o{ SDG_ACHIEVEMENTS : "sdg_goal_id"
+
+    NAGARIS ||--o{ UMKM_PROFILES : "nagari_id"
+    USERS ||--|| UMKM_PROFILES : "user_id"
+    UMKM_CATEGORIES ||--o{ UMKM_PRODUCTS : "umkm_category_id"
+    UMKM_PROFILES ||--o{ UMKM_PRODUCTS : "umkm_profile_id"
+    UMKM_PRODUCTS ||--o{ UMKM_VIEWS : "umkm_product_id"
+
+    NAGARIS {
+        bigint id PK
+        string nama
+        string slug UK
+        string wilayah_kode FK
+        string status
+    }
+    USERS {
+        bigint id PK
+        bigint nagari_id FK
+        string name
+        string email UK
+        string username UK
+    }
+    PELATIHAN {
+        bigint id PK
+        bigint tema_pelatihan_id FK
+        string status
+        boolean semua_nagari
+    }
+    MODULES {
+        bigint id PK
+        bigint pelatihan_id FK
+        string judul
+        string slug UK
+        integer urutan
+    }
+    MATERIS {
+        bigint id PK
+        bigint module_id FK
+        string judul
+        string tipe
+    }
+    EVALUASIS {
+        bigint id PK
+        bigint module_id FK
+        string jenis
+        integer nilai_lulus
+    }
+    CERTIFICATES {
+        bigint id PK
+        bigint pelatihan_id FK
+        bigint user_id FK
+        string nomor_seri UK
+    }
+    SDG_GOALS {
+        bigint id PK
+        integer nomor UK
+        string nama
+    }
+    SDG_ACHIEVEMENTS {
+        bigint id PK
+        bigint nagari_id FK
+        bigint sdg_goal_id FK
+        decimal persentase
+    }
+    UMKM_PROFILES {
+        bigint id PK
+        bigint nagari_id FK
+        bigint user_id FK
+        string nama_usaha
+        string whatsapp
+    }
+    UMKM_PRODUCTS {
+        bigint id PK
+        bigint umkm_profile_id FK
+        string nama_produk
+        bigint harga
+    }
