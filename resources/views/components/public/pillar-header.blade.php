@@ -17,9 +17,9 @@
                 'lg:col-span-8' => isset($aside),
                 'lg:col-span-11' => ! isset($aside),
             ])>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary-container">{{ $eyebrow }}</p>
-                <h1 class="mt-3 max-w-5xl text-hero text-balance text-on-primary">{{ $title }}</h1>
-                <p class="mt-5 max-w-4xl text-lead text-pretty text-on-primary/72">{{ $description }}</p>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary-container">{!! html_entity_decode((string) $eyebrow, ENT_QUOTES, 'UTF-8') !!}</p>
+                <h1 class="mt-3 max-w-5xl text-hero text-balance text-on-primary">{!! html_entity_decode((string) $title, ENT_QUOTES, 'UTF-8') !!}</h1>
+                <p class="mt-5 max-w-4xl text-lead text-pretty text-on-primary/72">{!! html_entity_decode((string) $description, ENT_QUOTES, 'UTF-8') !!}</p>
             </div>
 
             @isset($aside)

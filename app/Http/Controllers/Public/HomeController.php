@@ -33,10 +33,19 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
+        $beritas = \App\Models\Berita::query()
+            ->published()
+            ->with(['nagari', 'media'])
+            ->orderBy('is_pinned', 'desc')
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
         return view('public.home', [
             'faqs' => $faqs,
             'metrics' => $this->overview->metrikEkosistem(),
             'mitraNagari' => $mitraNagari,
+            'beritas' => $beritas,
         ]);
     }
 

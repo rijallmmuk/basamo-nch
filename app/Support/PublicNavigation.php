@@ -67,12 +67,17 @@ final class PublicNavigation
                 'route' => 'public.nagari.bapaneh*',
                 'icon' => 'heroicon-o-sparkles',
             ],
+            [
+                'href' => self::rute('public.nagari.kabar', $nagari),
+                'label' => 'Kabar Nagari',
+                'route' => 'public.nagari.kabar*',
+                'icon' => 'heroicon-o-newspaper',
+            ],
         ];
     }
 
     /**
-     * Situs induk: beranda dan tepat empat pilar. IoT, cuaca, serta rekap belajar
-     * merupakan data Teras Nagari, bukan tujuan navigasi yang berdiri sendiri.
+     * Situs induk: beranda dan pilar utama.
      *
      * @return list<array{href: string, label: string, route: string|list<string>|null, icon: string}>
      */
@@ -108,6 +113,12 @@ final class PublicNavigation
                 'label' => 'Medan Nan Bapaneh',
                 'route' => 'public.bapaneh',
                 'icon' => 'heroicon-o-sparkles',
+            ],
+            [
+                'href' => route('public.kabar'),
+                'label' => 'Kabar Nagari',
+                'route' => 'public.kabar*',
+                'icon' => 'heroicon-o-newspaper',
             ],
         ];
     }

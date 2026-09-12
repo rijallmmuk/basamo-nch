@@ -164,6 +164,31 @@
 </section>
 @endif
 
+{{-- ══ KABAR NAGARI TERBARU ══ --}}
+@if(isset($beritas) && $beritas->isNotEmpty())
+<section id="kabar-nagari" class="relative overflow-hidden border-t border-outline-variant bg-surface-container-lowest py-section-gap">
+    <div class="songket-pattern absolute inset-0 opacity-10" aria-hidden="true"></div>
+    <div class="relative z-10 mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+        <div class="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <x-public.section-heading
+                eyebrow="Kabar Nagari"
+                title="Berita, pengumuman, dan agenda terbaru."
+                description="Informasi publik resmi dari nagari dan ekosistem BASAMO NCH yang dapat diakses oleh seluruh warga."
+            />
+            <a href="{{ route('public.kabar') }}" class="group inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-extrabold text-on-primary shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl">
+                Semua Kabar <x-heroicon-o-arrow-right class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @foreach($beritas as $item)
+                <x-berita.card :berita="$item" />
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- Peta utama beserta seluruh data nagari berada di Pilar Teras Nagari. --}}
 @include('public.partials.collaboration')
 

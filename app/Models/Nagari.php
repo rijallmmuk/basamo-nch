@@ -292,4 +292,10 @@ class Nagari extends Model implements HasMedia
     {
         return $this->hasMany(Pelatihan::class);
     }
+
+    /** Berita yang diterbitkan oleh nagari ini. */
+    public function beritas(): HasMany
+    {
+        return $this->hasMany(Berita::class);
+    }
 }

@@ -34,11 +34,21 @@ class NagariHomeController extends Controller
         // pengunjung ke pilarnya, bukan mencoba menjadi semuanya sekaligus.
         $overview = $this->overview->overview($nagari, lengkap: false);
 
+        $beritas = \App\Models\Berita::query()
+            ->published()
+            ->forNagari($nagari)
+            ->with(['nagari', 'media'])
+            ->orderBy('is_pinned', 'desc')
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
         return view('public.nagari.home', [
             'nagari' => $nagari,
             'overview' => $overview,
             'fotoSampul' => $nagari->sampulUrls(),
             'ews' => $this->ews->untukNagari($nagari),
+            'beritas' => $beritas,
         ]);
     }
 

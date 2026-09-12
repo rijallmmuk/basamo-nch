@@ -17,6 +17,7 @@ use App\Http\Controllers\Portal\ProfileController;
 use App\Http\Controllers\Portal\SertifikatController;
 use App\Http\Controllers\Portal\TranscriptController;
 use App\Http\Controllers\Portal\PersonalDataController;
+use App\Http\Controllers\Public\BeritaPublikController;
 use App\Http\Controllers\Public\HomeController as PublicHomeController;
 use App\Http\Controllers\Public\IotCatalogController;
 use App\Http\Controllers\Public\KontakController;
@@ -59,6 +60,8 @@ Route::domain('{nagari:slug}.'.config('app.public_base_domain'))
     Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan');
     Route::get('lapau-nagari', [UmkmCatalogController::class, 'directory'])->name('public.nagari.umkm');
     Route::get('medan-nan-bapaneh', [NagariHomeController::class, 'bapaneh'])->name('public.nagari.bapaneh');
+    Route::get('kabar', [BeritaPublikController::class, 'nagari'])->name('public.nagari.kabar');
+    Route::get('kabar/{berita:slug}', [BeritaPublikController::class, 'nagariDetail'])->withoutScopedBindings()->name('public.nagari.kabar.detail');
 
     Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'etalase'])->name('public.nagari.umkm.etalase');
     Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'show'])->name('public.nagari.produk');
@@ -76,6 +79,8 @@ Route::prefix('n/{nagari:slug}')->group(function () {
     Route::get('medan-nan-balinduang/{pelatihan}', [PelatihanPublikController::class, 'nagari'])->name('public.nagari.pelatihan.fallback');
     Route::get('lapau-nagari', [UmkmCatalogController::class, 'directory'])->name('public.nagari.umkm.fallback');
     Route::get('medan-nan-bapaneh', [NagariHomeController::class, 'bapaneh'])->name('public.nagari.bapaneh.fallback');
+    Route::get('kabar', [BeritaPublikController::class, 'nagari'])->name('public.nagari.kabar.fallback');
+    Route::get('kabar/{berita:slug}', [BeritaPublikController::class, 'nagariDetail'])->withoutScopedBindings()->name('public.nagari.kabar.detail.fallback');
 
     Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'etalase'])->name('public.nagari.umkm.etalase.fallback');
     Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'show'])->name('public.nagari.produk.fallback');
@@ -98,6 +103,8 @@ Route::get('lapau-nagari', [UmkmCatalogController::class, 'globalDirectory'])->n
 Route::get('lapau-nagari/produk/{product:slug}', [UmkmCatalogController::class, 'globalShow'])->name('public.produk');
 Route::get('lapau-nagari/{umkmProfile:slug}', [UmkmCatalogController::class, 'globalEtalase'])->name('public.umkm.etalase');
 Route::get('medan-nan-bapaneh', [PublicHomeController::class, 'bapaneh'])->name('public.bapaneh');
+Route::get('kabar', [BeritaPublikController::class, 'global'])->name('public.kabar');
+Route::get('kabar/{berita:slug}', [BeritaPublikController::class, 'globalDetail'])->name('public.kabar.detail');
 Route::get('iot', [IotCatalogController::class, 'index'])->name('public.iot');
 
 // Alamat katalog lama tetap hidup untuk bookmark dan hasil mesin pencari.

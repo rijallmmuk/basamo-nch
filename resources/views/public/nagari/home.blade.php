@@ -111,6 +111,35 @@
     </section>
 @endif
 
+{{-- ══ KABAR NAGARI TERBARU ══ --}}
+@if(isset($beritas) && $beritas->isNotEmpty())
+    @php
+        $kabarUrl = \App\Support\PublicNavigation::rute('public.nagari.kabar', $nagari);
+    @endphp
+    <section id="kabar-nagari" class="border-t border-outline-variant bg-surface-container-lowest py-section-gap">
+        <div class="mx-auto max-w-container-page px-margin-mobile lg:px-margin-page">
+            <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                <x-public.section-heading
+                    eyebrow="Kabar Nagari"
+                    title="Kabar & pengumuman terbaru {{ $nagari->nama_lengkap }}."
+                    description="Informasi publik, agenda kegiatan, dan berita resmi dari pemerintah nagari untuk seluruh warga."
+                />
+                <a href="{{ $kabarUrl }}"
+                   class="group inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-extrabold text-on-primary shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl">
+                    Semua Kabar
+                    <x-heroicon-o-arrow-right class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @foreach($beritas as $item)
+                    <x-berita.card :berita="$item" :nagari="$nagari" />
+                @endforeach
+            </div>
+        </div>
+    </section>
+@endif
+
 {{-- ══ 3. AJAKAN MASUK PORTAL WARGA ══ --}}
 <section class="relative overflow-hidden border-t border-outline-variant bg-gradient-to-br from-primary to-gray-900 py-20 lg:py-24 shadow-inner">
     <div class="songket-pattern absolute inset-0 opacity-10 mix-blend-overlay" aria-hidden="true"></div>
