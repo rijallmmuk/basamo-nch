@@ -95,7 +95,7 @@ class BackofficePanelProvider extends PanelProvider
             //                 LMS, SDGs Desa, UMKM (+Kategori), Smart IoT (Cuaca saja —
             //                 lapisan data sensor dibuang 2026-07-29), Situs Publik (FAQ + Kontak Masuk
             //                 beranda base URL — konten platform, bukan per-nagari), Sistem.
-            ->navigationGroups(['Nagari', 'SLC', 'UMKM', 'Status Desa', 'Smart IoT', 'Situs Publik', 'Sistem', 'Portal Warga', 'Bantuan'])
+            ->navigationGroups(['Nagari', 'SLC', 'UMKM', 'Status Desa', 'Smart IoT', 'Publikasi', 'Situs Publik', 'Sistem', 'Portal Warga', 'Bantuan'])
             // Konten dilebarkan (2026-07-13) — max-width 7xl bawaan Filament dicopot;
             // margin kiri-kanan halaman diperkecil lewat theme.css (.fi-main).
             ->maxContentWidth(Width::Full)
